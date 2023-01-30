@@ -1,0 +1,462 @@
+import warnings as warnings
+import numpy as np
+import torch as torch
+
+# Internal imports
+from physr.physym import Token as Tok
+from physr.physym.Token import Token
+
+# ------------------------------------------------------------------------------------------------------
+# --------------------------------------------- UTILS INFO ---------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
+
+class UnknownFunction(Exception):
+    pass
+
+class OpUnitsBehavior(object):
+    """
+    Encodes behavior of operation in dimensional analysis.
+    Attributes
+    ----------
+    op_names : list of str
+        List of operation names having this behavior (eg. [sqrt, n2, n3] for power tokens)
+    behavior_id : int
+        Unique id of behavior.
+    """
+    def __init__(self, behavior_id, op_names,):
+        self.behavior_id = behavior_id
+        # Using list for op_names to be able to use if x in list in the future
+        self.op_names    = np.array(op_names).tolist()
+
+    def is_id (self, array):
+        """
+        Compares array to behavior id.
+        Parameters
+        ----------
+        array      : int or numpy.array of shape = (whatever) of int
+        Returns
+        -------
+        comparison : bool or numpy.array of shape = (whatever) of bool
+        """
+        comparison = np.equal.outer(array, [self.behavior_id,] ).any(axis=-1)
+        return comparison
+
+    def __repr__(self):
+        return "OpUnitsBehavior (id = %s, op_names=%s)"%(self.behavior_id, self.op_names)
+
+class GroupUnitsBehavior(object):
+    """
+    Encodes a master-behavior that is common among several sub-behaviors.
+    Eg: mul and div tokens have their one unique behaviors regarding physical units (units of mul = units of arg1 +
+    units of arg2 whereas units of div = units of arg1 - units of arg2) but they also share common behaviors that can
+    be encoded here (in both cases it is impossible to guess the units of the token unless both args' units  are known
+    etc.).
+    Attributes
+    ----------
+    behaviors : list of OpUnitsBehavior
+        Sub-behaviors that are part of this group.
+    op_names : list of str
+        List of operation names having this behavior (eg. [mul, div,] for multiplicative tokens)
+    __behavior_ids : list of int
+        Unique ids of each sub-behaviors.
+    """
+    def __init__(self, behaviors,):
+        self.behaviors      = np.array(behaviors)
+        # Using list for op_names to be able to use if x in list in the future
+        self.op_names       = np.concatenate           ([behavior.op_names    for behavior in self.behaviors]).tolist()
+        # Preventing __behavior_ids from being accessed as is_id should be called rather than doing direct comparisons
+        # (Otherwise this could lead to eg: ([20, 21, 20, 20] == ids) = False even if ids = [20, 21]).
+        self.__behavior_ids = np.array                 ([behavior.behavior_id for behavior in self.behaviors])
+
+    def is_id (self, array):
+        """
+        Compares array to behavior ids of operations concerned by this group of behaviors to array.
+        For each value of array, returns True if at least one sub-behavior id is equal to value and False otherwise.
+        Eg: if mul's behavior id is 20 and div's behavior id is 21 and they are both represented in a group of behavior
+        by a group = GroupUnitsBehavior, group.is_id([20, 20, 21]) = [True, True, True] ; group.is_id(20) = True ;
+        group.is_id([20, 20, 99999]) = [True, True, False] ; group.is_id(99999) = False.
+        Parameters
+        ----------
+        array      : int or numpy.array of shape = (whatever) of int
+        Returns
+        -------
+        comparison : bool or numpy.array of shape = (whatever) of bool
+        """
+        comparison = np.equal.outer(array, self.__behavior_ids).any(axis=-1)
+        return comparison
+
+# BEHAVIOR DURING DIMENSIONAL ANALYSIS
+# Unique (token-wise) behaviors dict
+OP_UNIT_BEHAVIORS_DICT = {
+    "DEFAULT_BEHAVIOR"          : OpUnitsBehavior(behavior_id = Tok.DEFAULT_BEHAVIOR_ID, op_names = []),
+    "BINARY_ADDITIVE_OP"        : OpUnitsBehavior(behavior_id = 1 , op_names = ["add", "sub"]),
+    "MULTIPLICATION_OP"         : OpUnitsBehavior(behavior_id = 20, op_names = ["mul",]),
+    "DIVISION_OP"               : OpUnitsBehavior(behavior_id = 21, op_names = ["div",]),
+    "UNARY_POWER_OP"            : OpUnitsBehavior(behavior_id = 3 , op_names = ["n2", "sqrt", "n3", "n4", "inv"]),
+    "UNARY_ADDITIVE_OP"         : OpUnitsBehavior(behavior_id = 4 , op_names = ["neg", "abs", "max", "min"]),
+    "UNARY_DIMENSIONLESS_OP"    : OpUnitsBehavior(behavior_id = 5 , op_names = ["sin", "cos", "tan", "exp", "log", "expneg", "logabs", "sigmoid", "tanh", "harmonic"]),
+            }
+# Group of behaviors (tokens can appear in more than one of them)
+GROUP_UNIT_BEHAVIOR = {
+    "BINARY_MULTIPLICATIVE_OP": GroupUnitsBehavior(behaviors=[OP_UNIT_BEHAVIORS_DICT["MULTIPLICATION_OP"],
+                                                              OP_UNIT_BEHAVIORS_DICT["DIVISION_OP"      ]]),
+                      }
+# All behaviors (tokens can appear in more than one of them)
+UNIT_BEHAVIORS_DICT = {}
+UNIT_BEHAVIORS_DICT.update(OP_UNIT_BEHAVIORS_DICT)
+UNIT_BEHAVIORS_DICT.update(GROUP_UNIT_BEHAVIOR)
+
+# TRIGONOMETRIC OPS
+TRIGONOMETRIC_OP = ["sin", "cos", "tan", "tanh",]
+
+# INVERSE OP
+INVERSE_OP_DICT = {
+    "inv": "inv",
+    "neg": "neg",
+    "exp": "log",
+    "log": "exp",
+    "sqrt": "n2",
+    "n2": "sqrt",
+                  }
+
+# POWER VALUES OF POWER TOKENS
+OP_POWER_VALUE_DICT = {
+     "n2"   : 2,
+     "sqrt" : 0.5,
+     "n3"   : 3,
+     "n4"   : 4,
+     "inv"  : -1,
+}
+
+# ------------------------------------------------------------------------------------------------------
+# -------------------------------------------  FUNCTIONS -----------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
+
+def data_conversion (data):
+    if isinstance(data, float):
+        return torch.tensor(np.array(data))
+    else:
+        return torch.tensor(data)
+
+
+def data_conversion_inv(data):
+    if torch.is_tensor(data):
+        return data.detach().numpy()
+    else:
+        return data
+
+def make_common_operations ():
+
+    # ------------- unprotected functions -------------
+
+    OPS_UNPROTECTED = [
+        #  Binary operations
+        Token (name = "add"    , sympy_repr = "+"      , arity = 2 , complexity = 1 , is_input_var = False, function = torch.add                      ),
+        Token (name = "sub"    , sympy_repr = "-"      , arity = 2 , complexity = 1 , is_input_var = False, function = torch.subtract                 ),
+        Token (name = "mul"    , sympy_repr = "*"      , arity = 2 , complexity = 1 , is_input_var = False, function = torch.multiply                 ),
+        Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 2 , is_input_var = False, function = torch.divide                   ),
+        # Unary operations
+        Token (name = "sin"    , sympy_repr = "sin"    , arity = 1 , complexity = 3 , is_input_var = False, function = torch.sin                      ),
+        Token (name = "cos"    , sympy_repr = "cos"    , arity = 1 , complexity = 3 , is_input_var = False, function = torch.cos                      ),
+        Token (name = "tan"    , sympy_repr = "tan"    , arity = 1 , complexity = 4 , is_input_var = False, function = torch.tan                      ),
+        Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 4 , is_input_var = False, function = torch.exp                      ),
+        Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 4 , is_input_var = False, function = torch.log                      ),
+        Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 4 , is_input_var = False, function = torch.sqrt                     ),
+        Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 2 , is_input_var = False, function = torch.square                   ),
+        Token (name = "neg"    , sympy_repr = "-"      , arity = 1 , complexity = 1 , is_input_var = False, function = torch.negative                 ),
+        Token (name = "abs"    , sympy_repr = "abs"    , arity = 1 , complexity = 2 , is_input_var = False, function = torch.abs                      ),
+        Token (name = "tanh"   , sympy_repr = "tanh"   , arity = 1 , complexity = 4 , is_input_var = False, function = torch.tanh                     ),
+        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 2 , is_input_var = False, function = torch.reciprocal               ),
+        # Custom unary operations
+        Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 4 , is_input_var = False, function = lambda x :torch.log(torch.abs(x)) ),
+        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 4 , is_input_var = False, function = lambda x :torch.exp(-x)        ),
+        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 3 , is_input_var = False, function = lambda x :torch.pow(x, 3)    ),
+        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 3 , is_input_var = False, function = lambda x :torch.pow(x, 4)    ),
+    ]
+
+    # ------------- protected functions -------------
+
+    def protected_div(x1, x2):
+        #with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+        return torch.where(torch.abs(x2) > 0.001, torch.divide(x1, x2), 1.)
+
+    def protected_exp(x1):
+        #with np.errstate(over='ignore'):
+        return torch.where(x1 < 100, torch.exp(x1), 0.0)
+
+    def protected_log(x1):
+        #with np.errstate(divide='ignore', invalid='ignore'):
+        return torch.where(torch.abs(x1) > 0.001, torch.log(torch.abs(x1)), 0.)
+
+    protected_logabs = protected_log
+
+    def protected_sqrt(x1):
+        return torch.sqrt(torch.abs(x1))
+
+    def protected_inv(x1):
+        # with np.errstate(divide='ignore', invalid='ignore'):
+        return torch.where(torch.abs(x1) > 0.001, 1. / x1, 0.)
+
+    def protected_expneg(x1):
+        # with np.errstate(over='ignore'):
+        return torch.where(x1 > -100, torch.exp(-x1), 0.0)
+
+    def protected_n2(x1):
+        # with np.errstate(over='ignore'):
+        return torch.where(torch.abs(x1) < 1e6, torch.square(x1), 0.0)
+
+    def protected_n3(x1):
+        # with np.errstate(over='ignore'):
+        return torch.where(torch.abs(x1) < 1e6, torch.pow(x1, 3), 0.0)
+
+    def protected_n4(x1):
+        # with np.errstate(over='ignore'):
+        return torch.where(torch.abs(x1) < 1e6, torch.pow(x1, 4), 0.0)
+
+
+    OPS_PROTECTED = [
+        # Binary operations
+        Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 2 , is_input_var = False, function = protected_div    ),
+        # Unary operations
+        Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 4 , is_input_var = False, function = protected_exp    ),
+        Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 4 , is_input_var = False, function = protected_log    ),
+        Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 4 , is_input_var = False, function = protected_sqrt   ),
+        Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 2 , is_input_var = False, function = protected_n2     ),
+        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 2 , is_input_var = False, function = protected_inv    ),
+        # Custom unary operations
+        Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 4 , is_input_var = False, function = protected_logabs ),
+        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 4 , is_input_var = False, function = protected_expneg ),
+        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 3 , is_input_var = False, function = protected_n3     ),
+        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 3 , is_input_var = False, function = protected_n4     ),
+    ]
+
+    # ------------- encoding additional attributes -------------
+
+    # iterating through all available tokens
+    for token_op in OPS_PROTECTED + OPS_UNPROTECTED:
+        # encoding token behavior in dimensional analysis
+        for _, behavior in OP_UNIT_BEHAVIORS_DICT.items():
+            # Filtering out objects in the dict that are not meant to affect tokens' behavior id
+            if token_op.name in behavior.op_names:
+                token_op.behavior_id = behavior.behavior_id
+        # encoding dimensionless tokens units
+        if token_op.name in OP_UNIT_BEHAVIORS_DICT["UNARY_DIMENSIONLESS_OP"].op_names:
+            token_op.is_constraining_phy_units = True
+            token_op.phy_units                 = np.zeros((Tok.UNITS_VECTOR_SIZE))
+        # encoding power tokens values
+        if token_op.name in OP_UNIT_BEHAVIORS_DICT["UNARY_POWER_OP"].op_names:
+            token_op.is_power = True
+            try: token_op.power    = OP_POWER_VALUE_DICT[token_op.name]
+            except KeyError: raise UnknownFunction("Token %s is a power token as it is listed in UNARY_POWER_OP "
+                "(containing : %s) but the value of its power is not definied in dict OP_POWER_VALUE_DICT = %s"
+                % (token_op.name, OP_UNIT_BEHAVIORS_DICT["UNARY_POWER_OP"].op_names, OP_POWER_VALUE_DICT))
+
+    # ------------- protected functions -------------
+
+    OPS_UNPROTECTED_DICT = {op.name: op for op in OPS_UNPROTECTED}
+    # Copy unprotected operations
+    OPS_PROTECTED_DICT = OPS_UNPROTECTED_DICT.copy()
+    # Update protected operations when defined
+    OPS_PROTECTED_DICT.update( {op.name: op for op in OPS_PROTECTED} )
+
+    return OPS_UNPROTECTED_DICT, OPS_PROTECTED_DICT
+
+
+OPS_UNPROTECTED_DICT, OPS_PROTECTED_DICT = make_common_operations()
+
+# ------------------------------------------------------------------------------------------------------
+# --------------------------------------------- MAKE TOKENS --------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
+
+# -------------------------------- Utils functions --------------------------------
+
+
+def retrieve_complexity(complexity_dict, curr_name):
+    curr_complexity = 0.
+    if complexity_dict is not None:
+        try:
+            curr_complexity = complexity_dict[curr_name]
+        except KeyError:
+            warnings.warn(
+                "Complexity of token %s not found in complexity dictionary %s, using complexity = %f" %
+                (curr_name, complexity_dict, curr_complexity))
+    curr_complexity = float(curr_complexity)
+    return curr_complexity
+
+
+def retrieve_units(units_dict, curr_name):
+    """
+    Helper function to retrieve unit of token named curr_name from a dictionary of units (units_dict).
+    Parameters
+    ----------
+    units_dict : dict of {str : array_like} or None
+        If dictionary is None, returned curr_is_constraining_phy_units is False and curr_phy_units is None.
+        (Note: creating a Token.Token using None in place of units will result in a Token with units = vector of np.NAN)
+    curr_name : str
+        If curr_name is not in units_dict keys, returned curr_phy_units correspond to that of  dimensionless token
+        (ie. vector of zeros).
+    Returns
+    -------
+    (bool, numpy.array) : Does the token require physical units, numpy array containing units
+    """
+    # Not working with units by default
+    curr_is_constraining_phy_units = False
+    curr_phy_units = None
+    # retrieving units if user is using units dictionary
+    if units_dict is not None:
+        curr_is_constraining_phy_units = True
+        try:
+            curr_phy_units = units_dict[curr_name]
+        except KeyError:
+            curr_phy_units = np.zeros(Tok.UNITS_VECTOR_SIZE)
+            warnings.warn(
+                "Physical units of token %s not found in units dictionary %s, assuming it is \
+                dimensionless ie units=%s" % (curr_name, units_dict, curr_phy_units))
+        # Padding to match Lib.UNITS_VECTOR_SIZE + conversion to numpy array of float if necessary
+        try:
+            curr_phy_units = np.array(curr_phy_units).astype(float)
+        except Exception:
+            raise AssertionError("Physical units vector must be castable to numpy array of floats")
+        assert len(curr_phy_units.shape) == 1, 'Physical units vector must have 1 dimension not %i' % (
+            len(curr_phy_units.shape))
+        curr_size = len(curr_phy_units)
+        assert curr_size <= Tok.UNITS_VECTOR_SIZE, 'Physical units vector has size = %i which exceeds max size = %i \
+            (Lib.UNITS_VECTOR_SIZE, can be changed)' % (curr_size, Tok.UNITS_VECTOR_SIZE)
+        curr_phy_units = np.pad(curr_phy_units, (0, Tok.UNITS_VECTOR_SIZE - curr_size), 'constant')
+    return curr_is_constraining_phy_units, curr_phy_units
+
+
+def make_tokens(
+                # operations
+                op_names             = "all",
+                use_protected_ops    = False,
+                # input variables
+                input_var_ids        = None,
+                input_var_units      = None,
+                input_var_complexity = None,
+                # constants
+                constants            = None,
+                constants_units      = None,
+                constants_complexity = None,
+                ):
+    """
+        Makes a list of tokens for a run based on a list of operation names, input variables ids and constants values.
+        Parameters
+        ----------
+        -------- operations --------
+        op_names : list of str or str, optional
+            List of names of operations that will be used for a run (eg. ["mul", "add", "neg", "inv", "sin"]), or "all"
+            to use all available tokens. By default, op_names = "all".
+        use_protected_ops : bool, optional
+            Use safe functions when available  if True (eg. sqrt(abs(x)) instead of sqrt(x)). False by default.
+        -------- input variables --------
+        input_var_ids : dict of { str : int } or None, optional
+            Dictionary containing input variables names as keys (eg. 'x', 'v', 't') and corresponding input variables
+            ids in dataset (eg. 0, 1, 2). None if no input variables to create. None by default.
+        input_var_units : dict of { str : array_like of float } or None, optional
+            Dictionary containing input variables names as keys (eg. 'x', 'v', 't') and corresponding physical units
+            (eg. [1, 0, 0], [1, -1, 0], [0, 1, 0]). With x representing a distance, v a velocity and t a time assuming a
+            convention such as [m, s, kg,...]). None if not using physical units. None by default.
+        input_var_complexity : dict of { str : float } or None, optional
+            Dictionary containing input variables names as keys (eg. 'x', 'v', 't') and corresponding complexities
+            (eg. 0., 1., 0.). If None, complexity = 0 will be encoded to tokens. None by default.
+        -------- constants --------
+        constants : dict of { str : float } or None, optional
+            Dictionary containing constant names as keys (eg. 'pi', 'c', 'M') and corresponding float values
+            (eg. np.pi, 3e8, 1e6). None if no constants to create. None by default.
+        constants_units : dict of { str : array_like of float } or None, optional
+            Dictionary containing constants names as keys (eg. 'pi', 'c', 'M') and corresponding physical units
+            (eg. [0, 0, 0], [1, -1, 0], [0, 0, 1]). With pi representing a dimensionless number, c a velocity and M a
+            mass assuming a convention such as [m, s, kg,...]). None if not using physical units. None by default.
+        constants_complexity : dict of { str : float } or None, optional
+            Dictionary containing constants names as keys (eg. 'pi', 'c', 'M') and corresponding complexities
+            (eg. 0., 0., 1.). If None, complexity = 0 will be encoded to tokens. None by default.
+        Returns
+        -------
+        list of Library.Token
+            List of tokens used for this run.
+
+        Examples
+        -------
+            my_tokens = make_tokens(
+                # operations
+                op_names             = ["mul", "add", "neg", "inv", "sin"],
+                use_protected_ops    = False,
+                # input variables
+                input_var_ids        = {"x" : 0         , "v" : 1          , "t" : 2,        },
+                input_var_units      = {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
+                input_var_complexity = {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
+                # constants
+                constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
+                constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
+                constants_complexity = {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                                    )
+    """
+    # -------------------------------- Handling ops --------------------------------
+    tokens_ops = []
+    # Use protected functions or not
+    ops_dict = OPS_PROTECTED_DICT if use_protected_ops else OPS_UNPROTECTED_DICT
+    # Using all available tokens
+    if op_names == "all":
+        tokens_ops = list(ops_dict.values())
+    # Appending desired functions tokens
+    else:
+        # Iterating through desired functions names
+        for name in op_names:
+            # appending token function if available
+            try:
+                tokens_ops.append(ops_dict[name])
+            except KeyError:
+                raise UnknownFunction("%s is unknown, define a custom token function in Functions.py or use a function \
+                listed in %s"% (name, ops_dict))
+
+    # -------------------------------- Handling input variables --------------------------------
+    tokens_input_var = []
+    if input_var_ids is not None:
+        # Iterating through input variables
+        for var_name, var_id in input_var_ids.items():
+            # ------------- Units -------------
+            is_constraining_phy_units, phy_units = retrieve_units (units_dict=input_var_units, curr_name=var_name)
+            # ------------- Complexity -------------
+            complexity = retrieve_complexity (complexity_dict=input_var_complexity, curr_name=var_name)
+            # ------------- Token creation -------------
+            tokens_input_var.append(Token(name         = var_name,
+                                          sympy_repr   = var_name,
+                                          arity        = 0,
+                                          complexity   = complexity,
+                                          is_input_var = True,
+                                          # Input variable specific
+                                          input_var_id = var_id,
+                                          # ---- Physical units : units ----
+                                          is_constraining_phy_units = is_constraining_phy_units,
+                                          phy_units                 = phy_units,))
+    # -------------------------------- Handling constants --------------------------------
+    tokens_constants = []
+    if constants is not None:
+        # Iterating through constants
+        for const_name, const_val in constants.items():
+            # ------------- Units -------------
+            is_constraining_phy_units, phy_units = retrieve_units (units_dict=constants_units, curr_name=const_name)
+            # ------------- Complexity -------------
+            complexity = retrieve_complexity (complexity_dict=constants_complexity, curr_name=const_name)
+            # ------------- Token creation -------------
+            # Very important to put const as a default arg of lambda function
+            # https://stackoverflow.com/questions/19837486/lambda-in-a-loop
+            # or use def MakeConstFunc(x): return lambda: x
+            tokens_constants.append(Token(name         = const_name,
+                                          sympy_repr   = const_name,
+                                          arity        = 0,
+                                          complexity   = complexity,
+                                          is_input_var = False,
+                                          # Function specific
+                                          function     = lambda c=const_val: c,
+                                          # ---- Physical units : units ----
+                                          is_constraining_phy_units = is_constraining_phy_units,
+                                          phy_units                 = phy_units,))
+
+    # -------------------------------- Result --------------------------------
+    return np.array(tokens_ops + tokens_constants + tokens_input_var)
+

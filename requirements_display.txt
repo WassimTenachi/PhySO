@@ -1,0 +1,11 @@
+# Requirements for display purposes (optional)
+# Install via pip : pip install -r requirements_display.txt
+
+# Available through conda and pip
+pygraphviz == 1.9 # Install via conda recommended if using ARM architecture
+dot2tex == 2.11.3
+
+# Only available via pip
+pdflatex == 0.1.3
+pdf2image == 1.16.0
+pillow >= 9.0.1
