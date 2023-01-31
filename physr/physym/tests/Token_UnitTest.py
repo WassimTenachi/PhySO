@@ -120,7 +120,8 @@ class TokenTest(unittest.TestCase):
         try:
             c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=2,
                            function=None,
-                           var_id=0,)
+                           var_id=0,
+                           init_val=1.)
         except:
             self.fail("Token creation failed")
 
@@ -130,17 +131,20 @@ class TokenTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=2,
                            function=np.multiply,
-                           var_id=0)
+                           var_id=0,
+                           init_val=1.)
         # Test exception: var_id is supposed to be int
         with self.assertRaises(AssertionError):
             c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=2,
                            function=None,
-                           var_id='0')
+                           var_id='0',
+                           init_val=1.)
         # Test exception: arity is supposed to be = 0
         with self.assertRaises(AssertionError):
             c0 = Tok.Token(name='c0', sympy_repr='c0', arity=1, complexity=0, var_type=2,
                            function=None,
-                           var_id=0)
+                           var_id=0,
+                           init_val=1.)
 
     # ----------------------------- Token call ------------------------------
 

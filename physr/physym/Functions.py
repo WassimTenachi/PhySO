@@ -306,6 +306,32 @@ def retrieve_complexity(complexity_dict, curr_name):
     curr_complexity = float(curr_complexity)
     return curr_complexity
 
+def retrieve_init_val (init_val_dict, curr_name):
+    """
+    Helper function to safely retrieve value of token named curr_name from a dictionary of initial values.
+    (init_val_dict).
+    Parameters
+    ----------
+    init_val_dict : dict of {str : float} or None
+        If dictionary is None, returns Token.DEFAULT_FREE_CONST_INIT_VAL.
+    curr_name : str
+        If curr_name is not in units_dict keys, returns Token.DEFAULT_FREE_CONST_INIT_VAL.
+    Returns
+    -------
+    curr_init_val : float
+        Initial value of token.
+    """
+    curr_init_val = Tok.DEFAULT_FREE_CONST_INIT_VAL
+    if init_val_dict is not None:
+        try:
+            curr_init_val = init_val_dict[curr_name]
+        except KeyError:
+            warnings.warn(
+                "Initial value of token %s not found in initial value dictionary %s, using complexity = %f" %
+                (curr_name, init_val_dict, curr_init_val))
+    curr_init_val = float(curr_init_val)
+    return curr_init_val
+
 
 def retrieve_units(units_dict, curr_name):
     """
@@ -362,9 +388,9 @@ def make_tokens(
                 constants            = None,
                 constants_units      = None,
                 constants_complexity = None,
-                #todo:
                 # free constants
-                free_constants_init       = None,
+                free_constants            = None,
+                free_constants_init_val   = None,
                 free_constants_units      = None,
                 free_constants_complexity = None,
                 ):
@@ -389,7 +415,7 @@ def make_tokens(
             convention such as [m, s, kg,...]). None if not using physical units. None by default.
         input_var_complexity : dict of { str : float } or None, optional
             Dictionary containing input variables names as keys (eg. 'x', 'v', 't') and corresponding complexities
-            (eg. 0., 1., 0.). If None, complexity = 0 will be encoded to tokens. None by default.
+            (eg. 0., 1., 0.). If None, complexity = Token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
         -------- constants --------
         constants : dict of { str : float } or None, optional
             Dictionary containing constant names as keys (eg. 'pi', 'c', 'M') and corresponding float values
@@ -400,7 +426,22 @@ def make_tokens(
             mass assuming a convention such as [m, s, kg,...]). None if not using physical units. None by default.
         constants_complexity : dict of { str : float } or None, optional
             Dictionary containing constants names as keys (eg. 'pi', 'c', 'M') and corresponding complexities
-            (eg. 0., 0., 1.). If None, complexity = 0 will be encoded to tokens. None by default.
+            (eg. 0., 0., 1.). If None, complexity = Token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
+        -------- free constants --------
+        free_constants : set of { str } or None, optional
+            Set containing free constant names (eg. 'c0', 'c1', 'c2'). None if no free constants to create.
+            None by default.
+        free_constants_init_val : dict of { str : float } or None, optional
+            Dictionary containing free constants names as keys (eg. 'c0', 'c1', 'c2') and corresponding float initial
+            values to use during optimization process (eg. 1., 1., 1.). None will result in the usage of
+            Token.DEFAULT_FREE_CONST_INIT_VAL as initial values. None by default.
+        free_constants_units : dict of { str : array_like of float } or None, optional
+            Dictionary containing free constants names as keys (eg. 'c0', 'c1', 'c2') and corresponding physical units
+            (eg. [0, 0, 0], [1, -1, 0], [0, 0, 1]). With c0 representing a dimensionless number, c1 a velocity and c2 a
+            mass assuming a convention such as [m, s, kg,...]). None if not using physical units. None by default.
+        free_constants_complexity : dict of { str : float } or None, optional
+            Dictionary containing free constants names as keys (eg. 'c0', 'c1', 'c2') and corresponding complexities
+            (eg. 1., 1., 1.). If None, complexity = Token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
         Returns
         -------
         list of Library.Token
@@ -456,10 +497,11 @@ def make_tokens(
                                           complexity   = complexity,
                                           var_type     = 1,
                                           # Input variable specific
-                                          input_var_id = var_id,
+                                          var_id       = var_id,
                                           # ---- Physical units : units ----
                                           is_constraining_phy_units = is_constraining_phy_units,
                                           phy_units                 = phy_units,))
+
     # -------------------------------- Handling constants --------------------------------
     tokens_constants = []
     if constants is not None:
@@ -484,6 +526,30 @@ def make_tokens(
                                           is_constraining_phy_units = is_constraining_phy_units,
                                           phy_units                 = phy_units,))
 
+    # -------------------------------- Handling free constants --------------------------------
+    tokens_free_constants = []
+    if free_constants is not None:
+        # Iterating through free constants
+        for i, free_const_name in enumerate(free_constants):
+            # ------------- Initial value -------------
+            init_val = retrieve_init_val(init_val_dict=free_constants_init_val, curr_name=free_const_name)
+            # ------------- Units -------------
+            is_constraining_phy_units, phy_units = retrieve_units (units_dict=free_constants_units, curr_name=free_const_name)
+            # ------------- Complexity -------------
+            complexity = retrieve_complexity (complexity_dict=free_constants_complexity, curr_name=free_const_name)
+            # ------------- Token creation -------------
+            tokens_free_constants.append(Token(name         = free_const_name,
+                                               sympy_repr   = free_const_name,
+                                               arity        = 0,
+                                               complexity   = complexity,
+                                               var_type     = 2,
+                                               # Free constant specific
+                                               var_id       = i,
+                                               init_val     = init_val,
+                                               # ---- Physical units : units ----
+                                               is_constraining_phy_units = is_constraining_phy_units,
+                                               phy_units                 = phy_units,))
+
     # -------------------------------- Result --------------------------------
-    return np.array(tokens_ops + tokens_constants + tokens_input_var)
+    return np.array(tokens_ops + tokens_constants + tokens_free_constants + tokens_input_var)
 
