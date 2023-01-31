@@ -7,16 +7,17 @@ from physr.physym import Token as Tok
 from physr.physym.Token import Token
 
 # ------------------------------------------------------------------------------------------------------
-# --------------------------------------------- UTILS INFO ---------------------------------------------
+# ------------------------------------------ UTILS MANAGEMENT ------------------------------------------
 # ------------------------------------------------------------------------------------------------------
 
-
+# Error to raise when a function is unknown
 class UnknownFunction(Exception):
     pass
 
+# Units behavior
 class OpUnitsBehavior(object):
     """
-    Encodes behavior of operation in dimensional analysis.
+    Encodes a single behavior (in the context of dimensional analysis) that concerns multiple operations.
     Attributes
     ----------
     op_names : list of str
@@ -45,9 +46,10 @@ class OpUnitsBehavior(object):
     def __repr__(self):
         return "OpUnitsBehavior (id = %s, op_names=%s)"%(self.behavior_id, self.op_names)
 
+# Group of units behavior
 class GroupUnitsBehavior(object):
     """
-    Encodes a master-behavior that is common among several sub-behaviors.
+    Encodes a master-behavior (in the context of dimensional analysis) that is common among several sub-behaviors.
     Eg: mul and div tokens have their one unique behaviors regarding physical units (units of mul = units of arg1 +
     units of arg2 whereas units of div = units of arg1 - units of arg2) but they also share common behaviors that can
     be encoded here (in both cases it is impossible to guess the units of the token unless both args' units  are known
@@ -86,8 +88,13 @@ class GroupUnitsBehavior(object):
         comparison = np.equal.outer(array, self.__behavior_ids).any(axis=-1)
         return comparison
 
+# ------------------------------------------------------------------------------------------------------
+# --------------------------------------------- UTILS INFO ---------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
 # BEHAVIOR DURING DIMENSIONAL ANALYSIS
-# Unique (token-wise) behaviors dict
+# Unique (token-wise) behaviors dict (ie. each token must appear in only one of those behavior, if necessary use a
+# group of unit behavior).
 OP_UNIT_BEHAVIORS_DICT = {
     "DEFAULT_BEHAVIOR"          : OpUnitsBehavior(behavior_id = Tok.DEFAULT_BEHAVIOR_ID, op_names = []),
     "BINARY_ADDITIVE_OP"        : OpUnitsBehavior(behavior_id = 1 , op_names = ["add", "sub"]),
@@ -133,14 +140,14 @@ OP_POWER_VALUE_DICT = {
 # -------------------------------------------  FUNCTIONS -----------------------------------------------
 # ------------------------------------------------------------------------------------------------------
 
-
+# Data conversion to perform before being able to use functions
 def data_conversion (data):
     if isinstance(data, float):
         return torch.tensor(np.array(data))
     else:
         return torch.tensor(data)
 
-
+# Inverse of data conversion
 def data_conversion_inv(data):
     if torch.is_tensor(data):
         return data.detach().numpy()
@@ -153,27 +160,27 @@ def make_common_operations ():
 
     OPS_UNPROTECTED = [
         #  Binary operations
-        Token (name = "add"    , sympy_repr = "+"      , arity = 2 , complexity = 1 , is_input_var = False, function = torch.add                      ),
-        Token (name = "sub"    , sympy_repr = "-"      , arity = 2 , complexity = 1 , is_input_var = False, function = torch.subtract                 ),
-        Token (name = "mul"    , sympy_repr = "*"      , arity = 2 , complexity = 1 , is_input_var = False, function = torch.multiply                 ),
-        Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 2 , is_input_var = False, function = torch.divide                   ),
+        Token (name = "add"    , sympy_repr = "+"      , arity = 2 , complexity = 1 , var_type = 0, function = torch.add        ),
+        Token (name = "sub"    , sympy_repr = "-"      , arity = 2 , complexity = 1 , var_type = 0, function = torch.subtract   ),
+        Token (name = "mul"    , sympy_repr = "*"      , arity = 2 , complexity = 1 , var_type = 0, function = torch.multiply   ),
+        Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 2 , var_type = 0, function = torch.divide     ),
         # Unary operations
-        Token (name = "sin"    , sympy_repr = "sin"    , arity = 1 , complexity = 3 , is_input_var = False, function = torch.sin                      ),
-        Token (name = "cos"    , sympy_repr = "cos"    , arity = 1 , complexity = 3 , is_input_var = False, function = torch.cos                      ),
-        Token (name = "tan"    , sympy_repr = "tan"    , arity = 1 , complexity = 4 , is_input_var = False, function = torch.tan                      ),
-        Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 4 , is_input_var = False, function = torch.exp                      ),
-        Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 4 , is_input_var = False, function = torch.log                      ),
-        Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 4 , is_input_var = False, function = torch.sqrt                     ),
-        Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 2 , is_input_var = False, function = torch.square                   ),
-        Token (name = "neg"    , sympy_repr = "-"      , arity = 1 , complexity = 1 , is_input_var = False, function = torch.negative                 ),
-        Token (name = "abs"    , sympy_repr = "abs"    , arity = 1 , complexity = 2 , is_input_var = False, function = torch.abs                      ),
-        Token (name = "tanh"   , sympy_repr = "tanh"   , arity = 1 , complexity = 4 , is_input_var = False, function = torch.tanh                     ),
-        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 2 , is_input_var = False, function = torch.reciprocal               ),
+        Token (name = "sin"    , sympy_repr = "sin"    , arity = 1 , complexity = 3 , var_type = 0, function = torch.sin        ),
+        Token (name = "cos"    , sympy_repr = "cos"    , arity = 1 , complexity = 3 , var_type = 0, function = torch.cos        ),
+        Token (name = "tan"    , sympy_repr = "tan"    , arity = 1 , complexity = 4 , var_type = 0, function = torch.tan        ),
+        Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 4 , var_type = 0, function = torch.exp        ),
+        Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 4 , var_type = 0, function = torch.log        ),
+        Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 4 , var_type = 0, function = torch.sqrt       ),
+        Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 2 , var_type = 0, function = torch.square     ),
+        Token (name = "neg"    , sympy_repr = "-"      , arity = 1 , complexity = 1 , var_type = 0, function = torch.negative   ),
+        Token (name = "abs"    , sympy_repr = "abs"    , arity = 1 , complexity = 2 , var_type = 0, function = torch.abs        ),
+        Token (name = "tanh"   , sympy_repr = "tanh"   , arity = 1 , complexity = 4 , var_type = 0, function = torch.tanh       ),
+        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 2 , var_type = 0, function = torch.reciprocal ),
         # Custom unary operations
-        Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 4 , is_input_var = False, function = lambda x :torch.log(torch.abs(x)) ),
-        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 4 , is_input_var = False, function = lambda x :torch.exp(-x)        ),
-        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 3 , is_input_var = False, function = lambda x :torch.pow(x, 3)    ),
-        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 3 , is_input_var = False, function = lambda x :torch.pow(x, 4)    ),
+        Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 4 , var_type = 0, function = lambda x :torch.log(torch.abs(x)) ),
+        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 4 , var_type = 0, function = lambda x :torch.exp(-x)        ),
+        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 3 , var_type = 0, function = lambda x :torch.pow(x, 3)    ),
+        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 3 , var_type = 0, function = lambda x :torch.pow(x, 4)    ),
     ]
 
     # ------------- protected functions -------------
@@ -218,21 +225,21 @@ def make_common_operations ():
 
     OPS_PROTECTED = [
         # Binary operations
-        Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 2 , is_input_var = False, function = protected_div    ),
+        Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 2 , var_type = 0, function = protected_div    ),
         # Unary operations
-        Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 4 , is_input_var = False, function = protected_exp    ),
-        Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 4 , is_input_var = False, function = protected_log    ),
-        Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 4 , is_input_var = False, function = protected_sqrt   ),
-        Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 2 , is_input_var = False, function = protected_n2     ),
-        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 2 , is_input_var = False, function = protected_inv    ),
+        Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 4 , var_type = 0, function = protected_exp    ),
+        Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 4 , var_type = 0, function = protected_log    ),
+        Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 4 , var_type = 0, function = protected_sqrt   ),
+        Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 2 , var_type = 0, function = protected_n2     ),
+        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 2 , var_type = 0, function = protected_inv    ),
         # Custom unary operations
-        Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 4 , is_input_var = False, function = protected_logabs ),
-        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 4 , is_input_var = False, function = protected_expneg ),
-        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 3 , is_input_var = False, function = protected_n3     ),
-        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 3 , is_input_var = False, function = protected_n4     ),
+        Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 4 , var_type = 0, function = protected_logabs ),
+        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 4 , var_type = 0, function = protected_expneg ),
+        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 3 , var_type = 0, function = protected_n3     ),
+        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 3 , var_type = 0, function = protected_n4     ),
     ]
 
-    # ------------- encoding additional attributes -------------
+    # ------------- encoding additional attributes (for units analysis) -------------
 
     # iterating through all available tokens
     for token_op in OPS_PROTECTED + OPS_UNPROTECTED:
@@ -250,7 +257,7 @@ def make_common_operations ():
             token_op.is_power = True
             try: token_op.power    = OP_POWER_VALUE_DICT[token_op.name]
             except KeyError: raise UnknownFunction("Token %s is a power token as it is listed in UNARY_POWER_OP "
-                "(containing : %s) but the value of its power is not definied in dict OP_POWER_VALUE_DICT = %s"
+                "(containing : %s) but the value of its power is not defined in dict OP_POWER_VALUE_DICT = %s"
                 % (token_op.name, OP_UNIT_BEHAVIORS_DICT["UNARY_POWER_OP"].op_names, OP_POWER_VALUE_DICT))
 
     # ------------- protected functions -------------
@@ -273,9 +280,22 @@ OPS_UNPROTECTED_DICT, OPS_PROTECTED_DICT = make_common_operations()
 
 # -------------------------------- Utils functions --------------------------------
 
-
 def retrieve_complexity(complexity_dict, curr_name):
-    curr_complexity = 0.
+    """
+    Helper function to safely retrieve complexity of token named curr_name from a dictionary of complexities
+    (complexity_dict).
+    Parameters
+    ----------
+    complexity_dict : dict of {str : float} or None
+        If dictionary is None, returns Token.DEFAULT_COMPLEXITY.
+    curr_name : str
+        If curr_name is not in units_dict keys, returns Token.DEFAULT_COMPLEXITY.
+    Returns
+    -------
+    curr_complexity : float
+        Complexity of token.
+    """
+    curr_complexity = Tok.DEFAULT_COMPLEXITY
     if complexity_dict is not None:
         try:
             curr_complexity = complexity_dict[curr_name]
@@ -289,7 +309,7 @@ def retrieve_complexity(complexity_dict, curr_name):
 
 def retrieve_units(units_dict, curr_name):
     """
-    Helper function to retrieve unit of token named curr_name from a dictionary of units (units_dict).
+    Helper function to safely retrieve units of token named curr_name from a dictionary of units (units_dict).
     Parameters
     ----------
     units_dict : dict of {str : array_like} or None
@@ -300,7 +320,8 @@ def retrieve_units(units_dict, curr_name):
         (ie. vector of zeros).
     Returns
     -------
-    (bool, numpy.array) : Does the token require physical units, numpy array containing units
+    curr_is_constraining_phy_units, curr_phy_units : (bool, numpy.array)
+        Does the token require physical units, numpy array containing units
     """
     # Not working with units by default
     curr_is_constraining_phy_units = False
@@ -341,6 +362,11 @@ def make_tokens(
                 constants            = None,
                 constants_units      = None,
                 constants_complexity = None,
+                #todo:
+                # free constants
+                free_constants_init       = None,
+                free_constants_units      = None,
+                free_constants_complexity = None,
                 ):
     """
         Makes a list of tokens for a run based on a list of operation names, input variables ids and constants values.
@@ -351,7 +377,8 @@ def make_tokens(
             List of names of operations that will be used for a run (eg. ["mul", "add", "neg", "inv", "sin"]), or "all"
             to use all available tokens. By default, op_names = "all".
         use_protected_ops : bool, optional
-            Use safe functions when available  if True (eg. sqrt(abs(x)) instead of sqrt(x)). False by default.
+            If True safe functions defined in Functions.OPS_PROTECTED_DICT in place when available (eg. sqrt(abs(x))
+            instead of sqrt(x)). False by default.
         -------- input variables --------
         input_var_ids : dict of { str : int } or None, optional
             Dictionary containing input variables names as keys (eg. 'x', 'v', 't') and corresponding input variables
@@ -427,7 +454,7 @@ def make_tokens(
                                           sympy_repr   = var_name,
                                           arity        = 0,
                                           complexity   = complexity,
-                                          is_input_var = True,
+                                          var_type     = 1,
                                           # Input variable specific
                                           input_var_id = var_id,
                                           # ---- Physical units : units ----
@@ -450,7 +477,7 @@ def make_tokens(
                                           sympy_repr   = const_name,
                                           arity        = 0,
                                           complexity   = complexity,
-                                          is_input_var = False,
+                                          var_type     = 0,
                                           # Function specific
                                           function     = lambda c=const_val: c,
                                           # ---- Physical units : units ----

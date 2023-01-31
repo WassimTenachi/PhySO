@@ -7,8 +7,10 @@ MAX_NAME_SIZE = 10
 UNITS_VECTOR_SIZE = 7
 # Default behavior ID in dimensional analysis
 DEFAULT_BEHAVIOR_ID = 9999999
-# Element used in place of a NAN (which is a float) as input var id in int arrays
-INVALID_INPUT_VAR_ID = 9999999  # NAN only exists for floats
+# Element used in place of a NAN (which is a float) as var id in int arrays
+INVALID_VAR_ID = 9999999  # NAN only exists for floats
+# Default complexity
+DEFAULT_COMPLEXITY = 0.
 
 # --------------------- POSITIONAL TOKENS DEFAULT VALUES IN PROGRAMS ---------------------
 # VectPrograms.append, VectPrograms.update_relationships_pos only work with MAX_NB_CHILDREN = 2
@@ -40,7 +42,7 @@ class Token:
         complexity                :  float
         var_type                  :  int
         function                  :  callable or None
-        input_var_id              :  int
+        var_id                    :  int
         behavior_id               :  int
         is_power                  :  bool
         power                     :  float
@@ -59,12 +61,12 @@ class Token:
                  sympy_repr,
                  # ---- Token main properties ----
                  arity,
-                 complexity  = 0,
+                 complexity  = DEFAULT_COMPLEXITY,
                  var_type    = 0,
                  # Function specific
-                 function     = None,
-                 # Input variable specific
-                 input_var_id = None,
+                 function = None,
+                 # Input variable / free const specific
+                 var_id   = None,
                  # ---- Physical units : behavior id ----
                  behavior_id               = None,
                  # ---- Physical units : power ----
@@ -100,11 +102,11 @@ class Token:
             function associated with the token. Function of arity = n must be callable using n arguments, each argument
             consisting in a numpy array of floats of shape (int,) or a single float number.
             - This token represents an input_var or a free const (ie. var_type = 1 or 2 )  <=>  function = None
-        input_var_id : int or None
-            - This token represents input_var  (ie. var_type = 1 ) <=> input_var_id is an integer representing the
-            id of the input_var in the dataset.
-            - This token represents a function (ie. var_type = 0, 2 ) <=> input_var_id = None.
-            (converted to INVALID_INPUT_VAR_ID in __init__)
+        var_id : int or None
+            - This token represents an input_var or a free constant (ie. var_type = 1 or 2) <=> var_id is an integer
+            representing the id of the input_var in the dataset or the id of the free const in the free const array.
+            - This token represents a function (ie. var_type = 0) <=> var_id = None.
+            (converted to INVALID_VAR_ID in __init__)
 
         behavior_id : int
             Id encoding behavior of token in the context of dimensional analysis (see Functions for details).
@@ -146,30 +148,30 @@ class Token:
         assert isinstance(int(var_type), int) and int(var_type) <= 2, "var_type must be castable to a 0 <= int <= 2"
         # Token representing input_var (eg. x0, x1 etc.)
         if var_type == 1:
-            assert function is None,              'Token representing input_var (var_type = 1) must have function = None'
-            assert arity == 0,                    'Token representing input_var (var_type = 1) must have arity = 0'
-            assert isinstance(input_var_id, int), 'Token representing input_var (var_type = 1) must have an int input_var_id'
+            assert function is None,        'Token representing input_var (var_type = 1) must have function = None'
+            assert arity == 0,              'Token representing input_var (var_type = 1) must have arity = 0'
+            assert isinstance(var_id, int), 'Token representing input_var (var_type = 1) must have an int var_id'
         # Token representing function (eg. add, mul, exp, constant via lambda c=constant : c etc.)
         elif var_type == 0:
-            assert callable(function),     'Token representing function (var_type = 0) must have callable function'
-            assert arity >= 0,             'Token representing function (var_type = 0) must have arity >= 0'
-            assert input_var_id is None,   'Token representing function (var_type = 0) must have input_var_id = None'
+            assert callable(function), 'Token representing function (var_type = 0) must have callable function'
+            assert arity >= 0,         'Token representing function (var_type = 0) must have arity >= 0'
+            assert var_id is None,     'Token representing function (var_type = 0) must have var_id = None'
         # Token representing free constant (eg. c0, c1 etc.)
         elif var_type == 2:
-            assert function is None,       'Token representing free const (var_type = 2) must have function = None'
-            assert arity == 0,             'Token representing free const (var_type = 2) must have arity == 0'
-            assert input_var_id is None,   'Token representing free const (var_type = 2) must have input_var_id = None'
+            assert function is None,        'Token representing free const (var_type = 2) must have function = None'
+            assert arity == 0,              'Token representing free const (var_type = 2) must have arity == 0'
+            assert isinstance(var_id, int), 'Token representing free const (var_type = 2) must have an int var_id'
         # ---- Attribution ----
         self.arity       = arity                                  # int
         self.complexity  = float(complexity)                      # float
         self.var_type    = int(var_type)                          # int
         # Function specific
         self.function    = function                               # object (callable or None)
-        # Input variable specific
-        if self.var_type == 1:
-            self.input_var_id = input_var_id                      # int
+        # Input variable / free const specific
+        if self.var_type == 1 or self.var_type == 2:
+            self.var_id = var_id                                   # int
         else:
-            self.input_var_id = INVALID_INPUT_VAR_ID              # int
+            self.var_id = INVALID_VAR_ID                           # int
 
         # ---------------------------- Physical units : behavior id ----------------------------
         # ---- Assertions ----
@@ -244,7 +246,7 @@ class VectTokens:
     complexity                :  float
     var_type                  :  int
     ( function                :  callable or None )
-    input_var_id              :  int
+    var_id                    :  int
     behavior_id               :  int
     is_power                  :  bool
     power                     :  float
@@ -323,14 +325,14 @@ class VectTokens:
         # ---- Token main properties ----
         # Default values
         self.default_arity        = 0
-        self.default_complexity   = 0.
+        self.default_complexity   = DEFAULT_COMPLEXITY
         self.default_var_type     = 0
-        self.default_input_var_id = INVALID_INPUT_VAR_ID
+        self.default_var_id       = INVALID_VAR_ID
         # Properties
         self.arity        = np.full(shape=self.shape, fill_value=self.default_arity        , dtype=int)
         self.complexity   = np.full(shape=self.shape, fill_value=self.default_complexity   , dtype=float)
         self.var_type     = np.full(shape=self.shape, fill_value=self.default_var_type     , dtype=int)
-        self.input_var_id = np.full(shape=self.shape, fill_value=self.default_input_var_id , dtype=int)
+        self.var_id       = np.full(shape=self.shape, fill_value=self.default_var_id       , dtype=int)
         # ( function                :  callable or None )
 
         # ---- Physical units : behavior id ----

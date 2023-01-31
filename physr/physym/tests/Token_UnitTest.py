@@ -18,7 +18,7 @@ class TokenTest(unittest.TestCase):
         try:
             add = Tok.Token(name='add', sympy_repr='add', arity=2, complexity=0, var_type=0,
                             function=np.add,
-                            input_var_id=None)
+                            var_id=None)
         except:
             self.fail("Token creation failed")
 
@@ -28,17 +28,17 @@ class TokenTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             add = Tok.Token(name='add', sympy_repr='add', arity=2, complexity=0, var_type=0,
                             function=None,
-                            input_var_id=None)
-        # Test exception: input_var_id is supposed to be Nan
+                            var_id=None)
+        # Test exception: var_id is supposed to be Nan
         with self.assertRaises(AssertionError):
             add = Tok.Token(name='add', sympy_repr='add', arity=2, complexity=0, var_type=0,
                             function=np.add,
-                            input_var_id=0)
+                            var_id=0)
         # Test exception: arity is supposed to be >= 0
         with self.assertRaises(AssertionError):
             x0 = Tok.Token(name='x0', sympy_repr='x0', arity=-1, complexity=0, var_type=1,
                            function=None,
-                           input_var_id=0)
+                           var_id=0)
 
     # ------------------ Token representing input variable ------------------
 
@@ -48,7 +48,7 @@ class TokenTest(unittest.TestCase):
         try:
             x0 = Tok.Token(name='x0', sympy_repr='x0', arity=0, complexity=0, var_type=1,
                            function=None,
-                           input_var_id=0)
+                           var_id=0)
         except:
             self.fail("Token creation failed")
 
@@ -58,17 +58,17 @@ class TokenTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             x0 = Tok.Token(name='x0', sympy_repr='x0', arity=0, complexity=0, var_type=1,
                            function=np.multiply,
-                           input_var_id=0)
-        # Test exception: input_var_id is supposed to be int
+                           var_id=0)
+        # Test exception: var_id is supposed to be int
         with self.assertRaises(AssertionError):
             x0 = Tok.Token(name='x0', sympy_repr='x0', arity=0, complexity=0, var_type=1,
                            function=None,
-                           input_var_id='0')
+                           var_id='0')
         # Test exception: arity is supposed to be = 0
         with self.assertRaises(AssertionError):
             x0 = Tok.Token(name='x0', sympy_repr='x0', arity=1, complexity=0, var_type=1,
                            function=None,
-                           input_var_id=0)
+                           var_id=0)
 
     # Test token usage
     def test_token_input_var_usage(self):
@@ -77,12 +77,12 @@ class TokenTest(unittest.TestCase):
         dataset = np.array([data_x0, data_x1])
         x0 = Tok.Token(name='x0', sympy_repr='x0', arity=0, complexity=0, var_type=1,
                        function=None,
-                       input_var_id=0)
-        works_bool = np.array_equal(dataset[x0.input_var_id], data_x0)
+                       var_id=0)
+        works_bool = np.array_equal(dataset[x0.var_id], data_x0)
         self.assertEqual(works_bool, True)
 
 
-    # --------------------- Token representing constant ---------------------
+    # --------------------- Token representing fixed constant ---------------------
 
     # Test token creation
     def test_token_constant_creation(self):
@@ -90,7 +90,7 @@ class TokenTest(unittest.TestCase):
         try:
             pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=0,
                            function=lambda const=np.pi: const,
-                           input_var_id=None)
+                           var_id=None)
         except:
             self.fail("Token creation failed")
 
@@ -100,17 +100,17 @@ class TokenTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=0,
                            function=np.pi,
-                           input_var_id=None)
-        # Test exception: input_var_id is supposed to be Nan
+                           var_id=None)
+        # Test exception: var_id is supposed to be Nan
         with self.assertRaises(AssertionError):
             pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=0,
                            function=lambda const=np.pi: const,
-                           input_var_id=0)
+                           var_id=0)
         # Test exception: arity is supposed to be >= 0
         with self.assertRaises(AssertionError):
             pi = Tok.Token(name='pi', sympy_repr='pi', arity=-1, complexity=0, var_type=0,
                            function=lambda const=np.pi: const,
-                           input_var_id=None)
+                           var_id=None)
 
     # --------------------- Token representing free constant ---------------------
 
@@ -118,8 +118,9 @@ class TokenTest(unittest.TestCase):
     def test_token_free_constant_creation(self):
         # Test token creation
         try:
-            c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=2,)
-                           # default values: function = None, input_var_id=None
+            c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=2,
+                           function=None,
+                           var_id=0,)
         except:
             self.fail("Token creation failed")
 
@@ -129,17 +130,17 @@ class TokenTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=2,
                            function=np.multiply,
-                           input_var_id=None)
-        # Test exception: input_var_id is supposed to be Nan
+                           var_id=0)
+        # Test exception: var_id is supposed to be int
         with self.assertRaises(AssertionError):
             c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=2,
                            function=None,
-                           input_var_id=0)
+                           var_id='0')
         # Test exception: arity is supposed to be = 0
         with self.assertRaises(AssertionError):
             c0 = Tok.Token(name='c0', sympy_repr='c0', arity=1, complexity=0, var_type=2,
                            function=None,
-                           input_var_id=None)
+                           var_id=0)
 
     # ----------------------------- Token call ------------------------------
 
@@ -151,16 +152,16 @@ class TokenTest(unittest.TestCase):
         dataset = np.array([data_x0, data_x1])
         add = Tok.Token(name='add', sympy_repr='add', arity=2, complexity=0, var_type=0,
                         function=np.add,
-                        input_var_id=None)
+                        var_id=None)
         cos = Tok.Token(name='cos', sympy_repr='cos', arity=1, complexity=0, var_type=0,
                         function=np.cos,
-                        input_var_id=None)
+                        var_id=None)
         x0 = Tok.Token(name='x0', sympy_repr='x0', arity=0, complexity=0, var_type=1,
                        function=None,
-                       input_var_id=0)
+                       var_id=0)
         pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=0,
                        function=lambda const=np.pi: const,
-                       input_var_id=None)
+                       var_id=None)
         # ----- Test legal calls -----
         works_bool = np.array_equal(add(data_x0, data_x1), np.add(data_x0, data_x1))
         self.assertEqual(works_bool, True)
@@ -168,7 +169,7 @@ class TokenTest(unittest.TestCase):
         self.assertEqual(works_bool, True)
         works_bool = np.array_equal(pi(), np.pi)
         self.assertEqual(works_bool, True)
-        works_bool = np.array_equal(add(cos(pi()), dataset[x0.input_var_id]), np.add(np.cos(np.pi), data_x0))
+        works_bool = np.array_equal(add(cos(pi()), dataset[x0.var_id]), np.add(np.cos(np.pi), data_x0))
         self.assertEqual(works_bool, True)
         # ----- Test exception: n args is supposed to be = arity -----
         with self.assertRaises(AssertionError): res = add(data_x0)
@@ -184,11 +185,11 @@ class TokenTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             add = Tok.Token(name=too_large_name, sympy_repr='add', arity=2, complexity=0, var_type=0,
                             function=np.add,
-                            input_var_id=None)
+                            var_id=None)
         with self.assertRaises(AssertionError):
             add = Tok.Token(name='add', sympy_repr=too_large_name, arity=2, complexity=0, var_type=0,
                             function=np.add,
-                            input_var_id=None)
+                            var_id=None)
 
     # ----------------------------- Token units ------------------------------
     # Test token creation
@@ -197,18 +198,18 @@ class TokenTest(unittest.TestCase):
             physical_quantity = Tok.Token(name='x0', sympy_repr='x0', arity=0, complexity=0,
                                           var_type=1,
                                           function=None,
-                                          input_var_id=0,
+                                          var_id=0,
                                           is_constraining_phy_units=True,
                                           phy_units=np.ones(Tok.UNITS_VECTOR_SIZE))
 
             cos = Tok.Token(name='cos', sympy_repr='cos', arity=1, complexity=0, var_type=0,
                             function=np.cos,
-                            input_var_id=None,
+                            var_id=None,
                             is_constraining_phy_units = True,
                             phy_units = np.zeros(Tok.UNITS_VECTOR_SIZE), )
             sqrt = Tok.Token(name='sqrt', sympy_repr='sqrt', arity=1, complexity=0, var_type=0,
                              function=np.sqrt,
-                             input_var_id=None,
+                             var_id=None,
                              is_power=True,
                              power=0.5)
         except:
@@ -221,7 +222,7 @@ class TokenTest(unittest.TestCase):
             physical_quantity = Tok.Token(name='x0', sympy_repr='x0', arity=0, complexity=0,
                                           var_type=1,
                                           function=None,
-                                          input_var_id=0,
+                                          var_id=0,
                                           is_constraining_phy_units=True,
                                           phy_units=None)
         # Test exception: token with is_constraining_phy_units = True must have units vector of size Lib.UNITS_VECTOR_SIZE
@@ -229,7 +230,7 @@ class TokenTest(unittest.TestCase):
             physical_quantity = Tok.Token(name='x0', sympy_repr='x0', arity=0, complexity=0,
                                           var_type=1,
                                           function=None,
-                                          input_var_id=0,
+                                          var_id=0,
                                           is_constraining_phy_units=True,
                                           phy_units=np.ones(Tok.UNITS_VECTOR_SIZE + 1))
         # Test exception: token with is_constraining_phy_units = True must not contain any NAN
@@ -239,14 +240,14 @@ class TokenTest(unittest.TestCase):
             physical_quantity = Tok.Token(name='x0', sympy_repr='x0', arity=0, complexity=0,
                                           var_type=1,
                                           function=None,
-                                          input_var_id=0,
+                                          var_id=0,
                                           is_constraining_phy_units=True,
                                           phy_units=wrong_units)
         # Test exception: token with is_constraining_phy_units = False must not have units
         with self.assertRaises(AssertionError):
             add = Tok.Token(name='add', sympy_repr='add', arity=2, complexity=0, var_type=0,
                             function=np.add,
-                            input_var_id=None,
+                            var_id=None,
                             is_constraining_phy_units=False,
                             phy_units=np.ones(Tok.UNITS_VECTOR_SIZE))
 
@@ -256,7 +257,7 @@ class TokenTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             cos = Tok.Token(name='cos', sympy_repr='cos', arity=1, complexity=0, var_type=0,
                             function=np.cos,
-                            input_var_id=None,
+                            var_id=None,
                             is_constraining_phy_units=True,
                             phy_units=np.zeros(Tok.UNITS_VECTOR_SIZE),
                             behavior_id="not an int")
@@ -267,14 +268,14 @@ class TokenTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             sqrt = Tok.Token(name='sqrt', sympy_repr='sqrt', arity=1, complexity=0, var_type=0,
                              function=np.sqrt,
-                             input_var_id=None,
+                             var_id=None,
                              is_power=True,
                              power="not a float")
 
         with self.assertRaises(AssertionError):
             sqrt = Tok.Token(name='sqrt', sympy_repr='sqrt', arity=1, complexity=0, var_type=0,
                              function=np.sqrt,
-                             input_var_id=None,
+                             var_id=None,
                              is_power=False,
                              power=0.5)
 

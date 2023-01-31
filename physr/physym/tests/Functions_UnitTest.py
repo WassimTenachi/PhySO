@@ -8,8 +8,6 @@ from physr.physym import Functions as Func
 from physr.physym.Functions import data_conversion, data_conversion_inv
 
 
-
-
 # Test token and output shapes
 def test_one_token(tester, token):
     data0 = data_conversion ( np.arange(-5, 5, 0.5)     )
