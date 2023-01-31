@@ -262,7 +262,7 @@ class VectTokens:
     complexity                :  float
     var_type                  :  int
     ( function                :  callable or None )
-    init_val                  :  float
+    ( init_val                  :  float            )
     var_id                    :  int
     behavior_id               :  int
     is_power                  :  bool
@@ -345,14 +345,13 @@ class VectTokens:
         self.default_complexity   = DEFAULT_COMPLEXITY
         self.default_var_type     = 0
         self.default_var_id       = INVALID_VAR_ID
-        self.default_init_val     = np.NAN
         # Properties
         self.arity        = np.full(shape=self.shape, fill_value=self.default_arity        , dtype=int)
         self.complexity   = np.full(shape=self.shape, fill_value=self.default_complexity   , dtype=float)
         self.var_type     = np.full(shape=self.shape, fill_value=self.default_var_type     , dtype=int)
         # ( function                :  callable or None )
+        # ( init_val                :  float            )
         self.var_id       = np.full(shape=self.shape, fill_value=self.default_var_id       , dtype=int)
-        self.init_val     = np.full(shape=self.shape, fill_value=self.default_init_val     , dtype=float)
 
         # ---- Physical units : behavior id ----
         # Default value
