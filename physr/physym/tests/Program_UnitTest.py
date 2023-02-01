@@ -24,7 +24,13 @@ def make_lib():
                     "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
                     "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
                     "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
-                        }
+                    # free constants
+                    "free_constants"            : {"c0"             , "c1"               , "c2"             },
+                    "free_constants_init_val"   : {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                    "free_constants_units"      : {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                    "free_constants_complexity" : {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
+                           }
+
     my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                          superparent_units = [1, -2, 1], superparent_name = "y")
     return my_lib
@@ -175,12 +181,17 @@ class VectProgramsTest(unittest.TestCase):
                         "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       , "const1" : 1         },
                         "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] , "const1" : [0, 0, 0] },
                         "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        , "const1" : 1.        },
-                            }
+                        # free constants
+                        "free_constants"            : {"c0"             , "c1"               , "c2"             },
+                        "free_constants_init_val"   : {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                        "free_constants_units"      : {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                        "free_constants_complexity" : {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
+                           }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
 
         # TEST PROGRAM
-        test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
+        test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "c1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
         test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
@@ -195,7 +206,7 @@ class VectProgramsTest(unittest.TestCase):
         # CURSOR
         cursor = Prog.Cursor(programs = my_programs, prog_idx= 0, pos = 0)
         works_bool = cursor.set_pos(0).child(0).child(0).sibling.parent.sibling.child(0).child().child().child(1).child(
-            0).child().parent.parent.sibling.__repr__() == "const1"
+            0).child().parent.parent.sibling.__repr__() == "c1"
 
         # TEST
         self.assertTrue(works_bool)
