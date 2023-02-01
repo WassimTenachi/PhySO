@@ -10,6 +10,10 @@ from physr.physym import Functions as Func
 # Case-code for when units analysis was not performed.
 UNITS_ANALYSIS_NOT_PERFORMED_CASE_CODE = 0
 
+# Physical units inconsistency error
+class PhyUnitsError(Exception):
+    pass
+
 
 def assign_required_units_at_step (programs, step = None, from_scratch = False):
     """

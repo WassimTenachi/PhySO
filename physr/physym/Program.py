@@ -456,10 +456,6 @@ class Program:
         plt.show()
         return None
 
-class PhyUnitsError(Exception):
-    pass
-
-
 class VectPrograms:
     """
     Represents a batch of symbolic programs (jit-able class).
@@ -745,7 +741,7 @@ class VectPrograms:
                         "current constraints they should have units:\n %s" \
                         % (mask_inconsistency.sum(), self.lib_names[new_tokens_idx[mask_inconsistency]],
                            units_from_new_tokens[mask_inconsistency], units_from_dummies[mask_inconsistency])
-            raise PhyUnitsError(error_msg)
+            raise phy.PhyUnitsError(error_msg)
 
         # --------------------------------------------------------------------------------------------------------------
         # -------------------------------------------- APPENDING NEW TOKENS --------------------------------------------
