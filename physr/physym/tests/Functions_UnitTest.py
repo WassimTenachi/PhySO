@@ -119,6 +119,7 @@ class FuncTest(unittest.TestCase):
 
     # Test make tokens function with units and complexity, missing units or complexity in dict
     def test_make_tokens_units_and_complexity_missing_info_warnings(self):
+
         # Test missing units in input variables
         with self.assertWarns(Warning):
             my_tokens = Func.make_tokens(
@@ -133,6 +134,11 @@ class FuncTest(unittest.TestCase):
                 constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
                 constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
                 constants_complexity = {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
                                                 )
         # Test missing complexity in input variables
         with self.assertWarns(Warning):
@@ -148,6 +154,11 @@ class FuncTest(unittest.TestCase):
                 constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
                 constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
                 constants_complexity = {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
                                                 )
         # Test missing units in constants
         with self.assertWarns(Warning):
@@ -163,6 +174,11 @@ class FuncTest(unittest.TestCase):
                 constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
                 constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0] },
                 constants_complexity = {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
                                                 )
         # Test missing complexity in constants
         with self.assertWarns(Warning):
@@ -178,6 +194,71 @@ class FuncTest(unittest.TestCase):
                 constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
                 constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
                 constants_complexity = {"pi" : 0.        , "c" : 0.        },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
+                                                )
+        # Test missing units in free constants
+        with self.assertWarns(Warning):
+            my_tokens = Func.make_tokens(
+                # operations
+                op_names             = ["mul", "add", "neg", "inv", "sin"],
+                use_protected_ops    = False,
+                # input variables
+                input_var_ids        = {"x" : 0         , "v" : 1          , "t" : 2,        },
+                input_var_units      = {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
+                input_var_complexity = {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
+                # constants
+                constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
+                constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0] },
+                constants_complexity = {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] ,                  },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
+                                                )
+        # Test missing complexity in free constants
+        with self.assertWarns(Warning):
+            my_tokens = Func.make_tokens(
+                # operations
+                op_names             = ["mul", "add", "neg", "inv", "sin"],
+                use_protected_ops    = False,
+                # input variables
+                input_var_ids        = {"x" : 0         , "v" : 1          , "t" : 2,        },
+                input_var_units      = {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
+                input_var_complexity = {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
+                # constants
+                constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
+                constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
+                constants_complexity = {"pi" : 0.        , "c" : 0.        },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         ,                  },
+                                                )
+        # Test missing init_val in free constants
+        with self.assertWarns(Warning):
+            my_tokens = Func.make_tokens(
+                # operations
+                op_names             = ["mul", "add", "neg", "inv", "sin"],
+                use_protected_ops    = False,
+                # input variables
+                input_var_ids        = {"x" : 0         , "v" : 1          , "t" : 2,        },
+                input_var_units      = {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
+                input_var_complexity = {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
+                # constants
+                constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
+                constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
+                constants_complexity = {"pi" : 0.        , "c" : 0.                          },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        ,                  },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
                                                 )
 
     # Test make tokens function with wrong units
@@ -196,6 +277,11 @@ class FuncTest(unittest.TestCase):
                 constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
                 constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
                 constants_complexity = {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
                                                 )
         # Test unit too large in constants
         with self.assertRaises(AssertionError):
@@ -211,7 +297,33 @@ class FuncTest(unittest.TestCase):
                 constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
                 constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : np.ones(10000) },
                 constants_complexity = {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
                                                 )
+        # Test unit too large in free constants
+        with self.assertRaises(AssertionError):
+            my_tokens = Func.make_tokens(
+                # operations
+                op_names             = ["mul", "add", "neg", "inv", "sin"],
+                use_protected_ops    = False,
+                # input variables
+                input_var_ids        = {"x" : 0         , "v" : 1          , "t" : 2,        },
+                input_var_units      = {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
+                input_var_complexity = {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
+                # constants
+                constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
+                constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
+                constants_complexity = {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : np.ones(10000) },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
+                                                )
+
         # Test units having wrong variable type
         with self.assertRaises(AssertionError):
             my_tokens = Func.make_tokens(
@@ -226,6 +338,11 @@ class FuncTest(unittest.TestCase):
                 constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
                 constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : ['a', 'b', 1] },
                 constants_complexity = {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
                                                 )
         # Test units having wrong shape
         with self.assertRaises(AssertionError):
@@ -241,6 +358,11 @@ class FuncTest(unittest.TestCase):
                 constants            = {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
                 constants_units      = {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : np.ones((7,7)) },
                 constants_complexity = {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                # free constants
+                free_constants            = {"c0"             , "c1"               , "c2"             },
+                free_constants_init_val   = {"c0" : 1.        , "c1"  : 10.        , "c2" : 1.        },
+                free_constants_units      = {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                free_constants_complexity = {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
                                                 )
 
     # Test unknown function exception
@@ -392,8 +514,6 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(works_bool, True)
         works_bool = np.array_equal(equal_test, False)
         self.assertEqual(works_bool, True)
-
-
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
