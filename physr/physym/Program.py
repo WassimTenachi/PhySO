@@ -607,6 +607,17 @@ class VectPrograms:
         # Affect 0th token' ancestors record
         self.register_ancestor (coords_dest = coords_initial_dummies)
 
+        # ---------------------------- FREE CONSTANTS REGISTER ----------------------------
+        # Number of free constants:
+        n_free_const = self.library.n_free_constants
+        # Free constants values for each program
+        self.free_const_val = np.tile(self.library.free_constants_init_val,
+                                      reps=(self.batch_size, 1))                                 # (batch_size, n_free_const,) of float
+        # mask : is free constant optimized
+        self.is_free_const_opti   = np.full(shape=self.batch_size, fill_value=False, dtype=bool) # (batch_size,) of bool
+        # Number of epochs necessary to optimize free constant
+        self.free_const_opti_time = np.full(shape=self.batch_size, fill_value=False, dtype=int)  # (batch_size,) of int
+
         return None
 
     def lib (self, attr):
