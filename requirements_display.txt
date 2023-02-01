@@ -2,7 +2,7 @@
 # Install via pip : pip install -r requirements_display.txt
 
 # Available through conda and pip
-pygraphviz == 1.9 # Install via conda recommended if using ARM architecture
+pygraphviz == 1.9 # Install via conda recommended for ARM users
 dot2tex == 2.11.3
 
 # Only available via pip

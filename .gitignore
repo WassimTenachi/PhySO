@@ -4,3 +4,4 @@ physr/__pycache__/
 physr/physym/__pycache__/
 physr/physym/tests/__pycache__/
 .idea/
+.ipynb_checkpoints/
