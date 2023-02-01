@@ -115,8 +115,6 @@ class FuncTest(unittest.TestCase):
         is_equal = np.array_equal(my_tokens_dict["c2"].complexity, 1.)
         self.assertEqual(is_equal, True)
 
-    #todo: re-read all tests and create some for free const
-
     # Test make tokens function with units and complexity, missing units or complexity in dict
     def test_make_tokens_units_and_complexity_missing_info_warnings(self):
 

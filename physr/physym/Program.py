@@ -1686,7 +1686,7 @@ class VectPrograms:
         self.tokens.arity        [coords_dest[0], coords_dest[1]] = self.lib("arity")        [tokens_idx_src]
         self.tokens.complexity   [coords_dest[0], coords_dest[1]] = self.lib("complexity")   [tokens_idx_src]
         self.tokens.is_input_var [coords_dest[0], coords_dest[1]] = self.lib("is_input_var") [tokens_idx_src]
-        self.tokens.input_var_id [coords_dest[0], coords_dest[1]] = self.lib("input_var_id") [tokens_idx_src]
+        self.tokens.var_id       [coords_dest[0], coords_dest[1]] = self.lib("var_id")       [tokens_idx_src]
         # ( function                :  callable or None )
         # ---- Physical units : behavior id
         self.tokens.behavior_id  [coords_dest[0], coords_dest[1]] = self.lib("behavior_id")  [tokens_idx_src]
@@ -1730,7 +1730,7 @@ class VectPrograms:
         self.tokens.arity                     [tuple(coords_dest)] = self.tokens.arity                     [tuple(coords_src)]
         self.tokens.complexity                [tuple(coords_dest)] = self.tokens.complexity                [tuple(coords_src)]
         self.tokens.is_input_var              [tuple(coords_dest)] = self.tokens.is_input_var              [tuple(coords_src)]
-        self.tokens.input_var_id              [tuple(coords_dest)] = self.tokens.input_var_id              [tuple(coords_src)]
+        self.tokens.var_id                    [tuple(coords_dest)] = self.tokens.var_id                    [tuple(coords_src)]
         self.tokens.behavior_id               [tuple(coords_dest)] = self.tokens.behavior_id               [tuple(coords_src)]
         self.tokens.is_power                  [tuple(coords_dest)] = self.tokens.is_power                  [tuple(coords_src)]
         self.tokens.power                     [tuple(coords_dest)] = self.tokens.power                     [tuple(coords_src)]
@@ -2636,8 +2636,8 @@ class VectPrograms:
         print_prop_matrix(self.tokens.complexity)
         print("---- is_input_var ----")
         print_prop_matrix(self.tokens.is_input_var)
-        print("---- input_var_id ----")
-        print_prop_matrix(self.tokens.input_var_id)
+        print("---- var_id ----")
+        print_prop_matrix(self.tokens.var_id)
         print("---- behavior_id ----")
         print_prop_matrix(self.tokens.behavior_id)
         print("---- is_power ----")

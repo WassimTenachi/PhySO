@@ -529,8 +529,9 @@ def make_tokens(
     # -------------------------------- Handling free constants --------------------------------
     tokens_free_constants = []
     if free_constants is not None:
+        free_constants_sorted = list(sorted(free_constants))  # (enumerating on sorted list rather than set)
         # Iterating through free constants
-        for i, free_const_name in enumerate(free_constants):
+        for i, free_const_name in enumerate(free_constants_sorted):
             # ------------- Initial value -------------
             init_val = retrieve_init_val(init_val_dict=free_constants_init_val, curr_name=free_const_name)
             # ------------- Units -------------
