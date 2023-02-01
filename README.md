@@ -17,6 +17,7 @@ conda activate PhySR
 ```
 ### Dependencies
 From the repository root:
+
 Installing essential dependencies :
 ```
 conda install --file requirements.txt
