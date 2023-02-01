@@ -25,7 +25,7 @@ Installing optional dependencies (for monitoring plots) :
 ```
 pip install -r requirements_display.txt
 ```
-<u>Side note for ARM users:<u>
+#####  Side note for ARM users:
 
 The file `requirements_display.txt` contains dependencies that can be installed via pip only. However, it also contains `pygraphviz` which can be installed via conda which avoids compiler issues on ARM. 
 
@@ -45,15 +45,15 @@ pip install -e .
 ```
 
 ### Testing install
-<u>Import test:
 
+#####  Import test:
 ```
 python3
 >>> import physr
 ```
 This should result in `physr` being successfully imported.
 
-<u>Unit tests:
+#####  Unit tests:
 
 From the repository root:
 ```
