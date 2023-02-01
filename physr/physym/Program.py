@@ -1681,7 +1681,7 @@ class VectPrograms:
         # ---- Token main properties
         self.tokens.arity        [coords_dest[0], coords_dest[1]] = self.lib("arity")        [tokens_idx_src]
         self.tokens.complexity   [coords_dest[0], coords_dest[1]] = self.lib("complexity")   [tokens_idx_src]
-        self.tokens.is_input_var [coords_dest[0], coords_dest[1]] = self.lib("is_input_var") [tokens_idx_src]
+        self.tokens.var_type     [coords_dest[0], coords_dest[1]] = self.lib("var_type")     [tokens_idx_src]
         self.tokens.var_id       [coords_dest[0], coords_dest[1]] = self.lib("var_id")       [tokens_idx_src]
         # ( function                :  callable or None )
         # ---- Physical units : behavior id
@@ -1725,7 +1725,7 @@ class VectPrograms:
         # ------------ non_positional properties ------------
         self.tokens.arity                     [tuple(coords_dest)] = self.tokens.arity                     [tuple(coords_src)]
         self.tokens.complexity                [tuple(coords_dest)] = self.tokens.complexity                [tuple(coords_src)]
-        self.tokens.is_input_var              [tuple(coords_dest)] = self.tokens.is_input_var              [tuple(coords_src)]
+        self.tokens.var_type                  [tuple(coords_dest)] = self.tokens.var_type                  [tuple(coords_src)]
         self.tokens.var_id                    [tuple(coords_dest)] = self.tokens.var_id                    [tuple(coords_src)]
         self.tokens.behavior_id               [tuple(coords_dest)] = self.tokens.behavior_id               [tuple(coords_src)]
         self.tokens.is_power                  [tuple(coords_dest)] = self.tokens.is_power                  [tuple(coords_src)]
@@ -2630,8 +2630,8 @@ class VectPrograms:
         print_prop_matrix(self.tokens.arity)
         print("---- complexity ----")
         print_prop_matrix(self.tokens.complexity)
-        print("---- is_input_var ----")
-        print_prop_matrix(self.tokens.is_input_var)
+        print("---- var_type ----")
+        print_prop_matrix(self.tokens.var_type)
         print("---- var_id ----")
         print_prop_matrix(self.tokens.var_id)
         print("---- behavior_id ----")

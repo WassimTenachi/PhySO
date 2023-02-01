@@ -200,6 +200,9 @@ class LibraryTest(unittest.TestCase):
         pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=0,
                        function=lambda const=np.pi: const,
                        var_id=None)
+        c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=2,
+                       init_val=1.,
+                       var_id=0)
         args_make_tokens = {
                 # operations
                 "op_names"             : ["mul", "neg", "inv", "sin"],
@@ -212,6 +215,8 @@ class LibraryTest(unittest.TestCase):
                 "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
                 "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
                            }
+        with self.assertWarns(Warning):
+            my_lib = Lib.Library(custom_tokens = [c0,add] , args_make_tokens = None,)
         with self.assertWarns(Warning):
             my_lib = Lib.Library(custom_tokens = [x0,x1,add] , args_make_tokens = None,)
         with self.assertWarns(Warning):
