@@ -161,9 +161,12 @@ class Library:
         self.input_var_ids      = self.var_id[self.var_type == 1]   # (n_input_var,) of int
 
         # ------------------------------ FREE CONSTANTS ------------------------------
+        # Number of free constants
         self.n_free_constants = (self.var_type == 2).sum()
+        # Free constants tokens
+        self.free_constants_tokens = self.lib_tokens[self.var_type == 2]                                           # (n_free_constants,) of Token.Token
         # Ids of free constants available
-        self.free_constants_ids = self.var_id[self.var_type == 2] # (n_free_constants,) of int
+        self.free_constants_ids = self.var_id[self.var_type == 2]                                                  # (n_free_constants,) of int
         # Initial values of free constants
         self.free_constants_init_val = np.array([token.init_val for token in self.lib_tokens])[self.var_type == 2] # (n_free_constants,) of float
 

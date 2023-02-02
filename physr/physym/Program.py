@@ -23,6 +23,7 @@ except:
 from physr.physym import Token as Tok
 from physr.physym import ExecuteProgram as Exec
 from physr.physym import DimensionalAnalysis as phy
+from physr.physym.Dataset import FreeConstantsTable
 
 
 class Cursor:
@@ -608,15 +609,7 @@ class VectPrograms:
         self.register_ancestor (coords_dest = coords_initial_dummies)
 
         # ---------------------------- FREE CONSTANTS REGISTER ----------------------------
-        # Number of free constants:
-        n_free_const = self.library.n_free_constants
-        # Free constants values for each program
-        self.free_const_val = np.tile(self.library.free_constants_init_val,
-                                      reps=(self.batch_size, 1))                                 # (batch_size, n_free_const,) of float
-        # mask : is free constant optimized
-        self.is_free_const_opti   = np.full(shape=self.batch_size, fill_value=False, dtype=bool) # (batch_size,) of bool
-        # Number of epochs necessary to optimize free constant
-        self.free_const_opti_time = np.full(shape=self.batch_size, fill_value=False, dtype=int)  # (batch_size,) of int
+        self.free_consts = FreeConstantsTable(batch_size = self.batch_size, library =self.library)
 
         return None
 

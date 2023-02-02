@@ -3,9 +3,6 @@ import warnings
 import numpy as np
 import torch as torch
 
-# todo: see if precompiled is faster
-#  https://stackoverflow.com/questions/7508803/how-do-i-import-function-from-pyx-file-in-python
-
 def ExecuteProgram (input_var_data, program_tokens):
     """
     Executes a symbolic function program.
