@@ -2,6 +2,13 @@ import torch
 import numpy as np
 
 
+class FreeConstants:
+    """
+    Contains free constants values.
+    """
+    def __int__(self):
+
+
 class Dataset:
     """
     Contains a dataset and runs assertions.
