@@ -183,26 +183,28 @@ class Program:
         Size of program.
     library : Library.Library
         Library of tokens that could appear in Program.
+    is_physical : bool or None
+        Is program physical (units-wize) ?
+    free_const_values : array_like of float or None
+        Values of free constants for each constant in the library.
     """
-    def __init__(self, tokens, library, is_physical=None):
+    def __init__(self, tokens, library, is_physical=None, free_const_values=None):
         """
         Parameters
         ----------
-        tokens : array_like of Token.Token
-            Tokens making up program (full tree representation, no more, no less).
-        library : Library.Library
-            Library of tokens that could appear in Program.
-        is_physical : bool or None
-            Is program physical (units-wize) ?
+        See attributes help for details.
         """
         # Asserting that tokens make up a full tree representation, no more, no less
         total_arity = np.sum([tok.arity for tok in tokens])
         assert len(tokens)-total_arity==1, "Tokens making up Program must consist in a full tree representation " \
                                            "(length - total arities = 1), no more, no less"
-        self.tokens      = tokens
-        self.size        = len(tokens)
-        self.library     = library
-        self.is_physical = is_physical
+        self.tokens       = tokens
+        self.size         = len(tokens)
+        self.library      = library
+        self.is_physical  = is_physical
+
+        # free const related
+        self.free_const_values = free_const_values
 
     def execute(self, X):
         """
@@ -216,7 +218,7 @@ class Program:
         y : torch.tensor of shape (?,) of float
             Result of computation.
         """
-        y = Exec.ExecuteProgram(input_var_data=X, program_tokens=self.tokens)
+        y = Exec.ExecuteProgram(input_var_data=X, free_const_values=self.free_const_values, program_tokens=self.tokens)
         return y
 
     def __call__(self, X):
@@ -1968,6 +1970,16 @@ class VectPrograms:
         # Summing over time dim
         return self.tokens.complexity.sum(axis=1) # (batch_size,) of int
 
+    @property
+    def n_free_const_occurrences(self):
+        """
+        Number of occurrences of free const in programs
+        Returns
+        -------
+        occurrences : numpy.array of shape (batch_size,) of int
+        """
+        return (self.tokens.var_type == 2).sum(axis=1) # (batch_size,) of int
+
     def get_token(self, coords):
         """
         Returns token objects at coords.
@@ -2024,8 +2036,11 @@ class VectPrograms:
             Program making up symbolic function.
         """
         tokens = self.get_prog_tokens(prog_idx=prog_idx)
-        is_physical = self.is_physical[prog_idx]
-        prog = Program(tokens=tokens, library=self.library, is_physical=is_physical,)
+        is_physical              = self.is_physical        [prog_idx]
+        free_const_values        = self.free_consts.values [prog_idx]
+        prog = Program(tokens=tokens, library=self.library,
+                       is_physical=is_physical,
+                       free_const_values = free_const_values)
         return prog
 
     def get_programs_array (self):

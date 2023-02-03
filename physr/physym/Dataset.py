@@ -11,7 +11,7 @@ class FreeConstantsTable:
 
         # Shape
         self.batch_size = batch_size
-        self.n_free_const = self.library.n_free_constants # Number of free constants
+        self.n_free_const = self.library.n_free_const # Number of free constants
         self.shape = (self.batch_size, self.n_free_const,)
 
         # Free constants values for each program # as torch tensor for fast computation (sent to device in Batch)

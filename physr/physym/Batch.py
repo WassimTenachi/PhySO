@@ -7,6 +7,7 @@ from physr.physym import Program
 from physr.physym import Library
 from physr.physym import Prior
 from physr.physym import Dataset
+from physr.physym import Reward
 from physr.physym import ExecuteProgram
 
 # Embedding output in SR interface
@@ -397,7 +398,7 @@ class Batch:
         rewards : numpy.array of shape (batch_size,) of float
             Rewards of programs.
         """
-        rewards = ExecuteProgram.ComputeRewards(reward_function = self.reward_function,
+        rewards = Reward.ComputeRewards(reward_function = self.reward_function,
                                                 programs        = self.programs,
                                                 X               = self.dataset.X,
                                                 y_target        = self.dataset.y_target)

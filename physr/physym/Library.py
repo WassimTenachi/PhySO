@@ -162,13 +162,13 @@ class Library:
 
         # ------------------------------ FREE CONSTANTS ------------------------------
         # Number of free constants
-        self.n_free_constants = (self.var_type == 2).sum()
+        self.n_free_const = (self.var_type == 2).sum()
         # Free constants tokens
-        self.free_constants_tokens = self.lib_tokens[self.var_type == 2]                                           # (n_free_constants,) of Token.Token
+        self.free_constants_tokens = self.lib_tokens[self.var_type == 2]                                           # (n_free_const,) of Token.Token
         # Ids of free constants available
-        self.free_constants_ids = self.var_id[self.var_type == 2]                                                  # (n_free_constants,) of int
+        self.free_constants_ids = self.var_id[self.var_type == 2]                                                  # (n_free_const,) of int
         # Initial values of free constants
-        self.free_constants_init_val = np.array([token.init_val for token in self.lib_tokens])[self.var_type == 2] # (n_free_constants,) of float
+        self.free_constants_init_val = np.array([token.init_val for token in self.lib_tokens])[self.var_type == 2] # (n_free_const,) of float
 
 
     def reset_library(self):
