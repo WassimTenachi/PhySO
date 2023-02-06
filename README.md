@@ -64,6 +64,10 @@ This should result in all tests being successfully passed (except for plots test
 
 # Getting started
 
+### Fitting data
+### Custom functions
+### Open training loop
+
 
 # Citing this work
 
