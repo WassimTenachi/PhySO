@@ -23,7 +23,7 @@ except:
 from physr.physym import Token as Tok
 from physr.physym import ExecuteProgram as Exec
 from physr.physym import DimensionalAnalysis as phy
-from physr.physym.Dataset import FreeConstantsTable
+from physr.physym.FreeConstUtils import FreeConstantsTable
 
 
 class Cursor:
