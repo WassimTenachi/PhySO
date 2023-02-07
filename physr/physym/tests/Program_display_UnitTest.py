@@ -7,7 +7,6 @@ import time as time
 # Internal imports
 from physr.physym import Library as Lib
 from physr.physym import Program as Prog
-from physr.physym import DimensionalAnalysis as phy
 
 
 def make_lib():

@@ -23,7 +23,7 @@ except:
 from physr.physym import Token as Tok
 from physr.physym import ExecuteProgram as Exec
 from physr.physym import DimensionalAnalysis as phy
-from physr.physym.FreeConstUtils import FreeConstantsTable
+from physr.physym import FreeConstUtils as FreeConstUtils
 
 
 class Cursor:
@@ -220,6 +220,21 @@ class Program:
         """
         y = Exec.ExecuteProgram(input_var_data=X, free_const_values=self.free_const_values, program_tokens=self.tokens)
         return y
+
+    def optimize_constants(self, X, y_target, args_opti = None):
+        """
+
+        """
+        if args_opti is None:
+            args_opti = FreeConstUtils.DEFAULT_OPTI_ARGS
+        #todo: doc
+        func_params = lambda params: self.__call__(X)
+
+        history = FreeConstUtils.optimize_free_const ( func     = func_params,
+                                                       params   = self.free_const_values,
+                                                       y_target = y_target,
+                                                       **args_opti)
+        return history
 
     def __call__(self, X):
         """
@@ -611,7 +626,7 @@ class VectPrograms:
         self.register_ancestor (coords_dest = coords_initial_dummies)
 
         # ---------------------------- FREE CONSTANTS REGISTER ----------------------------
-        self.free_consts = FreeConstantsTable(batch_size = self.batch_size, library =self.library)
+        self.free_consts = FreeConstUtils.FreeConstantsTable(batch_size = self.batch_size, library =self.library)
 
         return None
 
@@ -635,6 +650,9 @@ class VectPrograms:
         """
         Appends new tokens to batch.
         New tokens appended to already complete programs (ie. out of tree tokens) are ignored.
+        Note that units requirements and update is not done in append (as it is computationally costly and unnecessary
+        if units are not used). Use the assign_required_units method on all previous steps + this one before appending
+        to compute units. This is done by Prior.PhysicalUnitsPrior.
         Parameters
         ----------
         new_tokens_idx : numpy.array of shape (batch_size,) of int

@@ -19,8 +19,12 @@ class FreeConstantsTable:
         self.shape = (self.batch_size, self.n_free_const,)
 
         # Free constants values for each program # as torch tensor for fast computation (sent to device in Batch)
-        self.values = torch.tensor(np.tile(self.library.free_constants_init_val,
-                                      reps=(self.batch_size, 1)))                      # (batch_size, n_free_const,) of float
+        values_array = np.tile(self.library.free_constants_init_val,                   # (batch_size, n_free_const,) of float
+                                 reps=(self.batch_size, 1))
+        self.values = torch.tensor(values_array)                                       # (batch_size, n_free_const,) of float
+        # todo: reset gradients so sets of constants are not linked with each other in case initial values were given
+        #  as a torch.tensor
+        self.values = self.values
         # mask : is free constant optimized
         self.is_opti   = np.full(shape=self.batch_size, fill_value=False, dtype=bool)  # (batch_size,) of bool
         # Number of epochs necessary to optimize free constant
@@ -66,7 +70,7 @@ LOSSES = {
 # --- LBFGS ---
 
 DEFAULT_LBFGS_OPTI_ARGS = {
-    'n_steps' : 10,
+    'n_steps' : 30,
     'tol'     : 1e-6,
     'lbfgs_func_args' : {
         'max_iter'       : 4,
@@ -127,6 +131,12 @@ OPTIMIZERS_DEFAULT_ARGS = {
 }
 
 # ------------ WRAPPER ------------
+
+DEFAULT_OPTI_ARGS = {
+    'loss'   : "MSE",
+    'method' : 'LBFGS',
+    'method_args': OPTIMIZERS_DEFAULT_ARGS['LBFGS'],
+}
 
 def optimize_free_const (func,
                          params,

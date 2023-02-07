@@ -42,7 +42,11 @@ def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
                 curr_stack.append(input_var_data[token.var_id])
             # Free constant variable (eg. c0, c1 etc.)
             elif token.var_type == 2:
-                curr_stack.append(free_const_values[token.var_id])
+                if free_const_values is not None:
+                    curr_stack.append(free_const_values[token.var_id])
+                else:
+                    raise ValueError("Free constant encountered in program evaluation but free constant values were "
+                                     "not given.")
             else:
                 raise NotImplementedError("Token of unknown var_type encountered in ExecuteProgram.")
         # Non-terminal token
