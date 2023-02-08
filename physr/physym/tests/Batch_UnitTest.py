@@ -218,9 +218,9 @@ class BatchTest(unittest.TestCase):
                                max_time_step    = max_time_step,
                                rewards_computer = Reward.make_RewardsComputer (reward_function     = Reward.SquashedNRMSE,
                                                                                zero_out_unphysical = True),
+                               free_const_opti_args = free_const_opti_args,
                                X        = X,
                                y_target = y_target,
-                               free_const_opti_args = free_const_opti_args,
                                )
 
         # --- DUMMY EPOCH ---

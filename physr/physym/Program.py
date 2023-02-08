@@ -236,7 +236,6 @@ class Program:
         """
         if args_opti is None:
             args_opti = FreeConstUtils.DEFAULT_OPTI_ARGS
-        #todo: doc
         func_params = lambda params: self.__call__(X)
 
         history = FreeConstUtils.optimize_free_const ( func     = func_params,
