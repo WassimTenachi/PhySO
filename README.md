@@ -66,6 +66,7 @@ This should result in all tests being successfully passed (except for plots test
 
 ### Fitting data
 ### Custom functions
+### Custom symbolic optimization task
 ### Open training loop
 
 
