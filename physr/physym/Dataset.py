@@ -34,17 +34,18 @@ class Dataset:
         n_dim, data_size = X.shape
         # --- ASSERT VARIABLE ID ---
         # Check that all tokens in the library have id < n_dim
-        # Is id input_var_id wrong : mask.
-        # Ie. is_input_var is True AND id >= n_dim
-        mask_wrong_id = np.logical_and(library.is_input_var, library.input_var_id >= n_dim)
-        assert mask_wrong_id.sum() == 0, "Can not access input variable data X by X[input_var_id] of tokens :" \
-                                         "\n %s\n as they have out of range input_var_id >= X.shape[0] = n_dim = %i," \
-                                         " input_var_id :\n %s" % (library.lib_name[mask_wrong_id], n_dim, library.input_var_id [mask_wrong_id])
+        # Is id var_id wrong : mask.
+        # Ie. var_type is that of input var AND id >= n_dim
+        mask_wrong_id = np.logical_and(library.var_type == 1, library.var_id >= n_dim)
+        assert mask_wrong_id.sum() == 0, "Can not access input variable data X by X[var_id] of tokens :" \
+                                         "\n %s\n as they have out of range var_id >= X.shape[0] = n_dim = %i," \
+                                         " var_id :\n %s" % (library.lib_name[mask_wrong_id], n_dim, library.var_id [mask_wrong_id])
 
 
         # ---------------------- ATTRIBUTES ----------------------
-        self.X        = X
-        self.y_target = y_target
+        self.X               = X
+        self.y_target        = y_target
+        self.detected_device = X.device
 
     def __repr__(self):
         s = "X        : %s \n" \

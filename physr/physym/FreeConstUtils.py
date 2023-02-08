@@ -18,17 +18,17 @@ class FreeConstantsTable:
         self.n_free_const = self.library.n_free_const # Number of free constants
         self.shape = (self.batch_size, self.n_free_const,)
 
+        # Initial values
+        self.init_val = self.library.free_constants_init_val                           # (n_free_const,) of float
         # Free constants values for each program # as torch tensor for fast computation (sent to device in Batch)
-        values_array = np.tile(self.library.free_constants_init_val,                   # (batch_size, n_free_const,) of float
-                                 reps=(self.batch_size, 1))
+        values_array = np.tile(self.init_val, reps=(self.batch_size, 1))               # (batch_size, n_free_const,) of float
+        # If free_constants_init_val already contains torch tensors, they are converted by np.tile (if on same device)
         self.values = torch.tensor(values_array)                                       # (batch_size, n_free_const,) of float
-        # todo: reset gradients so sets of constants are not linked with each other in case initial values were given
-        #  as a torch.tensor
         self.values = self.values
         # mask : is free constant optimized
-        self.is_opti   = np.full(shape=self.batch_size, fill_value=False, dtype=bool)  # (batch_size,) of bool
+        self.is_opti    = np.full(shape=self.batch_size, fill_value=False, dtype=bool)  # (batch_size,) of bool
         # Number of epochs necessary to optimize free constant
-        self.opti_time = np.full(shape=self.batch_size, fill_value=False, dtype=int )  # (batch_size,) of int
+        self.opti_steps = np.full(shape=self.batch_size, fill_value=False, dtype=int )  # (batch_size,) of int
 
     def __repr__(self):
         s = "FreeConstantsTable for %s : %s"%(self.library.free_constants_tokens, self.shape,)

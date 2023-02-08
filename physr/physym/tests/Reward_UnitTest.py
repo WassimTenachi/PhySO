@@ -25,7 +25,7 @@ class ExecuteProgramTest(unittest.TestCase):
         t0 = time.perf_counter()
         N = 100
         for _ in range (N):
-            res = Reward.Reward_SquashedNRMSE(y_target = y_target, y_pred = y_pred,)
+            res = Reward.SquashedNRMSE(y_target = y_target, y_pred = y_pred, )
         t1 = time.perf_counter()
         print("\nReward_SquashedNRMSE time = %.3f ms"%((t1-t0)*1e3/N))
 

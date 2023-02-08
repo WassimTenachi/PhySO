@@ -39,7 +39,7 @@ class FreeConstUtilsTest(unittest.TestCase):
         total_n_steps = 0
         t0 = time.perf_counter()
 
-        N = 10 #todo: put 1000
+        N = 100
         for _ in range (N):
 
             params_init = 1. * torch.ones(n_params, ).to(DEVICE)

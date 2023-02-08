@@ -223,7 +223,16 @@ class Program:
 
     def optimize_constants(self, X, y_target, args_opti = None):
         """
-
+        Optimizes free constants of program.
+        Parameters
+        ----------
+        X : torch.tensor of shape (n_dim, ?,) of float
+            Values of the input variables of the problem with n_dim = nb of input variables.
+        y_target : torch.tensor of shape (?,) of float
+            Values of target output.
+        args_opti : dict or None, optional
+            Arguments to pass to FreeConstUtils.optimize_free_const. By default, FreeConstUtils.DEFAULT_OPTI_ARGS
+            arguments are used.
         """
         if args_opti is None:
             args_opti = FreeConstUtils.DEFAULT_OPTI_ARGS

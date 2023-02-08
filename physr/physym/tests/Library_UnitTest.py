@@ -51,7 +51,7 @@ class LibraryTest(unittest.TestCase):
                         var_id=None),
         Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=0,
                        function=lambda const=np.pi: const,
-                       var_id=None),
+                       var_id=None,),
                         ]
         n_tokens_via_custom = len(custom_tokens)
         args_make_tokens = {
