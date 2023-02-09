@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import torch
 
-from physr.physym import Dataset
+from physr.physym import dataset
 from physr.physym import library as Lib
 from physr.physym.functions import data_conversion, data_conversion_inv
 
@@ -48,31 +48,31 @@ class TestDataset(unittest.TestCase):
 
         # ------- TEST CREATION -------
         try:
-            my_dataset = Dataset.Dataset(library = my_lib, X = X, y_target = y_target)
+            my_dataset = dataset.Dataset(library = my_lib, X = X, y_target = y_target)
         except:
             self.fail("Dataset creation failed.")
 
         # ------- ASSERTIONS : TENSOR TYPE -------
         with self.assertRaises(AssertionError):
-            my_dataset = Dataset.Dataset(library = my_lib, X = np.ones((3, 100)), y_target = torch.ones((100,)))
+            my_dataset = dataset.Dataset(library = my_lib, X = np.ones((3, 100)), y_target = torch.ones((100,)))
         with self.assertRaises(AssertionError):
-            my_dataset = Dataset.Dataset(library = my_lib, X = torch.ones((3, 100)), y_target = np.ones((100,)))
+            my_dataset = dataset.Dataset(library = my_lib, X = torch.ones((3, 100)), y_target = np.ones((100,)))
 
         # ------- ASSERTIONS : FLOAT TYPE -------
         with self.assertRaises(AssertionError):
-            my_dataset = Dataset.Dataset(library = my_lib, X = torch.ones((3, 100), dtype=int), y_target = torch.ones((100,)))
+            my_dataset = dataset.Dataset(library = my_lib, X = torch.ones((3, 100), dtype=int), y_target = torch.ones((100,)))
         with self.assertRaises(AssertionError):
-            my_dataset = Dataset.Dataset(library = my_lib, X = torch.ones((3, 100)), y_target = torch.ones((100,), dtype=int))
+            my_dataset = dataset.Dataset(library = my_lib, X = torch.ones((3, 100)), y_target = torch.ones((100,), dtype=int))
 
         # ------- ASSERTIONS : SHAPE -------
         with self.assertRaises(AssertionError):
-            my_dataset = Dataset.Dataset(library = my_lib, X = torch.ones((3, 100),), y_target = torch.ones((200,)))
+            my_dataset = dataset.Dataset(library = my_lib, X = torch.ones((3, 100),), y_target = torch.ones((200,)))
         with self.assertRaises(AssertionError):
-            my_dataset = Dataset.Dataset(library = my_lib, X = torch.ones((100, 3),), y_target = torch.ones((100,)))
+            my_dataset = dataset.Dataset(library = my_lib, X = torch.ones((100, 3),), y_target = torch.ones((100,)))
 
         # ------- ASSERTIONS : VARIABLE ID -------
         with self.assertRaises(AssertionError):
-            my_dataset = Dataset.Dataset(library=my_lib, X=torch.ones((1, 100), ), y_target=torch.ones((100,)))
+            my_dataset = dataset.Dataset(library=my_lib, X=torch.ones((1, 100), ), y_target=torch.ones((100,)))
 
     def test_device_detection (self):
 
@@ -113,7 +113,7 @@ class TestDataset(unittest.TestCase):
 
         # ------- TEST CREATION -------
         try:
-            my_dataset = Dataset.Dataset(library = my_lib, X = X, y_target = y_target)
+            my_dataset = dataset.Dataset(library = my_lib, X = X, y_target = y_target)
         except:
             self.fail("Dataset creation failed.")
 

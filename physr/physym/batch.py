@@ -5,10 +5,10 @@ import torch
 from physr.physym import token
 from physr.physym import program
 from physr.physym import library
-from physr.physym import Prior
-from physr.physym import Dataset
-from physr.physym import Reward
-from physr.physym import ExecuteProgram
+from physr.physym import prior
+from physr.physym import dataset
+from physr.physym import reward
+from physr.physym import execute_program
 
 # Embedding output in SR interface
 INTERFACE_UNITS_AVAILABLE   = 1.
@@ -46,7 +46,7 @@ class Batch:
         library_args: dict
             Arguments passed to library.__init__
         priors_config : list of couples (str : dict)
-            List of priors. List containing couples with prior name as first item in couple (see Prior.PRIORS_DICT for list
+            List of priors. List containing couples with prior name as first item in couple (see prior.PRIORS_DICT for list
             of available priors) and additional arguments (besides library and programs) to be passed to priors as second
             item of couple, leave None for priors that do not require arguments.
         X : torch.tensor of shape (n_dim, ?,) of float
@@ -62,8 +62,8 @@ class Batch:
         max_time_step : int
             Max number of tokens programs can contain.
         free_const_opti_args : dict or None, optional
-            Arguments to pass to FreeConstUtils.optimize_free_const for free constants optimization. By default,
-            FreeConstUtils.DEFAULT_OPTI_ARGS arguments are used.
+            Arguments to pass to free_const_utils.optimize_free_const for free constants optimization. By default,
+            free_const_utils.DEFAULT_OPTI_ARGS arguments are used.
         """
 
         # Batch
@@ -76,11 +76,11 @@ class Batch:
                                              max_time_step = self.max_time_step,
                                              library       = self.library)
         # Prior
-        self.prior   = Prior.make_PriorCollection(programs      = self.programs,
+        self.prior   = prior.make_PriorCollection(programs      = self.programs,
                                                   library       = self.library,
                                                   priors_config = priors_config,)
         # Dataset
-        self.dataset = Dataset.Dataset(
+        self.dataset = dataset.Dataset(
             library = self.library,
             X = X,
             y_target = y_target,)

@@ -741,7 +741,7 @@ def make_PriorCollection (library, programs, priors_config,):
     programs : program.VectPrograms
         Programs in the batch.
     priors_config : list of couples (str : dict)
-        List of priors. List containing couples with prior name as first item in couple (see Prior.PRIORS_DICT for list
+        List of priors. List containing couples with prior name as first item in couple (see prior.PRIORS_DICT for list
         of available priors) and additional arguments (besides library and programs) to be passed to priors as second
         item of couple, leave None for priors that do not require arguments.
     Returns
@@ -785,7 +785,7 @@ def make_PriorCollection (library, programs, priors_config,):
 
 class PriorCollection:
     """
-    Collection of Prior.Prior, returns value of element-wise multiplication of constituent priors.
+    Collection of prior.Prior, returns value of element-wise multiplication of constituent priors.
     """
     def __init__(self, library, programs,):
         """
@@ -806,7 +806,7 @@ class PriorCollection:
         Sets constituent priors.
         Parameters
         ----------
-        priors : list of Prior.Prior
+        priors : list of prior.Prior
         """
         for prior in priors:
             self.priors.append(prior)

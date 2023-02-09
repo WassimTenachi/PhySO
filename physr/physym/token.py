@@ -18,7 +18,7 @@ DEFAULT_FREE_CONST_INIT_VAL = 1.
 # VectPrograms.append, VectPrograms.update_relationships_pos only work with MAX_NB_CHILDREN = 2
 MAX_NB_CHILDREN = 2
 # VectPrograms.append, VectPrograms.update_relationships_pos, VectPrograms.get_sibling_idx,
-# VectPrograms.get_sibling_idx_of_step Prior.RelationshipConstraintPrior get_property_of_relative,
+# VectPrograms.get_sibling_idx_of_step prior.RelationshipConstraintPrior get_property_of_relative,
 # only work with MAX_NB_SIBLINGS = 1
 MAX_NB_SIBLINGS = MAX_NB_CHILDREN - 1
 # Max arity value

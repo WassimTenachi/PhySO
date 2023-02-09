@@ -4,13 +4,13 @@ import torch
 import numpy as np
 
 # Internal imports
-import physr.physym.FreeConstUtils as FreeConstUtils
+import physr.physym.free_const_utils as free_const_utils
 
 # For testing whole opti process : test_optimization_process
 from physr.physym import library as Lib
 from physr.physym import program as Prog
 from physr.physym.functions import data_conversion, data_conversion_inv
-from physr.physym import ExecuteProgram as Exec
+from physr.physym import execute_program as Exec
 
 class FreeConstUtilsTest(unittest.TestCase):
 
@@ -45,7 +45,7 @@ class FreeConstUtilsTest(unittest.TestCase):
             params_init = 1. * torch.ones(n_params, ).to(DEVICE)
             params = params_init
 
-            history = FreeConstUtils.optimize_free_const ( func     = func_params,
+            history = free_const_utils.optimize_free_const ( func     = func_params,
                                                            params   = params,
                                                            y_target = y_target,
                                                            loss        = "MSE",

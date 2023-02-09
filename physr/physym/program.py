@@ -21,9 +21,9 @@ except:
 
 # Internal imports
 from physr.physym import token as Tok
-from physr.physym import ExecuteProgram as Exec
-from physr.physym import DimensionalAnalysis as phy
-from physr.physym import FreeConstUtils as FreeConstUtils
+from physr.physym import execute_program as Exec
+from physr.physym import dimensional_analysis as phy
+from physr.physym import free_const_utils
 
 
 class Cursor:
@@ -231,14 +231,14 @@ class Program:
         y_target : torch.tensor of shape (?,) of float
             Values of target output.
         args_opti : dict or None, optional
-            Arguments to pass to FreeConstUtils.optimize_free_const. By default, FreeConstUtils.DEFAULT_OPTI_ARGS
+            Arguments to pass to free_const_utils.optimize_free_const. By default, free_const_utils.DEFAULT_OPTI_ARGS
             arguments are used.
         """
         if args_opti is None:
-            args_opti = FreeConstUtils.DEFAULT_OPTI_ARGS
+            args_opti = free_const_utils.DEFAULT_OPTI_ARGS
         func_params = lambda params: self.__call__(X)
 
-        history = FreeConstUtils.optimize_free_const ( func     = func_params,
+        history = free_const_utils.optimize_free_const ( func     = func_params,
                                                        params   = self.free_const_values,
                                                        y_target = y_target,
                                                        **args_opti)
@@ -634,7 +634,7 @@ class VectPrograms:
         self.register_ancestor (coords_dest = coords_initial_dummies)
 
         # ---------------------------- FREE CONSTANTS REGISTER ----------------------------
-        self.free_consts = FreeConstUtils.FreeConstantsTable(batch_size = self.batch_size, library =self.library)
+        self.free_consts = free_const_utils.FreeConstantsTable(batch_size = self.batch_size, library =self.library)
 
         return None
 
@@ -660,7 +660,7 @@ class VectPrograms:
         New tokens appended to already complete programs (ie. out of tree tokens) are ignored.
         Note that units requirements and update is not done in append (as it is computationally costly and unnecessary
         if units are not used). Use the assign_required_units method on all previous steps + this one before appending
-        to compute units. This is done by Prior.PhysicalUnitsPrior.
+        to compute units. This is done by prior.PhysicalUnitsPrior.
         Parameters
         ----------
         new_tokens_idx : numpy.array of shape (batch_size,) of int
