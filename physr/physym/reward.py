@@ -44,8 +44,8 @@ def RewardsComputer(programs,
     y_target : torch.tensor of shape (?,) of float
         Values of the target symbolic function on input variables contained in X_target.
     free_const_opti_args : dict or None, optional
-        Arguments to pass to free_const_utils.optimize_free_const for free constants optimization. By default,
-        free_const_utils.DEFAULT_OPTI_ARGS arguments are used.
+        Arguments to pass to free_const.optimize_free_const for free constants optimization. By default,
+        free_const.DEFAULT_OPTI_ARGS arguments are used.
 
     reward_function : callable
         Function that taking y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of shape (?,)

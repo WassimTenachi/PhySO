@@ -62,8 +62,8 @@ class Batch:
         max_time_step : int
             Max number of tokens programs can contain.
         free_const_opti_args : dict or None, optional
-            Arguments to pass to free_const_utils.optimize_free_const for free constants optimization. By default,
-            free_const_utils.DEFAULT_OPTI_ARGS arguments are used.
+            Arguments to pass to free_const.optimize_free_const for free constants optimization. By default,
+            free_const.DEFAULT_OPTI_ARGS arguments are used.
         """
 
         # Batch
