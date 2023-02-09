@@ -30,6 +30,7 @@ def RewardsComputer(programs,
                     reward_function = SquashedNRMSE,
                     zero_out_unphysical = False,
                     zero_out_duplicates = False,
+                    keep_least_complex_duplicate = False,
                     ):
     """
     Computes rewards of programs on X data accordingly with target y_target and reward reward_function using torch
@@ -53,13 +54,18 @@ def RewardsComputer(programs,
         Should unphysical programs be zeroed out ?
     zero_out_duplicates : bool
         Should duplicate programs (equal symbolic value when simplified) be zeroed out ?
+    keep_least_complex_duplicate : bool
+        If True, when eliminating duplicates (via zero_out_duplicates = True), the least complex duplicate is kept.
+        
     Returns
     -------
     rewards : numpy.array of shape (?,) of float
         Rewards of programs.
     """
 
-    def batch_compute_rewards (programs, X, y_target, mask_valid):
+    # ----- SETUP -----
+
+    def batch_compute_rewards (programs, X, y_target, reward_function, mask_valid):
         """
         Helper function to compute reward of a batch of program where mask_valid is True.
         """
@@ -77,13 +83,14 @@ def RewardsComputer(programs,
                     # Computing reward
                     r = reward_function(y_pred=y_pred, y_target=y_target,)
                 except:
+                    # Safety
                     warnings.warn("Unable to compute reward of prog %i -> r = 0"%(i))
                     r = torch.tensor(0.)
-            # If not valid prog, we should not bother computing reward
+            # If this is not a valid prog, we should not bother computing reward
             else:
                 r = torch.tensor(0.)
             rewards.append(r)
-        # Only using torch for acceleration, no backpropagation happening here -> converting to numpy
+        # Only using torch for gpu acceleration, no backpropagation happening here -> converting to numpy
         rewards = torch.stack(rewards).cpu().detach().numpy()
         return rewards
 
@@ -94,22 +101,24 @@ def RewardsComputer(programs,
         # Iterating through batch
         for i in range(programs.batch_size):
             # print("optimizing free const %i/%i"%(i, programs.batch_size))
-            # If this is a valid prog AND it contains free constants then try to optimize consts
-            # (Else we should not bother optimizing free constants)
+            # If this is a valid prog AND it contains free constants then we try to optimize its free constants.
+            # (Else we should not bother optimizing its free constants)
             if mask_valid[i] and programs.n_free_const_occurrences[i]:
                 try:
                     # Getting prog
                     prog = programs.get_prog(i)
                     # Optimizing free constants
                     history = prog.optimize_constants(X, y_target, args_opti=args_opti)
-                    # Logging free constant optimization
+                    # Logging free constant optimization process
                     programs.free_consts.is_opti    [i] = True
                     programs.free_consts.opti_steps [i] = len(history)
                 except:
+                    # Safety
                     warnings.warn("Unable to optimize free constants of prog %i -> r = 0"%(i))
         return None
 
-    # mask : should program reward NOT be zeroed out ? # By default all programs are considered valid
+    # mask : should program reward NOT be zeroed out ie. is program invalid ?
+    # By default all programs are considered valid
     mask_valid = np.full(shape=programs.batch_size, fill_value=True, dtype=bool)
 
     # ----- PHYSICALITY -----
@@ -120,15 +129,36 @@ def RewardsComputer(programs,
         mask_valid = (mask_valid & mask_is_physical)
 
     # ----- DUPLICATES -----
+    if zero_out_duplicates:
+        # Compute rewards (even if programs have non-optimized free consts) to serve as a unique numeric identifier of
+        # functional forms (programs having equivalent forms will have the same reward).
+        rewards_non_opt = batch_compute_rewards (programs, X, y_target, reward_function = reward_function, mask_valid = mask_valid)
+        unique_rewards, unique_idx = np.unique(rewards_non_opt, return_index=True)
+        if
     # todo: compute all rewards (with initial constants values) to use rewards as hash for unique-ness of candidates
     #  (-> no need for simplification for identifying duplicates)
     # todo: put reward of duplicates to 0 + mask encoding which were eliminated
 
+    # Compute rewards and apply mask
+
     # ----- FREE CONST OPTI -----
-    batch_optimize_free_const (programs, X, y_target, args_opti = free_const_opti_args, mask_valid = mask_valid)
+    # If there are free constants in the library, we have to optimize them
+    if programs.library.n_free_const > 0:
+        batch_optimize_free_const (programs, X, y_target, args_opti = free_const_opti_args, mask_valid = mask_valid)
 
     # ----- REWARDS -----
-    rewards = batch_compute_rewards (programs, X, y_target, mask_valid = mask_valid)
+    # If rewards were already computed at the duplicate elimination step and there are no free constants in the library
+    # No need to recompute rewards.
+    if zero_out_duplicates and programs.library.n_free_const == 0:
+        rewards = rewards_non_opt
+    # Else we need to compute rewards
+    else:
+        rewards = batch_compute_rewards (programs, X, y_target, reward_function = reward_function, mask_valid = mask_valid)
+
+    # Applying mask (this is redundant)
+    rewards = rewards * mask_valid.astype(float)
+    # Safety to avoid nan rewards (messes up gradients)
+    rewards = np.nan_to_num(rewards, nan=0.)
 
     return rewards
 
