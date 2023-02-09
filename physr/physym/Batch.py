@@ -3,7 +3,7 @@ import torch
 
 # Internal imports
 from physr.physym import token
-from physr.physym import Program
+from physr.physym import program
 from physr.physym import library
 from physr.physym import Prior
 from physr.physym import Dataset
@@ -54,7 +54,7 @@ class Batch:
         y_target : torch.tensor of shape (?,) of float
             Values of the target symbolic function on input variables contained in X_target.
         rewards_computer : callable
-            Function taking programs (Program.VectPrograms), X (torch.tensor of shape (n_dim,?,) of float), y_target
+            Function taking programs (program.VectPrograms), X (torch.tensor of shape (n_dim,?,) of float), y_target
             (torch.tensor of shape (?,) of float) as key arguments and returning reward for each program (array_like
             of float).
         batch_size : int
@@ -72,7 +72,7 @@ class Batch:
         # Library
         self.library  = library.Library(**library_args)
         # Programs
-        self.programs = Program.VectPrograms(batch_size    = self.batch_size,
+        self.programs = program.VectPrograms(batch_size    = self.batch_size,
                                              max_time_step = self.max_time_step,
                                              library       = self.library)
         # Prior

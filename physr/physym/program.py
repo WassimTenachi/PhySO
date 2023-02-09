@@ -33,7 +33,7 @@ class Cursor:
     For user-exploration, program testing and debugging.
     Attributes
     ----------
-    programs : Program.VectPrograms
+    programs : program.VectPrograms
         Batch of programs to explore.
     prog_idx : int
         Initial position of cursor in batch dim (= index of program in batch).
@@ -43,14 +43,14 @@ class Cursor:
     -------
     coords () -> numpy.array of shape (2, 1) of int
         Returns current coordinates in batch (batch dim, time dim) compatible with VectPrograms methods.
-    set_pos (new_pos : int) -> Program.Cursor
+    set_pos (new_pos : int) -> program.Cursor
         Sets position of cursor in time dim (= index of token in program) and returns cursor.
-    child   (i_child   : int) -> Program.Cursor
+    child   (i_child   : int) -> program.Cursor
         Returns a cursor pointing to child number i_child of current token. Raises error if there is no child.
-    sibling (i_sibling : int) -> Program.Cursor
+    sibling (i_sibling : int) -> program.Cursor
         Returns a cursor pointing to sibling number i_sibling of current token. Raises error if there is no sibling .
         cursor.
-    parent () -> Program.Cursor
+    parent () -> program.Cursor
         Returns a cursor pointing to parent of current token. Raises error if there is no parent.
     """
     def __init__(self, programs, prog_idx=0, pos=0):
@@ -58,7 +58,7 @@ class Cursor:
         See class documentation.
         Parameters
         ----------
-        programs : Program.VectPrograms
+        programs : program.VectPrograms
         prog_idx : int
         pos : int
         """
@@ -104,7 +104,7 @@ class Cursor:
         new_pos : int
         Returns
         -------
-        self : Program.Cursor
+        self : program.Cursor
         """
         self.pos = new_pos
         return self
@@ -117,7 +117,7 @@ class Cursor:
         i_child : int
         Returns
         -------
-        self : Program.Cursor
+        self : program.Cursor
         """
         has_relative     = self.programs.tokens.has_children_mask[tuple(self.coords)][0]
         if not has_relative:
@@ -138,7 +138,7 @@ class Cursor:
         i_sibling : int
         Returns
         -------
-        self : Program.Cursor
+        self : program.Cursor
         """
         has_relative = self.programs.tokens.has_siblings_mask[tuple(self.coords)][0]
         if not has_relative:
@@ -156,7 +156,7 @@ class Cursor:
         See class documentation.
         Returns
         -------
-        self : Program.Cursor
+        self : program.Cursor
         """
         has_relative = self.programs.tokens.has_parent_mask[tuple(self.coords)][0]
         if not has_relative:
@@ -2058,7 +2058,7 @@ class VectPrograms:
             Index of program in batch.
         Returns
         -------
-        program : Program.Program
+        program : program.Program
             Program making up symbolic function.
         """
         tokens = self.get_prog_tokens(prog_idx=prog_idx)
@@ -2075,7 +2075,7 @@ class VectPrograms:
         Discards void tokens beyond program length.
         Returns
         -------
-        program : numpy.array of Program.Program of shape (batch_size,)
+        program : numpy.array of program.Program of shape (batch_size,)
             Array of programs representing symbolic functions.
         """
         progs = np.array([self.get_prog(i) for i in range(self.batch_size)])

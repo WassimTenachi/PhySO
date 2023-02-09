@@ -204,7 +204,7 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
     Returns
     -------
     rewards_computer : callable
-         Custom reward computing function taking programs (Program.VectPrograms), X (torch.tensor of shape (n_dim,?,)
+         Custom reward computing function taking programs (program.VectPrograms), X (torch.tensor of shape (n_dim,?,)
          of float), y_target (torch.tensor of shape (?,) of float) as key arguments and returning reward for each
          program (array_like of float).
     """
