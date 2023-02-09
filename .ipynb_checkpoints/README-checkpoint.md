@@ -1,2 +1,0 @@
-# PhySR
-Physical Symbolic Regression
