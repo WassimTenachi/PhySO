@@ -30,7 +30,7 @@ def RewardsComputer(programs,
                     reward_function = SquashedNRMSE,
                     zero_out_unphysical = False,
                     zero_out_duplicates = False,
-                    keep_least_complex_duplicate = False,
+                    keep_lowest_complexity_duplicate = False,
                     ):
     """
     Computes rewards of programs on X data accordingly with target y_target and reward reward_function using torch
@@ -54,9 +54,9 @@ def RewardsComputer(programs,
         Should unphysical programs be zeroed out ?
     zero_out_duplicates : bool
         Should duplicate programs (equal symbolic value when simplified) be zeroed out ?
-    keep_least_complex_duplicate : bool
-        If True, when eliminating duplicates (via zero_out_duplicates = True), the least complex duplicate is kept.
-        
+    keep_lowest_complexity_duplicate : bool
+        If True, when eliminating duplicates (via zero_out_duplicates = True), the least complex duplicate is kept, else
+        a random duplicate is kept.
     Returns
     -------
     rewards : numpy.array of shape (?,) of float
@@ -91,7 +91,7 @@ def RewardsComputer(programs,
                 r = torch.tensor(0.)
             rewards.append(r)
         # Only using torch for gpu acceleration, no backpropagation happening here -> converting to numpy
-        rewards = torch.stack(rewards).cpu().detach().numpy()
+        rewards = torch.stack(rewards).cpu().detach().numpy()                                            # (batch_size,)
         return rewards
 
     def batch_optimize_free_const (programs, X, y_target, args_opti, mask_valid,):
@@ -119,29 +119,49 @@ def RewardsComputer(programs,
 
     # mask : should program reward NOT be zeroed out ie. is program invalid ?
     # By default all programs are considered valid
-    mask_valid = np.full(shape=programs.batch_size, fill_value=True, dtype=bool)
+    mask_valid = np.full(shape=programs.batch_size, fill_value=True, dtype=bool)                         # (batch_size,)
 
     # ----- PHYSICALITY -----
-    # mask : is program physical
-    mask_is_physical = programs.is_physical
-    # Update mask to zero out unphysical programs if necessary
     if zero_out_unphysical:
-        mask_valid = (mask_valid & mask_is_physical)
+        # mask : is program physical
+        mask_is_physical = programs.is_physical                                                          # (batch_size,)
+        # Update mask to zero out unphysical programs
+        mask_valid = (mask_valid & mask_is_physical)                                                     # (batch_size,)
 
     # ----- DUPLICATES -----
     if zero_out_duplicates:
         # Compute rewards (even if programs have non-optimized free consts) to serve as a unique numeric identifier of
         # functional forms (programs having equivalent forms will have the same reward).
-        rewards_non_opt = batch_compute_rewards (programs, X, y_target, reward_function = reward_function, mask_valid = mask_valid)
-        unique_rewards, unique_idx = np.unique(rewards_non_opt, return_index=True)
-        if
-    # todo: compute all rewards (with initial constants values) to use rewards as hash for unique-ness of candidates
-    #  (-> no need for simplification for identifying duplicates)
-    # todo: put reward of duplicates to 0 + mask encoding which were eliminated
+        rewards_non_opt = batch_compute_rewards (programs, X, y_target,
+                                                 reward_function = reward_function,
+                                                 mask_valid = mask_valid)
+        # mask : is program a unique one we should keep ?
+        # By default, all programs are eliminated.
+        mask_unique_keep = np.full(shape=programs.batch_size, fill_value=False, dtype=bool)              # (batch_size,)
+        # Identifying unique programs.
+        unique_rewards, unique_idx = np.unique(rewards_non_opt, return_index=True)                       # (n_unique,), (n_unique,)
+        if keep_lowest_complexity_duplicate:
+            unique_idx_lowest_comp = []
+            # Iterating through unique rewards
+            for r in unique_rewards:
+                # mask: does program have current unique reward ?
+                mask_have_r = (rewards_non_opt == r)                                                     # (batch_size,)
+                # complexities of programs having current unique reward
+                complexities_at_r = programs.n_complexity[mask_have_r]                                   # (n_at_r,)
+                # idx in batch of program having current unique reward of the lowest complexity
+                idx_lowest_comp = np.arange(programs.batch_size)[mask_have_r][complexities_at_r.argmin()]
+                unique_idx_lowest_comp.append(idx_lowest_comp)
+            # Idx of unique programs (having the lowest complexity among their duplicates)
+            unique_idx_lowest_comp = np.array(unique_idx_lowest_comp)
+            # Keeping the lowest complexity duplicate of unique programs
+            mask_unique_keep[unique_idx_lowest_comp] = True
+        else:
+            # Keeping first occurrences of unique programs (random)
+            mask_unique_keep[unique_idx] = True                                                          # (n_unique,)
+        # Update mask to zero out duplicate programs
+        mask_valid = (mask_valid & mask_unique_keep)                                                     # (batch_size,)
 
-    # Compute rewards and apply mask
-
-    # ----- FREE CONST OPTI -----
+    # ----- FREE CONST OPTIMIZATION -----
     # If there are free constants in the library, we have to optimize them
     if programs.library.n_free_const > 0:
         batch_optimize_free_const (programs, X, y_target, args_opti = free_const_opti_args, mask_valid = mask_valid)
@@ -165,7 +185,8 @@ def RewardsComputer(programs,
 
 def make_RewardsComputer(reward_function     = SquashedNRMSE,
                          zero_out_unphysical = False,
-                         zero_out_duplicates = False,):
+                         zero_out_duplicates = False,
+                         keep_lowest_complexity_duplicate = False):
     """
     Helper function to make custom reward computing function.
     Parameters
@@ -177,6 +198,9 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
         Should unphysical programs be zeroed out ?
     zero_out_duplicates : bool
         Should duplicate programs (equal symbolic value when simplified) be zeroed out ?
+    keep_lowest_complexity_duplicate : bool
+        If True, when eliminating duplicates (via zero_out_duplicates = True), the least complex duplicate is kept, else
+        a random duplicate is kept.
     Returns
     -------
     rewards_computer : callable
@@ -192,5 +216,5 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
                                                                                             reward_function     = reward_function,
                                                                                             zero_out_unphysical = zero_out_unphysical,
                                                                                             zero_out_duplicates = zero_out_duplicates,
-                                                                                            )
+                                                                                            keep_lowest_complexity_duplicate = keep_lowest_complexity_duplicate,)
     return rewards_computer
