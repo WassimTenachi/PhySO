@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 # Internal imports
 from physr.physym import token as Tok
-from physr.physym import Functions as Func
+from physr.physym import functions as Func
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------- PRIOR CLASS ----------------------------------------------------
@@ -410,7 +410,7 @@ class RelationshipConstraintPrior (Prior):
 class NoUselessInversePrior(Prior):
     """
     Forbids useless inverse sequences. Enforcing that op can not be the child of op^(-1) and that op^(-1) can not be
-    the child of op for all op having an inverse op^(-1) listed in Functions.INVERSE_OP_DICT.
+    the child of op for all op having an inverse op^(-1) listed in functions.INVERSE_OP_DICT.
     """
     def __init__(self, library, programs,):
         """
@@ -557,7 +557,7 @@ class NestedFunctions (Prior):
 
 class NestedTrigonometryPrior(Prior):
     """
-    Regulates nesting of trigonometric functions listed in Functions.TRIGONOMETRIC_OP. Enforcing that any trigonometric
+    Regulates nesting of trigonometric functions listed in functions.TRIGONOMETRIC_OP. Enforcing that any trigonometric
     function can only have up to [max_nesting] ancestors that also are trigonometric functions.
     """
     def __init__(self, library, programs, max_nesting = 1):

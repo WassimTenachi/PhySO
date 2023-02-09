@@ -403,7 +403,7 @@ def make_tokens(
             List of names of operations that will be used for a run (eg. ["mul", "add", "neg", "inv", "sin"]), or "all"
             to use all available tokens. By default, op_names = "all".
         use_protected_ops : bool, optional
-            If True safe functions defined in Functions.OPS_PROTECTED_DICT in place when available (eg. sqrt(abs(x))
+            If True safe functions defined in functions.OPS_PROTECTED_DICT in place when available (eg. sqrt(abs(x))
             instead of sqrt(x)). False by default.
         -------- input variables --------
         input_var_ids : dict of { str : int } or None, optional
@@ -478,7 +478,7 @@ def make_tokens(
             try:
                 tokens_ops.append(ops_dict[name])
             except KeyError:
-                raise UnknownFunction("%s is unknown, define a custom token function in Functions.py or use a function \
+                raise UnknownFunction("%s is unknown, define a custom token function in functions.py or use a function \
                 listed in %s"% (name, ops_dict))
 
     # -------------------------------- Handling input variables --------------------------------

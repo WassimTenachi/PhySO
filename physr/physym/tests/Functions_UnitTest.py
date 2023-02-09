@@ -4,8 +4,8 @@ import numpy as np
 import torch as torch
 
 # Internal imports
-from physr.physym import Functions as Func
-from physr.physym.Functions import data_conversion, data_conversion_inv
+from physr.physym import functions as Func
+from physr.physym.functions import data_conversion, data_conversion_inv
 
 
 # Test token and output shapes

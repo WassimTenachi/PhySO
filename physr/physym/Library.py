@@ -2,7 +2,7 @@ import warnings as warnings
 import numpy as np
 
 # Internal imports
-from physr.physym import Functions as Func
+from physr.physym import functions as Func
 from physr.physym import token as Tok
 
 class Library:
@@ -56,7 +56,7 @@ class Library:
         append_custom_tokens
             Adding list of custom Tokens to library.
         append_tokens_from_names
-            Creates tokens by passing arguments to Functions.make_tokens and adding them to library.
+            Creates tokens by passing arguments to functions.make_tokens and adding them to library.
 
         Examples
         --------
@@ -86,7 +86,7 @@ class Library:
         Parameters
         ----------
         args_make_tokens : dict or None
-            If not None, arguments are passed to Functions.make_tokens and tokens are added to the library.
+            If not None, arguments are passed to functions.make_tokens and tokens are added to the library.
         custom_tokens : list of token.Token or None
             If not None, the tokens are added to the library.
         superparent_units : array_like of float
@@ -233,7 +233,7 @@ class Library:
         """
         Checks if all terminal tokens (arity = 0) have units constraints ie if units constraints can be computed.
         Tokens in library come from various units assignments processes (from make_tokens : operation definition in
-        Functions, input_var_units dict, constants_units dict ; from custom tokens ; superparent units in
+        functions.py, input_var_units dict, constants_units dict ; from custom tokens ; superparent units in
         Library.__init__)
         """
         self.terminal_units_provided = True

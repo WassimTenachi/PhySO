@@ -5,7 +5,7 @@ import torch as torch
 
 # Internal imports
 from physr.physym import Reward as Reward
-from physr.physym.Functions import data_conversion, data_conversion_inv
+from physr.physym.functions import data_conversion, data_conversion_inv
 
 class ExecuteProgramTest(unittest.TestCase):
 

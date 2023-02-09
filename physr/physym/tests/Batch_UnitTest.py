@@ -6,7 +6,7 @@ import torch
 # Internal imports
 from physr.physym import Batch
 from physr.physym import Program
-from physr.physym.Functions import data_conversion
+from physr.physym.functions import data_conversion
 from physr.physym import Library
 from physr.physym import Reward
 from physr.physym import Prior

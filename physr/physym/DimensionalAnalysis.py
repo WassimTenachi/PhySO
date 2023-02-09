@@ -5,7 +5,7 @@ import numpy as np
 # Internal imports
 from physr.physym import Program
 from physr.physym import token as Tok
-from physr.physym import Functions as Func
+from physr.physym import functions as Func
 
 # Case-code for when units analysis was not performed.
 UNITS_ANALYSIS_NOT_PERFORMED_CASE_CODE = 0

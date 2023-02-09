@@ -118,7 +118,7 @@ class Token:
             (converted to INVALID_VAR_ID in __init__)
 
         behavior_id : int
-            Id encoding behavior of token in the context of dimensional analysis (see Functions for details).
+            Id encoding behavior of token in the context of dimensional analysis (see functions for details).
 
         is_power : bool
             True if token is a power token (n2, sqrt, n3 etc.), False else.

@@ -1,5 +1,5 @@
 from . import token
-from . import Functions
+from . import functions
 from . import Library
 from . import Program
 from . import ExecuteProgram

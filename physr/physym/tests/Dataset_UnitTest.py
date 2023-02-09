@@ -4,7 +4,7 @@ import torch
 
 from physr.physym import Dataset
 from physr.physym import Library as Lib
-from physr.physym.Functions import data_conversion, data_conversion_inv
+from physr.physym.functions import data_conversion, data_conversion_inv
 
 
 class TestDataset(unittest.TestCase):
