@@ -7,7 +7,7 @@ import numpy as np
 import physr.physym.FreeConstUtils as FreeConstUtils
 
 # For testing whole opti process : test_optimization_process
-from physr.physym import Library as Lib
+from physr.physym import library as Lib
 from physr.physym import Program as Prog
 from physr.physym.functions import data_conversion, data_conversion_inv
 from physr.physym import ExecuteProgram as Exec

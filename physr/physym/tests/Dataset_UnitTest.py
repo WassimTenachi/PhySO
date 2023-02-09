@@ -3,7 +3,7 @@ import numpy as np
 import torch
 
 from physr.physym import Dataset
-from physr.physym import Library as Lib
+from physr.physym import library as Lib
 from physr.physym.functions import data_conversion, data_conversion_inv
 
 

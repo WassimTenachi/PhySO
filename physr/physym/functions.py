@@ -444,7 +444,7 @@ def make_tokens(
             (eg. 1., 1., 1.). If None, complexity = token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
         Returns
         -------
-        list of Library.Token
+        list of token.Token
             List of tokens used for this run.
 
         Examples

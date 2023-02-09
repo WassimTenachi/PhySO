@@ -1,6 +1,6 @@
 from . import token
 from . import functions
-from . import Library
+from . import library
 from . import Program
 from . import ExecuteProgram
 from . import DimensionalAnalysis

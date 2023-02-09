@@ -234,7 +234,7 @@ class Library:
         Checks if all terminal tokens (arity = 0) have units constraints ie if units constraints can be computed.
         Tokens in library come from various units assignments processes (from make_tokens : operation definition in
         functions.py, input_var_units dict, constants_units dict ; from custom tokens ; superparent units in
-        Library.__init__)
+        library.Library.__init__)
         """
         self.terminal_units_provided = True
         # Checking all tokens (except dummy and valid which have arity = 0 and free dim)

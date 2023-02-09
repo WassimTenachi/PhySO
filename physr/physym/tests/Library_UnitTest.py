@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 
 # Internal imports
-from physr.physym import Library as Lib
+from physr.physym import library as Lib
 from physr.physym import token as Tok
 
 

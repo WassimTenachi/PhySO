@@ -9,7 +9,7 @@ class Dataset:
         """
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
             Library of choosable tokens.
         X : torch.tensor of shape (n_dim, ?,) of float
             Values of the input variables of the problem with n_dim = nb of input variables.

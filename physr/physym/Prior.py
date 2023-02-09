@@ -19,7 +19,7 @@ class Prior (ABC):
         """
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
             Library of choosable tokens.
         programs : Program.VectPrograms
             Programs in the batch.
@@ -60,7 +60,7 @@ class UniformArityPrior (Prior):
         """
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
         programs : Program.VectPrograms
         """
         Prior.__init__(self, library, programs)
@@ -89,7 +89,7 @@ class UniformArityPrior (Prior):
     #     """
     #     Parameters
     #     ----------
-    #     library : Library.Library
+    #     library : library.Library
     #     programs : Program.VectPrograms
     #     """
     #     Prior.__init__(self, library, programs)
@@ -127,7 +127,7 @@ class HardLengthPrior (Prior):
         """
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
         programs : Program.VectPrograms
         min_length : float
             Minimum length that programs are allowed to have.
@@ -187,7 +187,7 @@ class SoftLengthPrior (Prior):
         """
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
         programs : Program.VectPrograms
         length_loc : float
             Desired length of programs.
@@ -248,7 +248,7 @@ class RelationshipConstraintPrior (Prior):
         Enforcing that [targets] cannot be the [relationship] of [effectors].
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
         programs : Program.VectPrograms
         effectors : list of str
             List of effector tokens' name.
@@ -417,7 +417,7 @@ class NoUselessInversePrior(Prior):
         Enforcing functions are not child of their inverse function.
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
         programs : Program.VectPrograms
         """
         Prior.__init__(self, library, programs)
@@ -471,7 +471,7 @@ class NestedFunctions (Prior):
         Enforcing that [functions] can not be nested or only up to max_nesting level.
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
         programs : Program.VectPrograms
         functions : list of str
             List of tokens' names which's nesting will be forbidden.
@@ -565,7 +565,7 @@ class NestedTrigonometryPrior(Prior):
         Enforcing that trigonometric functions can not be nested or only up to max_nesting level.
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
         programs : Program.VectPrograms
         max_nesting : int
             Max level of nesting allowed. By default = 1, no nesting allowed.
@@ -621,7 +621,7 @@ class PhysicalUnitsPrior(Prior):
         """
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
         programs : Program.VectPrograms
         prob_eps : float
             Value to return for the prior inplace of zeros (useful for avoiding sampling problems)
@@ -736,7 +736,7 @@ def make_PriorCollection (library, programs, priors_config,):
     Makes PriorCollection object from arguments.
     Parameters
     ----------
-    library : Library.Library
+    library : library.Library
         Library of choosable tokens.
     programs : Program.VectPrograms
         Programs in the batch.
@@ -791,7 +791,7 @@ class PriorCollection:
         """
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
             Library of choosable tokens.
         programs : Program.VectPrograms
             Programs in the batch.

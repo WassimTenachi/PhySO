@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 
 # Internal imports
-from physr.physym import Library as Lib
+from physr.physym import library as Lib
 from physr.physym import Program as Prog
 from physr.physym import Prior as Prior
 

@@ -7,7 +7,7 @@ import torch
 from physr.physym import Batch
 from physr.physym import Program
 from physr.physym.functions import data_conversion
-from physr.physym import Library
+from physr.physym import library
 from physr.physym import Reward
 from physr.physym import Prior
 

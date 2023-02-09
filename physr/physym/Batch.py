@@ -4,7 +4,7 @@ import torch
 # Internal imports
 from physr.physym import token
 from physr.physym import Program
-from physr.physym import Library
+from physr.physym import library
 from physr.physym import Prior
 from physr.physym import Dataset
 from physr.physym import Reward
@@ -44,7 +44,7 @@ class Batch:
         Parameters
         ----------
         library_args: dict
-            Arguments passed to Library.__init__
+            Arguments passed to library.__init__
         priors_config : list of couples (str : dict)
             List of priors. List containing couples with prior name as first item in couple (see Prior.PRIORS_DICT for list
             of available priors) and additional arguments (besides library and programs) to be passed to priors as second
@@ -70,7 +70,7 @@ class Batch:
         self.batch_size    = batch_size
         self.max_time_step = max_time_step
         # Library
-        self.library  = Library.Library(**library_args)
+        self.library  = library.Library(**library_args)
         # Programs
         self.programs = Program.VectPrograms(batch_size    = self.batch_size,
                                              max_time_step = self.max_time_step,

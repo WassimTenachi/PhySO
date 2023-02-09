@@ -181,7 +181,7 @@ class Program:
         Tokens making up program.
     size : int
         Size of program.
-    library : Library.Library
+    library : library.Library
         Library of tokens that could appear in Program.
     is_physical : bool or None
         Is program physical (units-wize) ?
@@ -494,7 +494,7 @@ class VectPrograms:
     shape : (int, int)
         Shape of batch (batch_size, max_time_step,).
 
-    library : Library.Library
+    library : library.Library
         Library of tokens that can appear in programs.
     n_choices : int
         Number of choosable tokens.
@@ -544,7 +544,7 @@ class VectPrograms:
             Number of programs in batch.
         max_time_step : int
             Max number of tokens programs can contain.
-        library : Library.Library
+        library : library.Library
             Library of tokens that can appear in programs.
         """
         # Assertions
