@@ -10,7 +10,7 @@ import physr.physym.free_const_utils as free_const_utils
 from physr.physym import library as Lib
 from physr.physym import program as Prog
 from physr.physym.functions import data_conversion, data_conversion_inv
-from physr.physym import execute_program as Exec
+from physr.physym import execute as Exec
 
 class FreeConstUtilsTest(unittest.TestCase):
 

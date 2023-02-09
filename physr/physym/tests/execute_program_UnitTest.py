@@ -5,7 +5,7 @@ import torch as torch
 import sympy as sympy
 
 # Internal imports
-from physr.physym import execute_program as Exec
+from physr.physym import execute as Exec
 from physr.physym import library as Lib
 from physr.physym.functions import data_conversion, data_conversion_inv
 

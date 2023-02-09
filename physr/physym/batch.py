@@ -8,7 +8,7 @@ from physr.physym import library
 from physr.physym import prior
 from physr.physym import dataset
 from physr.physym import reward
-from physr.physym import execute_program
+from physr.physym import execute
 
 # Embedding output in SR interface
 INTERFACE_UNITS_AVAILABLE   = 1.

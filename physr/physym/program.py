@@ -21,7 +21,7 @@ except:
 
 # Internal imports
 from physr.physym import token as Tok
-from physr.physym import execute_program as Exec
+from physr.physym import execute as Exec
 from physr.physym import dimensional_analysis as phy
 from physr.physym import free_const_utils
 

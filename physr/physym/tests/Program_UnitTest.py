@@ -271,7 +271,7 @@ class VectProgramsTest(unittest.TestCase):
             self.assertTrue(works_bool)
         return None
 
-    # Test program management regarding units (units tests are in DimensionalAnalysis_UnitTest.py)
+    # Test program management regarding units (units tests are in dimensional_analysis_UnitTest.py)
     def test_units_related(self):
         # LIBRARY CONFIG
         args_make_tokens = {
