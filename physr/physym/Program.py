@@ -20,7 +20,7 @@ except:
     warnings.warn("Can not import display packages.")
 
 # Internal imports
-from physr.physym import Token as Tok
+from physr.physym import token as Tok
 from physr.physym import ExecuteProgram as Exec
 from physr.physym import DimensionalAnalysis as phy
 from physr.physym import FreeConstUtils as FreeConstUtils
@@ -82,7 +82,7 @@ class Cursor:
         Returns token object at coords pointed by cursor.
         Returns
         -------
-        token : Token.Token
+        token : token.Token
         """
         return self.programs.get_token(self.coords)[0]
 
@@ -177,7 +177,7 @@ class Program:
     Interface class representing a single program.
     Attributes
     ----------
-    tokens : array_like of Token.Token
+    tokens : array_like of token.Token
         Tokens making up program.
     size : int
         Size of program.
@@ -508,7 +508,7 @@ class VectPrograms:
         Index of invalid void placeholder in the library.
     lib_names : numpy.array of shape (n_library,) of str
         Names of tokens in the library.
-    lib_vect : Token.VectTokens of shape (1, n_library,)
+    lib_vect : token.VectTokens of shape (1, n_library,)
         Vectorized tokens of library.
 
     curr_step : int
@@ -533,7 +533,7 @@ class VectPrograms:
     units_analysis_cases : numpy.array of shape (batch_size, max_time_step,) of int
         Dimensional analysis assignment case code. Units requirement was performed on token if > -1.
 
-    tokens : Token.VectTokens of shape (batch_size, max_time_step,)
+    tokens : token.VectTokens of shape (batch_size, max_time_step,)
         Vectorized tokens of contained in batch (including idx in library ie. nature of tokens).
     """
     def __init__(self, batch_size, max_time_step, library):
@@ -2015,7 +2015,7 @@ class VectPrograms:
             Coords of tokens to return, 0th array in batch dim and 1th array in time dim.
         Returns
         -------
-        tokens : numpy.array of shape (?,) of Token.Token
+        tokens : numpy.array of shape (?,) of token.Token
         """
         return self.library.lib_tokens[self.tokens.idx[tuple(coords)]]
 
@@ -2024,7 +2024,7 @@ class VectPrograms:
         Returns all tokens contained in VectPrograms.
         Returns
         -------
-        tokens : numpy.array of shape (batch_size,max_time_step,) of Token.Token
+        tokens : numpy.array of shape (batch_size,max_time_step,) of token.Token
         """
         return self.library.lib_tokens[self.tokens.idx]
 
@@ -2038,7 +2038,7 @@ class VectPrograms:
             Index of program in batch.
         Returns
         -------
-        tokens : numpy.array of Token.Token
+        tokens : numpy.array of token.Token
             Tokens making up program.
         """
         length = self.n_completed        [prog_idx]

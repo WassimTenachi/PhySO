@@ -3,8 +3,8 @@ import numpy as np
 import torch as torch
 
 # Internal imports
-from physr.physym import Token as Tok
-from physr.physym.Token import Token
+from physr.physym import token as Tok
+from physr.physym.token import Token
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------ UTILS MANAGEMENT ------------------------------------------
@@ -287,9 +287,9 @@ def retrieve_complexity(complexity_dict, curr_name):
     Parameters
     ----------
     complexity_dict : dict of {str : float} or None
-        If dictionary is None, returns Token.DEFAULT_COMPLEXITY.
+        If dictionary is None, returns token.DEFAULT_COMPLEXITY.
     curr_name : str
-        If curr_name is not in units_dict keys, returns Token.DEFAULT_COMPLEXITY.
+        If curr_name is not in units_dict keys, returns token.DEFAULT_COMPLEXITY.
     Returns
     -------
     curr_complexity : float
@@ -313,9 +313,9 @@ def retrieve_init_val (init_val_dict, curr_name):
     Parameters
     ----------
     init_val_dict : dict of {str : float} or None
-        If dictionary is None, returns Token.DEFAULT_FREE_CONST_INIT_VAL.
+        If dictionary is None, returns token.DEFAULT_FREE_CONST_INIT_VAL.
     curr_name : str
-        If curr_name is not in units_dict keys, returns Token.DEFAULT_FREE_CONST_INIT_VAL.
+        If curr_name is not in units_dict keys, returns token.DEFAULT_FREE_CONST_INIT_VAL.
     Returns
     -------
     curr_init_val : float
@@ -340,7 +340,7 @@ def retrieve_units(units_dict, curr_name):
     ----------
     units_dict : dict of {str : array_like} or None
         If dictionary is None, returned curr_is_constraining_phy_units is False and curr_phy_units is None.
-        (Note: creating a Token.Token using None in place of units will result in a Token with units = vector of np.NAN)
+        (Note: creating a token.Token using None in place of units will result in a Token with units = vector of np.NAN)
     curr_name : str
         If curr_name is not in units_dict keys, returned curr_phy_units correspond to that of  dimensionless token
         (ie. vector of zeros).
@@ -415,7 +415,7 @@ def make_tokens(
             convention such as [m, s, kg,...]). None if not using physical units. None by default.
         input_var_complexity : dict of { str : float } or None, optional
             Dictionary containing input variables names as keys (eg. 'x', 'v', 't') and corresponding complexities
-            (eg. 0., 1., 0.). If None, complexity = Token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
+            (eg. 0., 1., 0.). If None, complexity = token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
         -------- constants --------
         constants : dict of { str : float } or None, optional
             Dictionary containing constant names as keys (eg. 'pi', 'c', 'M') and corresponding float values
@@ -426,7 +426,7 @@ def make_tokens(
             mass assuming a convention such as [m, s, kg,...]). None if not using physical units. None by default.
         constants_complexity : dict of { str : float } or None, optional
             Dictionary containing constants names as keys (eg. 'pi', 'c', 'M') and corresponding complexities
-            (eg. 0., 0., 1.). If None, complexity = Token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
+            (eg. 0., 0., 1.). If None, complexity = token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
         -------- free constants --------
         free_constants : set of { str } or None, optional
             Set containing free constant names (eg. 'c0', 'c1', 'c2'). None if no free constants to create.
@@ -434,14 +434,14 @@ def make_tokens(
         free_constants_init_val : dict of { str : float } or None, optional
             Dictionary containing free constants names as keys (eg. 'c0', 'c1', 'c2') and corresponding float initial
             values to use during optimization process (eg. 1., 1., 1.). None will result in the usage of
-            Token.DEFAULT_FREE_CONST_INIT_VAL as initial values. None by default.
+            token.DEFAULT_FREE_CONST_INIT_VAL as initial values. None by default.
         free_constants_units : dict of { str : array_like of float } or None, optional
             Dictionary containing free constants names as keys (eg. 'c0', 'c1', 'c2') and corresponding physical units
             (eg. [0, 0, 0], [1, -1, 0], [0, 0, 1]). With c0 representing a dimensionless number, c1 a velocity and c2 a
             mass assuming a convention such as [m, s, kg,...]). None if not using physical units. None by default.
         free_constants_complexity : dict of { str : float } or None, optional
             Dictionary containing free constants names as keys (eg. 'c0', 'c1', 'c2') and corresponding complexities
-            (eg. 1., 1., 1.). If None, complexity = Token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
+            (eg. 1., 1., 1.). If None, complexity = token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
         Returns
         -------
         list of Library.Token

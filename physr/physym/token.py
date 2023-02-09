@@ -36,7 +36,7 @@ class Token:
         represents the token's idx in the library and is not encoded here).
         Attributes :
         ----------
-        See Token.__init__ for full description of parameters.
+        See token.Token.__init__ for full description of parameters.
 
         name                      :  str (<MAX_NAME_SIZE)
         sympy_repr                :  str (<MAX_NAME_SIZE)
@@ -246,8 +246,8 @@ class Token:
 class VectTokens:
     """
     Object representing a matrix of positional tokens (positional) ie:
-     - non_positional properties: idx + token properties attributes, see Token.__init__ for full description.
-     - semi_positional properties: See Token.__init__ for full description of token properties attributes.
+     - non_positional properties: idx + token properties attributes, see token.Token.__init__ for full description.
+     - semi_positional properties: See token.Token.__init__ for full description of token properties attributes.
      - positional properties which are contextual (family relationships, depth etc.).
     This only contains properties expressed as float, int, bool to be jit-able.
 

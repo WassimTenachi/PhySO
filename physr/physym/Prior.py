@@ -3,7 +3,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 
 # Internal imports
-from physr.physym import Token as Tok
+from physr.physym import token as Tok
 from physr.physym import Functions as Func
 
 # ----------------------------------------------------------------------------------------------------------------------

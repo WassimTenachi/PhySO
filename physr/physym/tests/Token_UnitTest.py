@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 
 # Internal imports
-from physr.physym import Token as Tok
+from physr.physym import token as Tok
 
 class TokenTest(unittest.TestCase):
 

@@ -10,7 +10,7 @@ def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
     ----------
     X : torch.tensor of shape (n_dim, ?,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
-    program_tokens : list of Token.Token
+    program_tokens : list of token.Token
         Symbolic function program in reverse Polish notation order.
     free_const_values : torch.tensor of shape (n_free_const,) of float or None
         Current values of free constants with for program made of program_tokens n_free_const = nb of choosable free
@@ -68,7 +68,7 @@ def ComputeInfixNotation (program_tokens):
     (which is the usual way to note symbolic function: +34 (in polish notation) = 3+4 (in infix notation))
     Parameters
     ----------
-    program_tokens : list of Token.Token
+    program_tokens : list of token.Token
         List of tokens making up the program.
     Returns
     -------

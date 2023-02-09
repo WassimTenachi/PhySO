@@ -4,7 +4,7 @@ import numpy as np
 
 # Internal imports
 from physr.physym import Program
-from physr.physym import Token as Tok
+from physr.physym import token as Tok
 from physr.physym import Functions as Func
 
 # Case-code for when units analysis was not performed.

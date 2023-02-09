@@ -1,4 +1,4 @@
-from . import Token
+from . import token
 from . import Functions
 from . import Library
 from . import Program
