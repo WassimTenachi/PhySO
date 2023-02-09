@@ -20,10 +20,15 @@ class PriorTest(unittest.TestCase):
                         "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
                         "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
                         # constants
-                        "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
-                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
-                        "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
-                            }
+                        "constants"            : {"pi" : np.pi     ,  },
+                        "constants_units"      : {"pi" : [0, 0, 0] ,  },
+                        "constants_complexity" : {"pi" : 0.        ,  },
+                        # free constants
+                        "free_constants"            : {"M"             , "c"             , },
+                        "free_constants_init_val"   : {"M" : 1.        , "c" : 1.        , },
+                        "free_constants_units"      : {"M" : [0, 0, 1] , "c" : [1, -1, 0] , },
+                        "free_constants_complexity" : {"M" : 1.        , "c" : 1.        , },
+                           }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
         my_programs = Prog.VectPrograms(batch_size=1, max_time_step=8, library=my_lib)
@@ -53,10 +58,15 @@ class PriorTest(unittest.TestCase):
                         "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
                         "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
                         # constants
-                        "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
-                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
-                        "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
-                            }
+                        "constants"            : {"pi" : np.pi     ,  },
+                        "constants_units"      : {"pi" : [0, 0, 0] ,  },
+                        "constants_complexity" : {"pi" : 0.        ,  },
+                        # free constants
+                        "free_constants"            : {"M"             , "c"             , },
+                        "free_constants_init_val"   : {"M" : 1.        , "c" : 1.        , },
+                        "free_constants_units"      : {"M" : [0, 0, 1] , "c" : [1, -1, 0] , },
+                        "free_constants_complexity" : {"M" : 1.        , "c" : 1.        , },
+                           }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
         # Programs test case
@@ -167,10 +177,15 @@ class PriorTest(unittest.TestCase):
                         "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
                         "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
                         # constants
-                        "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
-                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
-                        "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
-                            }
+                        "constants"            : {"pi" : np.pi     ,  },
+                        "constants_units"      : {"pi" : [0, 0, 0] ,  },
+                        "constants_complexity" : {"pi" : 0.        ,  },
+                        # free constants
+                        "free_constants"            : {"M"             , "c"             , },
+                        "free_constants_init_val"   : {"M" : 1.        , "c" : 1.        , },
+                        "free_constants_units"      : {"M" : [0, 0, 1] , "c" : [1, -1, 0] , },
+                        "free_constants_complexity" : {"M" : 1.        , "c" : 1.        , },
+                           }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
         # Programs test case
@@ -263,10 +278,15 @@ class PriorTest(unittest.TestCase):
                         "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
                         "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
                         # constants
-                        "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
-                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
-                        "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
-                            }
+                        "constants"            : {"pi" : np.pi     ,  },
+                        "constants_units"      : {"pi" : [0, 0, 0] ,  },
+                        "constants_complexity" : {"pi" : 0.        ,  },
+                        # free constants
+                        "free_constants"            : {"M"             , "c"             , },
+                        "free_constants_init_val"   : {"M" : 1.        , "c" : 1.        , },
+                        "free_constants_units"      : {"M" : [0, 0, 1] , "c" : [1, -1, 0] , },
+                        "free_constants_complexity" : {"M" : 1.        , "c" : 1.        , },
+                           }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
         my_programs = Prog.VectPrograms(batch_size=4, max_time_step=10, library=my_lib)
@@ -549,10 +569,15 @@ class PriorTest(unittest.TestCase):
                         "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
                         "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
                         # constants
-                        "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
-                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
-                        "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
-                            }
+                        "constants"            : {"pi" : np.pi     ,  },
+                        "constants_units"      : {"pi" : [0, 0, 0] ,  },
+                        "constants_complexity" : {"pi" : 0.        ,  },
+                        # free constants
+                        "free_constants"            : {"M"             , "c"             , },
+                        "free_constants_init_val"   : {"M" : 1.        , "c" : 1.        , },
+                        "free_constants_units"      : {"M" : [0, 0, 1] , "c" : [1, -1, 0] , },
+                        "free_constants_complexity" : {"M" : 1.        , "c" : 1.        , },
+                           }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
         my_programs = Prog.VectPrograms(batch_size=4, max_time_step=10, library=my_lib)
@@ -891,10 +916,15 @@ class PriorTest(unittest.TestCase):
                         "input_var_units"      : {"z" : [1, 0, 0] ,"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
                         "input_var_complexity" : {"z" : 0.        ,"x" : 0.        , "v" : 1.         , "t" : 0.,       },
                         # constants
-                        "constants"            : {"g" : 9.8        , "c" : 3e8       , "m" : 1e6       , "E0" : 1         },
-                        "constants_units"      : {"g" : [1, -2, 0] , "c" : [1, -1, 0], "m" : [0, 0, 1] , "E0" : [2, -2, 1] },
-                        "constants_complexity" : {"g" : 0.         , "c" : 0.        , "m" : 1.        , "E0" : 1.        },
-                            }
+                        "constants"            : {"g" : 9.8        , "E0" : 1         },
+                        "constants_units"      : {"g" : [1, -2, 0] , "E0" : [2, -2, 1] },
+                        "constants_complexity" : {"g" : 0.         , "E0" : 1.        },
+                        # free constants
+                        "free_constants"            : {"m"             , "c"              , },
+                        "free_constants_init_val"   : {"m" : 1.        , "c" : 1.         , },
+                        "free_constants_units"      : {"m" : [0, 0, 1] , "c" : [1, -1, 0] , },
+                        "free_constants_complexity" : {"m" : 1.        , "c" : 1.         , },
+                           }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [2, -2, 1], superparent_name = "y")
 
@@ -960,11 +990,16 @@ class PriorTest(unittest.TestCase):
         for i in range (test_programs_idx.shape[1]):
              mask_prob = my_prior()
              for prog_i in range(len(expected_allowed)):
+                # observed
                 prog_step_obs_allowed = my_lib.lib_name[:my_lib.n_choices][mask_prob.astype(bool)[prog_i]]
-                bool_works = np.array_equal(expected_allowed[prog_i][i], prog_step_obs_allowed)
+                # expected
+                prog_step_exp_allowed = np.array(expected_allowed[prog_i][i])
+                #print("observed legal tokens for prog %i, step = %i:" % (prog_i, i), prog_step_obs_allowed.tolist())
+                #print("expected legal tokens for prog %i, step = %i:" % (prog_i, i), prog_step_exp_allowed.tolist())
+                bool_works = np.array_equal(sorted(prog_step_exp_allowed), sorted(prog_step_obs_allowed))
                 self.assertTrue(bool_works)
              # prog_i = 2
-             # print("legal tokens for prog %i, step = %i:" % (prog_i, i), prog_step_obs_allowed.tolist())
+             # print("observed legal tokens for prog %i, step = %i:" % (prog_i, i), prog_step_obs_allowed.tolist())
              # my_programs.get_tree_image(prog_i, fpath="%i.png"%(i))
              my_programs.append(test_programs_idx[:,i])
 

@@ -4,6 +4,7 @@
 # Available through conda and pip
 pygraphviz == 1.9 # Install via conda recommended for ARM users
 dot2tex == 2.11.3
+matplotlib == 3.5.1
 
 # Only available via pip
 pdflatex == 0.1.3

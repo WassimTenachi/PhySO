@@ -8,7 +8,7 @@ from physr.physym import Token as Tok
 class Library:
     """
         Object containing choosable tokens and their properties for a task of symbolic computation
-        (non_positional and semi_positional).
+        (properties: non_positional and semi_positional).
         See Token.__init__ for full description of token properties.
 
         Attributes
@@ -39,8 +39,8 @@ class Library:
 
         arity                     :  int
         complexity                :  float
-        is_input_var              :  bool
-        input_var_id              :  int
+        var_type                  :  int
+        var_id                    :  int
         behavior_id               :  int
         is_power                  :  bool
         power                     :  float
@@ -60,9 +60,9 @@ class Library:
 
         Examples
         --------
-        add = Tok.Token(name='add', sympy_repr='add', arity=2, complexity=0, is_input_var=False,
+        add = Tok.Token(name='add', sympy_repr='add', arity=2, complexity=0, var_type=0,
                         function=np.add,
-                        input_var_id=None)
+                        var_id=None)
         args_make_tokens = {
             # operations
             "op_names"             : ["mul", "neg", "inv", "sin"],
@@ -112,7 +112,7 @@ class Library:
             sympy_repr                = superparent_name,
             arity                     = 0,
             complexity                = 0.,
-            is_input_var              = False,
+            var_type                  = 0,
             function                  = superparent_func,
             is_constraining_phy_units = y_is_constraining_phy_units,
             phy_units                 = y_units,
@@ -128,7 +128,7 @@ class Library:
             sympy_repr                = Tok.DUMMY_TOKEN_NAME,
             arity                     = 0,
             complexity                = 0.,
-            is_input_var              = False,
+            var_type                  = 0,
             function                  = dummy_func,
         )
 
@@ -142,7 +142,7 @@ class Library:
             sympy_repr                = Tok.INVALID_TOKEN_NAME,
             arity                     = 0,
             complexity                = 0.,
-            is_input_var              = False,
+            var_type                  = 0,
             function                  = invalid_func,
         )
 
@@ -154,9 +154,22 @@ class Library:
         self.append_tokens_from_names(args_make_tokens = args_make_tokens)
         self.append_custom_tokens(custom_tokens = custom_tokens)
 
-        # ------------------------------ INPUT VAR IDS ------------------------------
+        # ------------------------------ INPUT VAR ------------------------------
+        # Number of input variables
+        self.n_input_var        = (self.var_type == 1).sum()
         # Ids of input variables available
-        self.input_var_ids = self.input_var_id[self.is_input_var]
+        self.input_var_ids      = self.var_id[self.var_type == 1]   # (n_input_var,) of int
+
+        # ------------------------------ FREE CONSTANTS ------------------------------
+        # Number of free constants
+        self.n_free_const = (self.var_type == 2).sum()
+        # Free constants tokens
+        self.free_constants_tokens = self.lib_tokens[self.var_type == 2]                                           # (n_free_const,) of Token.Token
+        # Ids of free constants available
+        self.free_constants_ids = self.var_id[self.var_type == 2]                                                  # (n_free_const,) of int
+        # Initial values of free constants
+        self.free_constants_init_val = np.array([token.init_val for token in self.lib_tokens])[self.var_type == 2] # (n_free_const,) of float
+
 
     def reset_library(self):
         self.lib_tokens = np.array(self.choosable_tokens + self.placeholders)
@@ -178,8 +191,8 @@ class Library:
         self.properties = Tok.VectTokens(shape = (1, self.n_library,), invalid_token_idx = self.invalid_idx) # not using positional properties
         self.properties.arity                     [0, :] = np.array([token.arity                     for token in self.lib_tokens]).astype(int  )  # int
         self.properties.complexity                [0, :] = np.array([token.complexity                for token in self.lib_tokens]).astype(float)  # float
-        self.properties.is_input_var              [0, :] = np.array([token.is_input_var              for token in self.lib_tokens]).astype(bool )  # bool
-        self.properties.input_var_id              [0, :] = np.array([token.input_var_id              for token in self.lib_tokens]).astype(int  )  # int
+        self.properties.var_type                  [0, :] = np.array([token.var_type                  for token in self.lib_tokens]).astype(int  )  # int
+        self.properties.var_id                    [0, :] = np.array([token.var_id                    for token in self.lib_tokens]).astype(int  )  # int
         self.properties.behavior_id               [0, :] = np.array([token.behavior_id               for token in self.lib_tokens]).astype(int  )  # int
         self.properties.is_power                  [0, :] = np.array([token.is_power                  for token in self.lib_tokens]).astype(bool )  # bool
         self.properties.power                     [0, :] = np.array([token.power                     for token in self.lib_tokens]).astype(float)  # float
@@ -188,8 +201,8 @@ class Library:
         # Giving access to vectorized properties to user without having to use [0, :] at each property access
         self.arity                     = self.properties.arity                     [0, :]
         self.complexity                = self.properties.complexity                [0, :]
-        self.is_input_var              = self.properties.is_input_var              [0, :]
-        self.input_var_id              = self.properties.input_var_id              [0, :]
+        self.var_type                  = self.properties.var_type                  [0, :]
+        self.var_id                    = self.properties.var_id                    [0, :]
         self.behavior_id               = self.properties.behavior_id               [0, :]
         self.is_power                  = self.properties.is_power                  [0, :]
         self.power                     = self.properties.power                     [0, :]

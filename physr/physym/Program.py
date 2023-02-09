@@ -23,6 +23,7 @@ except:
 from physr.physym import Token as Tok
 from physr.physym import ExecuteProgram as Exec
 from physr.physym import DimensionalAnalysis as phy
+from physr.physym import FreeConstUtils as FreeConstUtils
 
 
 class Cursor:
@@ -182,26 +183,28 @@ class Program:
         Size of program.
     library : Library.Library
         Library of tokens that could appear in Program.
+    is_physical : bool or None
+        Is program physical (units-wize) ?
+    free_const_values : array_like of float or None
+        Values of free constants for each constant in the library.
     """
-    def __init__(self, tokens, library, is_physical=None):
+    def __init__(self, tokens, library, is_physical=None, free_const_values=None):
         """
         Parameters
         ----------
-        tokens : array_like of Token.Token
-            Tokens making up program (full tree representation, no more, no less).
-        library : Library.Library
-            Library of tokens that could appear in Program.
-        is_physical : bool or None
-            Is program physical (units-wize) ?
+        See attributes help for details.
         """
         # Asserting that tokens make up a full tree representation, no more, no less
         total_arity = np.sum([tok.arity for tok in tokens])
         assert len(tokens)-total_arity==1, "Tokens making up Program must consist in a full tree representation " \
                                            "(length - total arities = 1), no more, no less"
-        self.tokens      = tokens
-        self.size        = len(tokens)
-        self.library     = library
-        self.is_physical = is_physical
+        self.tokens       = tokens
+        self.size         = len(tokens)
+        self.library      = library
+        self.is_physical  = is_physical
+
+        # free const related
+        self.free_const_values = free_const_values
 
     def execute(self, X):
         """
@@ -215,8 +218,31 @@ class Program:
         y : torch.tensor of shape (?,) of float
             Result of computation.
         """
-        y = Exec.ExecuteProgram(input_var_data=X, program_tokens=self.tokens)
+        y = Exec.ExecuteProgram(input_var_data=X, free_const_values=self.free_const_values, program_tokens=self.tokens)
         return y
+
+    def optimize_constants(self, X, y_target, args_opti = None):
+        """
+        Optimizes free constants of program.
+        Parameters
+        ----------
+        X : torch.tensor of shape (n_dim, ?,) of float
+            Values of the input variables of the problem with n_dim = nb of input variables.
+        y_target : torch.tensor of shape (?,) of float
+            Values of target output.
+        args_opti : dict or None, optional
+            Arguments to pass to FreeConstUtils.optimize_free_const. By default, FreeConstUtils.DEFAULT_OPTI_ARGS
+            arguments are used.
+        """
+        if args_opti is None:
+            args_opti = FreeConstUtils.DEFAULT_OPTI_ARGS
+        func_params = lambda params: self.__call__(X)
+
+        history = FreeConstUtils.optimize_free_const ( func     = func_params,
+                                                       params   = self.free_const_values,
+                                                       y_target = y_target,
+                                                       **args_opti)
+        return history
 
     def __call__(self, X):
         """
@@ -456,10 +482,6 @@ class Program:
         plt.show()
         return None
 
-class PhyUnitsError(Exception):
-    pass
-
-
 class VectPrograms:
     """
     Represents a batch of symbolic programs (jit-able class).
@@ -611,6 +633,9 @@ class VectPrograms:
         # Affect 0th token' ancestors record
         self.register_ancestor (coords_dest = coords_initial_dummies)
 
+        # ---------------------------- FREE CONSTANTS REGISTER ----------------------------
+        self.free_consts = FreeConstUtils.FreeConstantsTable(batch_size = self.batch_size, library =self.library)
+
         return None
 
     def lib (self, attr):
@@ -633,6 +658,9 @@ class VectPrograms:
         """
         Appends new tokens to batch.
         New tokens appended to already complete programs (ie. out of tree tokens) are ignored.
+        Note that units requirements and update is not done in append (as it is computationally costly and unnecessary
+        if units are not used). Use the assign_required_units method on all previous steps + this one before appending
+        to compute units. This is done by Prior.PhysicalUnitsPrior.
         Parameters
         ----------
         new_tokens_idx : numpy.array of shape (batch_size,) of int
@@ -745,7 +773,7 @@ class VectPrograms:
                         "current constraints they should have units:\n %s" \
                         % (mask_inconsistency.sum(), self.lib_names[new_tokens_idx[mask_inconsistency]],
                            units_from_new_tokens[mask_inconsistency], units_from_dummies[mask_inconsistency])
-            raise PhyUnitsError(error_msg)
+            raise phy.PhyUnitsError(error_msg)
 
         # --------------------------------------------------------------------------------------------------------------
         # -------------------------------------------- APPENDING NEW TOKENS --------------------------------------------
@@ -1685,8 +1713,8 @@ class VectPrograms:
         # ---- Token main properties
         self.tokens.arity        [coords_dest[0], coords_dest[1]] = self.lib("arity")        [tokens_idx_src]
         self.tokens.complexity   [coords_dest[0], coords_dest[1]] = self.lib("complexity")   [tokens_idx_src]
-        self.tokens.is_input_var [coords_dest[0], coords_dest[1]] = self.lib("is_input_var") [tokens_idx_src]
-        self.tokens.input_var_id [coords_dest[0], coords_dest[1]] = self.lib("input_var_id") [tokens_idx_src]
+        self.tokens.var_type     [coords_dest[0], coords_dest[1]] = self.lib("var_type")     [tokens_idx_src]
+        self.tokens.var_id       [coords_dest[0], coords_dest[1]] = self.lib("var_id")       [tokens_idx_src]
         # ( function                :  callable or None )
         # ---- Physical units : behavior id
         self.tokens.behavior_id  [coords_dest[0], coords_dest[1]] = self.lib("behavior_id")  [tokens_idx_src]
@@ -1729,8 +1757,8 @@ class VectPrograms:
         # ------------ non_positional properties ------------
         self.tokens.arity                     [tuple(coords_dest)] = self.tokens.arity                     [tuple(coords_src)]
         self.tokens.complexity                [tuple(coords_dest)] = self.tokens.complexity                [tuple(coords_src)]
-        self.tokens.is_input_var              [tuple(coords_dest)] = self.tokens.is_input_var              [tuple(coords_src)]
-        self.tokens.input_var_id              [tuple(coords_dest)] = self.tokens.input_var_id              [tuple(coords_src)]
+        self.tokens.var_type                  [tuple(coords_dest)] = self.tokens.var_type                  [tuple(coords_src)]
+        self.tokens.var_id                    [tuple(coords_dest)] = self.tokens.var_id                    [tuple(coords_src)]
         self.tokens.behavior_id               [tuple(coords_dest)] = self.tokens.behavior_id               [tuple(coords_src)]
         self.tokens.is_power                  [tuple(coords_dest)] = self.tokens.is_power                  [tuple(coords_src)]
         self.tokens.power                     [tuple(coords_dest)] = self.tokens.power                     [tuple(coords_src)]
@@ -1968,6 +1996,16 @@ class VectPrograms:
         # Summing over time dim
         return self.tokens.complexity.sum(axis=1) # (batch_size,) of int
 
+    @property
+    def n_free_const_occurrences(self):
+        """
+        Number of occurrences of free const in programs
+        Returns
+        -------
+        occurrences : numpy.array of shape (batch_size,) of int
+        """
+        return (self.tokens.var_type == 2).sum(axis=1) # (batch_size,) of int
+
     def get_token(self, coords):
         """
         Returns token objects at coords.
@@ -2024,8 +2062,11 @@ class VectPrograms:
             Program making up symbolic function.
         """
         tokens = self.get_prog_tokens(prog_idx=prog_idx)
-        is_physical = self.is_physical[prog_idx]
-        prog = Program(tokens=tokens, library=self.library, is_physical=is_physical,)
+        is_physical              = self.is_physical        [prog_idx]
+        free_const_values        = self.free_consts.values [prog_idx]
+        prog = Program(tokens=tokens, library=self.library,
+                       is_physical=is_physical,
+                       free_const_values = free_const_values)
         return prog
 
     def get_programs_array (self):
@@ -2634,10 +2675,10 @@ class VectPrograms:
         print_prop_matrix(self.tokens.arity)
         print("---- complexity ----")
         print_prop_matrix(self.tokens.complexity)
-        print("---- is_input_var ----")
-        print_prop_matrix(self.tokens.is_input_var)
-        print("---- input_var_id ----")
-        print_prop_matrix(self.tokens.input_var_id)
+        print("---- var_type ----")
+        print_prop_matrix(self.tokens.var_type)
+        print("---- var_id ----")
+        print_prop_matrix(self.tokens.var_id)
         print("---- behavior_id ----")
         print_prop_matrix(self.tokens.behavior_id)
         print("---- is_power ----")

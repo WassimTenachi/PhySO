@@ -7,6 +7,7 @@ from physr.physym import Program
 from physr.physym import Library
 from physr.physym import Prior
 from physr.physym import Dataset
+from physr.physym import Reward
 from physr.physym import ExecuteProgram
 
 # Embedding output in SR interface
@@ -23,18 +24,21 @@ class Batch:
     Output :
         ----- per step -----
         - prior values for choice of next token.
-        - environment of next token to guess parent/sibling one hots
+        - environment of next token to guess parent/sibling one hots etc.
         ----- per epoch -----
         - reward values of programs
+        - physicality of programs
+        - lengths of programs
     """
     def __init__(self,
                 library_args,
                 priors_config,
                 X,
                 y_target,
-                reward_function,
-                batch_size    = 1000,
-                max_time_step = 30,
+                rewards_computer,
+                batch_size,
+                max_time_step,
+                free_const_opti_args = None,
                 ):
         """
         Parameters
@@ -49,13 +53,17 @@ class Batch:
             Values of the input variables of the problem with n_dim = nb of input variables.
         y_target : torch.tensor of shape (?,) of float
             Values of the target symbolic function on input variables contained in X_target.
-        reward_function : callable
-            Function that taking y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of shape (?,)
-            of float) as key arguments and returning a float reward of an individual program.
+        rewards_computer : callable
+            Function taking programs (Program.VectPrograms), X (torch.tensor of shape (n_dim,?,) of float), y_target
+            (torch.tensor of shape (?,) of float) as key arguments and returning reward for each program (array_like
+            of float).
         batch_size : int
             Number of programs in batch.
         max_time_step : int
             Max number of tokens programs can contain.
+        free_const_opti_args : dict or None, optional
+            Arguments to pass to FreeConstUtils.optimize_free_const for free constants optimization. By default,
+            FreeConstUtils.DEFAULT_OPTI_ARGS arguments are used.
         """
 
         # Batch
@@ -78,7 +86,13 @@ class Batch:
             y_target = y_target,)
 
         # Reward func
-        self.reward_function = reward_function
+        self.rewards_computer = rewards_computer
+
+        # Sending free const table to same device as dataset
+        self.programs.free_consts.values.to(self.dataset.detected_device)
+
+        # Free constants optimizer args
+        self.free_const_opti_args = free_const_opti_args
 
     # ---------------------------- INTERFACE FOR SYMBOLIC REGRESSION ----------------------------
 
@@ -397,12 +411,11 @@ class Batch:
         rewards : numpy.array of shape (batch_size,) of float
             Rewards of programs.
         """
-        rewards = ExecuteProgram.ComputeRewards(reward_function = self.reward_function,
-                                                programs        = self.programs,
-                                                X               = self.dataset.X,
-                                                y_target        = self.dataset.y_target)
+        rewards = self.rewards_computer(programs             = self.programs,
+                                        X                    = self.dataset.X,
+                                        y_target             = self.dataset.y_target,
+                                        free_const_opti_args = self.free_const_opti_args)
         return rewards
-
 
 
     def __repr__(self):

@@ -18,10 +18,16 @@ def hard_test_case():
                     "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
                     "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
                     # constants
-                    "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       , "const1" : 1         },
-                    "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] , "const1" : [0, 0, 0] },
-                    "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        , "const1" : 1.        },
-                        }
+                    "constants"            : {"pi" : np.pi     , "M" : 1e6       , "const1" : 1         },
+                    "constants_units"      : {"pi" : [0, 0, 0] , "M" : [0, 0, 1] , "const1" : [0, 0, 0] },
+                    "constants_complexity" : {"pi" : 0.        , "M" : 1.        , "const1" : 1.        },
+                    # free constants
+                    "free_constants"            : {"c"               },
+                    "free_constants_init_val"   : {"c"  : 10.        },
+                    "free_constants_units"      : {"c"  : [1, -1, 0] },
+                    "free_constants_complexity" : {"c"  : 0.         },
+                           }
+
     my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                          superparent_units = [2, -2, 1], superparent_name = "y")
 
