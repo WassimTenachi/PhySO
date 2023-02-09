@@ -177,17 +177,10 @@ def make_common_operations ():
         Token (name = "tanh"   , sympy_repr = "tanh"   , arity = 1 , complexity = 4 , var_type = 0, function = torch.tanh       ),
         Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 2 , var_type = 0, function = torch.reciprocal ),
         # Custom unary operations
-<<<<<<< HEAD
-        Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 4 , is_input_var = False, function = lambda x :torch.log(torch.abs(x)) ),
-        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 4 , is_input_var = False, function = lambda x :torch.exp(-x)           ),
-        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 3 , is_input_var = False, function = lambda x :torch.pow(x, 3)         ),
-        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 3 , is_input_var = False, function = lambda x :torch.pow(x, 4)         ),
-=======
         Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 4 , var_type = 0, function = lambda x :torch.log(torch.abs(x)) ),
-        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 4 , var_type = 0, function = lambda x :torch.exp(-x)        ),
-        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 3 , var_type = 0, function = lambda x :torch.pow(x, 3)    ),
-        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 3 , var_type = 0, function = lambda x :torch.pow(x, 4)    ),
->>>>>>> wip
+        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 4 , var_type = 0, function = lambda x :torch.exp(-x)           ),
+        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 3 , var_type = 0, function = lambda x :torch.pow(x, 3)         ),
+        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 3 , var_type = 0, function = lambda x :torch.pow(x, 4)         ),
     ]
 
     # ------------- protected functions -------------
