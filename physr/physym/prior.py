@@ -95,7 +95,7 @@ class OccurrencesPrior (Prior):
         max : list of int
             List of maximum occurrences of tokens (must have the same length as targets).
         """
-        # targets argument ---
+        # --- targets argument ---
         targets = np.array(targets)
         err_msg = "Argument targets should be a list of strings."
         assert len(targets.shape) == 1 and targets.dtype.char == "U", err_msg
@@ -103,7 +103,7 @@ class OccurrencesPrior (Prior):
                   % (targets, library.lib_name)
         assert np.isin(targets, library.lib_name).all(), err_msg
 
-        # max argument ---
+        # --- max argument ---
         max = np.array(max)
         err_msg = "Argument max should be a list of positive integers having the same size as targets list."
         assert len(max.shape) == 1 and max.dtype == int, err_msg
