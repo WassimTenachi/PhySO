@@ -5,9 +5,9 @@ import numpy as np
 import time as time
 
 # Internal imports
-from physr.physym import Library as Lib
-from physr.physym import Program as Prog
-from physr.physym import DimensionalAnalysis as phy
+from physr.physym import library as Lib
+from physr.physym import program as Prog
+from physr.physym import dimensional_analysis as phy
 
 
 def make_lib():
@@ -271,7 +271,7 @@ class VectProgramsTest(unittest.TestCase):
             self.assertTrue(works_bool)
         return None
 
-    # Test program management regarding units (units tests are in DimensionalAnalysis_UnitTest.py)
+    # Test program management regarding units (units tests are in dimensional_analysis_UnitTest.py)
     def test_units_related(self):
         # LIBRARY CONFIG
         args_make_tokens = {

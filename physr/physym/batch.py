@@ -2,13 +2,13 @@ import numpy as np
 import torch
 
 # Internal imports
-from physr.physym import Token
-from physr.physym import Program
-from physr.physym import Library
-from physr.physym import Prior
-from physr.physym import Dataset
-from physr.physym import Reward
-from physr.physym import ExecuteProgram
+from physr.physym import token
+from physr.physym import program
+from physr.physym import library
+from physr.physym import prior
+from physr.physym import dataset
+from physr.physym import reward
+from physr.physym import execute
 
 # Embedding output in SR interface
 INTERFACE_UNITS_AVAILABLE   = 1.
@@ -44,9 +44,9 @@ class Batch:
         Parameters
         ----------
         library_args: dict
-            Arguments passed to Library.__init__
+            Arguments passed to library.__init__
         priors_config : list of couples (str : dict)
-            List of priors. List containing couples with prior name as first item in couple (see Prior.PRIORS_DICT for list
+            List of priors. List containing couples with prior name as first item in couple (see prior.PRIORS_DICT for list
             of available priors) and additional arguments (besides library and programs) to be passed to priors as second
             item of couple, leave None for priors that do not require arguments.
         X : torch.tensor of shape (n_dim, ?,) of float
@@ -54,7 +54,7 @@ class Batch:
         y_target : torch.tensor of shape (?,) of float
             Values of the target symbolic function on input variables contained in X_target.
         rewards_computer : callable
-            Function taking programs (Program.VectPrograms), X (torch.tensor of shape (n_dim,?,) of float), y_target
+            Function taking programs (program.VectPrograms), X (torch.tensor of shape (n_dim,?,) of float), y_target
             (torch.tensor of shape (?,) of float) as key arguments and returning reward for each program (array_like
             of float).
         batch_size : int
@@ -62,25 +62,25 @@ class Batch:
         max_time_step : int
             Max number of tokens programs can contain.
         free_const_opti_args : dict or None, optional
-            Arguments to pass to FreeConstUtils.optimize_free_const for free constants optimization. By default,
-            FreeConstUtils.DEFAULT_OPTI_ARGS arguments are used.
+            Arguments to pass to free_const.optimize_free_const for free constants optimization. By default,
+            free_const.DEFAULT_OPTI_ARGS arguments are used.
         """
 
         # Batch
         self.batch_size    = batch_size
         self.max_time_step = max_time_step
         # Library
-        self.library  = Library.Library(**library_args)
+        self.library  = library.Library(**library_args)
         # Programs
-        self.programs = Program.VectPrograms(batch_size    = self.batch_size,
+        self.programs = program.VectPrograms(batch_size    = self.batch_size,
                                              max_time_step = self.max_time_step,
                                              library       = self.library)
         # Prior
-        self.prior   = Prior.make_PriorCollection(programs      = self.programs,
+        self.prior   = prior.make_PriorCollection(programs      = self.programs,
                                                   library       = self.library,
                                                   priors_config = priors_config,)
         # Dataset
-        self.dataset = Dataset.Dataset(
+        self.dataset = dataset.Dataset(
             library = self.library,
             X = X,
             y_target = y_target,)
@@ -185,7 +185,7 @@ class Batch:
             By default, step = current step.
         Returns
         -------
-        units_obs : numpy.array of shape (batch_size, Token.UNITS_VECTOR_SIZE + 1) of float
+        units_obs : numpy.array of shape (batch_size, token.UNITS_VECTOR_SIZE + 1) of float
             Units and info availability mask.
         """
         if step is None:
@@ -195,10 +195,10 @@ class Batch:
         coords = self.programs.coords_of_step(step)                                                     # (2, batch_size)
 
         # Initialize result with filler (unavailable units everywhere)
-        units_obs = np.zeros((self.batch_size, Token.UNITS_VECTOR_SIZE + 1 ), dtype=float)              # (batch_size, UNITS_VECTOR_SIZE + 1)
+        units_obs = np.zeros((self.batch_size, token.UNITS_VECTOR_SIZE + 1 ), dtype=float)              # (batch_size, UNITS_VECTOR_SIZE + 1)
         # filling units
         units_obs[:, :-1] = INTERFACE_UNITS_UNAVAILABLE_FILLER(                                         # (batch_size, UNITS_VECTOR_SIZE)
-            shape=(self.batch_size, Token.UNITS_VECTOR_SIZE))
+            shape=(self.batch_size, token.UNITS_VECTOR_SIZE))
         # availability mask
         units_obs[:, -1] = INTERFACE_UNITS_UNAVAILABLE                                                  # (batch_size,)
 
@@ -235,7 +235,7 @@ class Batch:
             By default, step = current step.
         Returns
         -------
-        units_obs : numpy.array of shape (batch_size, Token.UNITS_VECTOR_SIZE + 1) of float
+        units_obs : numpy.array of shape (batch_size, token.UNITS_VECTOR_SIZE + 1) of float
             Units and info availability mask.
         """
         if step is None:
@@ -245,10 +245,10 @@ class Batch:
         coords = self.programs.coords_of_step(step)                                                     # (2, batch_size)
 
         # Initialize result with filler (unavailable units everywhere)
-        units_obs = np.zeros((self.batch_size, Token.UNITS_VECTOR_SIZE + 1 ), dtype=float)              # (batch_size, UNITS_VECTOR_SIZE + 1)
+        units_obs = np.zeros((self.batch_size, token.UNITS_VECTOR_SIZE + 1 ), dtype=float)              # (batch_size, UNITS_VECTOR_SIZE + 1)
         # filling units
         units_obs[:, :-1] = INTERFACE_UNITS_UNAVAILABLE_FILLER(                                         # (batch_size, UNITS_VECTOR_SIZE)
-            shape=(self.batch_size, Token.UNITS_VECTOR_SIZE))
+            shape=(self.batch_size, token.UNITS_VECTOR_SIZE))
         # availability mask
         units_obs[:, -1] = INTERFACE_UNITS_UNAVAILABLE                                                  # (batch_size,)
 
@@ -291,17 +291,17 @@ class Batch:
             By default, step = current step.
         Returns
         -------
-        units_obs : numpy.array of shape (batch_size, Token.UNITS_VECTOR_SIZE + 1) of float
+        units_obs : numpy.array of shape (batch_size, token.UNITS_VECTOR_SIZE + 1) of float
             Units and info availability mask.
         """
         if step is None:
             step = self.programs.curr_step
 
         # Initialize result with filler (unavailable units everywhere)
-        units_obs = np.zeros((self.batch_size, Token.UNITS_VECTOR_SIZE + 1 ), dtype=float)              # (batch_size, UNITS_VECTOR_SIZE + 1)
+        units_obs = np.zeros((self.batch_size, token.UNITS_VECTOR_SIZE + 1 ), dtype=float)              # (batch_size, UNITS_VECTOR_SIZE + 1)
         # filling units
         units_obs[:, :-1] = INTERFACE_UNITS_UNAVAILABLE_FILLER(                                         # (batch_size, UNITS_VECTOR_SIZE)
-            shape=(self.batch_size, Token.UNITS_VECTOR_SIZE))
+            shape=(self.batch_size, token.UNITS_VECTOR_SIZE))
         # availability mask
         units_obs[:, -1] = INTERFACE_UNITS_UNAVAILABLE                                                  # (batch_size,)
 
@@ -324,7 +324,7 @@ class Batch:
             By default, step = current step.
         Returns
         -------
-        units_obs : numpy.array of shape (batch_size, Token.UNITS_VECTOR_SIZE + 1) of float
+        units_obs : numpy.array of shape (batch_size, token.UNITS_VECTOR_SIZE + 1) of float
             Units and info availability mask.
         """
         if step is None:
@@ -334,7 +334,7 @@ class Batch:
         coords = self.programs.coords_of_step(step)                                                     # (2, batch_size)
 
         # Initialize result
-        units_obs = np.zeros((self.batch_size, Token.UNITS_VECTOR_SIZE + 1 ), dtype=float)              # (batch_size, UNITS_VECTOR_SIZE + 1)
+        units_obs = np.zeros((self.batch_size, token.UNITS_VECTOR_SIZE + 1 ), dtype=float)              # (batch_size, UNITS_VECTOR_SIZE + 1)
 
         # mask : is units information available
         is_available  = self.programs.tokens.is_constraining_phy_units[tuple(coords)]                   # (batch_size,)
@@ -347,7 +347,7 @@ class Batch:
         units_obs[is_available,  :-1] = self.programs.tokens.phy_units[tuple(coords_available)]         # (n_available,   UNITS_VECTOR_SIZE)
         # Result : filler units (where unavailable)
         units_obs[~is_available, :-1] = INTERFACE_UNITS_UNAVAILABLE_FILLER(                             # (n_unavailable, UNITS_VECTOR_SIZE)
-            shape=(n_unavailable, Token.UNITS_VECTOR_SIZE))
+            shape=(n_unavailable, token.UNITS_VECTOR_SIZE))
         # Result : availability mask
         units_obs[is_available , -1] = INTERFACE_UNITS_AVAILABLE                                        # (batch_size,)
         units_obs[~is_available, -1] = INTERFACE_UNITS_UNAVAILABLE                                      # (batch_size,)
@@ -397,7 +397,7 @@ class Batch:
         -------
         obs_size : int
         """
-        return (3*self.n_choices) + 1 + 4*(Token.UNITS_VECTOR_SIZE+1)
+        return (3*self.n_choices) + 1 + 4*(token.UNITS_VECTOR_SIZE+1)
 
     @property
     def n_choices (self):

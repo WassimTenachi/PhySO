@@ -2,18 +2,18 @@ import warnings as warnings
 import numpy as np
 
 # Internal imports
-from physr.physym import Functions as Func
-from physr.physym import Token as Tok
+from physr.physym import functions as Func
+from physr.physym import token as Tok
 
 class Library:
     """
         Object containing choosable tokens and their properties for a task of symbolic computation
         (properties: non_positional and semi_positional).
-        See Token.__init__ for full description of token properties.
+        See token.Token.__init__ for full description of token properties.
 
         Attributes
         ----------
-        lib_tokens : numpy.array of Token.Token
+        lib_tokens : numpy.array of token.Token
             List of tokens in the library.
         terminal_units_provided : bool
             Were all terminal tokens (arity = 0) units constraints (choosable and parents only) provided ?, ie is it
@@ -22,11 +22,11 @@ class Library:
             Number of tokens in the library (including superparent).
         n_choices  : int
             Number of choosable tokens (does not include superparent placeholder).
-        superparent : Token.Token
+        superparent : token.Token
             Placeholder token representing the output symbolic function (eg. y in y = 2*x + 1).
-        dummy : Token.Token
+        dummy : token.Token
             Placeholder token to complete program trees during program generation.
-        invalid : Token.Token
+        invalid : token.Token
             Placeholder for tokens that are not yet generated.
         lib_name_to_idx : dict of {str : int}
             Dictionary containing names and corresponding token index in the library.
@@ -35,7 +35,7 @@ class Library:
         lib_choosable_name : numpy.array of str
         lib_sympy_repr : numpy.array of str
         lib_function : numpy.array of objects (callable or None)
-        properties : Token.VectTokens
+        properties : token.VectTokens
 
         arity                     :  int
         complexity                :  float
@@ -56,7 +56,7 @@ class Library:
         append_custom_tokens
             Adding list of custom Tokens to library.
         append_tokens_from_names
-            Creates tokens by passing arguments to Functions.make_tokens and adding them to library.
+            Creates tokens by passing arguments to functions.make_tokens and adding them to library.
 
         Examples
         --------
@@ -86,8 +86,8 @@ class Library:
         Parameters
         ----------
         args_make_tokens : dict or None
-            If not None, arguments are passed to Functions.make_tokens and tokens are added to the library.
-        custom_tokens : list of Token.Token or None
+            If not None, arguments are passed to functions.make_tokens and tokens are added to the library.
+        custom_tokens : list of token.Token or None
             If not None, the tokens are added to the library.
         superparent_units : array_like of float
             Physical units vector of output symbolic function (eg. [1, 0, 0] for a distance assuming a convention such
@@ -99,7 +99,7 @@ class Library:
         # Should happen 1st so that superparent.name is defined when calling reset_library
         # Units # using retrieve_units for its error raising + padding features
         if superparent_units is None:
-            superparent_units_dict = None  # will result in y_units = None => Token.units = vector of np.NAN
+            superparent_units_dict = None  # will result in y_units = None => token.units = vector of np.NAN
         else:
             superparent_units_dict = {superparent_name: superparent_units}
         y_is_constraining_phy_units, y_units = Func.retrieve_units(superparent_units_dict, superparent_name)
@@ -164,7 +164,7 @@ class Library:
         # Number of free constants
         self.n_free_const = (self.var_type == 2).sum()
         # Free constants tokens
-        self.free_constants_tokens = self.lib_tokens[self.var_type == 2]                                           # (n_free_const,) of Token.Token
+        self.free_constants_tokens = self.lib_tokens[self.var_type == 2]                                           # (n_free_const,) of token.Token
         # Ids of free constants available
         self.free_constants_ids = self.var_id[self.var_type == 2]                                                  # (n_free_const,) of int
         # Initial values of free constants
@@ -233,15 +233,15 @@ class Library:
         """
         Checks if all terminal tokens (arity = 0) have units constraints ie if units constraints can be computed.
         Tokens in library come from various units assignments processes (from make_tokens : operation definition in
-        Functions, input_var_units dict, constants_units dict ; from custom tokens ; superparent units in
-        Library.__init__)
+        functions.py, input_var_units dict, constants_units dict ; from custom tokens ; superparent units in
+        library.Library.__init__)
         """
         self.terminal_units_provided = True
         # Checking all tokens (except dummy and valid which have arity = 0 and free dim)
         for token in self.choosable_tokens + [self.superparent]:
             if token.arity == 0 and token.is_constraining_phy_units == False:
                 # is_constraining_phy_units = False <=> phy_units is Free ie phy_units = vector of NAN
-                # (this is ensured via exceptions in Token.Token.__init__)
+                # (this is ensured via exceptions in token.Token.__init__)
                 warnings.warn("The units of token %s were not provided (is_constraining_phy_units=%s ; phy_units=%s), "
                               "unable to compute units constraints."
                               %(token.name, token.is_constraining_phy_units, token.phy_units))

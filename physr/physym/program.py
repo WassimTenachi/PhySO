@@ -20,10 +20,10 @@ except:
     warnings.warn("Can not import display packages.")
 
 # Internal imports
-from physr.physym import Token as Tok
-from physr.physym import ExecuteProgram as Exec
-from physr.physym import DimensionalAnalysis as phy
-from physr.physym import FreeConstUtils as FreeConstUtils
+from physr.physym import token as Tok
+from physr.physym import execute as Exec
+from physr.physym import dimensional_analysis as phy
+from physr.physym import free_const
 
 
 class Cursor:
@@ -33,7 +33,7 @@ class Cursor:
     For user-exploration, program testing and debugging.
     Attributes
     ----------
-    programs : Program.VectPrograms
+    programs : program.VectPrograms
         Batch of programs to explore.
     prog_idx : int
         Initial position of cursor in batch dim (= index of program in batch).
@@ -43,14 +43,14 @@ class Cursor:
     -------
     coords () -> numpy.array of shape (2, 1) of int
         Returns current coordinates in batch (batch dim, time dim) compatible with VectPrograms methods.
-    set_pos (new_pos : int) -> Program.Cursor
+    set_pos (new_pos : int) -> program.Cursor
         Sets position of cursor in time dim (= index of token in program) and returns cursor.
-    child   (i_child   : int) -> Program.Cursor
+    child   (i_child   : int) -> program.Cursor
         Returns a cursor pointing to child number i_child of current token. Raises error if there is no child.
-    sibling (i_sibling : int) -> Program.Cursor
+    sibling (i_sibling : int) -> program.Cursor
         Returns a cursor pointing to sibling number i_sibling of current token. Raises error if there is no sibling .
         cursor.
-    parent () -> Program.Cursor
+    parent () -> program.Cursor
         Returns a cursor pointing to parent of current token. Raises error if there is no parent.
     """
     def __init__(self, programs, prog_idx=0, pos=0):
@@ -58,7 +58,7 @@ class Cursor:
         See class documentation.
         Parameters
         ----------
-        programs : Program.VectPrograms
+        programs : program.VectPrograms
         prog_idx : int
         pos : int
         """
@@ -82,7 +82,7 @@ class Cursor:
         Returns token object at coords pointed by cursor.
         Returns
         -------
-        token : Token.Token
+        token : token.Token
         """
         return self.programs.get_token(self.coords)[0]
 
@@ -104,7 +104,7 @@ class Cursor:
         new_pos : int
         Returns
         -------
-        self : Program.Cursor
+        self : program.Cursor
         """
         self.pos = new_pos
         return self
@@ -117,7 +117,7 @@ class Cursor:
         i_child : int
         Returns
         -------
-        self : Program.Cursor
+        self : program.Cursor
         """
         has_relative     = self.programs.tokens.has_children_mask[tuple(self.coords)][0]
         if not has_relative:
@@ -138,7 +138,7 @@ class Cursor:
         i_sibling : int
         Returns
         -------
-        self : Program.Cursor
+        self : program.Cursor
         """
         has_relative = self.programs.tokens.has_siblings_mask[tuple(self.coords)][0]
         if not has_relative:
@@ -156,7 +156,7 @@ class Cursor:
         See class documentation.
         Returns
         -------
-        self : Program.Cursor
+        self : program.Cursor
         """
         has_relative = self.programs.tokens.has_parent_mask[tuple(self.coords)][0]
         if not has_relative:
@@ -177,11 +177,11 @@ class Program:
     Interface class representing a single program.
     Attributes
     ----------
-    tokens : array_like of Token.Token
+    tokens : array_like of token.Token
         Tokens making up program.
     size : int
         Size of program.
-    library : Library.Library
+    library : library.Library
         Library of tokens that could appear in Program.
     is_physical : bool or None
         Is program physical (units-wize) ?
@@ -231,14 +231,14 @@ class Program:
         y_target : torch.tensor of shape (?,) of float
             Values of target output.
         args_opti : dict or None, optional
-            Arguments to pass to FreeConstUtils.optimize_free_const. By default, FreeConstUtils.DEFAULT_OPTI_ARGS
+            Arguments to pass to free_const.optimize_free_const. By default, free_const.DEFAULT_OPTI_ARGS
             arguments are used.
         """
         if args_opti is None:
-            args_opti = FreeConstUtils.DEFAULT_OPTI_ARGS
+            args_opti = free_const.DEFAULT_OPTI_ARGS
         func_params = lambda params: self.__call__(X)
 
-        history = FreeConstUtils.optimize_free_const ( func     = func_params,
+        history = free_const.optimize_free_const ( func     = func_params,
                                                        params   = self.free_const_values,
                                                        y_target = y_target,
                                                        **args_opti)
@@ -494,7 +494,7 @@ class VectPrograms:
     shape : (int, int)
         Shape of batch (batch_size, max_time_step,).
 
-    library : Library.Library
+    library : library.Library
         Library of tokens that can appear in programs.
     n_choices : int
         Number of choosable tokens.
@@ -508,7 +508,7 @@ class VectPrograms:
         Index of invalid void placeholder in the library.
     lib_names : numpy.array of shape (n_library,) of str
         Names of tokens in the library.
-    lib_vect : Token.VectTokens of shape (1, n_library,)
+    lib_vect : token.VectTokens of shape (1, n_library,)
         Vectorized tokens of library.
 
     curr_step : int
@@ -533,7 +533,7 @@ class VectPrograms:
     units_analysis_cases : numpy.array of shape (batch_size, max_time_step,) of int
         Dimensional analysis assignment case code. Units requirement was performed on token if > -1.
 
-    tokens : Token.VectTokens of shape (batch_size, max_time_step,)
+    tokens : token.VectTokens of shape (batch_size, max_time_step,)
         Vectorized tokens of contained in batch (including idx in library ie. nature of tokens).
     """
     def __init__(self, batch_size, max_time_step, library):
@@ -544,7 +544,7 @@ class VectPrograms:
             Number of programs in batch.
         max_time_step : int
             Max number of tokens programs can contain.
-        library : Library.Library
+        library : library.Library
             Library of tokens that can appear in programs.
         """
         # Assertions
@@ -634,7 +634,7 @@ class VectPrograms:
         self.register_ancestor (coords_dest = coords_initial_dummies)
 
         # ---------------------------- FREE CONSTANTS REGISTER ----------------------------
-        self.free_consts = FreeConstUtils.FreeConstantsTable(batch_size = self.batch_size, library =self.library)
+        self.free_consts = free_const.FreeConstantsTable(batch_size = self.batch_size, library =self.library)
 
         return None
 
@@ -660,7 +660,7 @@ class VectPrograms:
         New tokens appended to already complete programs (ie. out of tree tokens) are ignored.
         Note that units requirements and update is not done in append (as it is computationally costly and unnecessary
         if units are not used). Use the assign_required_units method on all previous steps + this one before appending
-        to compute units. This is done by Prior.PhysicalUnitsPrior.
+        to compute units. This is done by prior.PhysicalUnitsPrior.
         Parameters
         ----------
         new_tokens_idx : numpy.array of shape (batch_size,) of int
@@ -2015,7 +2015,7 @@ class VectPrograms:
             Coords of tokens to return, 0th array in batch dim and 1th array in time dim.
         Returns
         -------
-        tokens : numpy.array of shape (?,) of Token.Token
+        tokens : numpy.array of shape (?,) of token.Token
         """
         return self.library.lib_tokens[self.tokens.idx[tuple(coords)]]
 
@@ -2024,7 +2024,7 @@ class VectPrograms:
         Returns all tokens contained in VectPrograms.
         Returns
         -------
-        tokens : numpy.array of shape (batch_size,max_time_step,) of Token.Token
+        tokens : numpy.array of shape (batch_size,max_time_step,) of token.Token
         """
         return self.library.lib_tokens[self.tokens.idx]
 
@@ -2038,7 +2038,7 @@ class VectPrograms:
             Index of program in batch.
         Returns
         -------
-        tokens : numpy.array of Token.Token
+        tokens : numpy.array of token.Token
             Tokens making up program.
         """
         length = self.n_completed        [prog_idx]
@@ -2058,7 +2058,7 @@ class VectPrograms:
             Index of program in batch.
         Returns
         -------
-        program : Program.Program
+        program : program.Program
             Program making up symbolic function.
         """
         tokens = self.get_prog_tokens(prog_idx=prog_idx)
@@ -2075,7 +2075,7 @@ class VectPrograms:
         Discards void tokens beyond program length.
         Returns
         -------
-        program : numpy.array of Program.Program of shape (batch_size,)
+        program : numpy.array of program.Program of shape (batch_size,)
             Array of programs representing symbolic functions.
         """
         progs = np.array([self.get_prog(i) for i in range(self.batch_size)])

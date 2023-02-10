@@ -3,8 +3,8 @@ import numpy as np
 from abc import ABC, abstractmethod
 
 # Internal imports
-from physr.physym import Token as Tok
-from physr.physym import Functions as Func
+from physr.physym import token as Tok
+from physr.physym import functions as Func
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------- PRIOR CLASS ----------------------------------------------------
@@ -19,9 +19,9 @@ class Prior (ABC):
         """
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
             Library of choosable tokens.
-        programs : Program.VectPrograms
+        programs : program.VectPrograms
             Programs in the batch.
         """
         self.lib       = library
@@ -60,8 +60,8 @@ class UniformArityPrior (Prior):
         """
         Parameters
         ----------
-        library : Library.Library
-        programs : Program.VectPrograms
+        library : library.Library
+        programs : program.VectPrograms
         """
         Prior.__init__(self, library, programs)
         # Number of tokens per arity
@@ -89,8 +89,8 @@ class UniformArityPrior (Prior):
     #     """
     #     Parameters
     #     ----------
-    #     library : Library.Library
-    #     programs : Program.VectPrograms
+    #     library : library.Library
+    #     programs : program.VectPrograms
     #     """
     #     Prior.__init__(self, library, programs)
     #     # Number of tokens per arity
@@ -127,8 +127,8 @@ class HardLengthPrior (Prior):
         """
         Parameters
         ----------
-        library : Library.Library
-        programs : Program.VectPrograms
+        library : library.Library
+        programs : program.VectPrograms
         min_length : float
             Minimum length that programs are allowed to have.
         max_length : float
@@ -187,8 +187,8 @@ class SoftLengthPrior (Prior):
         """
         Parameters
         ----------
-        library : Library.Library
-        programs : Program.VectPrograms
+        library : library.Library
+        programs : program.VectPrograms
         length_loc : float
             Desired length of programs.
         scale : float
@@ -248,8 +248,8 @@ class RelationshipConstraintPrior (Prior):
         Enforcing that [targets] cannot be the [relationship] of [effectors].
         Parameters
         ----------
-        library : Library.Library
-        programs : Program.VectPrograms
+        library : library.Library
+        programs : program.VectPrograms
         effectors : list of str
             List of effector tokens' name.
         relationship : str
@@ -410,15 +410,15 @@ class RelationshipConstraintPrior (Prior):
 class NoUselessInversePrior(Prior):
     """
     Forbids useless inverse sequences. Enforcing that op can not be the child of op^(-1) and that op^(-1) can not be
-    the child of op for all op having an inverse op^(-1) listed in Functions.INVERSE_OP_DICT.
+    the child of op for all op having an inverse op^(-1) listed in functions.INVERSE_OP_DICT.
     """
     def __init__(self, library, programs,):
         """
         Enforcing functions are not child of their inverse function.
         Parameters
         ----------
-        library : Library.Library
-        programs : Program.VectPrograms
+        library : library.Library
+        programs : program.VectPrograms
         """
         Prior.__init__(self, library, programs)
 
@@ -471,8 +471,8 @@ class NestedFunctions (Prior):
         Enforcing that [functions] can not be nested or only up to max_nesting level.
         Parameters
         ----------
-        library : Library.Library
-        programs : Program.VectPrograms
+        library : library.Library
+        programs : program.VectPrograms
         functions : list of str
             List of tokens' names which's nesting will be forbidden.
         max_nesting : int
@@ -557,7 +557,7 @@ class NestedFunctions (Prior):
 
 class NestedTrigonometryPrior(Prior):
     """
-    Regulates nesting of trigonometric functions listed in Functions.TRIGONOMETRIC_OP. Enforcing that any trigonometric
+    Regulates nesting of trigonometric functions listed in functions.TRIGONOMETRIC_OP. Enforcing that any trigonometric
     function can only have up to [max_nesting] ancestors that also are trigonometric functions.
     """
     def __init__(self, library, programs, max_nesting = 1):
@@ -565,8 +565,8 @@ class NestedTrigonometryPrior(Prior):
         Enforcing that trigonometric functions can not be nested or only up to max_nesting level.
         Parameters
         ----------
-        library : Library.Library
-        programs : Program.VectPrograms
+        library : library.Library
+        programs : program.VectPrograms
         max_nesting : int
             Max level of nesting allowed. By default = 1, no nesting allowed.
         """
@@ -621,8 +621,8 @@ class PhysicalUnitsPrior(Prior):
         """
         Parameters
         ----------
-        library : Library.Library
-        programs : Program.VectPrograms
+        library : library.Library
+        programs : program.VectPrograms
         prob_eps : float
             Value to return for the prior inplace of zeros (useful for avoiding sampling problems)
         """
@@ -736,12 +736,12 @@ def make_PriorCollection (library, programs, priors_config,):
     Makes PriorCollection object from arguments.
     Parameters
     ----------
-    library : Library.Library
+    library : library.Library
         Library of choosable tokens.
-    programs : Program.VectPrograms
+    programs : program.VectPrograms
         Programs in the batch.
     priors_config : list of couples (str : dict)
-        List of priors. List containing couples with prior name as first item in couple (see Prior.PRIORS_DICT for list
+        List of priors. List containing couples with prior name as first item in couple (see prior.PRIORS_DICT for list
         of available priors) and additional arguments (besides library and programs) to be passed to priors as second
         item of couple, leave None for priors that do not require arguments.
     Returns
@@ -785,15 +785,15 @@ def make_PriorCollection (library, programs, priors_config,):
 
 class PriorCollection:
     """
-    Collection of Prior.Prior, returns value of element-wise multiplication of constituent priors.
+    Collection of prior.Prior, returns value of element-wise multiplication of constituent priors.
     """
     def __init__(self, library, programs,):
         """
         Parameters
         ----------
-        library : Library.Library
+        library : library.Library
             Library of choosable tokens.
-        programs : Program.VectPrograms
+        programs : program.VectPrograms
             Programs in the batch.
         """
         self.priors    = []
@@ -806,7 +806,7 @@ class PriorCollection:
         Sets constituent priors.
         Parameters
         ----------
-        priors : list of Prior.Prior
+        priors : list of prior.Prior
         """
         for prior in priors:
             self.priors.append(prior)

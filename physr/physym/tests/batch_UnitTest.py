@@ -4,12 +4,12 @@ import numpy as np
 import torch
 
 # Internal imports
-from physr.physym import Batch
-from physr.physym import Program
-from physr.physym.Functions import data_conversion
-from physr.physym import Library
-from physr.physym import Reward
-from physr.physym import Prior
+from physr.physym import batch
+from physr.physym import program
+from physr.physym.functions import data_conversion
+from physr.physym import library
+from physr.physym import reward
+from physr.physym import prior
 
 class BatchTest(unittest.TestCase):
 
@@ -61,11 +61,11 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 30
 
-        my_batch = Batch.Batch(library_args     = library_args,
+        my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
                                max_time_step    = max_time_step,
-                               rewards_computer = Reward.make_RewardsComputer (reward_function = Reward.SquashedNRMSE),
+                               rewards_computer = reward.make_RewardsComputer (reward_function = reward.SquashedNRMSE),
                                X        = X,
                                y_target = y,
                                )
@@ -121,11 +121,11 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 10
 
-        my_batch = Batch.Batch(library_args     = library_args,
+        my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
                                max_time_step    = max_time_step,
-                               rewards_computer = Reward.make_RewardsComputer (reward_function = Reward.SquashedNRMSE),
+                               rewards_computer = reward.make_RewardsComputer (reward_function = reward.SquashedNRMSE),
                                X        = X,
                                y_target = y_target,
                                )
@@ -198,11 +198,11 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 10
 
-        my_batch = Batch.Batch(library_args     = library_args,
+        my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
                                max_time_step    = max_time_step,
-                               rewards_computer = Reward.make_RewardsComputer (reward_function = Reward.SquashedNRMSE,
+                               rewards_computer = reward.make_RewardsComputer (reward_function = reward.SquashedNRMSE,
                                                                                zero_out_unphysical = True,
                                                                                zero_out_duplicates = True),
                                X        = X,
@@ -299,11 +299,11 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 10
 
-        my_batch = Batch.Batch(library_args     = library_args,
+        my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
                                max_time_step    = max_time_step,
-                               rewards_computer = Reward.make_RewardsComputer (reward_function     = Reward.SquashedNRMSE,
+                               rewards_computer = reward.make_RewardsComputer (reward_function     = reward.SquashedNRMSE,
                                                                                zero_out_unphysical = True),
                                free_const_opti_args = free_const_opti_args,
                                X        = X,
@@ -398,11 +398,11 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 10
 
-        my_batch = Batch.Batch(library_args     = library_args,
+        my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
                                max_time_step    = max_time_step,
-                               rewards_computer = Reward.make_RewardsComputer (reward_function     = Reward.SquashedNRMSE,
+                               rewards_computer = reward.make_RewardsComputer (reward_function     = reward.SquashedNRMSE,
                                                                                zero_out_unphysical = True,
                                                                                zero_out_duplicates = True,),
                                free_const_opti_args = free_const_opti_args,
@@ -500,11 +500,11 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 10
 
-        my_batch = Batch.Batch(library_args     = library_args,
+        my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
                                max_time_step    = max_time_step,
-                               rewards_computer = Reward.make_RewardsComputer (reward_function     = Reward.SquashedNRMSE,
+                               rewards_computer = reward.make_RewardsComputer (reward_function     = reward.SquashedNRMSE,
                                                                                zero_out_unphysical = True,
                                                                                zero_out_duplicates = True,
                                                                                keep_lowest_complexity_duplicate = True),

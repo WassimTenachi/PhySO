@@ -18,7 +18,7 @@ DEFAULT_FREE_CONST_INIT_VAL = 1.
 # VectPrograms.append, VectPrograms.update_relationships_pos only work with MAX_NB_CHILDREN = 2
 MAX_NB_CHILDREN = 2
 # VectPrograms.append, VectPrograms.update_relationships_pos, VectPrograms.get_sibling_idx,
-# VectPrograms.get_sibling_idx_of_step Prior.RelationshipConstraintPrior get_property_of_relative,
+# VectPrograms.get_sibling_idx_of_step prior.RelationshipConstraintPrior get_property_of_relative,
 # only work with MAX_NB_SIBLINGS = 1
 MAX_NB_SIBLINGS = MAX_NB_CHILDREN - 1
 # Max arity value
@@ -36,7 +36,7 @@ class Token:
         represents the token's idx in the library and is not encoded here).
         Attributes :
         ----------
-        See Token.__init__ for full description of parameters.
+        See token.Token.__init__ for full description of parameters.
 
         name                      :  str (<MAX_NAME_SIZE)
         sympy_repr                :  str (<MAX_NAME_SIZE)
@@ -118,7 +118,7 @@ class Token:
             (converted to INVALID_VAR_ID in __init__)
 
         behavior_id : int
-            Id encoding behavior of token in the context of dimensional analysis (see Functions for details).
+            Id encoding behavior of token in the context of dimensional analysis (see functions for details).
 
         is_power : bool
             True if token is a power token (n2, sqrt, n3 etc.), False else.
@@ -246,8 +246,8 @@ class Token:
 class VectTokens:
     """
     Object representing a matrix of positional tokens (positional) ie:
-     - non_positional properties: idx + token properties attributes, see Token.__init__ for full description.
-     - semi_positional properties: See Token.__init__ for full description of token properties attributes.
+     - non_positional properties: idx + token properties attributes, see token.Token.__init__ for full description.
+     - semi_positional properties: See token.Token.__init__ for full description of token properties attributes.
      - positional properties which are contextual (family relationships, depth etc.).
     This only contains properties expressed as float, int, bool to be jit-able.
 

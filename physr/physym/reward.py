@@ -44,8 +44,8 @@ def RewardsComputer(programs,
     y_target : torch.tensor of shape (?,) of float
         Values of the target symbolic function on input variables contained in X_target.
     free_const_opti_args : dict or None, optional
-        Arguments to pass to FreeConstUtils.optimize_free_const for free constants optimization. By default,
-        FreeConstUtils.DEFAULT_OPTI_ARGS arguments are used.
+        Arguments to pass to free_const.optimize_free_const for free constants optimization. By default,
+        free_const.DEFAULT_OPTI_ARGS arguments are used.
 
     reward_function : callable
         Function that taking y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of shape (?,)
@@ -204,7 +204,7 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
     Returns
     -------
     rewards_computer : callable
-         Custom reward computing function taking programs (Program.VectPrograms), X (torch.tensor of shape (n_dim,?,)
+         Custom reward computing function taking programs (program.VectPrograms), X (torch.tensor of shape (n_dim,?,)
          of float), y_target (torch.tensor of shape (?,) of float) as key arguments and returning reward for each
          program (array_like of float).
     """

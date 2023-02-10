@@ -158,21 +158,21 @@ def optimize_free_const (func,
 
     # Getting loss
     err_msg = "Loss should be a string contained in the dict of available const optimization losses, see " \
-              "FreeConstUtils.LOSSES : %s"%(LOSSES)
+              "free_const.LOSSES : %s"%(LOSSES)
     assert isinstance(loss, str), err_msg
     assert loss in LOSSES, err_msg
     loss = LOSSES[loss]
 
     # Getting optimizer
     err_msg = "Optimizer should be a string contained in the dict of available const optimizers, see " \
-              "FreeConstUtils.OPTIMIZERS: %s"%(OPTIMIZERS)
+              "free_const.OPTIMIZERS: %s"%(OPTIMIZERS)
     assert isinstance(method, str), err_msg
     assert method in OPTIMIZERS, err_msg
     optimizer = OPTIMIZERS[method]
 
     # Getting optimizer_args
     if method_args is None:
-        err_msg = "Optimizer args should be given or defined in FreeConstUtils.OPTIMIZERS_DEFAULT_ARGS: %s" % (OPTIMIZERS_DEFAULT_ARGS)
+        err_msg = "Optimizer args should be given or defined in free_const.OPTIMIZERS_DEFAULT_ARGS: %s" % (OPTIMIZERS_DEFAULT_ARGS)
         assert method in OPTIMIZERS_DEFAULT_ARGS, err_msg
         optimizer_args = OPTIMIZERS_DEFAULT_ARGS[method]
     else:
