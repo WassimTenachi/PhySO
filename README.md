@@ -38,7 +38,7 @@ before running:
 ```
 pip install -r requirements_display.txt
 ```
-### Installing $\Phi$-SR
+### Installing $\Phi$-SO
 
 Installing `physo` (from the repository root):
 ```
