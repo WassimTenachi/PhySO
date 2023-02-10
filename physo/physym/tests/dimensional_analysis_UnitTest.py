@@ -2,9 +2,9 @@ import time
 import unittest
 import numpy as np
 
-from physr.physym import program as Prog
-from physr.physym import library as Lib
-from physr.physym import dimensional_analysis as phy
+from physo.physym import program as Prog
+from physo.physym import library as Lib
+from physo.physym import dimensional_analysis as phy
 
 
 def hard_test_case():

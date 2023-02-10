@@ -4,8 +4,8 @@ import time as time
 import torch as torch
 
 # Internal imports
-from physr.physym import reward
-from physr.physym.functions import data_conversion, data_conversion_inv
+from physo.physym import reward
+from physo.physym.functions import data_conversion, data_conversion_inv
 
 class ExecuteProgramTest(unittest.TestCase):
 

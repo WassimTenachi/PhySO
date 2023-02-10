@@ -5,9 +5,9 @@ import torch as torch
 import sympy as sympy
 
 # Internal imports
-from physr.physym import execute as Exec
-from physr.physym import library as Lib
-from physr.physym.functions import data_conversion, data_conversion_inv
+from physo.physym import execute as Exec
+from physo.physym import library as Lib
+from physo.physym.functions import data_conversion, data_conversion_inv
 
 class ExecuteProgramTest(unittest.TestCase):
 

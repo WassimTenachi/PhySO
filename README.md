@@ -1,7 +1,7 @@
 
 # $\Phi$-SO : Physical Symbolic Regression
 
-The physical symbolic regression ($\Phi$-SR) package `physr` is a symbolic regression package that fully leverages physical units constraints. For more details see: [paper].
+The physical symbolic regression ($\Phi$-SR) package `physo` is a symbolic regression package that fully leverages physical units constraints. For more details see: [paper].
 
 # Installation
 
@@ -9,11 +9,11 @@ The physical symbolic regression ($\Phi$-SR) package `physr` is a symbolic regre
 
 The package has been tested on Unix and OSX. To install the package it is recommend to first create a conda virtual environment:
 ```
-conda create -n PhySR python=3.8
+conda create -n PhySO python=3.8
 ```
 And activate it:
 ```
-conda activate PhySR
+conda activate PhySO
 ```
 ### Dependencies
 From the repository root:
@@ -40,7 +40,7 @@ pip install -r requirements_display.txt
 ```
 ### Installing $\Phi$-SR
 
-Installing `physr` (from the repository root):
+Installing `physo` (from the repository root):
 ```
 pip install -e .
 ```
@@ -50,9 +50,9 @@ pip install -e .
 #####  Import test:
 ```
 python3
->>> import physr
+>>> import physo
 ```
-This should result in `physr` being successfully imported.
+This should result in `physo` being successfully imported.
 
 #####  Unit tests:
 

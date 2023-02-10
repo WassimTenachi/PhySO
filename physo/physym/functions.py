@@ -3,8 +3,8 @@ import numpy as np
 import torch as torch
 
 # Internal imports
-from physr.physym import token as Tok
-from physr.physym.token import Token
+from physo.physym import token as Tok
+from physo.physym.token import Token
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------ UTILS MANAGEMENT ------------------------------------------

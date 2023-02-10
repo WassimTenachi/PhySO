@@ -4,12 +4,12 @@ import numpy as np
 import torch
 
 # Internal imports
-from physr.physym import batch
-from physr.physym import program
-from physr.physym.functions import data_conversion
-from physr.physym import library
-from physr.physym import reward
-from physr.physym import prior
+from physo.physym import batch
+from physo.physym import program
+from physo.physym.functions import data_conversion
+from physo.physym import library
+from physo.physym import reward
+from physo.physym import prior
 
 class BatchTest(unittest.TestCase):
 

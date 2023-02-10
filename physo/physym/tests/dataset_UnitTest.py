@@ -2,9 +2,9 @@ import unittest
 import numpy as np
 import torch
 
-from physr.physym import dataset
-from physr.physym import library as Lib
-from physr.physym.functions import data_conversion, data_conversion_inv
+from physo.physym import dataset
+from physo.physym import library as Lib
+from physo.physym.functions import data_conversion, data_conversion_inv
 
 
 class TestDataset(unittest.TestCase):

@@ -2,8 +2,8 @@ import warnings as warnings
 import numpy as np
 
 # Internal imports
-from physr.physym import functions as Func
-from physr.physym import token as Tok
+from physo.physym import functions as Func
+from physo.physym import token as Tok
 
 class Library:
     """

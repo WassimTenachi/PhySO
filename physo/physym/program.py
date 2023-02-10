@@ -20,10 +20,10 @@ except:
     warnings.warn("Can not import display packages.")
 
 # Internal imports
-from physr.physym import token as Tok
-from physr.physym import execute as Exec
-from physr.physym import dimensional_analysis as phy
-from physr.physym import free_const
+from physo.physym import token as Tok
+from physo.physym import execute as Exec
+from physo.physym import dimensional_analysis as phy
+from physo.physym import free_const
 
 
 class Cursor:

@@ -3,12 +3,12 @@ import torch
 
 # Internal imports
 from physo.physym import token
-from physr.physym import program
-from physr.physym import library
-from physr.physym import prior
-from physr.physym import dataset
-from physr.physym import reward
-from physr.physym import execute
+from physo.physym import program
+from physo.physym import library
+from physo.physym import prior
+from physo.physym import dataset
+from physo.physym import reward
+from physo.physym import execute
 
 # Embedding output in SR interface
 INTERFACE_UNITS_AVAILABLE   = 1.

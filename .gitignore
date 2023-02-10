@@ -1,7 +1,7 @@
-physr.egg-info/
+physo.egg-info/
 .DS_Store
-physr/__pycache__/
-physr/physym/__pycache__/
-physr/physym/tests/__pycache__/
+physo/__pycache__/
+physo/physym/__pycache__/
+physo/physym/tests/__pycache__/
 .idea/
 .ipynb_checkpoints/

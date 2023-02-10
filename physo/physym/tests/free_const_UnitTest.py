@@ -4,13 +4,13 @@ import torch
 import numpy as np
 
 # Internal imports
-import physr.physym.free_const as free_const
+import physo.physym.free_const as free_const
 
 # For testing whole opti process : test_optimization_process
-from physr.physym import library as Lib
-from physr.physym import program as Prog
-from physr.physym.functions import data_conversion, data_conversion_inv
-from physr.physym import execute as Exec
+from physo.physym import library as Lib
+from physo.physym import program as Prog
+from physo.physym.functions import data_conversion, data_conversion_inv
+from physo.physym import execute as Exec
 
 class FreeConstUtilsTest(unittest.TestCase):
 

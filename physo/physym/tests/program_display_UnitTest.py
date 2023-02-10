@@ -5,8 +5,8 @@ import numpy as np
 import time as time
 
 # Internal imports
-from physr.physym import library as Lib
-from physr.physym import program as Prog
+from physo.physym import library as Lib
+from physo.physym import program as Prog
 
 
 def make_lib():
