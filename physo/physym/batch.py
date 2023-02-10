@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 # Internal imports
-from physr.physym import token
+from physo.physym import token
 from physr.physym import program
 from physr.physym import library
 from physr.physym import prior
