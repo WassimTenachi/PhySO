@@ -10,7 +10,7 @@ DEFAULT_BEHAVIOR_ID = 9999999
 # Element used in place of a NAN (which is a float) as var id in int arrays
 INVALID_VAR_ID = 9999999  # NAN only exists for floats
 # Default complexity
-DEFAULT_COMPLEXITY = 0.
+DEFAULT_COMPLEXITY = 1.
 # Default initial value for free const token
 DEFAULT_FREE_CONST_INIT_VAL = 1.
 
