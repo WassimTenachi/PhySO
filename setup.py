@@ -1,7 +1,7 @@
 import setuptools
 
 VERSION = '1.0dev'
-DESCRIPTION = 'Physical Symbolic Regression'
+DESCRIPTION = 'Physical Symbolic Optimization'
 
 #REQUIRED = open("requirements_pip.txt").read().splitlines()
 
@@ -14,7 +14,7 @@ DESCRIPTION = 'Physical Symbolic Regression'
 
 
 setuptools.setup(
-    name             = 'physr',
+    name             = 'physo',
     version          = VERSION,
     description      = DESCRIPTION,
     author           = 'Wassim Tenachi',

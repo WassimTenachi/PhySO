@@ -1,4 +1,4 @@
-# Requirements for PhySR
+# Requirements for PhySO
 # Install via conda : conda install --file requirements.txt
 
 pytorch == 1.11.0

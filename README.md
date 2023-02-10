@@ -1,5 +1,5 @@
 
-# $\Phi$-SR : Physical Symbolic Regression
+# $\Phi$-SO : Physical Symbolic Regression
 
 The physical symbolic regression ($\Phi$-SR) package `physr` is a symbolic regression package that fully leverages physical units constraints. For more details see: [paper].
 
