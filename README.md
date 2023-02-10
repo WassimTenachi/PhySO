@@ -32,7 +32,7 @@ The file `requirements_display.txt` contains dependencies that can be installed 
 
 It is recommended to run:
 ```
-conda install pygraphviz == 1.9
+conda install pygraphviz==1.9
 ```
 before running:
 ```
