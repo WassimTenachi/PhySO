@@ -95,7 +95,6 @@ class OccurrencesPrior (Prior):
         max : list of int
             List of maximum occurrences of tokens (must have the same length as targets).
         """
-
         # targets argument ---
         targets = np.array(targets)
         err_msg = "Argument targets should be a list of strings."
