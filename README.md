@@ -1,7 +1,7 @@
 
 # $\Phi$-SO : Physical Symbolic Regression
 
-The physical symbolic regression ($\Phi$-SO) package `physo` is a symbolic regression package that fully leverages physical units constraints. For more details see: [paper].
+The physical symbolic regression ( $\Phi$-SO ) package `physo` is a symbolic regression package that fully leverages physical units constraints. For more details see: [paper].
 
 # Installation
 
