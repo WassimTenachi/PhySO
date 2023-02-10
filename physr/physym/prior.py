@@ -80,38 +80,62 @@ class UniformArityPrior (Prior):
     def __repr__(self):
         return "UniformArityPrior"
 
-#todo : RepetitionPrior
-#class RepetitionPrior (Prior):
+class OccurrencesPrior (Prior):
     """
+    Enforces that [targets] can not appear more than [max] times in programs.
     """
-    #
-    # def __init__(self, library, programs, tokens, max):
-    #     """
-    #     Parameters
-    #     ----------
-    #     library : library.Library
-    #     programs : program.VectPrograms
-    #     """
-    #     Prior.__init__(self, library, programs)
-    #     # Number of tokens per arity
-    #     # Sum of tokens having arity = idx on choosable tokens
-    #     count_arities = np.array ([ (self.lib.get_choosable_prop("arity") == arity).sum() for arity in range (Tok.MAX_ARITY + 1) ])
-    #     # Uniform mask over arities ie. inverse of total number of tokens per arity for each choosable token arity
-    #     # Mask for one prog
-    #     individual_mask = 1 / count_arities[self.lib.get_choosable_prop("arity")].astype(float)
-    #     # Mask is the same for every program -> tile
-    #     self.reset_mask_prob()
-    #     self.mask_prob[:,:] = np.tile(individual_mask, (self.progs.batch_size, 1))
-    #
-    # def __call__(self):
-    #    out equal between tokens.idx and vecto of tokens in lib
-    # sum along axis
-    # sum < max
-    # this is mask_prob
-    #     return self.mask_prob
-    #
-    # def __repr__(self):
-    #     return "RepetitionPrior (tokens %s can be used %s times max)"%(self.targets, self.max)
+    def __init__(self, library, programs, targets, max):
+        """
+        Parameters
+        ----------
+        library : library.Library
+        programs : program.VectPrograms
+        targets : list of str
+            List of tokens' names which's number of occurrences should be constrained.
+        max : list of int
+            List of maximum occurrences of tokens (must have the same length as targets).
+        """
+
+        # targets argument ---
+        targets = np.array(targets)
+        err_msg = "Argument targets should be a list of strings."
+        assert len(targets.shape) == 1 and targets.dtype.char == "U", err_msg
+        err_msg = "Some tokens given in argument targets: %s are not in the library of tokens: %s" \
+                  % (targets, library.lib_name)
+        assert np.isin(targets, library.lib_name).all(), err_msg
+
+        # max argument ---
+        max = np.array(max)
+        err_msg = "Argument max should be a list of positive integers having the same size as targets list."
+        assert len(max.shape) == 1 and max.dtype == int, err_msg
+        assert (max >= 0).all() == True, err_msg
+        assert len(max) == len(targets), err_msg
+        max = max.astype(int)                                                                                   # (n_constraints,)
+
+        # -------- ARGUMENTS HANDLING --------
+
+        Prior.__init__(self, library, programs)
+
+        self.targets_str   = targets                                                                             # (n_constraints,)
+        self.n_constraints = len(self.targets_str)   # n_constraints <= n_choices
+        self.targets       = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in self.targets_str])     # (n_constraints,)
+
+        # Max number of occurrences allowed for each target
+        self.max = max                                                                                           # (n_constraints,)
+
+    def __call__(self):
+        # Recounting at each step allows for the use of this prior even if it was not used before
+        # For each prog in batch, number of occurrences of each target
+        counts = np.equal.outer(self.progs.tokens.idx, self.targets,).sum(axis=1)                               # (batch_size, n_constraints,)
+        # For each prog in batch, for each target : is target allowed at next step ?
+        is_target_allowed = np.less(counts, self.max)                                                           # (batch_size, n_constraints,)
+        # mask : for each prog in batch, for each token in choosable tokens, is token allowed
+        self.reset_mask_prob()
+        self.mask_prob[:, self.targets] = is_target_allowed.astype(float)                                       # (batch_size, n_choices,)
+        return self.mask_prob
+
+    def __repr__(self):
+        return "OccurrencesPrior (tokens %s can be used %s times max)"%(self.targets_str, self.max)
 
 
 class HardLengthPrior (Prior):
@@ -136,9 +160,9 @@ class HardLengthPrior (Prior):
         """
         # Assertions
         try: min_length = float(min_length)
-        except ValueError: raise TypeError(" max_length must be cast-able to a float")
+        except ValueError: raise TypeError("max_length must be cast-able to a float")
         try: max_length = float(max_length)
-        except ValueError: raise TypeError(" max_length must be cast-able to a float")
+        except ValueError: raise TypeError("max_length must be cast-able to a float")
         assert min_length <= programs.max_time_step, "min_length must be such as: min_length <= max_time_step"
         assert max_length <= programs.max_time_step, "max_length must be such as: max_length <= max_time_step"
         assert max_length >= 1,                      "max_length must be such as: max_length >= 1"
@@ -719,7 +743,7 @@ PRIORS_W_ARGS = {
     "RelationshipConstraintPrior" : RelationshipConstraintPrior,
     "NestedFunctions"             : NestedFunctions,
     "NestedTrigonometryPrior"     : NestedTrigonometryPrior,
-    "PhysicalUnitsPrior"          : PhysicalUnitsPrior
+    "PhysicalUnitsPrior"          : PhysicalUnitsPrior,
 }
 
 # All priors

@@ -905,6 +905,113 @@ class PriorTest(unittest.TestCase):
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
 
+
+    def test_OccurencesPrior (self):
+
+        # -------------------- LIB TEST CASE --------------------
+        args_make_tokens = {
+                        # operations
+                        "op_names"             : ["add", "sub", "mul", "neg", "inv", "n2", "sqrt", "cos", "sin", "exp", "log"],
+                        "use_protected_ops"    : False,
+                        # input variables
+                        "input_var_ids"        : {"x" : 0         , "v" : 1          , "t" : 2,        },
+                        "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
+                        "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
+                        # constants
+                        "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
+                        "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                            }
+        my_lib = Lib.Library(args_make_tokens = args_make_tokens,
+                             superparent_units = [1, -2, 1], superparent_name = "y")
+        my_programs = Prog.VectPrograms(batch_size=4, max_time_step=10, library=my_lib)
+
+        # -------------------- CREATION --------------------
+        try:
+            my_prior = Prior.OccurrencesPrior (library = my_lib, programs = my_programs,
+                                               targets = ["add", "x"],
+                                               max     = [1, 2],)
+        except:
+            self.fail("Prior creation failed.")
+
+        # ---------- ASSERTIONS ----------
+
+        # Assertion test : targets
+        with self.assertRaises(AssertionError, msg="targets arg must be valid"):
+            my_prior = Prior.OccurrencesPrior  (library = my_lib, programs = my_programs,
+                                                targets = "x",
+                                                max     = [2, 2],)
+        with self.assertRaises(AssertionError, msg="targets arg must be valid"):
+            my_prior = Prior.OccurrencesPrior (library = my_lib, programs = my_programs,
+                                                targets = [["add"], ["x"]],
+                                                max     = [2, 2],)
+        with self.assertRaises(AssertionError, msg="targets arg must be valid"):
+            my_prior = Prior.OccurrencesPrior  (library = my_lib, programs = my_programs,
+                                                targets = ["token_not_in_lib", "token_not_in_lib"],
+                                                max     = [2, 2],)
+
+        # Assertion test : max
+        with self.assertRaises(AssertionError, msg="max arg must be valid"):
+            my_prior = Prior.OccurrencesPrior  (library = my_lib, programs = my_programs,
+                                                targets = ["add", "x"],
+                                                max     = [np.NAN, 2],)
+        with self.assertRaises(AssertionError, msg="max arg must be valid"):
+            my_prior = Prior.OccurrencesPrior (library = my_lib, programs = my_programs,
+                                               targets = ["add", "x"],
+                                               max     = [2.578, 2],)
+        with self.assertRaises(AssertionError, msg="max arg must be valid"):
+            my_prior = Prior.OccurrencesPrior (library = my_lib, programs = my_programs,
+                                               targets = ["add", "x"],
+                                               max     = [2, -1],)
+        with self.assertRaises(AssertionError, msg="max arg must be valid"):
+            my_prior = Prior.OccurrencesPrior  (library = my_lib, programs = my_programs,
+                                                targets = ["add", "x"],
+                                                max     = [2, 2, 2,],)
+
+        # -------------------- TEST WITH CHILD RELATIONSHIP (1) --------------------
+
+        test_progs_str = np.array([
+            ["add" , "x"   , "exp" , "cos" ,],
+            ["cos" , "sub" , "v"   , "sin" ,],
+            ["sub" , "add" , "x"   , "x"   ,],
+            ["sub" , "x"   , "mul" , "x"   ,],
+            ["mul" , "add" , "mul" , "x"   ,],
+        ])
+        # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
+        test_progs = []
+        for prog_str in test_progs_str:
+            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            test_progs.append(prog)
+        test_progs = np.array(test_progs)
+        my_programs = Prog.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib)
+        my_programs.set_programs(test_progs)
+
+        # Test Case --------
+        my_prior = Prior.OccurrencesPrior (library = my_lib, programs = my_programs,
+                                                targets   = ["add" , "x",],
+                                                max = [1, 2],)
+        # Expected forbidden tokens
+        expected_forbidden_tokens = [
+            ["add",],
+            [],
+            ["add", "x"],
+            ["x"],
+            ["add"],
+        ]
+
+        # Test --------
+        mask_prob = my_prior()
+        for i, mask_prob_i in enumerate(mask_prob):
+            mask_is_forbidden = np.logical_not(mask_prob_i)
+            idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
+            # print("prog", my_lib.lib_name[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.lib_name[idx])
+            found_forbidden_tokens = np.sort(my_lib.lib_name[idx]).astype(str)
+            expected = np.sort(expected_forbidden_tokens[i]).astype(str)
+            bool_works = np.array_equal(found_forbidden_tokens, expected)
+            self.assertEqual(bool_works, True)
+
+
     def test_PhysicalUnitsPrior(self):
         # LIBRARY CONFIG
         args_make_tokens = {
