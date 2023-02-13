@@ -283,8 +283,8 @@ class RunVisualiser:
             curr_ax.plot(x_plot_cpu, y_plot, color='b', alpha=0.05, linestyle='solid')
 
         # Plot limits
-        y_min = y.min().cpu().detach().numpy()
-        y_max = y.max().cpu().detach().numpy()
+        y_min = batch.dataset.y_target.min().cpu().detach().numpy()
+        y_max = batch.dataset.y_target.max().cpu().detach().numpy()
         curr_ax.set_ylim(y_min-0.1*np.abs(y_min), y_max+0.1*np.abs(y_max))
         custom_lines = [
             Line2D([0], [0], color='k',      lw=3),
@@ -424,11 +424,11 @@ class RunVisualiser:
         if epoch == 0:
             self.initialize()
         if epoch%self.epoch_refresh_rate == 0:
-            try:
-                if self.do_show:
-                    self.make_visualisation()
-                if self.do_save:
-                    self.save_visualisation()
-            except:
-                print("Unable to make visualisation plots.")
+            #try:
+            if self.do_show:
+                self.make_visualisation()
+            if self.do_save:
+                self.save_visualisation()
+            #except:
+                #print("Unable to make visualisation plots.")
 
