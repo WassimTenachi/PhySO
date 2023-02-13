@@ -1,3 +1,5 @@
+
+# Internal imports
 from physo.physym import batch
 from physo.learn import rnn
 from physo.learn import learn
@@ -11,7 +13,7 @@ def fit(X, y, run_config, stop_reward = 1.):
      # todo: check risk_factor, gamma_decay, entropy_weight
 
     def batch_reseter():
-        batch = batch.Batch (library_args          = run_config["library_config"],
+        return  batch.Batch (library_args          = run_config["library_config"],
                              priors_config         = run_config["priors_config"],
                              batch_size            = run_config["learning_config"]["batch_size"],
                              max_time_step         = run_config["learning_config"]["max_time_step"],
@@ -19,9 +21,7 @@ def fit(X, y, run_config, stop_reward = 1.):
                              free_const_opti_args  = run_config["free_const_opti_args"],
                              X        = X,
                              y_target = y,
-
                              )
-        return batch
 
     batch = batch_reseter()
 
