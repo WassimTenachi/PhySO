@@ -52,9 +52,10 @@ def learner ( model,
         Custom run visualiser to use having a run_visualiser.visualise method taking as args (run_logger, batch).
     Returns
     -------
-    overall_max_R_history, hall_of_fame : list of float, list of physym.program.Program
+    hall_of_fame_R, hall_of_fame : list of float, list of physym.program.Program
         hall_of_fame : history of overall best programs found.
-        overall_max_R_history : Corresponding reward values.
+        hall_of_fame_R : Corresponding reward values.
+        Use hall_of_fame[-1] to access best model found.
     """
     t000 = time.perf_counter()
 
@@ -260,4 +261,5 @@ def learner ( model,
     if verbose:
         print("  -> Time = %f s"%(t111-t000))
 
-    return overall_max_R_history, hall_of_fame
+    hall_of_fame_R = np.array(overall_max_R_history)
+    return hall_of_fame_R, hall_of_fame

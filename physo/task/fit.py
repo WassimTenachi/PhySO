@@ -6,6 +6,26 @@ from physo.learn import learn
 
 
 def fit(X, y, run_config, stop_reward = 1.):
+    """
+    Run a symbolic regression task on (X,y) data.
+    Parameters
+    ----------
+    X : torch.tensor of shape (n_dim, ?,) of float
+        Values of the input variables of the problem with n_dim = nb of input variables.
+    y_target : torch.tensor of shape (?,) of float
+        Values of the target symbolic function on input variables contained in X_target.
+    run_config : dict
+        Run configuration, see default_run_config.sr_run_config for an example.
+    stop_reward : float, optional
+        Early stops if stop_reward is reached by a program (= 1 by default), use stop_reward = (1-1e-5) when using free
+        constants.
+    Returns
+    -------
+    hall_of_fame_R, hall_of_fame : list of float, list of physym.program.Program
+        hall_of_fame : history of overall best programs found.
+        hall_of_fame_R : Corresponding reward values.
+        Use hall_of_fame[-1] to access best model found.
+    """
      # todo: assert MAX_TIME_STEP>= max_length
      # todo: if run_config is None, make const
      # todo: replace stop_reward by stop_rmse
@@ -39,7 +59,7 @@ def fit(X, y, run_config, stop_reward = 1.):
     optimizer = run_config["learning_config"]["get_optimizer"](cell)
 
 
-    overall_max_R_history, hall_of_fame = learn.learner (
+    hall_of_fame_R, hall_of_fame = learn.learner (
                                                     model               = cell,
                                                     optimizer           = optimizer,
                                                     n_epochs            = run_config["learning_config"]["n_epochs"],
@@ -54,4 +74,4 @@ def fit(X, y, run_config, stop_reward = 1.):
                                                     run_visualiser      = run_config["run_visualiser"],
                                                    )
 
-    return overall_max_R_history, hall_of_fame
+    return hall_of_fame_R, hall_of_fame
