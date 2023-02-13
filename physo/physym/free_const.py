@@ -27,7 +27,7 @@ class FreeConstantsTable:
         self.values = self.values
         # mask : is free constant optimized
         self.is_opti    = np.full(shape=self.batch_size, fill_value=False, dtype=bool)  # (batch_size,) of bool
-        # Number of epochs necessary to optimize free constant
+        # Number of epochs necessary to optimize.py free constant
         self.opti_steps = np.full(shape=self.batch_size, fill_value=False, dtype=int )  # (batch_size,) of int
 
     def __repr__(self):
@@ -49,7 +49,7 @@ def MSE_loss (func, params, y_target):
     func : callable
         Function which's constants should be optimized taking params as argument.
     params : torch.tensor of shape (n_free_const,)
-        Free constants to optimize.
+        Free constants to optimize.py.
     y_target : torch.tensor of shape (?,)
         Target output of function.
     Returns
@@ -85,7 +85,7 @@ def LBFGS_optimizer (params, f, n_steps=10, tol=1e-6, lbfgs_func_args={}):
     Parameters
     ----------
     params : torch.tensor of shape (n_free_const,)
-        Parameters to optimize.
+        Parameters to optimize.py.
     f : callable
         Function to minimize, taking params as argument.
     n_steps : int
@@ -151,7 +151,7 @@ def optimize_free_const (func,
     func : callable
         Function which's constants should be optimized taking params as argument.
     params : torch.tensor of shape (n_free_const,)
-        Free constants to optimize.
+        Free constants to optimize.py.
     y_target : torch.tensor of shape (?,)
         Target output of function.
     """

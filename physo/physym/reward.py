@@ -96,12 +96,12 @@ def RewardsComputer(programs,
 
     def batch_optimize_free_const (programs, X, y_target, args_opti, mask_valid,):
         """
-        Helper function to optimize constants of a batch of program where mask_valid is True.
+        Helper function to optimize.py constants of a batch of program where mask_valid is True.
         """
         # Iterating through batch
         for i in range(programs.batch_size):
             # print("optimizing free const %i/%i"%(i, programs.batch_size))
-            # If this is a valid prog AND it contains free constants then we try to optimize its free constants.
+            # If this is a valid prog AND it contains free constants then we try to optimize.py its free constants.
             # (Else we should not bother optimizing its free constants)
             if mask_valid[i] and programs.n_free_const_occurrences[i]:
                 try:
@@ -114,7 +114,7 @@ def RewardsComputer(programs,
                     programs.free_consts.opti_steps [i] = len(history)
                 except:
                     # Safety
-                    warnings.warn("Unable to optimize free constants of prog %i -> r = 0"%(i))
+                    warnings.warn("Unable to optimize.py free constants of prog %i -> r = 0"%(i))
         return None
 
     # mask : should program reward NOT be zeroed out ie. is program invalid ?
@@ -162,7 +162,7 @@ def RewardsComputer(programs,
         mask_valid = (mask_valid & mask_unique_keep)                                                     # (batch_size,)
 
     # ----- FREE CONST OPTIMIZATION -----
-    # If there are free constants in the library, we have to optimize them
+    # If there are free constants in the library, we have to optimize.py them
     if programs.library.n_free_const > 0:
         batch_optimize_free_const (programs, X, y_target, args_opti = free_const_opti_args, mask_valid = mask_valid)
 

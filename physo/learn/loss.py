@@ -81,5 +81,3 @@ def loss_func(logits_train, ideal_probs_train, R_train, baseline, lengths, gamma
     loss = loss_gp + loss_entropy
 
     return loss
-
-
