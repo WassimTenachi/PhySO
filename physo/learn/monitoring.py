@@ -424,11 +424,11 @@ class RunVisualiser:
         if epoch == 0:
             self.initialize()
         if epoch%self.epoch_refresh_rate == 0:
-            #try:
-            if self.do_show:
-                self.make_visualisation()
-            if self.do_save:
-                self.save_visualisation()
-            #except:
-                #print("Unable to make visualisation plots.")
+            try:
+                if self.do_show:
+                    self.make_visualisation()
+                if self.do_save:
+                    self.save_visualisation()
+            except:
+                print("Unable to make visualisation plots.")
 

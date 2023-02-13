@@ -7,11 +7,6 @@
 
 # In[1]:
 
-
-# conda env
-get_ipython().system('echo $CONDA_PREFIX')
-
-
 # In[2]:
 
 
@@ -22,7 +17,6 @@ import time as time
 import numpy as np
 
 # Pyplot
-get_ipython().run_line_magic('matplotlib', 'inline')
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -284,7 +278,7 @@ run_config = {
 # In[19]:
 
 
-benchmark.dummy_epoch(X, y, run_config)
+# benchmark.dummy_epoch(X, y, run_config)
 
 
 # ## Sanity checks
