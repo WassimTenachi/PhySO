@@ -130,7 +130,7 @@ def sanity_check (X, y, run_config, target_program_str = None, expected_ideal_re
         target_program = program.Program(tokens  = [batch.library.lib_name_to_token[name] for name in target_program_str],
                                          library = batch.library,
                                          is_physical = True,
-                                         free_const_values=torch.tensor(batch.library.free_constants_init_val).to(DEVICE),
+                                         free_const_values=torch.tensor(batch.library.free_constants_init_val).to(batch.dataset.detected_device),
                                             )
 
         print("---- Target ----")
