@@ -84,7 +84,7 @@ class Cell(torch.nn.Module):
         self.hidden_size = hidden_size
         if input_dense is None:
             input_dense = torch.nn.Linear(self.input_size, self.hidden_size)
-        self.self.input_dense = input_dense
+        self.input_dense = input_dense
         # --------- Stacked RNN cells ---------
         self.n_layers      = n_layers
         if stacked_cells is None:

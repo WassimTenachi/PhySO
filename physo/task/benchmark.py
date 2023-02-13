@@ -6,7 +6,7 @@ from sklearn.neighbors import KernelDensity
 from IPython.display import display, clear_output
 
 # Internal imports
-from physo.physym import batch
+from physo.physym import batch as Batch
 from physo.physym import program
 from physo.learn import rnn
 from physo.learn import learn
@@ -16,7 +16,7 @@ from physo.learn import learn
 def dummy_epoch (X, y, run_config):
     # Batch reseter
     def batch_reseter():
-        return batch.Batch (library_args          = run_config["library_config"],
+        return Batch.Batch (library_args          = run_config["library_config"],
                             priors_config         = run_config["priors_config"],
                             batch_size            = run_config["learning_config"]["batch_size"],
                             max_time_step         = run_config["learning_config"]["max_time_step"],
@@ -94,7 +94,7 @@ def sanity_check (X, y, run_config, target_program_str = None, expected_ideal_re
     plt.show()
     # --------------- Batch ---------------
     def batch_reseter():
-        return batch.Batch (library_args          = run_config["library_config"],
+        return Batch.Batch (library_args          = run_config["library_config"],
                             priors_config         = run_config["priors_config"],
                             batch_size            = run_config["learning_config"]["batch_size"],
                             max_time_step         = run_config["learning_config"]["max_time_step"],
