@@ -415,16 +415,17 @@ class RunVisualiser:
         curr_ax.set_xlabel("Lengths (unphysical)")
 
     def make_prints(self):
-        print("=========== Epoch %s ===========\n"%(str(self.run_logger.epoch).zfill(5)))
+        print("=========== Epoch %s ==========="%(str(self.run_logger.epoch).zfill(5)))
 
         # Overall best
         print("\nOverall best  at R=%f"%(self.run_logger.overall_max_R_history[-1]))
-        print("  -> Raw expression        : \n%s"%(self.run_logger.best_prog.get_infix_pretty(do_simplify=False, )))
+        print("-> Raw expression : \n%s"%(self.run_logger.best_prog.get_infix_pretty(do_simplify=False, )))
         #print("  -> Simplified expression : \n%s"%(run_logger.best_prog.get_infix_pretty(do_simplify=True , )))
 
         # Best of epoch
         print("\nBest of epoch at R=%f"%(self.run_logger.R.max()))
-        print("  -> Raw expression        : \n%s"%(self.run_logger.best_prog_epoch.get_infix_pretty(do_simplify=False, )))
+        print("-> Raw expression : \n%s"%(self.run_logger.best_prog_epoch.get_infix_pretty(do_simplify=False, )))
+        print("\n")
         #print("  -> Simplified expression : \n%s"%(run_logger.best_prog_epoch.get_infix_pretty(do_simplify=True , )))
 
         #print("************************************************* Best programs *************************************************")
