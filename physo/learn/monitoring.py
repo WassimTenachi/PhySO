@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import pandas as pd
+import time
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -118,7 +119,6 @@ class RunLogger:
 
         return None
 
-
     def pareto_logger(self,):
         curr_complexities = self.batch.programs.n_complexity
         curr_rewards      = self.R
@@ -179,8 +179,15 @@ class RunVisualiser:
     Custom run visualiser.
     """
 
-    def __init__ (self, epoch_refresh_rate = 10, save_path = None, do_show = True, do_prints = True, do_save=False):
-        self.epoch_refresh_rate = epoch_refresh_rate
+    def __init__ (self,
+                  epoch_refresh_rate = 10,
+                  epoch_refresh_rate_prints = 1,
+                  save_path = None,
+                  do_show   = True,
+                  do_prints = True,
+                  do_save   = False):
+        self.epoch_refresh_rate        = epoch_refresh_rate
+        self.epoch_refresh_rate_prints = epoch_refresh_rate_prints
         self.figsize   = (40,18)
         self.save_path = save_path
         self.save_path_log = ''.join(save_path.split('.')[:-1]) + "_data.csv" # save_path with extension replaced by '_data.csv'
@@ -206,6 +213,8 @@ class RunVisualiser:
         self.ax7 = self.fig.add_subplot(gs[2, 2])
         div = make_axes_locatable(self.ax7)
         self.cax7 = div.append_axes("right", size="4%", pad=0.4)
+
+        self.t0 = time.perf_counter()
 
     def update_plot (self,):
         epoch      = self.run_logger.epoch
@@ -415,7 +424,12 @@ class RunVisualiser:
         curr_ax.set_xlabel("Lengths (unphysical)")
 
     def make_prints(self):
+        t1 = self.t0
+        t2 = time.perf_counter()
+        self.t0 = t2
+
         print("=========== Epoch %s ==========="%(str(self.run_logger.epoch).zfill(5)))
+        print("-> Time %.2f s"%(t2-t1))
 
         # Overall best
         print("\nOverall best  at R=%f"%(self.run_logger.overall_max_R_history[-1]))
@@ -476,14 +490,19 @@ class RunVisualiser:
         self.batch      = batch
         if epoch == 0:
             self.initialize()
+        # Plot
         if epoch%self.epoch_refresh_rate == 0:
             try:
                 if self.do_show:
                     self.make_visualisation()
-                if self.do_prints:
-                    self.make_prints()
                 if self.do_save:
                     self.save_visualisation()
             except:
                 print("Unable to make visualisation plots.")
-
+        # Prints
+        if epoch % self.epoch_refresh_rate_prints == 0:
+            try:
+                if self.do_prints:
+                    self.make_prints()
+            except:
+                print("Unable to print status.")
