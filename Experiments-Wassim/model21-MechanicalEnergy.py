@@ -248,13 +248,16 @@ cell_config = {
 # In[17]:
 
 
-run_logger     = monitoring.RunLogger()
-save_path_training_curves = 'model11k-MechanicalEnergy-run.png'
+save_path_training_curves = 'demo_run_curves.png'
+save_path_log             = 'demo_run_log.csv'
+
+run_logger     = monitoring.RunLogger(save_path = save_path_log,
+                                      do_save = True)
+
 run_visualiser = monitoring.RunVisualiser (epoch_refresh_rate = 1,
                                            save_path = save_path_training_curves,
                                            do_show   = True,
                                            do_save   = True, )
-
 
 # ### Run config
 

@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import pandas as pd
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -13,7 +14,9 @@ class RunLogger:
     Custom logger function.
     """
 
-    def __init__ (self):
+    def __init__ (self, save_path = None, do_save = False):
+        self.save_path = save_path
+        self.do_save   = do_save
         self.initialize()
 
     def initialize (self):
@@ -86,6 +89,36 @@ class RunLogger:
 
         self.pareto_logger()
 
+        # Saving log
+        if self.do_save:
+            self.save_log()
+
+    def save_log (self):
+        # Initial df
+        if self.epoch == 0:
+            df0 = pd.DataFrame(columns=['epoch', 'reward', 'complexity', 'length', 'is_physical', 'is_elite', 'program'])
+            df0.to_csv(self.save_path, index=False)
+
+        # Current batch log
+        is_elite = np.full(self.batch.batch_size, False)
+        is_elite[self.keep] = True
+        programs_str = np.array([prog.get_infix_str() for prog in self.batch.programs.get_programs_array()])
+
+        df = pd.DataFrame()
+        df["epoch"]       = np.full(self.batch.batch_size, self.epoch)
+        df["reward"]      = self.R
+        df["complexity"]  = self.batch.programs.n_complexity
+        df["length"]      = self.batch.programs.n_lengths
+        df["is_physical"] = self.batch.programs.is_physical
+        df["is_elite"]    = is_elite
+        df["program"]     = programs_str
+
+        # Saving current df
+        df.to_csv(self.save_path, mode='a', index=False, header=False)
+
+        return None
+
+
     def pareto_logger(self,):
         curr_complexities = self.batch.programs.n_complexity
         curr_rewards      = self.R
@@ -150,6 +183,7 @@ class RunVisualiser:
         self.epoch_refresh_rate = epoch_refresh_rate
         self.figsize   = (40,18)
         self.save_path = save_path
+        self.save_path_log = ''.join(save_path.split('.')[:-1]) + "_log.csv" # save_path with extension replaced by _log.csv
         self.do_show   = do_show
         self.do_save   = do_save
 
@@ -414,8 +448,13 @@ class RunVisualiser:
         print("  -> epoch %s"%(str(self.run_logger.epoch).zfill(5)))
         # -------- Plot update --------
         self.update_plot()
-        # -------- Save --------
+        # -------- Save plot --------
         self.fig.savefig(self.save_path)
+        # -------- Save curves data --------
+        df = pd.DataFrame()
+
+
+        return None
 
     def visualise (self, run_logger, batch):
         epoch = run_logger.epoch

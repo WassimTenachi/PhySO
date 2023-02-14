@@ -82,6 +82,22 @@ class DisplayTest(unittest.TestCase):
         works_bool = expected_latex == result_latex
         self.assertTrue(works_bool)
 
+        # TEST get_sympy
+        t0 = time.perf_counter()
+        N = int(1e4)
+        for _ in range (N):
+            my_programs.get_prog(0).get_infix_sympy()
+        t1 = time.perf_counter()
+        print("get_infix_sympy time = %.3f ms"%((t1-t0)*1e3/N))
+
+        # TEST get_infix_str
+        t0 = time.perf_counter()
+        N = int(1e4)
+        for _ in range (N):
+            my_programs.get_prog(0).get_infix_str()
+        t1 = time.perf_counter()
+        print("get_infix_str time = %.3f ms"%((t1-t0)*1e3/N))
+
         # TEST
         try:
             t0 = time.perf_counter()
