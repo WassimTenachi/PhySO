@@ -179,13 +179,14 @@ class RunVisualiser:
     Custom run visualiser.
     """
 
-    def __init__ (self, epoch_refresh_rate = 10, save_path = None, do_show=True, do_save=False):
+    def __init__ (self, epoch_refresh_rate = 10, save_path = None, do_show = True, do_prints = True, do_save=False):
         self.epoch_refresh_rate = epoch_refresh_rate
         self.figsize   = (40,18)
         self.save_path = save_path
-        self.save_path_log = ''.join(save_path.split('.')[:-1]) + "_log.csv" # save_path with extension replaced by _log.csv
+        self.save_path_log = ''.join(save_path.split('.')[:-1]) + "_data.csv" # save_path with extension replaced by '_data.csv'
         self.do_show   = do_show
         self.do_save   = do_save
+        self.do_prints = do_prints
 
     def initialize (self):
         self.fig = plt.figure(figsize=self.figsize)
@@ -414,7 +415,7 @@ class RunVisualiser:
         curr_ax.set_xlabel("Lengths (unphysical)")
 
     def make_prints(self):
-        print("--- Epoch %s ---\n"%(str(self.run_logger.epoch).zfill(5)))
+        print("=========== Epoch %s ===========\n"%(str(self.run_logger.epoch).zfill(5)))
 
         # Overall best
         print("\nOverall best  at R=%f"%(self.run_logger.overall_max_R_history[-1]))
@@ -435,25 +436,37 @@ class RunVisualiser:
         #print("*****************************************************************************************************************")
 
     def make_visualisation (self):
-        # -------- Prints --------
-        self.make_prints()
         # -------- Plot update --------
         self.update_plot()
         # -------- Display --------
         display(self.fig)
         clear_output(wait=True)
 
+    def get_curves_data_df (self):
+        df = pd.DataFrame()
+        # Reward vs epoch
+        df["epoch"]         = self.run_logger.epochs_history
+        df["mean_R"]        = self.run_logger.mean_R_history
+        df["mean_R_train"]  = self.run_logger.mean_R_train_history
+        df["overall_max_R"] = self.run_logger.overall_max_R_history
+        df["max_R"]         = self.run_logger.max_R_history
+        # Complexity
+        df["best_prog_complexity"] = self.run_logger.best_prog_complexity_history
+        df["mean_complexity"]      = self.run_logger.mean_complexity_history
+        # Loss
+        df["loss"]  = self.run_logger.loss_history
+        # Number of physical progs
+        df["n_physical"] = self.run_logger.n_physical
+        return df
+
     def save_visualisation (self):
-        # -------- Prints --------
-        print("  -> epoch %s"%(str(self.run_logger.epoch).zfill(5)))
         # -------- Plot update --------
         self.update_plot()
         # -------- Save plot --------
         self.fig.savefig(self.save_path)
         # -------- Save curves data --------
-        df = pd.DataFrame()
-
-
+        df = self.get_curves_data_df()
+        df.to_csv(self.save_path_log, index=False)
         return None
 
     def visualise (self, run_logger, batch):
@@ -466,6 +479,8 @@ class RunVisualiser:
             try:
                 if self.do_show:
                     self.make_visualisation()
+                if self.do_prints:
+                    self.make_prints()
                 if self.do_save:
                     self.save_visualisation()
             except:
