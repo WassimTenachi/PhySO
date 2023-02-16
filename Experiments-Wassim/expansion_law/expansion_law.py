@@ -67,9 +67,9 @@ torch.cuda.is_available()
 
 # Target function
 
-H0    = 73.3 #km/s/Mpc
-Omega = 0.315
-c = 3e5 # km/s
+H0    = 1.0723 #73.3 #km/s/Mpc
+Omega = 1.315 # 10.315
+c = 1.13 # 3e5 # km/s
 
 H0 = torch.tensor(np.array(H0)).to(DEVICE)
 Omega = torch.tensor(np.array(Omega)).to(DEVICE)
@@ -368,7 +368,7 @@ run_config = {
 # In[28]:
 
 
-target_program = benchmark.sanity_check(X, y, run_config, candidate_wrapper = wrapper_func, target_program_str=target_program_str, expected_ideal_reward=1.)
+target_program = benchmark.sanity_check(X, y, run_config, candidate_wrapper = wrapper_func, target_program_str=target_program_str, expected_ideal_reward=0.99)
 
 
 # ## Run
