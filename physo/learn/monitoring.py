@@ -24,8 +24,9 @@ class RunLogger:
         # Epoch specific
         self.epoch = None
 
-        self.overall_max_R_history        = []
-        self.hall_of_fame                 = []
+        self.overall_max_R_history         = []
+        self.overall_best_prog_str_history = []
+        self.hall_of_fame                  = []
 
         self.epochs_history               = []
         self.loss_history                 = []
@@ -37,10 +38,12 @@ class RunLogger:
         self.R_history                    = []
         self.R_history_train              = []
 
+        self.best_prog_epoch_str_history  = []
         self.best_prog_complexity_history = []
         self.mean_complexity_history      = []
 
         self.n_physical                   = []
+        self.n_rewarded                   = []
         self.lengths_of_physical          = []
         self.lengths_of_unphysical        = []
 
@@ -78,6 +81,9 @@ class RunLogger:
         self.R_history              .append( rewards                           )
         self.R_history_train        .append( rewards[keep]                     )
 
+        self.best_prog_epoch_str_history    .append( self.best_prog_epoch .get_infix_str() )
+        self.overall_best_prog_str_history  .append( self.best_prog       .get_infix_str() )
+
         self.best_prog_complexity_history .append(batch.programs.tokens.complexity[best_prog_idx_epoch].sum())
         self.mean_complexity_history      .append(batch.programs.tokens.complexity.sum(axis=1).mean())
 
@@ -85,6 +91,7 @@ class RunLogger:
         self.R_history_train_array  = np.array(self.R_history_train)
 
         self.n_physical              .append( batch.programs.is_physical.sum() )
+        self.n_rewarded              .append( (rewards > 0.).sum()             )
         self.lengths_of_physical     .append( self.batch.programs.n_lengths[ self.batch.programs.is_physical] )
         self.lengths_of_unphysical   .append( self.batch.programs.n_lengths[~self.batch.programs.is_physical] )
 
@@ -339,10 +346,12 @@ class RunVisualiser:
 
         # -------- Number of physical progs --------
         curr_ax = self.ax5
-        curr_ax.plot(run_logger.epochs_history, run_logger.n_physical, 'grey', label="Physical count")
+        curr_ax.clear()
+        curr_ax.plot(run_logger.epochs_history, run_logger.n_physical, 'red'   , label="Physical count")
+        curr_ax.plot(run_logger.epochs_history, run_logger.n_rewarded, 'black' , label="Rewarded count")
         curr_ax.set_xlabel("Epochs")
-        curr_ax.set_ylabel("Physical count")
-
+        curr_ax.set_ylabel("Count")
+        curr_ax.legend()
 
         # -------- Lengths of physical distribution vs epoch --------
         curr_ax  = self.ax6
@@ -472,6 +481,10 @@ class RunVisualiser:
         df["loss"]  = self.run_logger.loss_history
         # Number of physical progs
         df["n_physical"] = self.run_logger.n_physical
+        df["n_rewarded"] = self.run_logger.n_rewarded
+        # Programs
+        df["best_prog_of_epoch"] = np.array(self.run_logger.best_prog_epoch_str_history)
+        df["overall_best_prog"]  = np.array(self.run_logger.overall_best_prog_str_history)
         return df
 
     def save_visualisation (self):

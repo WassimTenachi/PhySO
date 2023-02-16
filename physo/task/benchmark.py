@@ -32,7 +32,7 @@ def dummy_epoch (X, y, run_config):
     ax0 = ax[0]
 
     for step in range (batch.max_time_step):
-        print("Programs:\n",batch.programs)
+        # print("Programs:\n",batch.programs)
 
         # ---- Prior ----
         prior = torch.tensor(batch.prior().astype(np.float32))                                                # (batch_size, n_choices,)                                                                                 # (batch_size, obs_size,)
@@ -44,19 +44,24 @@ def dummy_epoch (X, y, run_config):
         actions = torch.multinomial(probs*prior, num_samples=1)[:, 0]                                              # (batch_size,)
         #print("Choosing actions:\n", batch.library.lib_tokens[actions])
 
-        # ---- Display ----
-        ax0.clear()
-        ax0.set_title("Programs lengths distribution at step = %i"%(step))
-        ax0.hist(batch.programs.n_lengths, bins=batch.max_time_step, range=(0, batch.max_time_step), color='k')
-        ax0.axvline(step, color='r', label="current step")
-        ax0.legend()
-
-        display(fig)
-        clear_output(wait=True)
-        plt.pause(0.2)
+        # # ---- Display ----
+        # ax0.clear()
+        # ax0.set_title("Programs lengths distribution at step = %i"%(step))
+        # ax0.hist(batch.programs.n_lengths, bins=batch.max_time_step, range=(0, batch.max_time_step), color='k')
+        # ax0.axvline(step, color='r', label="current step")
+        # ax0.legend()
+        #
+        # display(fig)
+        # clear_output(wait=True)
+        # plt.pause(0.2)
 
         # ---- Appending actions ----
         batch.programs.append(actions)
+
+    # ---- Display ----
+    ax0.clear()
+    ax0.set_title("Programs lengths distribution")
+    ax0.hist(batch.programs.n_lengths, bins=batch.max_time_step, range=(0, batch.max_time_step), color='k')
 
     # ---- Embedding output (per epoch) ----
     # programs lengths
