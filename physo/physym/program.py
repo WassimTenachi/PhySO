@@ -187,8 +187,11 @@ class Program:
         Is program physical (units-wize) ?
     free_const_values : array_like of float or None
         Values of free constants for each constant in the library.
+    candidate_wrapper : callable
+        Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
+        a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
     """
-    def __init__(self, tokens, library, is_physical=None, free_const_values=None):
+    def __init__(self, tokens, library, is_physical=None, free_const_values=None, candidate_wrapper = lambda func, X : func(X)):
         """
         Parameters
         ----------
@@ -202,9 +205,27 @@ class Program:
         self.size         = len(tokens)
         self.library      = library
         self.is_physical  = is_physical
+        self.candidate_wrapper = candidate_wrapper
 
         # free const related
         self.free_const_values = free_const_values
+
+    def execute_wo_wrapper(self, X):
+        """
+        Executes program on X.
+        Parameters
+        ----------
+        X : torch.tensor of shape (n_dim, ?,) of float
+            Values of the input variables of the problem with n_dim = nb of input variables.
+        Returns
+        -------
+        y : torch.tensor of shape (?,) of float
+            Result of computation.
+        """
+        y = Exec.ExecuteProgram(input_var_data     = X,
+                                 free_const_values = self.free_const_values,
+                                 program_tokens    = self.tokens)
+        return y
 
     def execute(self, X):
         """
@@ -218,7 +239,7 @@ class Program:
         y : torch.tensor of shape (?,) of float
             Result of computation.
         """
-        y = Exec.ExecuteProgram(input_var_data=X, free_const_values=self.free_const_values, program_tokens=self.tokens)
+        y = self.candidate_wrapper(self.execute_wo_wrapper, X)
         return y
 
     def optimize_constants(self, X, y_target, args_opti = None):
@@ -535,8 +556,14 @@ class VectPrograms:
 
     tokens : token.VectTokens of shape (batch_size, max_time_step,)
         Vectorized tokens of contained in batch (including idx in library ie. nature of tokens).
+
+    free_consts : free_const.FreeConstantsTable
+        Free constant register.
+    candidate_wrapper : callable
+        Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
+        a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
     """
-    def __init__(self, batch_size, max_time_step, library):
+    def __init__(self, batch_size, max_time_step, library, candidate_wrapper=None):
         """
         Parameters
         ----------
@@ -546,6 +573,9 @@ class VectPrograms:
             Max number of tokens programs can contain.
         library : library.Library
             Library of tokens that can appear in programs.
+        candidate_wrapper : callable or None, optional
+            Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
+            a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
         """
         # Assertions
         assert isinstance(batch_size,    int) and batch_size    > 0, "batch_size    must be a >0 int."
@@ -635,6 +665,12 @@ class VectPrograms:
 
         # ---------------------------- FREE CONSTANTS REGISTER ----------------------------
         self.free_consts = free_const.FreeConstantsTable(batch_size = self.batch_size, library =self.library)
+
+        # ---------------------------- EXECUTION RELATED ----------------------------
+        # Wrapper to apply to candidate programs when executing
+        if candidate_wrapper is None:
+            candidate_wrapper = lambda func, X : func(X)
+        self.candidate_wrapper = candidate_wrapper
 
         return None
 
@@ -2064,9 +2100,12 @@ class VectPrograms:
         tokens = self.get_prog_tokens(prog_idx=prog_idx)
         is_physical              = self.is_physical        [prog_idx]
         free_const_values        = self.free_consts.values [prog_idx]
-        prog = Program(tokens=tokens, library=self.library,
-                       is_physical=is_physical,
-                       free_const_values = free_const_values)
+        prog = Program(tokens            = tokens,
+                       library           = self.library,
+                       is_physical       = is_physical,
+                       free_const_values = free_const_values,
+                       candidate_wrapper = self.candidate_wrapper,
+                       )
         return prog
 
     def get_programs_array (self):

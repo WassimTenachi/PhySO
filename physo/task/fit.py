@@ -5,7 +5,7 @@ from physo.learn import rnn
 from physo.learn import learn
 
 
-def fit(X, y, run_config, stop_reward = 1.):
+def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1.):
     """
     Run a symbolic regression task on (X,y) data.
     Parameters
@@ -16,6 +16,9 @@ def fit(X, y, run_config, stop_reward = 1.):
         Values of the target symbolic function on input variables contained in X_target.
     run_config : dict
         Run configuration, see default_run_config.sr_run_config for an example.
+    candidate_wrapper : callable or None, optional
+        Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
+        a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
     stop_reward : float, optional
         Early stops if stop_reward is reached by a program (= 1 by default), use stop_reward = (1-1e-5) when using free
         constants.
@@ -41,6 +44,7 @@ def fit(X, y, run_config, stop_reward = 1.):
                              free_const_opti_args  = run_config["free_const_opti_args"],
                              X        = X,
                              y_target = y,
+                             candidate_wrapper = candidate_wrapper,
                              )
 
     batch = batch_reseter()

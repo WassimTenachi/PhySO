@@ -43,7 +43,7 @@ def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
             # Free constant variable (eg. c0, c1 etc.)
             elif token.var_type == 2:
                 if free_const_values is not None:
-                    # curr_stack.append(torch.abs(free_const_values[token.var_id])) # Making free const positive values only
+                    # curr_stack.append(torch.abs(free_const_values[token.var_id])) # Making free const positive values only #abs_free_const
                     curr_stack.append(free_const_values[token.var_id])
                 else:
                     raise ValueError("Free constant encountered in program evaluation but free constant values were "

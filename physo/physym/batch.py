@@ -39,6 +39,7 @@ class Batch:
                 batch_size,
                 max_time_step,
                 free_const_opti_args = None,
+                candidate_wrapper = None,
                 ):
         """
         Parameters
@@ -64,6 +65,9 @@ class Batch:
         free_const_opti_args : dict or None, optional
             Arguments to pass to free_const.optimize_free_const for free constants optimization. By default,
             free_const.DEFAULT_OPTI_ARGS arguments are used.
+        candidate_wrapper : callable or None, optional
+            Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
+            a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
         """
 
         # Batch
@@ -71,10 +75,12 @@ class Batch:
         self.max_time_step = max_time_step
         # Library
         self.library  = library.Library(**library_args)
+
         # Programs
-        self.programs = program.VectPrograms(batch_size    = self.batch_size,
-                                             max_time_step = self.max_time_step,
-                                             library       = self.library)
+        self.programs = program.VectPrograms(batch_size        = self.batch_size,
+                                             max_time_step     = self.max_time_step,
+                                             library           = self.library,
+                                             candidate_wrapper = candidate_wrapper)
         # Prior
         self.prior   = prior.make_PriorCollection(programs      = self.programs,
                                                   library       = self.library,

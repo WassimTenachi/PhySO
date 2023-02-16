@@ -162,8 +162,9 @@ def sanity_check (X, y, run_config, target_program_str = None, expected_ideal_re
                                             ).cpu().detach().numpy()
 
         print("Ideal reward :", ideal_reward)
+        # todo: assert that it is physical and compute reward through a batch
 
         eps = 1e-5
-        assert (expected_ideal_reward - ideal_reward) <= 2*eps, 'Ideal reward should be >= %f'
+        assert (expected_ideal_reward - ideal_reward) <= 2*eps, 'Ideal reward should be >= %f +/- %f '% (expected_ideal_reward, eps)
 
         return target_program
