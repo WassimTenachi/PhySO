@@ -66,8 +66,8 @@ This should result in all tests being successfully passed (except for plots test
 
 ### Symbolic regression with default hyperparameters
 ### Symbolic regression
-### Custom functions
 ### Custom symbolic optimization task
+### Using custom functions
 ### Open training loop
 
 
