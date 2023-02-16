@@ -86,7 +86,7 @@ def dummy_epoch (X, y, run_config):
     return None
 
 
-def sanity_check (X, y, run_config, target_program_str = None, expected_ideal_reward = 1):
+def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str = None, expected_ideal_reward = 1):
     # --------------- Data ---------------
     print("Data")
     n_dim = X.shape[0]
@@ -107,6 +107,7 @@ def sanity_check (X, y, run_config, target_program_str = None, expected_ideal_re
                             free_const_opti_args  = run_config["free_const_opti_args"],
                             X        = X,
                             y_target = y,
+                            candidate_wrapper = candidate_wrapper
                             )
 
     batch = batch_reseter()
@@ -136,6 +137,7 @@ def sanity_check (X, y, run_config, target_program_str = None, expected_ideal_re
                                          library = batch.library,
                                          is_physical = True,
                                          free_const_values=torch.tensor(batch.library.free_constants_init_val).to(batch.dataset.detected_device),
+                                         candidate_wrapper=candidate_wrapper
                                             )
 
         print("---- Target ----")
@@ -152,9 +154,18 @@ def sanity_check (X, y, run_config, target_program_str = None, expected_ideal_re
         # Computing ideal reward
         # optimize free const if necessary
         if batch.library.n_free_const > 0:
-            target_program.optimize_constants(X         = batch.dataset.X,
+            history = target_program.optimize_constants(X         = batch.dataset.X,
                                               y_target  = batch.dataset.y_target,
-                                              args_opti = run_config["free_const_opti_args"])
+                                              args_opti = run_config["free_const_opti_args"],
+                                              )
+            fig, ax = plt.subplots(1,)
+            ax.plot(np.log10(history),)
+            ax.axhline(np.log10(run_config["free_const_opti_args"]["method_args"]["tol"]), color='r')
+            ax.axvline(run_config["free_const_opti_args"]["method_args"]["n_steps"]-1,     color='k')
+            ax.set_title("Free const optimization history")
+            ax.set_ylabel("log error")
+            ax.set_ylabel("step")
+            plt.show()
 
         ideal_reward = run_config["reward_config"]["reward_function"](
                                              y_pred = target_program(X),

@@ -205,6 +205,9 @@ class Program:
         self.size         = len(tokens)
         self.library      = library
         self.is_physical  = is_physical
+
+        if candidate_wrapper is None:
+            candidate_wrapper = lambda f,x: f(x)
         self.candidate_wrapper = candidate_wrapper
 
         # free const related
@@ -239,7 +242,7 @@ class Program:
         y : torch.tensor of shape (?,) of float
             Result of computation.
         """
-        y = self.candidate_wrapper(self.execute_wo_wrapper, X)
+        y = self.candidate_wrapper(lambda X: self.execute_wo_wrapper(X), X)
         return y
 
     def optimize_constants(self, X, y_target, args_opti = None):

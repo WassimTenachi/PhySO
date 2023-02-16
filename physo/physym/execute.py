@@ -8,7 +8,7 @@ def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
     Executes a symbolic function program.
     Parameters
     ----------
-    X : torch.tensor of shape (n_dim, ?,) of float
+    input_var_data : torch.tensor of shape (n_dim, ?,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
     program_tokens : list of token.Token
         Symbolic function program in reverse Polish notation order.
@@ -21,6 +21,9 @@ def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
     y : torch.tensor of shape (?,) of float
         Result of computation.
     """
+
+    # Size
+    (n_dim, data_size,) = input_var_data.shape
 
     # Number of tokens in the program
     n_tokens = len(program_tokens)
