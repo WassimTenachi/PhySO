@@ -5,6 +5,7 @@ physo/physym/__pycache__/
 physo/physym/tests/__pycache__/
 physo/learn/__pycache__/
 physo/task/__pycache__/
+*/__pycache__/
 .idea/
 .ipynb_checkpoints/
 physo/Experiments-Wassim/.ipynb_checkpoints
