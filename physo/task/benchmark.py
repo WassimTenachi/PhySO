@@ -1,3 +1,5 @@
+import time
+
 import torch
 import numpy as np
 
@@ -154,10 +156,14 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
         # Computing ideal reward
         # optimize free const if necessary
         if batch.library.n_free_const > 0:
+            t0 = time.perf_counter()
             history = target_program.optimize_constants(X         = batch.dataset.X,
                                               y_target  = batch.dataset.y_target,
                                               args_opti = run_config["free_const_opti_args"],
                                               )
+            t1 = time.perf_counter()
+            print("free const opti time = %f ms"%((t1-t0)*1e3))
+
             fig, ax = plt.subplots(1,)
             ax.plot(np.log10(history),)
             ax.axhline(np.log10(run_config["free_const_opti_args"]["method_args"]["tol"]), color='r')

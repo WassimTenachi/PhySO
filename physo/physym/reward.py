@@ -100,6 +100,7 @@ def RewardsComputer(programs,
         """
         # Iterating through batch
         for i in range(programs.batch_size):
+            #print("%i/%i"%(i, programs.batch_size))
             # print("optimizing free const %i/%i"%(i, programs.batch_size))
             # If this is a valid prog AND it contains free constants then we try to optimize.py its free constants.
             # (Else we should not bother optimizing its free constants)

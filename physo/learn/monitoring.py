@@ -297,7 +297,7 @@ class RunVisualiser:
         cut_on_dim = 0
         x = batch.dataset.X[cut_on_dim]
         # Plot data
-        x_expand = 0.5
+        x_expand = 0.
         n_plot = 100
         stack = []
         for x_dim in batch.dataset.X:
@@ -312,29 +312,47 @@ class RunVisualiser:
         curr_ax.plot(x.cpu().detach().numpy(), batch.dataset.y_target.cpu().detach().numpy(), 'ko', markersize=10)
         x_plot_cpu = x_plot.detach().cpu().numpy()
 
+        # ------- Prog drawing -------
+        unable_to_draw_a_prog = False
+
         # Best overall program
-        y_plot = run_logger.best_prog(X_plot).detach().cpu().numpy()
-        if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
-        curr_ax.plot(x_plot_cpu, y_plot, color='k', linestyle='solid', linewidth=2)
+        try:
+            y_plot = run_logger.best_prog(X_plot).detach().cpu().numpy()
+            if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
+            curr_ax.plot(x_plot_cpu, y_plot, color='k', linestyle='solid', linewidth=2)
+        except:
+            unable_to_draw_a_prog = True
 
         # Best program of epoch
-        y_plot = run_logger.best_prog_epoch(X_plot).detach().cpu().numpy()
-        if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
-        curr_ax.plot(x_plot_cpu, y_plot, color='orange', linestyle='solid', linewidth=2)
+        try:
+            y_plot = run_logger.best_prog_epoch(X_plot).detach().cpu().numpy()
+            if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
+            curr_ax.plot(x_plot_cpu, y_plot, color='orange', linestyle='solid', linewidth=2)
+        except:
+            unable_to_draw_a_prog = True
 
         # Train programs
         for prog in run_logger.programs_epoch[run_logger.keep]:
-            y_plot =  prog(X_plot).detach().cpu().numpy()
-            if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
-            curr_ax.plot(x_plot_cpu, y_plot, color='r', alpha=0.05, linestyle='solid')
+            try:
+                y_plot =  prog(X_plot).detach().cpu().numpy()
+                if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
+                curr_ax.plot(x_plot_cpu, y_plot, color='r', alpha=0.05, linestyle='solid')
+            except:
+                unable_to_draw_a_prog = True
 
         # Other programs
         for prog in run_logger.programs_epoch[run_logger.notkept]:
-            y_plot =  prog(X_plot).detach().cpu().numpy()
-            if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
-            curr_ax.plot(x_plot_cpu, y_plot, color='b', alpha=0.05, linestyle='solid')
+            try:
+                y_plot =  prog(X_plot).detach().cpu().numpy()
+                if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
+                curr_ax.plot(x_plot_cpu, y_plot, color='b', alpha=0.05, linestyle='solid')
+            except:
+                unable_to_draw_a_prog = True
 
-        # Plot limits
+        if unable_to_draw_a_prog:
+            print("Unable to draw one or more prog curve on monitoring plot.")
+
+        # ------- Plot limits -------
         y_min = batch.dataset.y_target.min().cpu().detach().numpy()
         y_max = batch.dataset.y_target.max().cpu().detach().numpy()
         curr_ax.set_ylim(y_min-0.1*np.abs(y_min), y_max+0.1*np.abs(y_max))
@@ -488,14 +506,17 @@ class RunVisualiser:
         df["overall_best_prog"]  = np.array(self.run_logger.overall_best_prog_str_history)
         return df
 
+    def save_data (self):
+        # -------- Save curves data --------
+        df = self.get_curves_data_df()
+        df.to_csv(self.save_path_log, index=False)
+        return None
+
     def save_visualisation (self):
         # -------- Plot update --------
         self.update_plot()
         # -------- Save plot --------
         self.fig.savefig(self.save_path)
-        # -------- Save curves data --------
-        df = self.get_curves_data_df()
-        df.to_csv(self.save_path_log, index=False)
         return None
 
     def visualise (self, run_logger, batch):
@@ -513,6 +534,13 @@ class RunVisualiser:
                     self.save_visualisation()
             except:
                 print("Unable to make visualisation plots.")
+        # Data
+        if epoch%self.epoch_refresh_rate == 0:
+            try:
+                if self.do_save:
+                    self.save_data()
+            except:
+                print("Unable to save per epoch data.")
         # Prints
         if epoch % self.epoch_refresh_rate_prints == 0:
             try:
