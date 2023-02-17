@@ -1,14 +1,7 @@
 physo.egg-info/
 .DS_Store
-physo/__pycache__/
-physo/physym/__pycache__/
-physo/physym/tests/__pycache__/
-physo/learn/__pycache__/
-physo/task/__pycache__/
-*/__pycache__/
+__pycache__
+.ipynb_checkpoints
 .idea/
-.ipynb_checkpoints/
-physo/Experiments-Wassim/.ipynb_checkpoints
-physo/Experiments-Rodrigo/.ipynb_checkpoints
 Experiments-Wassim/**/*.log
 Experiments-Rodrigo/**/*.log
