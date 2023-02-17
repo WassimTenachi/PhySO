@@ -197,7 +197,8 @@ class RunVisualiser:
         self.epoch_refresh_rate_prints = epoch_refresh_rate_prints
         self.figsize   = (40,18)
         self.save_path = save_path
-        self.save_path_log = ''.join(save_path.split('.')[:-1]) + "_data.csv" # save_path with extension replaced by '_data.csv'
+        if save_path is not None:
+            self.save_path_log = ''.join(save_path.split('.')[:-1]) + "_data.csv" # save_path with extension replaced by '_data.csv'
         self.do_show   = do_show
         self.do_save   = do_save
         self.do_prints = do_prints
