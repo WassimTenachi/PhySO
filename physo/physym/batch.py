@@ -39,7 +39,8 @@ class Batch:
                 batch_size,
                 max_time_step,
                 free_const_opti_args = None,
-                candidate_wrapper = None,
+                candidate_wrapper    = None,
+                observe_units        = True,
                 ):
         """
         Parameters
@@ -68,6 +69,9 @@ class Batch:
         candidate_wrapper : callable or None, optional
             Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
             a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
+        observe_units : bool, optional
+            Should units be included in "in situ" observation vector (True) or should this information be zeroed out
+            (False).
         """
 
         # Batch
@@ -99,6 +103,9 @@ class Batch:
 
         # Free constants optimizer args
         self.free_const_opti_args = free_const_opti_args
+
+        # Observations
+        self.observe_units = observe_units
 
     # ---------------------------- INTERFACE FOR SYMBOLIC REGRESSION ----------------------------
 
@@ -374,10 +381,11 @@ class Batch:
         # Number of dangling dummies
         n_dangling       = self.programs.n_dangling                          # (batch_size,)
         # Units obs
-        units_obs_current  = self.get_tokens_units_obs()                     # (batch_size, UNITS_VECTOR_SIZE + 1)
-        units_obs_sibling  = self.get_sibling_units_obs()                    # (batch_size, UNITS_VECTOR_SIZE + 1)
-        units_obs_parent   = self.get_parent_units_obs()                     # (batch_size, UNITS_VECTOR_SIZE + 1)
-        units_obs_previous = self.get_previous_tokens_units_obs()            # (batch_size, UNITS_VECTOR_SIZE + 1)
+        do_obs = int(self.observe_units)
+        units_obs_current  = do_obs * self.get_tokens_units_obs()            # (batch_size, UNITS_VECTOR_SIZE + 1)
+        units_obs_sibling  = do_obs * self.get_sibling_units_obs()           # (batch_size, UNITS_VECTOR_SIZE + 1)
+        units_obs_parent   = do_obs * self.get_parent_units_obs()            # (batch_size, UNITS_VECTOR_SIZE + 1)
+        units_obs_previous = do_obs * self.get_previous_tokens_units_obs()   # (batch_size, UNITS_VECTOR_SIZE + 1)
 
         obs = np.concatenate((                                               # (batch_size, obs_size,)
             # Relatives one-hots

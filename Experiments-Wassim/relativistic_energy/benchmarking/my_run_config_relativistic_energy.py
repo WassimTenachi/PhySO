@@ -4,18 +4,18 @@ import numpy as np
 
 # Reward
 reward_config = {
-                 "reward_function"     : physo.physym.reward.SquashedNRMSE, # PHYSICALITY
+                 "reward_function"     : physo.physym.reward.SquashedNRMSE,
                  "zero_out_unphysical" : True,
                  "zero_out_duplicates" : False,
                  "keep_lowest_complexity_duplicate" : False,
                 }
 
 # Learning config
-MAX_TRIAL_EXPRESSIONS = 2*1e6
-BATCH_SIZE = int(1e3)
+MAX_TRIAL_EXPRESSIONS = 10*1e6
+BATCH_SIZE = int(1e4)
 MAX_LENGTH = 35
 GET_OPTIMIZER = lambda model : torch.optim.Adam(
-                                    model.parameters(),                
+                                    model.parameters(),
                                     lr=0.0025, #0.001, #0.0050, #0.0005, #1,  #lr=0.0025
                                                 )
 
@@ -28,13 +28,12 @@ learning_config = {
     'gamma_decay'     : 0.7,
     'entropy_weight'  : 0.03,
     # Reward related
-    'risk_factor'     : 0.02,
+    'risk_factor'      : 0.05,
     'rewards_computer' : physo.physym.reward.make_RewardsComputer (**reward_config),
     # Optimizer
     'get_optimizer'   : GET_OPTIMIZER,
+    'observe_units'   : True,
 }
-
-
 
 
 # Free constant optimizer config
@@ -56,14 +55,14 @@ priors_config  = [
                 #("UniformArityPrior", None),
                 # LENGTH RELATED
                 ("HardLengthPrior"  , {"min_length": 4, "max_length": MAX_LENGTH, }),
-                ("SoftLengthPrior"  , {"length_loc": 6, "scale": 5, }),
+                ("SoftLengthPrior"  , {"length_loc": 8, "scale": 5, }),
                 # RELATIONSHIPS RELATED
                 ("NoUselessInversePrior"  , None),
                 ("PhysicalUnitsPrior", {"prob_eps": np.finfo(np.float32).eps}), # PHYSICALITY
-                #("NestedFunctions", {"functions":["exp",], "max_nesting" : 1}),
-                #("NestedFunctions", {"functions":["log",], "max_nesting" : 1}),
+                ("NestedFunctions", {"functions":["exp",], "max_nesting" : 1}),
+                ("NestedFunctions", {"functions":["log",], "max_nesting" : 1}),
                 ("NestedTrigonometryPrior", {"max_nesting" : 1}),
-                ("OccurrencesPrior", {"targets" : ["1",], "max" : [3,] }),
+                #("OccurrencesPrior", {"targets" : ["1",], "max" : [3,] }),
                  ]
 
 # Cell

@@ -47,6 +47,7 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after
                              X        = X,
                              y_target = y,
                              candidate_wrapper = candidate_wrapper,
+                             observe_units     = run_config["learning_config"]["observe_units"]
                              )
 
     batch = batch_reseter()
