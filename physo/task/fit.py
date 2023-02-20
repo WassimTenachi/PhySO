@@ -5,7 +5,7 @@ from physo.learn import rnn
 from physo.learn import learn
 
 
-def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1.):
+def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after_n_epochs = 1):
     """
     Run a symbolic regression task on (X,y) data.
     Parameters
@@ -22,6 +22,8 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1.):
     stop_reward : float, optional
         Early stops if stop_reward is reached by a program (= 1 by default), use stop_reward = (1-1e-5) when using free
         constants.
+    stop_after_n_epochs : int, optional
+        Number of additional epochs to do after early stop condition is reached.
     Returns
     -------
     hall_of_fame_R, hall_of_fame : list of float, list of physym.program.Program
@@ -73,7 +75,7 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1.):
                                                     entropy_weight      = run_config["learning_config"]["entropy_weight"],
                                                     verbose             = False,
                                                     stop_reward         = stop_reward,
-                                                    stop_after_n_epochs = 50,
+                                                    stop_after_n_epochs = stop_after_n_epochs,
                                                     run_logger          = run_config["run_logger"],
                                                     run_visualiser      = run_config["run_visualiser"],
                                                    )
