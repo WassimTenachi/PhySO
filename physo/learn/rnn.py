@@ -24,6 +24,9 @@ class Cell(torch.nn.Module):
         output_activation : function
             Output activation function.
 
+        is_lobotomized : bool
+            Should the probs output of the neural net be replaced by random numbers.
+
         logTemperature : torch.tensor
             Annealing parameter
 
@@ -77,6 +80,7 @@ class Cell(torch.nn.Module):
                  input_dense   = None,
                  stacked_cells = None,
                  output_dense  = None,
+                 is_lobotomized = False,
                  ):
         super().__init__()
         # --------- Input dense layer ---------
@@ -97,12 +101,13 @@ class Cell(torch.nn.Module):
         if output_dense is None:
             output_dense      = torch.nn.Linear(self.hidden_size, self.output_size)
         self.output_dense = output_dense
-        self.output_activation = lambda x: -torch.nn.functional.relu(x)
+        self.output_activation = lambda x: -torch.nn.functional.relu(x) # Mapping output to log(p)
                                  #lambda x: torch.nn.functional.softmax(x, dim=1)
                                  #torch.sigmoid
         # --------- Annealing param ---------
         self.logTemperature = torch.nn.Parameter(1.54*torch.ones(1), requires_grad=True)
-
+        # --------- Lobotomization ---------
+        self.is_lobotomized = is_lobotomized
 
     def get_zeros_initial_state(self, batch_size):
         zeros_initial_state = torch.zeros(self.n_layers, 2, batch_size, self.hidden_size, requires_grad=False,)
@@ -124,8 +129,13 @@ class Cell(torch.nn.Module):
                                            ))
             new_states.append(torch.stack([hx, cx]))
         # --------- Output dense layer ---------
+        # Probabilities from neural net
         res = self.output_dense(hx) + self.logTemperature             # (batch_size, output_size)
+        # Applying activation function
         res = self.output_activation(res)                             # (batch_size, output_size)
+        # Probabilities from random number generator
+        if self.is_lobotomized:
+            res = torch.log(torch.rand(res.shape))
         out_states = torch.stack(new_states)                          # (n_layers, 2, batch_size, hidden_size)
         # --------------- Return ---------------
         return res, out_states                                        # (batch_size, output_size), (n_layers, 2, batch_size, hidden_size)

@@ -47,7 +47,7 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after
                              X        = X,
                              y_target = y,
                              candidate_wrapper = candidate_wrapper,
-                             observe_units     = run_config["learning_config"]["observe_units"]
+                             observe_units     = run_config["learning_config"]["observe_units"],
                              )
 
     batch = batch_reseter()
@@ -57,8 +57,8 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after
         output_size = batch.n_choices
         cell = rnn.Cell (input_size  = input_size,
                          output_size = output_size,
-                         hidden_size = run_config["cell_config"]["hidden_size"],
-                         n_layers    = run_config["cell_config"]["n_layers"])
+                         **run_config["cell_config"],
+                        )
 
         return cell
 

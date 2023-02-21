@@ -210,9 +210,12 @@ def learner ( model,
         # -------------------------------------------------
         # ---------------- BACKPROPAGATION ----------------
         # -------------------------------------------------
-
-        loss_val  .backward()
-        optimizer .step()
+        # No need to do backpropagation if model is lobotomized (ie. is just a random number generator).
+        if model.is_lobotomized:
+            pass
+        else:
+            loss_val  .backward()
+            optimizer .step()
 
         # -------------------------------------------------
         # ----------------- LOGGING VALUES ----------------

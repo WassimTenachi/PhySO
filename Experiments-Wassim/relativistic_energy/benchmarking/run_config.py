@@ -67,6 +67,7 @@ priors_config  = [
 
 # Cell
 cell_config = {
-    "hidden_size" : 128,
-    "n_layers"    : 1,
+    "hidden_size"    : 128,
+    "n_layers"       : 1,
+	"is_lobotomized" : False,
 }

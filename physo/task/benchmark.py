@@ -89,6 +89,7 @@ def dummy_epoch (X, y, run_config):
 
 
 def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str = None, expected_ideal_reward = 1):
+
     # --------------- Data ---------------
     print("Data")
     n_dim = X.shape[0]
@@ -99,6 +100,7 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
         curr_ax.set_xlabel("X[%i]"%(i))
         curr_ax.set_ylabel("y")
     plt.show()
+
     # --------------- Batch ---------------
     def batch_reseter():
         return Batch.Batch (library_args          = run_config["library_config"],
@@ -117,20 +119,29 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
     print(batch.library.lib_choosable_name_to_idx)
     print(batch)
 
+    # --------------- Learning config ---------------
+    print("-------------------------- Learning config ------------------------")
+    print(run_config["learning_config"])
+
     # --------------- Cell ---------------
     def cell_reseter ():
         input_size  = batch.obs_size
         output_size = batch.n_choices
         cell = rnn.Cell (input_size  = input_size,
                          output_size = output_size,
-                         hidden_size = run_config["cell_config"]["hidden_size"],
-                         n_layers    = run_config["cell_config"]["n_layers"])
+                         **run_config["cell_config"])
 
         return cell
     cell = cell_reseter ()
     print("-------------------------- Cell ------------------------")
     print(cell)
     print("n_params= %i"%(cell.count_parameters()))
+    print("config:")
+    print(run_config["cell_config"])
+
+    # --------------- Reward config ---------------
+    print("-------------------------- Reward config ------------------------")
+    print(run_config["reward_config"])
 
     # --------------- Ideal reward ---------------
     if target_program_str is not None:

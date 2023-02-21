@@ -32,6 +32,7 @@ learning_config = {
     'rewards_computer' : physo.physym.reward.make_RewardsComputer (**reward_config),
     # Optimizer
     'get_optimizer'   : GET_OPTIMIZER,
+    'observe_units'   : True,
 }
 
 
