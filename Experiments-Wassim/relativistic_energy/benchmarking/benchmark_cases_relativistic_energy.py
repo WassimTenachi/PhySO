@@ -154,6 +154,6 @@ def TestCase_relativistic_energy (device):
 
 
 TEST_CASES = [
-    TestCase_mechanical_energy,
+    #TestCase_mechanical_energy,
 	TestCase_relativistic_energy,
 ]
