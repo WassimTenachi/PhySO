@@ -88,7 +88,7 @@ def dummy_epoch (X, y, run_config):
     return None
 
 
-def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str = None, expected_ideal_reward = 1):
+def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str = None, expected_ideal_reward = 1.):
 
     # --------------- Data ---------------
     print("Data")
