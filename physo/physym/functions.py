@@ -163,24 +163,24 @@ def make_common_operations ():
         Token (name = "add"    , sympy_repr = "+"      , arity = 2 , complexity = 1 , var_type = 0, function = torch.add        ),
         Token (name = "sub"    , sympy_repr = "-"      , arity = 2 , complexity = 1 , var_type = 0, function = torch.subtract   ),
         Token (name = "mul"    , sympy_repr = "*"      , arity = 2 , complexity = 1 , var_type = 0, function = torch.multiply   ),
-        Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 2 , var_type = 0, function = torch.divide     ),
+        Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 1 , var_type = 0, function = torch.divide     ),
         # Unary operations
-        Token (name = "sin"    , sympy_repr = "sin"    , arity = 1 , complexity = 3 , var_type = 0, function = torch.sin        ),
-        Token (name = "cos"    , sympy_repr = "cos"    , arity = 1 , complexity = 3 , var_type = 0, function = torch.cos        ),
-        Token (name = "tan"    , sympy_repr = "tan"    , arity = 1 , complexity = 4 , var_type = 0, function = torch.tan        ),
-        Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 4 , var_type = 0, function = torch.exp        ),
-        Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 4 , var_type = 0, function = torch.log        ),
-        Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 4 , var_type = 0, function = torch.sqrt       ),
-        Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 2 , var_type = 0, function = torch.square     ),
+        Token (name = "sin"    , sympy_repr = "sin"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.sin        ),
+        Token (name = "cos"    , sympy_repr = "cos"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.cos        ),
+        Token (name = "tan"    , sympy_repr = "tan"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.tan        ),
+        Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.exp        ),
+        Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.log        ),
+        Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.sqrt       ),
+        Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 1 , var_type = 0, function = torch.square     ),
         Token (name = "neg"    , sympy_repr = "-"      , arity = 1 , complexity = 1 , var_type = 0, function = torch.negative   ),
-        Token (name = "abs"    , sympy_repr = "abs"    , arity = 1 , complexity = 2 , var_type = 0, function = torch.abs        ),
-        Token (name = "tanh"   , sympy_repr = "tanh"   , arity = 1 , complexity = 4 , var_type = 0, function = torch.tanh       ),
-        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 2 , var_type = 0, function = torch.reciprocal ),
+        Token (name = "abs"    , sympy_repr = "abs"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.abs        ),
+        Token (name = "tanh"   , sympy_repr = "tanh"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.tanh       ),
+        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 1 , var_type = 0, function = torch.reciprocal ),
         # Custom unary operations
-        Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 4 , var_type = 0, function = lambda x :torch.log(torch.abs(x)) ),
-        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 4 , var_type = 0, function = lambda x :torch.exp(-x)           ),
-        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 3 , var_type = 0, function = lambda x :torch.pow(x, 3)         ),
-        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 3 , var_type = 0, function = lambda x :torch.pow(x, 4)         ),
+        Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.log(torch.abs(x)) ),
+        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.exp(-x)           ),
+        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.pow(x, 3)         ),
+        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.pow(x, 4)         ),
     ]
 
     # ------------- protected functions -------------
@@ -225,18 +225,18 @@ def make_common_operations ():
 
     OPS_PROTECTED = [
         # Binary operations
-        Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 2 , var_type = 0, function = protected_div    ),
+        Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 1 , var_type = 0, function = protected_div    ),
         # Unary operations
-        Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 4 , var_type = 0, function = protected_exp    ),
-        Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 4 , var_type = 0, function = protected_log    ),
-        Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 4 , var_type = 0, function = protected_sqrt   ),
-        Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 2 , var_type = 0, function = protected_n2     ),
-        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 2 , var_type = 0, function = protected_inv    ),
+        Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 1 , var_type = 0, function = protected_exp    ),
+        Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 1 , var_type = 0, function = protected_log    ),
+        Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 1 , var_type = 0, function = protected_sqrt   ),
+        Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_n2     ),
+        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_inv    ),
         # Custom unary operations
-        Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 4 , var_type = 0, function = protected_logabs ),
-        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 4 , var_type = 0, function = protected_expneg ),
-        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 3 , var_type = 0, function = protected_n3     ),
-        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 3 , var_type = 0, function = protected_n4     ),
+        Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 1 , var_type = 0, function = protected_logabs ),
+        Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 1 , var_type = 0, function = protected_expneg ),
+        Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_n3     ),
+        Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_n4     ),
     ]
 
     # ------------- encoding additional attributes (for units analysis) -------------
