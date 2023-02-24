@@ -198,8 +198,9 @@ class RunVisualiser:
         self.figsize   = (40,18)
         self.save_path = save_path
         if save_path is not None:
-            self.save_path_log    = ''.join(save_path.split('.')[:-1]) + "_data.csv"    # save_path with extension replaced by '_data.csv'
-            self.save_path_pareto = ''.join(save_path.split('.')[:-1]) + "_pareto.csv"  # save_path with extension replaced by '_pareto.csv'
+            self.save_path_log        = ''.join(save_path.split('.')[:-1]) + "_data.csv"    # save_path with extension replaced by '_data.csv'
+            self.save_path_pareto     = ''.join(save_path.split('.')[:-1]) + "_pareto.csv"  # save_path with extension replaced by '_pareto.csv'
+            self.save_path_pareto_fig = ''.join(save_path.split('.')[:-1]) + "_pareto.pdf"  # save_path with extension replaced by '_pareto.pdf'
         self.do_show   = do_show
         self.do_save   = do_save
         self.do_prints = do_prints
@@ -523,6 +524,62 @@ class RunVisualiser:
         df["expression" ] = np.array([prog.get_infix_str() for prog in programs])
         return df
 
+    def save_pareto_fig(self):
+        def plot_pareto_front(run_logger,
+                              do_simplify                   = False,
+                              show_superparent_at_beginning = True,
+                              eq_text_size                  = 12,
+                              delta_xlim                    = [0, 5 ],
+                              delta_ylim                    = [0, 15],
+                              frac_delta_equ                = [0.03, 0.03],
+                              figsize                       = (20, 10),
+                     ):
+
+            pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = run_logger.get_pareto_front()
+
+            pareto_front_rmse = np.log(pareto_front_rmse)
+            # Fig params
+            plt.rc('text', usetex=True)
+            plt.rc('font', family='serif')
+            # enables new_dummy_symbol = "\square"
+            plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
+            plt.rc('font', size=32)
+
+            # Fig
+            fig, ax = plt.subplots(1, 1, figsize=figsize)
+            ax.plot(pareto_front_complexities, pareto_front_rmse, 'r-')
+            ax.plot(pareto_front_complexities, pareto_front_rmse, 'ro')
+
+            # Limits
+            xmin = pareto_front_complexities.min() + delta_xlim[0]
+            xmax = pareto_front_complexities.max() + delta_xlim[1]
+            ymin = pareto_front_rmse.min() + delta_ylim[0]
+            ymax = pareto_front_rmse.max() + delta_ylim[1]
+            ax.set_xlim(xmin, xmax)
+            ax.set_ylim(ymin, ymax)
+
+            # Axes labels
+            ax.set_xlabel("Expression complexity")
+            ax.set_ylabel("log(RMSE)")
+
+
+            for i_prog in range (len(pareto_front_programs)):
+                prog = pareto_front_programs[i_prog]
+
+                text_pos  = [pareto_front_complexities[i_prog] + frac_delta_equ[0]*(xmax-xmin),
+                             pareto_front_rmse[i_prog]         + frac_delta_equ[1]*(ymax-ymin)]
+                # Getting latex expr
+                latex_str = prog.get_infix_latex(do_simplify = do_simplify)
+                # Adding "superparent =" before program to make it pretty
+                if show_superparent_at_beginning:
+                    latex_str = prog.library.superparent.name + ' =' + latex_str
+
+
+                ax.text(text_pos[0], text_pos[1], f'${latex_str}$', size = eq_text_size)
+            return fig
+        fig = plot_pareto_front(self.run_logger)
+        fig.savefig(self.save_path_pareto_fig)
+
     def save_pareto_data (self):
         # -------- Save pareto data --------
         df = self.get_pareto_data_df()
@@ -565,6 +622,13 @@ class RunVisualiser:
                     self.save_pareto_data()
             except:
                 print("Unable to save pareto data.")
+        # Figure Pareto
+        if epoch%self.epoch_refresh_rate == 0:
+            try:
+                if self.do_save:
+                    self.save_pareto_fig()
+            except:
+                print("Unable to save pareto figure.")
         # Prints
         if epoch % self.epoch_refresh_rate_prints == 0:
             try:
