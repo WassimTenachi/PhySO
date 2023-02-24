@@ -257,7 +257,15 @@ def learner ( model,
 
         # If above stop_reward (+/- eps) stop after [stop_after_n_epochs] epochs.
         if (stop_reward - overall_max_R_history[-1]) <= early_stop_reward_eps:
-            if stop_after_n_epochs == 0: break
+            if stop_after_n_epochs == 0:
+                try:
+                    run_visualiser.save_visualisation()
+                    run_visualiser.save_data()
+                    run_visualiser.save_pareto_data()
+                    run_visualiser.save_pareto_fig()
+                except:
+                    print("Unable to save last plots and data before stopping.")
+                break
             stop_after_n_epochs -= 1
 
     t111 = time.perf_counter()

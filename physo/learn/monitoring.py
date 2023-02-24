@@ -10,6 +10,11 @@ import matplotlib.gridspec as gridspec
 from sklearn.neighbors import KernelDensity
 from IPython.display import display, clear_output
 
+# Fig params
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif')
+plt.rc('font', size=16)
+
 class RunLogger:
     """
     Custom logger function.
@@ -538,12 +543,9 @@ class RunVisualiser:
             pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = run_logger.get_pareto_front()
 
             pareto_front_rmse = np.log(pareto_front_rmse)
-            # Fig params
-            plt.rc('text', usetex=True)
-            plt.rc('font', family='serif')
             # enables new_dummy_symbol = "\square"
             plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
-            plt.rc('font', size=32)
+
 
             # Fig
             fig, ax = plt.subplots(1, 1, figsize=figsize)
