@@ -1,0 +1,2 @@
+epoch,mean_R,mean_R_train,overall_max_R,max_R,best_prog_complexity,mean_complexity,loss,n_physical,n_rewarded,best_prog_of_epoch,overall_best_prog
+0,0.00031304624546938927,0.006260924909387786,0.5952159231705169,0.5952159231705169,22.0,41.0166,0.18624018245000531,8,7,(m2*(m2*(G/((((((r-r)-r))**(2))+(r*r))+((r)**(2)))))),(m2*(m2*(G/((((((r-r)-r))**(2))+(r*r))+((r)**(2))))))

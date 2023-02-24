@@ -181,7 +181,7 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
             ax.axvline(run_config["free_const_opti_args"]["method_args"]["n_steps"]-1,     color='k')
             ax.set_title("Free const optimization history")
             ax.set_ylabel("log error")
-            ax.set_ylabel("step")
+            ax.set_xlabel("step")
             plt.show()
 
         ideal_reward = run_config["reward_config"]["reward_function"](

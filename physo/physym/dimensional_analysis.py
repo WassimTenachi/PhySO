@@ -288,11 +288,13 @@ def assign_required_units(programs, coords,):
 
     # -------------------- CASE 21 -------------------- #DONE
     # Elif the parent's dim is free (no constraints), then the child's dim is also free (no constraints)
-    # Unless: 1. the parent is an additive token, and we know everything about the sibling (case 1 above)
+    # Unless: 1. the parent is an additive token, and we know everything about the sibling (already handled in case 1
+    # above)
     # Unless: 2. the parent is an additive token of free dim (eg. descendant of left part of multiplicative token)
-    # and we are dealing with right part, left part dim is complete and can thus be computed (case 20 above)
-    # Unless: 3. the parent is a multiplicative token and the sibling is not a dummy. Local "& has_sibling" so unary
-    # parents can fall into this case as unless 3 does not concern them:
+    # and we are dealing with right part, left part dim is complete and can thus be computed (already handled in case
+    # 20 above)
+    # Unless: 3. the parent is a multiplicative token and the sibling is not a dummy. We use "& has_sibling" in
+    # "unless 3" mask line so unary parents can fall into this case as "unless 3" does not concern them:
     # if sibling_is_dummy is True, a fortiori has_sibling is True => sibling_is_dummy = (sibling_is_dummy & has_sibling)
     # if sibling_is_dummy is False then regardless of has_sibling => sibling_is_dummy = (sibling_is_dummy & has_sibling)
     case_code = 21

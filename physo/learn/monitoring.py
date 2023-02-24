@@ -198,7 +198,8 @@ class RunVisualiser:
         self.figsize   = (40,18)
         self.save_path = save_path
         if save_path is not None:
-            self.save_path_log = ''.join(save_path.split('.')[:-1]) + "_data.csv" # save_path with extension replaced by '_data.csv'
+            self.save_path_log    = ''.join(save_path.split('.')[:-1]) + "_data.csv"    # save_path with extension replaced by '_data.csv'
+            self.save_path_pareto = ''.join(save_path.split('.')[:-1]) + "_pareto.csv"  # save_path with extension replaced by '_pareto.csv'
         self.do_show   = do_show
         self.do_save   = do_save
         self.do_prints = do_prints
@@ -512,6 +513,22 @@ class RunVisualiser:
         df.to_csv(self.save_path_log, index=False)
         return None
 
+    def get_pareto_data_df(self):
+        df = pd.DataFrame()
+        complexity, programs, reward, rmse = self.run_logger.get_pareto_front()
+        df["complexity" ] = complexity
+        df["length"     ] = np.array([len(prog.tokens) for prog in programs])
+        df["reward"     ] = reward
+        df["rmse"       ] = rmse
+        df["expression" ] = np.array([prog.get_infix_str() for prog in programs])
+        return df
+
+    def save_pareto_data (self):
+        # -------- Save pareto data --------
+        df = self.get_pareto_data_df()
+        df.to_csv(self.save_path_pareto, index=False)
+        return None
+
     def save_visualisation (self):
         # -------- Plot update --------
         self.update_plot()
@@ -525,7 +542,7 @@ class RunVisualiser:
         self.batch      = batch
         if epoch == 0:
             self.initialize()
-        # Plot
+        # Plot curves
         if epoch%self.epoch_refresh_rate == 0:
             try:
                 if self.do_show:
@@ -534,13 +551,20 @@ class RunVisualiser:
                     self.save_visualisation()
             except:
                 print("Unable to make visualisation plots.")
-        # Data
+        # Data curves
         if epoch%self.epoch_refresh_rate == 0:
             try:
                 if self.do_save:
                     self.save_data()
             except:
-                print("Unable to save per epoch data.")
+                print("Unable to save train curves data.")
+        # Data Pareto
+        if epoch%self.epoch_refresh_rate == 0:
+            try:
+                if self.do_save:
+                    self.save_pareto_data()
+            except:
+                print("Unable to save pareto data.")
         # Prints
         if epoch % self.epoch_refresh_rate_prints == 0:
             try:
