@@ -1,2 +1,4 @@
-complexity,length,reward,rmse,expression
-12,12,0.5555190645608129,79.76610530367104,((((((((v_z)**(2))*m))**(2))*(exp(cos(1))*1)))**(0.5))
+complexity,length,reward,rmse,expression,expression_prefix
+4,4,0.5185422984795802,91.25509484222837,(m*((v_z)**(2))),[mul m n2 v_z]
+5,5,0.5558287059748986,78.54032357350617,(z*(g*m)),[mul z mul g m]
+19,19,0.9999998879740678,1.1010366769672079e-05,((v_z*(m/(sin((m*((((((m)**(0.5)))**(-1)))**(2))))/v_z)))-(m*(z*g))),[sub mul v_z div m div sin mul m n2 inv sqrt m v_z mul m mul z g]

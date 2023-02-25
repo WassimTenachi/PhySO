@@ -45,6 +45,10 @@ class RunLogger:
 
         self.best_prog_epoch_str_history  = []
         self.best_prog_complexity_history = []
+
+        self.best_prog_epoch_str_prefix_history   = []
+        self.overall_best_prog_str_prefix_history = []
+
         self.mean_complexity_history      = []
 
         self.n_physical                   = []
@@ -89,6 +93,10 @@ class RunLogger:
         self.best_prog_epoch_str_history    .append( self.best_prog_epoch .get_infix_str() )
         self.overall_best_prog_str_history  .append( self.best_prog       .get_infix_str() )
 
+        self.best_prog_epoch_str_prefix_history    .append( self.best_prog_epoch .__str__() )
+        self.overall_best_prog_str_prefix_history  .append( self.best_prog       .__str__() )
+
+
         self.best_prog_complexity_history .append(batch.programs.tokens.complexity[best_prog_idx_epoch].sum())
         self.mean_complexity_history      .append(batch.programs.tokens.complexity.sum(axis=1).mean())
 
@@ -118,13 +126,14 @@ class RunLogger:
         programs_str = np.array([prog.get_infix_str() for prog in self.batch.programs.get_programs_array()])
 
         df = pd.DataFrame()
-        df["epoch"]       = np.full(self.batch.batch_size, self.epoch)
-        df["reward"]      = self.R
-        df["complexity"]  = self.batch.programs.n_complexity
-        df["length"]      = self.batch.programs.n_lengths
-        df["is_physical"] = self.batch.programs.is_physical
-        df["is_elite"]    = is_elite
-        df["program"]     = programs_str
+        df["epoch"]          = np.full(self.batch.batch_size, self.epoch)
+        df["reward"]         = self.R
+        df["complexity"]     = self.batch.programs.n_complexity
+        df["length"]         = self.batch.programs.n_lengths
+        df["is_physical"]    = self.batch.programs.is_physical
+        df["is_elite"]       = is_elite
+        df["program"]        = programs_str
+        df["program_prefix"] = self.batch.programs.get_programs_array()
 
         # Saving current df
         df.to_csv(self.save_path, mode='a', index=False, header=False)
@@ -511,6 +520,9 @@ class RunVisualiser:
         # Programs
         df["best_prog_of_epoch"] = np.array(self.run_logger.best_prog_epoch_str_history)
         df["overall_best_prog"]  = np.array(self.run_logger.overall_best_prog_str_history)
+        # Programs (prefix)
+        df["best_prog_of_epoch_prefix"] = np.array(self.run_logger.best_prog_epoch_str_prefix_history)
+        df["overall_best_prog_prefix"]  = np.array(self.run_logger.overall_best_prog_str_prefix_history)
         return df
 
     def save_data (self):
@@ -522,11 +534,12 @@ class RunVisualiser:
     def get_pareto_data_df(self):
         df = pd.DataFrame()
         complexity, programs, reward, rmse = self.run_logger.get_pareto_front()
-        df["complexity" ] = complexity
-        df["length"     ] = np.array([len(prog.tokens) for prog in programs])
-        df["reward"     ] = reward
-        df["rmse"       ] = rmse
-        df["expression" ] = np.array([prog.get_infix_str() for prog in programs])
+        df["complexity"        ] = complexity
+        df["length"            ] = np.array([len(prog.tokens) for prog in programs])
+        df["reward"            ] = reward
+        df["rmse"              ] = rmse
+        df["expression"        ] = np.array([prog.get_infix_str() for prog in programs ])
+        df["expression_prefix" ] = np.array([prog.__str__()       for prog in programs ])
         return df
 
     def save_pareto_fig(self):
