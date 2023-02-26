@@ -555,7 +555,7 @@ class RunVisualiser:
 
             pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = run_logger.get_pareto_front()
 
-            pareto_front_rmse = np.log(pareto_front_rmse)
+            pareto_front_rmse = pareto_front_rmse
             # enables new_dummy_symbol = "\square"
             plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
 
@@ -575,7 +575,7 @@ class RunVisualiser:
 
             # Axes labels
             ax.set_xlabel("Expression complexity")
-            ax.set_ylabel("log(RMSE)")
+            ax.set_ylabel("RMSE")
 
 
             for i_prog in range (len(pareto_front_programs)):
