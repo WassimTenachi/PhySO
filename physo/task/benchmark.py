@@ -174,6 +174,7 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
                                               )
             t1 = time.perf_counter()
             print("free const opti time = %f ms"%((t1-t0)*1e3))
+            print("free constants found: %s"%(target_program.free_const_values))
 
             fig, ax = plt.subplots(1,)
             ax.plot(np.log10(history),)
