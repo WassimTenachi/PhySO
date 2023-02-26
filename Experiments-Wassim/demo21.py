@@ -250,7 +250,7 @@ save_path_log             = 'demo.log'
 run_logger     = monitoring.RunLogger(save_path = save_path_log, 
                                       do_save = True)
 
-run_visualiser = monitoring.RunVisualiser (epoch_refresh_rate = 10,
+run_visualiser = monitoring.RunVisualiser (epoch_refresh_rate = 2,
                                            save_path = save_path_training_curves,
                                            do_show   = False,
                                            do_prints = True,
@@ -295,7 +295,7 @@ target_program = benchmark.sanity_check(X, y, run_config, target_program_str=tar
 # In[ ]:
 
 
-rewards, candidates = physo.fit(X, y, run_config)
+rewards, candidates = physo.fit(X, y, run_config, stop_after_n_epochs = 3)
 
 
 # In[ ]:

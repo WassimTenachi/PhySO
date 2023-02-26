@@ -26,6 +26,7 @@ class RunLogger:
         self.initialize()
 
     def initialize (self):
+
         # Epoch specific
         self.epoch = None
 
@@ -49,6 +50,9 @@ class RunLogger:
         self.best_prog_epoch_str_prefix_history   = []
         self.overall_best_prog_str_prefix_history = []
 
+        self.best_prog_epoch_free_const_history   = []
+        self.overall_best_prog_free_const_history = []
+
         self.mean_complexity_history      = []
 
         self.n_physical                   = []
@@ -70,6 +74,7 @@ class RunLogger:
 
 
         if epoch == 0:
+            self.free_const_names            = [tok.__str__() for tok in self.batch.library.free_constants_tokens]
             self.overall_max_R_history       = [rewards.max()]
             self.hall_of_fame                = [batch.programs.get_prog(best_prog_idx_epoch)]
         if epoch> 0:
@@ -96,6 +101,9 @@ class RunLogger:
         self.best_prog_epoch_str_prefix_history    .append( self.best_prog_epoch .__str__() )
         self.overall_best_prog_str_prefix_history  .append( self.best_prog       .__str__() )
 
+        # Logging free const as str of a list
+        self.best_prog_epoch_free_const_history   .append( self.best_prog_epoch.free_const_values.cpu().detach().numpy().__str__() )
+        self.overall_best_prog_free_const_history .append( self.best_prog      .free_const_values.cpu().detach().numpy().__str__())
 
         self.best_prog_complexity_history .append(batch.programs.tokens.complexity[best_prog_idx_epoch].sum())
         self.mean_complexity_history      .append(batch.programs.tokens.complexity.sum(axis=1).mean())
@@ -115,9 +123,14 @@ class RunLogger:
             self.save_log()
 
     def save_log (self):
+
+        columns = ['epoch', 'reward', 'complexity', 'length', 'is_physical', 'is_elite', 'program', "program_prefix"]
+        # Columns for free const names
+        columns += self.free_const_names
+
         # Initial df
         if self.epoch == 0:
-            df0 = pd.DataFrame(columns=['epoch', 'reward', 'complexity', 'length', 'is_physical', 'is_elite', 'program'])
+            df0 = pd.DataFrame(columns=columns)
             df0.to_csv(self.save_path, index=False)
 
         # Current batch log
@@ -134,6 +147,13 @@ class RunLogger:
         df["is_elite"]       = is_elite
         df["program"]        = programs_str
         df["program_prefix"] = self.batch.programs.get_programs_array()
+
+        # Exporting free constants
+        free_const = self.batch.programs.free_consts.values.cpu().detach().numpy()
+        for i in range(len(self.free_const_names)):
+            name   = self.free_const_names[i]
+            const  = free_const[:, i]
+            df[name] = const
 
         # Saving current df
         df.to_csv(self.save_path, mode='a', index=False, header=False)
@@ -523,6 +543,10 @@ class RunVisualiser:
         # Programs (prefix)
         df["best_prog_of_epoch_prefix"] = np.array(self.run_logger.best_prog_epoch_str_prefix_history)
         df["overall_best_prog_prefix"]  = np.array(self.run_logger.overall_best_prog_str_prefix_history)
+        # Programs (free const)
+        df["best_prog_of_epoch_prefix"] = np.array(self.run_logger.best_prog_epoch_free_const_history )
+        df["overall_best_prog_prefix"]  = np.array(self.run_logger.overall_best_prog_free_const_history)
+
         return df
 
     def save_data (self):
@@ -540,6 +564,13 @@ class RunVisualiser:
         df["rmse"              ] = rmse
         df["expression"        ] = np.array([prog.get_infix_str() for prog in programs ])
         df["expression_prefix" ] = np.array([prog.__str__()       for prog in programs ])
+        # Exporting free const
+        free_const       = np.array([prog.free_const_values.cpu().detach().numpy() for prog in programs ])
+        free_const_names = [tok.__str__() for tok in self.run_logger.batch.library.free_constants_tokens]
+        for i in range(len(free_const_names)):
+            name   = free_const_names[i]
+            params = free_const[:, i]
+            df[name] = params
         return df
 
     def save_pareto_fig(self):

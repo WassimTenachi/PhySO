@@ -15,7 +15,7 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after
     y_target : torch.tensor of shape (?,) of float
         Values of the target symbolic function on input variables contained in X_target.
     run_config : dict
-        Run configuration, see default_run_config.sr_run_config for an example.
+        Run configuration, see config.default_run_config.sr_run_config for an example.
     candidate_wrapper : callable or None, optional
         Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
         a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
