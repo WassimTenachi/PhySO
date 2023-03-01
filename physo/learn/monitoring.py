@@ -544,8 +544,8 @@ class RunVisualiser:
         df["best_prog_of_epoch_prefix"] = np.array(self.run_logger.best_prog_epoch_str_prefix_history)
         df["overall_best_prog_prefix"]  = np.array(self.run_logger.overall_best_prog_str_prefix_history)
         # Programs (free const)
-        df["best_prog_of_epoch_prefix"] = np.array(self.run_logger.best_prog_epoch_free_const_history )
-        df["overall_best_prog_prefix"]  = np.array(self.run_logger.overall_best_prog_free_const_history)
+        df["best_prog_of_epoch_free_const"] = np.array(self.run_logger.best_prog_epoch_free_const_history )
+        df["overall_best_prog_free_const"]  = np.array(self.run_logger.overall_best_prog_free_const_history)
 
         return df
 
