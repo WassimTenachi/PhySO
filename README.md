@@ -65,7 +65,8 @@ This should result in all tests being successfully passed (except for plots test
 # Getting started
 
 ### Symbolic regression with default hyperparameters
-[Coming soon]
+[Coming soon] 
+In the meantime you can have a look a our demo folder ! :)
 ### Symbolic regression
 [Coming soon]
 ### Custom symbolic optimization task
