@@ -102,7 +102,7 @@ OP_UNIT_BEHAVIORS_DICT = {
     "DIVISION_OP"               : OpUnitsBehavior(behavior_id = 21, op_names = ["div",]),
     "UNARY_POWER_OP"            : OpUnitsBehavior(behavior_id = 3 , op_names = ["n2", "sqrt", "n3", "n4", "inv"]),
     "UNARY_ADDITIVE_OP"         : OpUnitsBehavior(behavior_id = 4 , op_names = ["neg", "abs", "max", "min"]),
-    "UNARY_DIMENSIONLESS_OP"    : OpUnitsBehavior(behavior_id = 5 , op_names = ["sin", "cos", "tan", "exp", "log", "expneg", "logabs", "sigmoid", "tanh", "harmonic"]),
+    "UNARY_DIMENSIONLESS_OP"    : OpUnitsBehavior(behavior_id = 5 , op_names = ["sin", "cos", "tan", "exp", "log", "expneg", "logabs", "sigmoid", "tanh", "sinh", "cosh", "harmonic"]),
             }
 # Group of behaviors (tokens can appear in more than one of them)
 GROUP_UNIT_BEHAVIOR = {
@@ -115,7 +115,7 @@ UNIT_BEHAVIORS_DICT.update(OP_UNIT_BEHAVIORS_DICT)
 UNIT_BEHAVIORS_DICT.update(GROUP_UNIT_BEHAVIOR)
 
 # TRIGONOMETRIC OPS
-TRIGONOMETRIC_OP = ["sin", "cos", "tan", "tanh",]
+TRIGONOMETRIC_OP = ["sin", "cos", "tan", "tanh", "sinh", "cosh"]
 
 # INVERSE OP
 INVERSE_OP_DICT = {
@@ -175,7 +175,10 @@ def make_common_operations ():
         Token (name = "neg"    , sympy_repr = "-"      , arity = 1 , complexity = 1 , var_type = 0, function = torch.negative   ),
         Token (name = "abs"    , sympy_repr = "abs"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.abs        ),
         Token (name = "tanh"   , sympy_repr = "tanh"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.tanh       ),
+        Token (name = "sinh"   , sympy_repr = "sinh"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.sinh       ),
+        Token (name = "cosh"   , sympy_repr = "cosh"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.cosh       ),
         Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 1 , var_type = 0, function = torch.reciprocal ),
+
         # Custom unary operations
         Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.log(torch.abs(x)) ),
         Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.exp(-x)           ),
