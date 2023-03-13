@@ -726,7 +726,7 @@ class VectPrograms:
         # ------------------------------ Check new_tokens_idx ------------------------------
         # Type
         assert type(new_tokens_idx) == np.ndarray, "Arg new_tokens_idx must be a numpy array of dtype = int"
-        assert new_tokens_idx.dtype == int, "Arg new_tokens_idx must be a numpy array of dtype = int"
+        assert (new_tokens_idx.dtype == int or new_tokens_idx.dtype==np.dtype("int64")), "Arg new_tokens_idx must be a numpy array of dtype = int"
 
         # Shape
         assert new_tokens_idx.shape == (self.batch_size,), "Arg new_tokens_idx must have shape = (batch_size,) = (%i,)" \
