@@ -89,9 +89,9 @@ def RewardsComputer(programs,
             # If this is not a valid prog, we should not bother computing reward
             else:
                 r = torch.tensor(0.)
-            rewards.append(r)
-        # Only using torch for gpu acceleration, no backpropagation happening here -> converting to numpy
-        rewards = torch.stack(rewards).detach().cpu().numpy()                                            # (batch_size,)
+            # Only using torch for gpu acceleration, no backpropagation happening here -> converting to numpy
+            rewards.append(r.detach().cpu().numpy())
+        rewards = np.array(rewards)                                                                      # (batch_size,)
         return rewards
 
     def batch_optimize_free_const (programs, X, y_target, args_opti, mask_valid,):
