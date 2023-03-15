@@ -6,3 +6,4 @@ __pycache__
 demo/**/*.log
 demo/**/*.png
 demo/**/*.csv
+demo/**/*.pdf
