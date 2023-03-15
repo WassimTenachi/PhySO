@@ -99,7 +99,7 @@ class Batch:
         self.rewards_computer = rewards_computer
 
         # Sending free const table to same device as dataset
-        self.programs.free_consts.values.to(self.dataset.detected_device)
+        self.programs.free_consts.values = self.programs.free_consts.values.to(self.dataset.detected_device)
 
         # Free constants optimizer args
         self.free_const_opti_args = free_const_opti_args

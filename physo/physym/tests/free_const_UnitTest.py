@@ -128,7 +128,7 @@ class FreeConstUtilsTest(unittest.TestCase):
         my_programs = Prog.VectPrograms(batch_size=test_programs_idx.shape[0], max_time_step=test_programs_idx.shape[1], library=my_lib)
 
         # Sending free constants to device
-        my_programs.free_consts.values.to(DEVICE)
+        my_programs.free_consts.values = my_programs.free_consts.values.to(DEVICE)
 
         # Appending tokens
         for i in range (test_programs_idx.shape[1]):
