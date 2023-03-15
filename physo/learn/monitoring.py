@@ -85,7 +85,7 @@ class RunLogger:
                 self.overall_max_R_history.append(self.overall_max_R_history[-1])
 
         self.epochs_history         .append( epoch                             )
-        self.loss_history           .append( loss_val.cpu().detach().numpy()   )
+        self.loss_history           .append( loss_val.detach().cpu().numpy()   )
 
         self.mean_R_train_history   .append( rewards[keep].mean()              )
         self.mean_R_history         .append( rewards.mean()                    )
@@ -102,8 +102,8 @@ class RunLogger:
         self.overall_best_prog_str_prefix_history  .append( self.best_prog       .__str__() )
 
         # Logging free const as str of a list
-        self.best_prog_epoch_free_const_history   .append( self.best_prog_epoch.free_const_values.cpu().detach().numpy().__str__() )
-        self.overall_best_prog_free_const_history .append( self.best_prog      .free_const_values.cpu().detach().numpy().__str__())
+        self.best_prog_epoch_free_const_history   .append( self.best_prog_epoch.free_const_values.detach().cpu().numpy().__str__() )
+        self.overall_best_prog_free_const_history .append( self.best_prog      .free_const_values.detach().cpu().numpy().__str__())
 
         self.best_prog_complexity_history .append(batch.programs.tokens.complexity[best_prog_idx_epoch].sum())
         self.mean_complexity_history      .append(batch.programs.tokens.complexity.sum(axis=1).mean())
@@ -149,7 +149,7 @@ class RunLogger:
         df["program_prefix"] = self.batch.programs.get_programs_array()
 
         # Exporting free constants
-        free_const = self.batch.programs.free_consts.values.cpu().detach().numpy()
+        free_const = self.batch.programs.free_consts.values.detach().cpu().numpy()
         for i in range(len(self.free_const_names)):
             name   = self.free_const_names[i]
             const  = free_const[:, i]
@@ -206,7 +206,7 @@ class RunLogger:
         pareto_front_complexities = np.array(pareto_front_complexities)
         pareto_front_programs     = np.array(pareto_front_programs)
         pareto_front_r            = np.array(pareto_front_r)
-        pareto_front_rmse         = ((1/pareto_front_r)-1)*self.batch.dataset.y_target.std().cpu().detach().numpy()
+        pareto_front_rmse         = ((1/pareto_front_r)-1)*self.batch.dataset.y_target.std().detach().cpu().numpy()
 
         return pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse
 
@@ -337,15 +337,15 @@ class RunVisualiser:
         n_plot = 100
         stack = []
         for x_dim in batch.dataset.X:
-            x_dim_min = x.min().cpu().detach().numpy()
-            x_dim_max = x.max().cpu().detach().numpy()
+            x_dim_min = x.min().detach().cpu().numpy()
+            x_dim_max = x.max().detach().cpu().numpy()
             x_dim_plot = torch.tensor(np.linspace(x_dim_min-x_expand, x_dim_max+x_expand, n_plot))
             stack.append(x_dim_plot)
         X_plot = torch.stack(stack).to(batch.dataset.detected_device)
         x_plot = X_plot[cut_on_dim]
 
         # Data points
-        curr_ax.plot(x.cpu().detach().numpy(), batch.dataset.y_target.cpu().detach().numpy(), 'ko', markersize=10)
+        curr_ax.plot(x.detach().cpu().numpy(), batch.dataset.y_target.detach().cpu().numpy(), 'ko', markersize=10)
         x_plot_cpu = x_plot.detach().cpu().numpy()
 
         # ------- Prog drawing -------
@@ -389,8 +389,8 @@ class RunVisualiser:
             print("Unable to draw one or more prog curve on monitoring plot.")
 
         # ------- Plot limits -------
-        y_min = batch.dataset.y_target.min().cpu().detach().numpy()
-        y_max = batch.dataset.y_target.max().cpu().detach().numpy()
+        y_min = batch.dataset.y_target.min().detach().cpu().numpy()
+        y_max = batch.dataset.y_target.max().detach().cpu().numpy()
         curr_ax.set_ylim(y_min-0.1*np.abs(y_min), y_max+0.1*np.abs(y_max))
         custom_lines = [
             Line2D([0], [0], color='k',      lw=3),
@@ -565,7 +565,7 @@ class RunVisualiser:
         df["expression"        ] = np.array([prog.get_infix_str() for prog in programs ])
         df["expression_prefix" ] = np.array([prog.__str__()       for prog in programs ])
         # Exporting free const
-        free_const       = np.array([prog.free_const_values.cpu().detach().numpy() for prog in programs ])
+        free_const       = np.array([prog.free_const_values.detach().cpu().numpy() for prog in programs ])
         free_const_names = [tok.__str__() for tok in self.run_logger.batch.library.free_constants_tokens]
         for i in range(len(free_const_names)):
             name   = free_const_names[i]

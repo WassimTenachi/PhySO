@@ -91,7 +91,7 @@ def RewardsComputer(programs,
                 r = torch.tensor(0.)
             rewards.append(r)
         # Only using torch for gpu acceleration, no backpropagation happening here -> converting to numpy
-        rewards = torch.stack(rewards).cpu().detach().numpy()                                            # (batch_size,)
+        rewards = torch.stack(rewards).detach().cpu().numpy()                                            # (batch_size,)
         return rewards
 
     def batch_optimize_free_const (programs, X, y_target, args_opti, mask_valid,):

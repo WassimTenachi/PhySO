@@ -3,5 +3,6 @@ physo.egg-info/
 __pycache__
 .ipynb_checkpoints
 .idea/
-Experiments-Wassim/**/*.log
-Experiments-Rodrigo/**/*.log
+demo/**/*.log
+demo/**/*.png
+demo/**/*.csv

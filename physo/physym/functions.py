@@ -150,7 +150,7 @@ def data_conversion (data):
 # Inverse of data conversion
 def data_conversion_inv(data):
     if torch.is_tensor(data):
-        return data.detach().numpy()
+        return data.detach().cpu().numpy()
     else:
         return data
 

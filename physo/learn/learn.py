@@ -136,7 +136,7 @@ def learner ( model,
 
             # Informing embedding of new action
             # (embedding input)
-            batch.programs.append(action.cpu().detach().numpy())
+            batch.programs.append(action.detach().cpu().numpy())
 
         # -------------------------------------------------
         # ------------------ CANDIDATES  ------------------
@@ -147,7 +147,7 @@ def learner ( model,
         actions        = torch.stack(actions       , dim=0)         # (max_time_step, batch_size,)
 
         # Programs as numpy array for black box reward computation
-        actions_array  = actions.cpu().detach().numpy()             # (max_time_step, batch_size,)
+        actions_array  = actions.detach().cpu().numpy()             # (max_time_step, batch_size,)
 
         # -------------------------------------------------
         # -------------------- REWARD ---------------------

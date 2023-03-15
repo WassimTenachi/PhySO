@@ -188,7 +188,7 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
         ideal_reward = run_config["reward_config"]["reward_function"](
                                              y_pred = target_program(X),
                                              y_target = batch.dataset.y_target,
-                                            ).cpu().detach().numpy()
+                                            ).detach().cpu().numpy()
 
         print("Ideal reward :", ideal_reward)
         # todo: assert that it is physical and compute reward through a batch
