@@ -75,6 +75,15 @@ In the meantime you can have a look at our demo folder ! :)
 ### Open training loop
 [Coming soon]
 
+# About performances
+
+The main performance bottleneck of `physo` is free constant optimization, therefore, performances are linearly dependent on the number of free constant optimization steps and on the number of trial expressions per epoch (ie. the batch size).
+Summary of expected performances with `physo`.
+
+| Time / epoch | Batch size | # free const | free const <br>opti steps | CPU    |
+|--------------|------------|--------------|---------------------------|--------|
+| ~20s         | 10k        | 2            | 15                        | Mac M1 |
+
 # Uninstalling
 Uninstalling the package.
 ```
