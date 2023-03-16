@@ -1,7 +1,7 @@
 # Requirements for PhySO
 # Install via conda : conda install --file requirements.txt
 
-pytorch == 1.11.0
+pytorch >= 1.11.0
 sympy == 1.10.1
 numpy
 matplotlib
