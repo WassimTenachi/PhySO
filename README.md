@@ -72,6 +72,12 @@ In the meantime you can have a look a our demo folder ! :)
 ### Open training loop
 [Coming soon]
 
+# Uninstalling
+Uninstalling the package.
+```
+conda deactivate
+conda env remove -n PhySO
+```
 
 # Citing this work
 
