@@ -78,6 +78,9 @@ In the meantime you can have a look at our demo folder ! :)
 # About performances
 
 The main performance bottleneck of `physo` is free constant optimization, therefore, performances are linearly dependent on the number of free constant optimization steps and on the number of trial expressions per epoch (ie. the batch size).
+
+In addition, it should be noted that generating monitoring plots takes ~3s, therefore we suggest making monitoring plots every >10 epochs for low time / epoch cases. 
+
 Summary of expected performances with `physo`:
 
 | Time / epoch | Batch size | # free const | free const <br>opti steps | CPU    |
