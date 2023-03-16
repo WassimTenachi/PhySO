@@ -3,4 +3,4 @@
 
 # Available through conda and pip
 pygraphviz == 1.9 # Install via conda recommended
-dot2tex == 2.11.3
+
