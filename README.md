@@ -56,13 +56,13 @@ From the repository root:
 ```
 python -m unittest discover -p "*UnitTest.py"
 ```
-This should result in all tests being successfully passed (except for plots tests if dependencies were not installed). 
+This should result in all tests being successfully passed (except for program_display_UnitTest tests if optional dependencies were not installed). 
 
 # Getting started
 
 ### Symbolic regression with default hyperparameters
 [Coming soon] 
-In the meantime you can have a look a our demo folder ! :)
+In the meantime you can have a look at our demo folder ! :)
 ### Symbolic regression
 [Coming soon]
 ### Custom symbolic optimization task
