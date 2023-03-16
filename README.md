@@ -38,6 +38,11 @@ before running:
 ```
 pip install -r requirements_display.txt
 ```
+
+#####  Side regarding CUDA acceleration:
+
+$\Phi$-SO supports CUDA but it should be noted that since the bottleneck of the code is free constant optimization, using CUDA (even via a very high end GPU) does not improve performances over a CPU and can actually hinder performances.
+
 ### Installing $\Phi$-SO
 
 Installing `physo` (from the repository root):
