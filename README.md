@@ -83,9 +83,10 @@ In addition, it should be noted that generating monitoring plots takes ~3s, ther
 
 Summary of expected performances with `physo`:
 
-| Time / epoch | Batch size | # free const | free const <br>opti steps | CPU    |
-|--------------|------------|--------------|---------------------------|--------|
-| ~20s         | 10k        | 2            | 15                        | Mac M1 |
+| Time / epoch | Batch size | # free const | free const <br>opti steps | CPU                  |
+|--------------|------------|--------------|---------------------------|----------------------|
+| ~20s         | 10k        | 2            | 15                        | Mac M1               |
+| ~30s         | 10k        | 2            | 15                        | Intel W-2155 10c/20t |
 
 # Uninstalling
 Uninstalling the package.
