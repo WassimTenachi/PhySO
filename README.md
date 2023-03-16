@@ -22,26 +22,17 @@ Installing essential dependencies :
 ```
 conda install --file requirements.txt
 ```
-Installing optional dependencies (for monitoring plots) :
+Installing optional dependencies (for advanced debugging in tree representation) :
 ```
-pip install -r requirements_display.txt
+conda install --file requirements_display1.txt
 ```
-#####  Side note for ARM users:
-
-The file `requirements_display.txt` contains dependencies that can be installed via pip only. However, it also contains `pygraphviz` which can be installed via conda which avoids compiler issues on ARM. 
-
-It is recommended to run:
 ```
-conda install pygraphviz==1.9
-```
-before running:
-```
-pip install -r requirements_display.txt
+pip install -r requirements_display2.txt
 ```
 
-#####  Side regarding CUDA acceleration:
+#####  Side note regarding CUDA acceleration:
 
-$\Phi$-SO supports CUDA but it should be noted that since the bottleneck of the code is free constant optimization, using CUDA (even via a very high end GPU) does not improve performances over a CPU and can actually hinder performances.
+$\Phi$-SO supports CUDA but it should be noted that since the bottleneck of the code is free constant optimization, using CUDA (even on a very high-end GPU) does not improve performances over a CPU and can actually hinder performances.
 
 ### Installing $\Phi$-SO
 

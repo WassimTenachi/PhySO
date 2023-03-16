@@ -1,0 +1,6 @@
+# Requirements for display purposes (optional)
+# Install via conda : conda install --file requirements_display1.txt
+
+# Available through conda and pip
+pygraphviz == 1.9 # Install via conda recommended
+dot2tex == 2.11.3
