@@ -262,6 +262,10 @@ class Library:
         """
         return getattr(self.properties, attr)[0][:self.n_choices]
 
+    @property
+    def free_const_names(self):
+        return np.array([tok.__str__() for tok in self.free_constants_tokens])
+
     def __repr__(self):
         return str(self.lib_tokens)
 

@@ -264,7 +264,7 @@ benchmark.dummy_epoch(X, y, run_config)
 
 # ## Run
 
-# In[18]:
+# In[ ]:
 
 
 rewards, candidates = physo.fit (X, y, run_config,
@@ -282,7 +282,7 @@ rewards, candidates = physo.fit (X, y, run_config,
 
 # ### Run plot
 
-# In[19]:
+# In[ ]:
 
 
 run_visualiser.make_visualisation()
@@ -292,7 +292,7 @@ run_visualiser.save_data()
 
 # ### Pareto Front
 
-# In[20]:
+# In[ ]:
 
 
 def plot_pareto_front(run_logger,
@@ -348,7 +348,7 @@ def plot_pareto_front(run_logger,
         ax.text(text_pos[0], text_pos[1], f'${latex_str}$', size = eq_text_size)
 
 
-# In[21]:
+# In[ ]:
 
 
 plot_pareto_front(run_logger)
@@ -356,22 +356,18 @@ plot_pareto_front(run_logger)
 
 # ### Complexity - accuracy optimums
 
-# In[22]:
+# In[ ]:
 
 
 pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = run_logger.get_pareto_front()
 
 
-# In[23]:
+# In[ ]:
 
 
 for prog in pareto_front_programs:
     prog.show_infix(do_simplify=True)
-    print("params =", prog.free_const_values.detach().cpu().numpy())
-
-
-# In[ ]:
-
-
-
+    free_consts = prog.free_const_values.detach().cpu().numpy()
+    for i in range (len(free_consts)):
+        print("%s = %f"%(prog.library.free_const_names[i], free_consts[i]))
 
