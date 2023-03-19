@@ -1,8 +1,10 @@
 # Requirements for display purposes (optional)
 # Install via pip : pip install -r requirements_display2.txt
 
-# Only available via pip
+# Available through conda and pip
 dot2tex == 2.11.3
+
+# Only available via pip
 pdflatex == 0.1.3
 pdf2image == 1.16.0
 pillow >= 9.0.1
