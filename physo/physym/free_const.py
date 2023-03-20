@@ -93,7 +93,7 @@ def LBFGS_optimizer (params, f, n_steps=10, tol=1e-6, lbfgs_func_args={}):
     tol : float
         Error tolerance, early stops if error < tol.
     lbfgs_func_args : dict
-        Aguments to pass to torch.optim.LBFGS
+        Arguments to pass to torch.optim.LBFGS
     Returns
     -------
     history : numpy.array of shape (?,)
