@@ -10,7 +10,13 @@ https://user-images.githubusercontent.com/63928316/225642347-a07127da-a84e-4af3-
 
 ### Virtual environment
 
-The package has been tested on Unix and OSX. To install the package it is recommend to first create a conda virtual environment:
+The package has been tested on:
+- Linux
+- OSX (ARM & Intel)
+
+Running `physo` on Windows is not recommended.
+
+To install the package it is recommend to first create a conda virtual environment:
 ```
 conda create -n PhySO python=3.8
 ```
