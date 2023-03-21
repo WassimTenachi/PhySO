@@ -72,8 +72,8 @@ This should result in all tests being successfully passed (except for program_di
 ### Symbolic regression with default hyperparameters
 Symbolic regression (SR) consists in the inference of a free-form symbolic analytical function $f: \mathbb{R}^n \longrightarrow \mathbb{R}$ that fits $y = f(x_0,..., x_n)$ given $(x_0,..., x_n, y)$ data.
 
-It should be noted that SR capabilities of `physo` is heavily dependent on hyperparameters, it is therefore recommended to tune hyperparameters (as explained in the next section) to your own specific problem for doing science.
-However, here is a quick and easy way to run an SR task using the default configuration.
+It should be noted that SR capabilities of `physo` are heavily dependent on hyperparameters, it is therefore recommended to tune hyperparameters to your own specific problem for doing science.
+However, here is a quick and easy way to run an SR task using the default configuration to play around with.
 Please note that for now this configuration was only tuned on a few physical test cases performances will probably improve in the future.
 
 Given a dataset $(x_0,..., x_n, y)$:
