@@ -26,6 +26,8 @@ class Dataset:
         # --- ASSERT FLOAT TYPE ---
         assert X       .dtype == torch.float64 or X       .dtype == torch.float32, "X        must contain floats."
         assert y_target.dtype == torch.float64 or y_target.dtype == torch.float32, "y_target must contain floats."
+        assert np.isnan(X).any()        == False, "X should not contain any Nans"
+        assert np.isnan(y_target).any() == False, "y should not contain any Nans"
         # --- ASSERT SHAPE ---
         assert len(X.shape)        == 2, "X        must have shape = (n_dim, data_size,)"
         assert len(y_target.shape) == 1, "y_target must have shape = (data_size,)"
