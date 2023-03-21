@@ -191,8 +191,6 @@ In the meantime you can have a look at our demo folder ! :)
 [Coming soon]
 ### Using custom functions
 [Coming soon]
-### Open training loop
-[Coming soon]
 
 # About performances
 
