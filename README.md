@@ -74,7 +74,7 @@ Symbolic regression (SR) consists in the inference of a free-form symbolic analy
 
 It should be noted that SR capabilities of `physo` are heavily dependent on hyperparameters, it is therefore recommended to tune hyperparameters to your own specific problem for doing science.
 However, here is a quick and easy way to run an SR task using the default configuration to play around with.
-Please note that for now this configuration was only tuned on a few physical test cases performances will probably improve in the future.
+Please note that for now this configuration was only tuned on a few physical test cases and that performances will probably improve in the future.
 
 Given a dataset $(x_0,..., x_n, y)$:
 ```
@@ -83,7 +83,7 @@ v = np.random.uniform(-10, 10, 50)
 X = np.stack((z, v), axis=0)
 y = 1.234*9.807*z + 1.234*v**2
 ```
-Given the units input variables $(x_0,..., x_n)$ (here $(z, v)$), the root variable $y$ (here $E$) as well as free and fixed constants, one can run an SR task to recover $f$ :
+Given the units input variables $(x_0,..., x_n)$ (here $(z, v)$ ), the root variable $y$ (here $E$) as well as free and fixed constants, you can run an SR task to recover $f$ via:
 ```
 expression, logs = physo.SR(X, y,
                             X_units = [ [1, 0, 0] , [1, -1, 0] ],
@@ -94,7 +94,7 @@ expression, logs = physo.SR(X, y,
 )
 ```
 
-One can also specify allowed symbolic operation appearing in $f$ or the names of variables for display purposes by filling in optional arguments:
+You can also specify the choosable symbolic operations for the construction of $f$ and give the names of variables for display purposes by filling in optional arguments:
 
 ```
 expression, logs = physo.SR(X, y,
@@ -111,7 +111,7 @@ expression, logs = physo.SR(X, y,
 ```
 
 `physo.SR` saves monitoring curves, the pareto front (complexity vs accuracy optimums) and the logs.
-It also returns the best fitting expression found during the search which can be inspected in infix notation (eg. in ascii or latex):
+It also returns the best fitting expression found during the search which can be inspected in regular infix notation (eg. in ascii or latex) via:
 
 ```
 >>> print(expression.get_infix_pretty(do_simplify=True))
