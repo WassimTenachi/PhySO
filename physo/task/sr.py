@@ -21,6 +21,9 @@ default_run_visualiser = monitoring.RunVisualiser (
                                            do_prints = True,
                                            do_save   = True, )
 
+# DEFAULT ALLOWED OPERATIONS
+default_op_names = ["mul", "add", "sub", "div", "inv", "n2", "sqrt", "neg", "exp", "log", "sin", "cos"]
+
 def SR(X, y,
        # X
        X_units = None,
@@ -37,7 +40,7 @@ def SR(X, y,
        # Operations to use
        op_names = None,
        # Stopping
-       stop_reward = 0.9999,
+       stop_reward = 1.,
        epochs = None,
        # Default run config to use
        run_config = default_config,
@@ -165,7 +168,7 @@ def SR(X, y,
 
     # --- op_names ---
     if op_names is None:
-        op_names = ["mul", "add", "sub", "div", "inv", "n2", "sqrt", "neg", "exp", "log", "sin", "cos"]
+        op_names = default_op_names
 
     # ------------------------------- WRAPPING -------------------------------
 

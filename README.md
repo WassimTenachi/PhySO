@@ -70,11 +70,96 @@ This should result in all tests being successfully passed (except for program_di
 # Getting started
 
 ### Symbolic regression with default hyperparameters
-Symbolic regression consists in the inference of a free-form symbolic analytical function $f: \mathbb{R}^n \longrightarrow \mathbb{R}$ that fits $y = f(\mathbf{x})$ given $(\mathbf{x}, y)$ data.
+Symbolic regression (SR) consists in the inference of a free-form symbolic analytical function $f: \mathbb{R}^n \longrightarrow \mathbb{R}$ that fits $y = f(x_0,..., x_n)$ given $(x_0,..., x_n, y)$ data.
+
+It should be noted that SR capabilities of `physo` is heavily dependent on hyperparameters, it is therefore recommended to tune hyperparameters (as explained in the next section) to your own specific problem for doing science.
+However, here is a quick and easy way to run an SR task using the default configuration.
+Please note that for now this configuration was only tuned on a few physical test cases performances will probably improve in the future.
+
+Given a dataset $(x_0,..., x_n, y)$:
+```
+z = np.random.uniform(-10, 10, 50)
+v = np.random.uniform(-10, 10, 50)
+X = np.stack((z, v), axis=0)
+y = 1.234*9.807*z + 1.234*v**2
+```
+Given the units input variables $(x_0,..., x_n)$ (here $(z, v)$), the root variable $y$ (here $E$) as well as free and fixed constants, one can run an SR task to recover $f$ :
+```
+expression, logs = physo.SR(X, y,
+                            X_units = [ [1, 0, 0] , [1, -1, 0] ],
+                            y_units = [2, -2, 1],
+                            fixed_consts       = [ 1.      ],
+                            fixed_consts_units = [ [0,0,0] ],
+                            free_consts_units  = [ [0, 0, 1] , [1, -2, 0] ],                          
+)
+```
+
+One can also specify allowed symbolic operation appearing in $f$ or the names of variables for display purposes by filling in optional arguments:
 
 ```
-expression, logs = physo.SR(X, y)
+expression, logs = physo.SR(X, y,
+                            X_names = [ "z"       , "v"        ],
+                            X_units = [ [1, 0, 0] , [1, -1, 0] ],
+                            y_name  = "E",
+                            y_units = [2, -2, 1],
+                            fixed_consts       = [ 1.      ],
+                            fixed_consts_units = [ [0,0,0] ],
+                            free_consts_names = [ "m"       , "g"        ],
+                            free_consts_units = [ [0, 0, 1] , [1, -2, 0] ],
+                            op_names = ["mul", "add", "sub", "div", "inv", "n2", "sqrt", "neg", "exp", "log", "sin", "cos"]
+)
 ```
+
+`physo.SR` saves monitoring curves, the pareto front (complexity vs accuracy optimums) and the logs.
+It also returns the best fitting expression found during the search which can be inspected in infix notation (eg. in ascii or latex):
+```
+>>> print(expression.get_infix_pretty(do_simplify=True))
+  ⎛       2⎞
+m⋅⎝g⋅z + v ⎠
+>>> expression.get_infix_latex(do_simplify=True)
+'m \\left(g z + v^{2}\\right)'
+```
+Free constants can be inspected via:
+```
+>>> expression.free_const_values.cpu().detach().numpy()
+array([9.80699996, 1.234     ])
+```
+`physo.SR` also returns the log of the run from which one can inspect Pareto front expressions:
+```
+for i, prog in enumerate(pareto_front_expressions):
+    # Showing expression
+    print(prog.get_infix_pretty(do_simplify=True))
+    # Showing free constant
+    free_consts = prog.free_const_values.detach().cpu().numpy()
+    for j in range (len(free_consts)):
+        print("%s = %f"%(prog.library.free_const_names[j], free_consts[j]))
+    # Showing RMSE
+    print("RMSE = {:e}".format(pareto_front_rmse[i]))
+    print("-------------")
+```
+
+```
+   2
+m⋅v 
+g = 1.000000
+m = 1.486251
+RMSE = 6.510109e+01
+-------------
+g⋅m⋅z
+g = 3.741130
+m = 3.741130
+RMSE = 5.696636e+01
+-------------
+  ⎛       2⎞
+m⋅⎝g⋅z + v ⎠
+g = 9.807000
+m = 1.234000
+RMSE = 1.675142e-07
+-------------
+```
+
+A script containing this example is given in `demo/demo_quick_sr.py`.
+
 
 ### Symbolic regression
 [Coming soon] 
