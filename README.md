@@ -72,10 +72,6 @@ This should result in all tests being successfully passed (except for program_di
 ### Symbolic regression with default hyperparameters
 Symbolic regression (SR) consists in the inference of a free-form symbolic analytical function $f: \mathbb{R}^n \longrightarrow \mathbb{R}$ that fits $y = f(x_0,..., x_n)$ given $(x_0,..., x_n, y)$ data.
 
-It should be noted that SR capabilities of `physo` are heavily dependent on hyperparameters, it is therefore recommended to tune hyperparameters to your own specific problem for doing science.
-However, here is a quick and easy way to run an SR task using the default configuration to play around with.
-Please note that for now this configuration was only tuned on a few physical test cases and that performances will probably improve in the future.
-
 Given a dataset $(x_0,..., x_n, y)$:
 ```
 z = np.random.uniform(-10, 10, 50)
@@ -94,8 +90,29 @@ expression, logs = physo.SR(X, y,
 )
 ```
 
-You can also specify the choosable symbolic operations for the construction of $f$ and give the names of variables for display purposes by filling in optional arguments:
+It should be noted that SR capabilities of `physo` are heavily dependent on hyperparameters, it is therefore recommended to tune hyperparameters to your own specific problem for doing science.
+Summary of available currently configurations:
 
+|  Config |                           Notes                           |
+|:-------:|:---------------------------------------------------------:|
+| config0 | Light config for demo purposes.                           |
+| config1 | Tuned on a few physical cases.                            |
+| config2 | [work in progress] Good starting point for doing science. |
+
+By default, `config0` is used, however it is recommended to use the latest configuration currently available (`config1`) as a starting point for doing science by specifying it:
+
+```
+expression, logs = physo.SR(X, y,
+                            X_units = [ [1, 0, 0] , [1, -1, 0] ],
+                            y_units = [2, -2, 1],
+                            fixed_consts       = [ 1.      ],
+                            fixed_consts_units = [ [0,0,0] ],
+                            free_consts_units  = [ [0, 0, 1] , [1, -2, 0] ],      
+                            run_config = physo.config.config1.config1                    
+)
+```
+
+You can also specify the choosable symbolic operations for the construction of $f$ and give the names of variables for display purposes by filling in optional arguments:
 ```
 expression, logs = physo.SR(X, y,
                             X_names = [ "z"       , "v"        ],

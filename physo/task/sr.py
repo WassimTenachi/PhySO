@@ -23,6 +23,7 @@ default_run_visualiser = monitoring.RunVisualiser (
 
 # DEFAULT ALLOWED OPERATIONS
 default_op_names = ["mul", "add", "sub", "div", "inv", "n2", "sqrt", "neg", "exp", "log", "sin", "cos"]
+default_stop_after_n_epochs = 5
 
 def SR(X, y,
        # X
@@ -241,7 +242,7 @@ def SR(X, y,
     print("SR task started...")
     rewards, candidates = fit (X, y, run_config,
                                 stop_reward = stop_reward,
-                                stop_after_n_epochs = 5)
+                                stop_after_n_epochs = default_stop_after_n_epochs)
 
     # ------------------------------- RESULTS -------------------------------
 
