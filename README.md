@@ -70,10 +70,16 @@ This should result in all tests being successfully passed (except for program_di
 # Getting started
 
 ### Symbolic regression with default hyperparameters
+Symbolic regression consists in the inference of a free-form symbolic analytical function $f: \mathbb{R}^n \longrightarrow \mathbb{R}$ that fits $y = f(\mathbf{x})$ given $(\mathbf{x}, y)$ data.
+
+```
+expression, logs = physo.SR(X, y)
+```
+
+### Symbolic regression
 [Coming soon] 
 In the meantime you can have a look at our demo folder ! :)
-### Symbolic regression
-[Coming soon]
+
 ### Custom symbolic optimization task
 [Coming soon]
 ### Using custom functions

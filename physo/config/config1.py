@@ -8,8 +8,7 @@ For doing science, it is recommended to tune hyperparameters to the specific pro
 """
 
 """
-Configuration config0 is a faster but less effective configuration adapted from config1 which was tuned on a few 
-astrophysical cases for the paper: arXiv:2303.03192.
+Configuration config1 was tuned on a very few astrophysical cases for the paper: arXiv:2303.03192.
 Better configurations will be added in the future.
 """
 
@@ -26,7 +25,7 @@ reward_config = {
 
 # ---------- LEARNING CONFIG ----------
 # Number of trial expressions to try at each epoch
-BATCH_SIZE = int(1e3)
+BATCH_SIZE = int(1e4)
 # Function returning the torch optimizer given a model
 GET_OPTIMIZER = lambda model : torch.optim.Adam(
                                     model.parameters(),
@@ -54,7 +53,7 @@ free_const_opti_args = {
             'loss'   : "MSE",
             'method' : 'LBFGS',
             'method_args': {
-                        'n_steps' : 15,
+                        'n_steps' : 20,
                         'tol'     : 1e-8,
                         'lbfgs_func_args' : {
                             'max_iter'       : 4,
@@ -86,7 +85,7 @@ cell_config = {
 }
 
 # ---------- RUN CONFIG ----------
-config0 = {
+config1 = {
     "learning_config"      : learning_config,
     "reward_config"        : reward_config,
     "free_const_opti_args" : free_const_opti_args,
