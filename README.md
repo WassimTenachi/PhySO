@@ -93,7 +93,7 @@ expression, logs = physo.SR(X, y,
 It should be noted that SR capabilities of `physo` are heavily dependent on hyperparameters, it is therefore recommended to tune hyperparameters to your own specific problem for doing science.
 Summary of available currently configurations:
 
-<center>
+<div align="center">
 
 |  Config |                           Notes                           |
 |:-------:|:---------------------------------------------------------:|
@@ -101,7 +101,7 @@ Summary of available currently configurations:
 | config1 | Tuned on a few physical cases.                            |
 | config2 | [work in progress] Good starting point for doing science. |
 
-</center>
+</div>
 
 By default, `config0` is used, however it is recommended to use the latest configuration currently available (`config1`) as a starting point for doing science by specifying it:
 
