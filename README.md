@@ -112,16 +112,17 @@ expression, logs = physo.SR(X, y,
 
 `physo.SR` saves monitoring curves, the pareto front (complexity vs accuracy optimums) and the logs.
 It also returns the best fitting expression found during the search which can be inspected in infix notation (eg. in ascii or latex):
+
 ```
 >>> print(expression.get_infix_pretty(do_simplify=True))
   ⎛       2⎞
 m⋅⎝g⋅z + v ⎠
->>> expression.get_infix_latex(do_simplify=True)
+>>> print(expression.get_infix_latex(do_simplify=True))
 'm \\left(g z + v^{2}\\right)'
 ```
 Free constants can be inspected via:
 ```
->>> expression.free_const_values.cpu().detach().numpy()
+>>> print(expression.free_const_values.cpu().detach().numpy())
 array([9.80699996, 1.234     ])
 ```
 `physo.SR` also returns the log of the run from which one can inspect Pareto front expressions:
@@ -158,8 +159,7 @@ RMSE = 1.675142e-07
 -------------
 ```
 
-A script containing this example is given in `demo/demo_quick_sr.py`.
-
+This demo can be found in `demo/demo_quick_sr.ipynb`.
 
 ### Symbolic regression
 [Coming soon] 

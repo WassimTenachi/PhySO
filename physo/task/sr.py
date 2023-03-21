@@ -29,8 +29,8 @@ def SR(X, y,
        X_units = None,
        X_names = None,
        # y
-       y_name  = None,
        y_units = None,
+       y_name  = None,
        # Fixed constants
        fixed_consts = None,
        fixed_consts_units = None,
@@ -49,30 +49,57 @@ def SR(X, y,
        run_visualiser = default_run_visualiser,
        ):
     """
-    Function to run a symbolic regression task using default hyperparameters.
+    Runs a symbolic regression task with default hyperparameters config.
     (Wrapper around physo.task.fit)
+
     Parameters
     ----------
-    X
-    y
-    X_units
-    X_names
-    y_name
-    y_units
-    fixed_consts
-    fixed_consts_units
-    free_consts_units
-    free_consts_names
-    op_names
-    stop_reward
-    epochs
-    run_config
-    run_logger
-    run_visualiser
+
+    X : numpy.array of shape (n_dim, ?,) of float
+        Values of the input variables of the problem with n_dim = nb of input variables.
+    y : numpy.array of shape (?,) of float
+        Values of the target symbolic function to recover when applied on input variables contained in X.
+
+    X_units : array_like of shape (n_dim, n_units) of float or None (optional)
+        Units vector for each input variables (n_units <= 7). By default, assumes dimensionless.
+    X_names : array_like of shape (n_dim,) of str or None (optional)
+        Names of input variables (for display purposes).
+
+    y_units : array_like of shape (n_units) of float or None (optional)
+        Units vector for the root variable (n_units <= 7). By default, assumes dimensionless.
+    y_name : str or None (optional)
+        Name of the root variable (for display purposes).
+
+    fixed_consts : array_like of shape (?,) of float or None (optional)
+        Values of choosable fixed constants. By default, no fixed constants are used.
+    fixed_consts_units : array_like of shape (?, n_units) of float or None (optional)
+        Units vector for each fixed constant (n_units <= 7). By default, assumes dimensionless.
+
+    free_consts_units : array_like of shape (?, n_units) of float or None (optional)
+        Units vector for each free constant (n_units <= 7). By default, assumes dimensionless.
+    free_consts_names : array_like of shape (?,) of str or None (optional)
+        Names of free constants (for display purposes).
+
+    op_names : array_like of shape (?) of str or None (optional)
+        Names of choosable symbolic operations (see physo.physym.functions for a list of available operations).
+        By default, uses operations listed in physo.task.sr.default_op_names.
+
+    stop_reward : float (optional)
+        Early stops if stop_reward is reached by a program (= 1 by default), use stop_reward = (1-1e-5) when using free
+        constants.
+    epochs : int or None (optional)
+        Number of epochs to perform. By default, uses the number in the default config file.
+    run_config : dict (optional)
+        Run configuration (by default uses physo.task.sr.default_config)
+    run_logger : physo.learn.monitoring.RunLogger (optional)
+        Run logger (by default uses physo.task.sr.default_run_logger)
+    run_visualiser : physo.learn.monitoring.RunVisualiser (optional)
+        Run visualiser (by default uses physo.task.sr.default_run_logger)
 
     Returns
     -------
-
+    best_expression, run_logger : physo.physym.program.Program, physo.learn.monitoring.RunLogger
+        Best analytical expression found and run logger.
     """
     # --- DEVICE ---
     DEVICE = 'cpu'
@@ -219,6 +246,6 @@ def SR(X, y,
     # ------------------------------- RESULTS -------------------------------
 
     pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = run_logger.get_pareto_front()
-    best_prog = pareto_front_programs[-1]
+    best_expression = pareto_front_programs[-1]
 
-    return best_prog, run_logger
+    return best_expression, run_logger
