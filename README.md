@@ -16,7 +16,7 @@ The package has been tested on:
 
 Running `physo` on Windows is not recommended.
 
-To install the package it is recommend to first create a conda virtual environment:
+To install the package it is recommended to first create a conda virtual environment:
 ```
 conda create -n PhySO python=3.8
 ```
@@ -95,11 +95,11 @@ Summary of available currently configurations:
 
 <div align="center">
 
-|  Config |                           Notes                           |
-|:-------:|:---------------------------------------------------------:|
-| config0 | Light config for demo purposes.                           |
-| config1 | Tuned on a few physical cases.                            |
-| config2 | [work in progress] Good starting point for doing science. |
+| Configuration |                           Notes                           |
+|:-------------:|:---------------------------------------------------------:|
+|    config0    | Light config for demo purposes.                           |
+|    config1    | Tuned on a few physical cases.                            |
+|    config2    | [work in progress] Good starting point for doing science. |
 
 </div>
 
@@ -148,6 +148,7 @@ array([9.80699996, 1.234     ])
 ```
 `physo.SR` also returns the log of the run from which one can inspect Pareto front expressions:
 ```
+
 for i, prog in enumerate(pareto_front_expressions):
     # Showing expression
     print(prog.get_infix_pretty(do_simplify=True))
@@ -159,7 +160,7 @@ for i, prog in enumerate(pareto_front_expressions):
     print("RMSE = {:e}".format(pareto_front_rmse[i]))
     print("-------------")
 ```
-
+Returning:
 ```
    2
 m⋅v 
