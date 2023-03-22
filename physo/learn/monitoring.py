@@ -625,6 +625,7 @@ class RunVisualiser:
             return fig
         fig = plot_pareto_front(self.run_logger)
         fig.savefig(self.save_path_pareto_fig)
+        plt.close(fig)
 
     def save_pareto_data (self):
         # -------- Save pareto data --------
