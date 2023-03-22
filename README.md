@@ -79,6 +79,8 @@ v = np.random.uniform(-10, 10, 50)
 X = np.stack((z, v), axis=0)
 y = 1.234*9.807*z + 1.234*v**2
 ```
+Where $X=(z,v)$, $z$ being a length of dimension $L^{1}, T^{0}, M^{0}$, v a velocity of dimension $L^{1}, T^{-1}, M^{0}$, $y=E$ if an energy of dimension $L^{2}, T^{-2}, M^{1}$.
+
 Given the units input variables $(x_0,..., x_n)$ (here $(z, v)$ ), the root variable $y$ (here $E$) as well as free and fixed constants, you can run an SR task to recover $f$ via:
 ```
 expression, logs = physo.SR(X, y,
@@ -89,6 +91,7 @@ expression, logs = physo.SR(X, y,
                             free_consts_units  = [ [0, 0, 1] , [1, -2, 0] ],                          
 )
 ```
+(Allowing the use of a fixed constant $1$ of dimension $L^{0}, T^{0}, M^{0}$ (ie dimensionless) and free constants $m$ of dimension $L^{0}, T^{0}, M^{1}$ and $g$ of dimension $L^{1}, T^{-2}, M^{0}$.)
 
 It should be noted that SR capabilities of `physo` are heavily dependent on hyperparameters, it is therefore recommended to tune hyperparameters to your own specific problem for doing science.
 Summary of available currently configurations:
