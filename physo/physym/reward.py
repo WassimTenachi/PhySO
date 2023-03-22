@@ -3,6 +3,9 @@ import warnings
 import numpy as np
 import torch as torch
 
+from tqdm import tqdm
+SHOW_PROGRESS_BAR = False
+
 def SquashedNRMSE (y_target, y_pred,):
     """
     Squashed NRMSE reward.
@@ -31,6 +34,8 @@ def RewardsComputer(programs,
                     zero_out_unphysical = False,
                     zero_out_duplicates = False,
                     keep_lowest_complexity_duplicate = False,
+                    progress_bar = False,
+
                     ):
     """
     Computes rewards of programs on X data accordingly with target y_target and reward reward_function using torch
@@ -62,6 +67,9 @@ def RewardsComputer(programs,
     rewards : numpy.array of shape (?,) of float
         Rewards of programs.
     """
+    pb = lambda x: x
+    if SHOW_PROGRESS_BAR:
+        pb = tqdm
 
     # ----- SETUP -----
 
@@ -71,7 +79,7 @@ def RewardsComputer(programs,
         """
         rewards = []
         # Iterating through batch
-        for i in range(programs.batch_size):
+        for i in pb(range(programs.batch_size)):
             # print("rewarding %i/%i" % (i, programs.batch_size))
             # If valid prog, reward should be computed
             if mask_valid[i]:
@@ -99,7 +107,7 @@ def RewardsComputer(programs,
         Helper function to optimize.py constants of a batch of program where mask_valid is True.
         """
         # Iterating through batch
-        for i in range(programs.batch_size):
+        for i in pb(range(programs.batch_size)):
             #print("%i/%i"%(i, programs.batch_size))
             # print("optimizing free const %i/%i"%(i, programs.batch_size))
             # If this is a valid prog AND it contains free constants then we try to optimize.py its free constants.

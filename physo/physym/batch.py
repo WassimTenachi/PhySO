@@ -428,7 +428,8 @@ class Batch:
         rewards = self.rewards_computer(programs             = self.programs,
                                         X                    = self.dataset.X,
                                         y_target             = self.dataset.y_target,
-                                        free_const_opti_args = self.free_const_opti_args)
+                                        free_const_opti_args = self.free_const_opti_args,
+                                        )
         return rewards
 
 

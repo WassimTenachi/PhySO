@@ -6,6 +6,7 @@ sympy == 1.10.1
 matplotlib == 3.5.1
 numpy
 matplotlib
+tqdm
 pandas
 scikit-learn
 jupyterlab
