@@ -93,8 +93,11 @@ expression, logs = physo.SR(X, y,
 ```
 (Allowing the use of a fixed constant $1$ of dimension $L^{0}, T^{0}, M^{0}$ (ie dimensionless) and free constants $m$ of dimension $L^{0}, T^{0}, M^{1}$ and $g$ of dimension $L^{1}, T^{-2}, M^{0}$.)
 
+It should be noted that free constants search starts around 1. by default.
+Therefore when using default hyperparameters, normalizing the data around an order of magnitude of 1 is strongly recommended.
+
 It should be noted that SR capabilities of `physo` are heavily dependent on hyperparameters, it is therefore recommended to tune hyperparameters to your own specific problem for doing science.
-Summary of available currently configurations:
+Summary of currently available hyperparameters configurations:
 
 <div align="center">
 
