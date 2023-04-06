@@ -97,11 +97,17 @@ class GroupUnitsBehavior(object):
 # group of unit behavior).
 OP_UNIT_BEHAVIORS_DICT = {
     "DEFAULT_BEHAVIOR"          : OpUnitsBehavior(behavior_id = Tok.DEFAULT_BEHAVIOR_ID, op_names = []),
+    # Operations taking two arguments and having an additive behavior: units of both args and of op are the same.
     "BINARY_ADDITIVE_OP"        : OpUnitsBehavior(behavior_id = 1 , op_names = ["add", "sub"]),
+    # Multiplication operation (units of op = units of arg 0 + units of arg 1)
     "MULTIPLICATION_OP"         : OpUnitsBehavior(behavior_id = 20, op_names = ["mul",]),
+    # Division operation (units of op = units of arg 0 - units of arg 1).
     "DIVISION_OP"               : OpUnitsBehavior(behavior_id = 21, op_names = ["div",]),
+    # Power operations taking one argument.
     "UNARY_POWER_OP"            : OpUnitsBehavior(behavior_id = 3 , op_names = ["n2", "sqrt", "n3", "n4", "inv"]),
+    # Operations taking one argument and having an additive behavior: units of arg and parent should be the same).
     "UNARY_ADDITIVE_OP"         : OpUnitsBehavior(behavior_id = 4 , op_names = ["neg", "abs", "max", "min"]),
+    # Dimensionless operations taking one dimensionless argument.
     "UNARY_DIMENSIONLESS_OP"    : OpUnitsBehavior(behavior_id = 5 , op_names = ["sin", "cos", "tan", "exp", "log", "expneg", "logabs", "sigmoid", "tanh", "sinh", "cosh", "harmonic"]),
             }
 # Group of behaviors (tokens can appear in more than one of them)
