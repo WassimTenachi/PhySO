@@ -39,6 +39,8 @@ conda install --file requirements_display1.txt
 pip install -r requirements_display2.txt
 ```
 
+In addition, latex should be installed on the system.
+
 #####  Side note regarding CUDA acceleration:
 
 $\Phi$-SO supports CUDA but it should be noted that since the bottleneck of the code is free constant optimization, using CUDA (even on a very high-end GPU) does not improve performances over a CPU and can actually hinder performances.
