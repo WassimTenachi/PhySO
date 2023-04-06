@@ -76,6 +76,8 @@ Symbolic regression (SR) consists in the inference of a free-form symbolic analy
 
 Given a dataset $(x_0,..., x_n, y)$:
 ```
+import numpy as np
+
 z = np.random.uniform(-10, 10, 50)
 v = np.random.uniform(-10, 10, 50)
 X = np.stack((z, v), axis=0)
@@ -85,6 +87,8 @@ Where $X=(z,v)$, $z$ being a length of dimension $L^{1}, T^{0}, M^{0}$, v a velo
 
 Given the units input variables $(x_0,..., x_n)$ (here $(z, v)$ ), the root variable $y$ (here $E$) as well as free and fixed constants, you can run an SR task to recover $f$ via:
 ```
+import physo
+
 expression, logs = physo.SR(X, y,
                             X_units = [ [1, 0, 0] , [1, -1, 0] ],
                             y_units = [2, -2, 1],
