@@ -235,7 +235,7 @@ In addition, the custom function should be :
 
 4. Protected version (optional)
 
-If your custom function has a protected version ie. a version defined everywhere on $\mathbb{R}$ (eg. using $f(x) = log(abs(x))$ instead of $f(x) = log(x)$) to smooth expression search and avoid undefined rewards, you should also add the protected version in to the list `OPS_PROTECTED` in [functions.py](physo/physym/functions.py) with the similar attributes but with the protected version of the function for the `function` attribute.
+If your custom function has a protected version ie. a version defined everywhere on $\mathbb{R}$ (eg. using $f(x) = log(abs(x))$ instead of $f(x) = log(x)$ ) to smooth expression search and avoid undefined rewards, you should also add the protected version in to the list `OPS_PROTECTED` in [functions.py](physo/physym/functions.py) with the similar attributes but with the protected version of the function for the `function` attribute.
 
 5. Running the functions unit test (optional)
 
