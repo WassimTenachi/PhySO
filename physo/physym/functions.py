@@ -108,7 +108,7 @@ OP_UNIT_BEHAVIORS_DICT = {
     # Operations taking one argument and having an additive behavior: units of arg and parent should be the same).
     "UNARY_ADDITIVE_OP"         : OpUnitsBehavior(behavior_id = 4 , op_names = ["neg", "abs", "max", "min"]),
     # Dimensionless operations taking one dimensionless argument.
-    "UNARY_DIMENSIONLESS_OP"    : OpUnitsBehavior(behavior_id = 5 , op_names = ["sin", "cos", "tan", "exp", "log", "expneg", "logabs", "sigmoid", "tanh", "sinh", "cosh", "harmonic"]),
+    "UNARY_DIMENSIONLESS_OP"    : OpUnitsBehavior(behavior_id = 5 , op_names = ["sin", "cos", "tan", "exp", "log", "expneg", "logabs", "sigmoid", "tanh", "sinh", "cosh", "harmonic", "arctan", "arccos", "arcsin", "erf"]),
             }
 # Group of behaviors (tokens can appear in more than one of them)
 GROUP_UNIT_BEHAVIOR = {
@@ -121,7 +121,7 @@ UNIT_BEHAVIORS_DICT.update(OP_UNIT_BEHAVIORS_DICT)
 UNIT_BEHAVIORS_DICT.update(GROUP_UNIT_BEHAVIOR)
 
 # TRIGONOMETRIC OPS
-TRIGONOMETRIC_OP = ["sin", "cos", "tan", "tanh", "sinh", "cosh"]
+TRIGONOMETRIC_OP = ["sin", "cos", "tan", "tanh", "sinh", "cosh", "arctan", "arccos", "arcsin"]
 
 # INVERSE OP
 INVERSE_OP_DICT = {
@@ -131,6 +131,12 @@ INVERSE_OP_DICT = {
     "log": "exp",
     "sqrt": "n2",
     "n2": "sqrt",
+    "arctan" : "tan",
+    "tan"    : "arctan",
+    "arcsin" : "sin",
+    "sin"    : "arcsin",
+    "arccos" : "cos",
+    "cos"    : "arccos",
                   }
 
 # POWER VALUES OF POWER TOKENS
@@ -180,10 +186,14 @@ def make_common_operations ():
         Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 1 , var_type = 0, function = torch.square     ),
         Token (name = "neg"    , sympy_repr = "-"      , arity = 1 , complexity = 1 , var_type = 0, function = torch.negative   ),
         Token (name = "abs"    , sympy_repr = "abs"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.abs        ),
+        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 1 , var_type = 0, function = torch.reciprocal ),
         Token (name = "tanh"   , sympy_repr = "tanh"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.tanh       ),
         Token (name = "sinh"   , sympy_repr = "sinh"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.sinh       ),
         Token (name = "cosh"   , sympy_repr = "cosh"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.cosh       ),
-        Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 1 , var_type = 0, function = torch.reciprocal ),
+        Token (name = "arctan" , sympy_repr = "arctan" , arity = 1 , complexity = 1 , var_type = 0, function = torch.arctan     ),
+        Token (name = "arccos" , sympy_repr = "arccos" , arity = 1 , complexity = 1 , var_type = 0, function = torch.arccos     ),
+        Token (name = "arcsin" , sympy_repr = "arcsin" , arity = 1 , complexity = 1 , var_type = 0, function = torch.arcsin     ),
+        Token (name = "erf"    , sympy_repr = "erf"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.erf        ),
 
         # Custom unary operations
         Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.log(torch.abs(x)) ),
@@ -231,6 +241,13 @@ def make_common_operations ():
         # with np.errstate(over='ignore'):
         return torch.where(torch.abs(x1) < 1e6, torch.pow(x1, 4), 0.0)
 
+    def protected_arcsin (x1):
+        inf = 1e6
+        return torch.where(torch.abs(x1) < 0.999, torch.arcsin(x1), torch.sign(x1)*inf)
+
+    def protected_arccos (x1):
+        inf = 1e6
+        return torch.where(torch.abs(x1) < 0.999, torch.arccos(x1), torch.sign(x1)*inf)
 
     OPS_PROTECTED = [
         # Binary operations
@@ -241,6 +258,9 @@ def make_common_operations ():
         Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 1 , var_type = 0, function = protected_sqrt   ),
         Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_n2     ),
         Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_inv    ),
+        Token (name = "arccos" , sympy_repr = "arccos" , arity = 1 , complexity = 1 , var_type = 0, function = protected_arccos ),
+        Token (name = "arcsin" , sympy_repr = "arcsin" , arity = 1 , complexity = 1 , var_type = 0, function = protected_arcsin ),
+
         # Custom unary operations
         Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 1 , var_type = 0, function = protected_logabs ),
         Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 1 , var_type = 0, function = protected_expneg ),
