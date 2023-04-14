@@ -108,7 +108,7 @@ OP_UNIT_BEHAVIORS_DICT = {
     # Operations taking one argument and having an additive behavior: units of arg and parent should be the same).
     "UNARY_ADDITIVE_OP"         : OpUnitsBehavior(behavior_id = 4 , op_names = ["neg", "abs", "max", "min"]),
     # Dimensionless operations taking one dimensionless argument.
-    "UNARY_DIMENSIONLESS_OP"    : OpUnitsBehavior(behavior_id = 5 , op_names = ["sin", "cos", "tan", "exp", "log", "expneg", "logabs", "sigmoid", "tanh", "sinh", "cosh", "harmonic", "arctan", "arccos", "arcsin", "erf"]),
+    "UNARY_DIMENSIONLESS_OP"    : OpUnitsBehavior(behavior_id = 5 , op_names = ["sin", "cos", "tan", "exp", "log", "expneg", "logabs", "sigmoid", "tanh", "sinh", "cosh", "harmonic", "arctan", "arccos", "arcsin", "erf", "pow"]),
             }
 # Group of behaviors (tokens can appear in more than one of them)
 GROUP_UNIT_BEHAVIOR = {
@@ -169,6 +169,10 @@ def data_conversion_inv(data):
 def make_common_operations ():
 
     # ------------- unprotected functions -------------
+    def torch_pow(x0, x1):
+        if not torch.is_tensor(x0):
+            x0 = torch.ones_like(x1) * x0
+        return torch.pow(x0, x1)
 
     OPS_UNPROTECTED = [
         #  Binary operations
@@ -200,6 +204,9 @@ def make_common_operations ():
         Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.exp(-x)           ),
         Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.pow(x, 3)         ),
         Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.pow(x, 4)         ),
+
+        # Custom binary operations
+        Token (name = "pow"     , sympy_repr = "pow"   , arity = 2 , complexity = 1 , var_type = 0, function = torch_pow                         ),
     ]
 
     # ------------- protected functions -------------
@@ -249,6 +256,14 @@ def make_common_operations ():
         inf = 1e6
         return torch.where(torch.abs(x1) < 0.999, torch.arccos(x1), torch.sign(x1)*inf)
 
+    def protected_torch_pow(x0, x1):
+        inf = 1e6
+        if not torch.is_tensor(x0):
+           x0 = torch.ones_like(x1)*x0
+        y = torch.pow(x0, x1)
+        y = torch.where(y > inf, inf, y)
+        return y
+
     OPS_PROTECTED = [
         # Binary operations
         Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 1 , var_type = 0, function = protected_div    ),
@@ -266,6 +281,10 @@ def make_common_operations ():
         Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 1 , var_type = 0, function = protected_expneg ),
         Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_n3     ),
         Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_n4     ),
+
+        # Custom binary operations
+        Token (name = "pow"     , sympy_repr = "pow"   , arity = 2 , complexity = 1 , var_type = 0, function = protected_torch_pow   ),
+
     ]
 
     # ------------- encoding additional attributes (for units analysis) -------------
