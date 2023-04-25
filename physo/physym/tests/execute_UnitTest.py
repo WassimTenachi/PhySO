@@ -56,13 +56,20 @@ class ExecuteProgramTest(unittest.TestCase):
         # EXPECTED RES
         expected_res     = M*(c**2)*(1./torch.sqrt(1.-(v**2)/(c**2))-torch.cos((1.-(v/c))/((x/t)/c)))
 
+        N = 100
         # EXECUTION
         t0 = time.perf_counter()
-        N = 100
         for _ in range (N):
             res = Exec.ExecuteProgram(input_var_data = data, program_tokens = test_program, )
         t1 = time.perf_counter()
         print("\nExecuteProgram time = %.3f ms"%((t1-t0)*1e3/N))
+
+        # EXECUTION (wo tokens)
+        t0 = time.perf_counter()
+        for _ in range (N):
+            expected_res     = M*(c**2)*(1./torch.sqrt(1.-(v**2)/(c**2))-torch.cos((1.-(v/c))/((x/t)/c)))
+        t1 = time.perf_counter()
+        print("\nExecuteProgram time (wo tokens) = %.3f ms"%((t1-t0)*1e3/N))
 
         # TEST
         works_bool = np.array_equal(data_conversion_inv(res.cpu()), data_conversion_inv(expected_res.cpu()),)
@@ -124,13 +131,20 @@ class ExecuteProgramTest(unittest.TestCase):
         # EXPECTED RES
         expected_res     = M*(c**2)*(1./torch.sqrt(1.-(v**2)/(c**2))-torch.cos((1.-(v/c))/((x/t)/c)))
 
+        N = 100
         # EXECUTION
         t0 = time.perf_counter()
-        N = 100
         for _ in range (N):
             res = Exec.ExecuteProgram(input_var_data = data, free_const_values = free_const_values, program_tokens = test_program, )
         t1 = time.perf_counter()
         print("\nExecuteProgram time = %.3f ms"%((t1-t0)*1e3/N))
+
+        # EXECUTION (wo tokens)
+        t0 = time.perf_counter()
+        for _ in range (N):
+            expected_res     = M*(c**2)*(1./torch.sqrt(1.-(v**2)/(c**2))-torch.cos((1.-(v/c))/((x/t)/c)))
+        t1 = time.perf_counter()
+        print("\nExecuteProgram time (wo tokens) = %.3f ms"%((t1-t0)*1e3/N))
 
         # TEST
         works_bool = np.array_equal(data_conversion_inv(res.cpu()), data_conversion_inv(expected_res.cpu()),)
