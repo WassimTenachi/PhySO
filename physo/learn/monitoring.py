@@ -337,8 +337,8 @@ class RunVisualiser:
         n_plot = 100
         stack = []
         for x_dim in batch.dataset.X:
-            x_dim_min = x.min().detach().cpu().numpy()
-            x_dim_max = x.max().detach().cpu().numpy()
+            x_dim_min = x_dim.min().detach().cpu().numpy()
+            x_dim_max = x_dim.max().detach().cpu().numpy()
             x_dim_plot = torch.tensor(np.linspace(x_dim_min-x_expand, x_dim_max+x_expand, n_plot))
             stack.append(x_dim_plot)
         X_plot = torch.stack(stack).to(batch.dataset.detected_device)
