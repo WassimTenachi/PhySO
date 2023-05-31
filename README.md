@@ -24,6 +24,17 @@ And activate it:
 ```
 conda activate PhySO
 ```
+### Downloading
+
+`physo` can be downloaded using git:
+```
+git clone https://github.com/WassimTenachi/PhySO
+```
+Or by direct downloading a zip of the repo:
+```
+https://github.com/WassimTenachi/PhySO/zipball/master
+```
+
 ### Dependencies
 From the repository root:
 
