@@ -9,6 +9,6 @@ pandas
 scikit-learn
 jupyterlab
 pip
-# matplotlib 3.7.1 is unable to produce curves plots on google colab (works fine on linux and mac though)
+# matplotlib 3.7.0 and 3.7.1 is unable to produce curves plots on google colab (works fine on linux and mac though)
 # matplotlib
 matplotlib == 3.5.1
