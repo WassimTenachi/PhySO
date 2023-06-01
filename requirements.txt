@@ -3,12 +3,10 @@
 
 pytorch >= 1.11.0
 sympy == 1.10.1
+matplotlib
 numpy
 tqdm
 pandas
 scikit-learn
 jupyterlab
 pip
-# matplotlib 3.7.0 and 3.7.1 is unable to produce curves plots on google colab (works fine on linux and mac though)
-# matplotlib
-matplotlib == 3.5.1
