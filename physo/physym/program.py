@@ -2087,7 +2087,7 @@ class VectPrograms:
         tokens = self.library.lib_tokens [idx]
         return tokens
 
-    def get_prog(self, prog_idx=0):
+    def get_prog(self, prog_idx=0, skeleton = False):
         """
         Returns a Program object of program of idx = prog_idx in batch.
         Discards void tokens beyond program length.
@@ -2095,21 +2095,34 @@ class VectPrograms:
         ----------
         prog_idx : int
             Index of program in batch.
+        skeleton : bool
+            Only exports the bare minimum for execution purposes only.
         Returns
         -------
         program : program.Program
             Program making up symbolic function.
         """
-        tokens = self.get_prog_tokens(prog_idx=prog_idx)
+
+        tokens = self.get_prog_tokens(prog_idx = prog_idx)
         is_physical              = self.is_physical        [prog_idx]
         free_const_values        = self.free_consts.values [prog_idx]
+        lib     = self.library
+        wrapper = self.candidate_wrapper
+
+        if skeleton:
+            lib         = None
+            is_physical = None
+
+        # Export
         prog = Program(tokens            = tokens,
-                       library           = self.library,
+                       library           = lib,
                        is_physical       = is_physical,
                        free_const_values = free_const_values,
-                       candidate_wrapper = self.candidate_wrapper,
+                       candidate_wrapper = wrapper,
                        )
         return prog
+
+
 
     def get_programs_array (self):
         """
