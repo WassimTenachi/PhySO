@@ -226,7 +226,9 @@ class RunVisualiser:
                   save_path = None,
                   do_show   = True,
                   do_prints = True,
-                  do_save   = False):
+                  do_save   = False,
+                  draw_all_progs_fit = True
+                  ):
         self.epoch_refresh_rate        = epoch_refresh_rate
         self.epoch_refresh_rate_prints = epoch_refresh_rate_prints
         self.figsize   = (40,18)
@@ -238,6 +240,7 @@ class RunVisualiser:
         self.do_show   = do_show
         self.do_save   = do_save
         self.do_prints = do_prints
+        self.draw_all_progs_fit = draw_all_progs_fit
 
     def initialize (self):
         self.fig = plt.figure(figsize=self.figsize)
@@ -377,13 +380,14 @@ class RunVisualiser:
                 unable_to_draw_a_prog = True
 
         # Other programs
-        for prog in run_logger.programs_epoch[run_logger.notkept]:
-            try:
-                y_plot =  prog(X_plot).detach().cpu().numpy()
-                if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
-                curr_ax.plot(x_plot_cpu, y_plot, color='b', alpha=0.05, linestyle='solid')
-            except:
-                unable_to_draw_a_prog = True
+        if self.draw_all_progs_fit:
+            for prog in run_logger.programs_epoch[run_logger.notkept]:
+                try:
+                    y_plot =  prog(X_plot).detach().cpu().numpy()
+                    if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
+                    curr_ax.plot(x_plot_cpu, y_plot, color='b', alpha=0.05, linestyle='solid')
+                except:
+                    unable_to_draw_a_prog = True
 
         if unable_to_draw_a_prog:
             print("Unable to draw one or more prog curve on monitoring plot.")
