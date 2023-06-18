@@ -354,21 +354,15 @@ class RunVisualiser:
         # ------- Prog drawing -------
         unable_to_draw_a_prog = False
 
-        # Best overall program
-        try:
-            y_plot = run_logger.best_prog(X_plot).detach().cpu().numpy()
-            if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
-            curr_ax.plot(x_plot_cpu, y_plot, color='k', linestyle='solid', linewidth=2)
-        except:
-            unable_to_draw_a_prog = True
-
-        # Best program of epoch
-        try:
-            y_plot = run_logger.best_prog_epoch(X_plot).detach().cpu().numpy()
-            if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
-            curr_ax.plot(x_plot_cpu, y_plot, color='orange', linestyle='solid', linewidth=2)
-        except:
-            unable_to_draw_a_prog = True
+        # Other programs
+        if self.draw_all_progs_fit:
+            for prog in run_logger.programs_epoch[run_logger.notkept]:
+                try:
+                    y_plot =  prog(X_plot).detach().cpu().numpy()
+                    if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
+                    curr_ax.plot(x_plot_cpu, y_plot, color='b', alpha=0.05, linestyle='solid')
+                except:
+                    unable_to_draw_a_prog = True
 
         # Train programs
         for prog in run_logger.programs_epoch[run_logger.keep]:
@@ -379,15 +373,21 @@ class RunVisualiser:
             except:
                 unable_to_draw_a_prog = True
 
-        # Other programs
-        if self.draw_all_progs_fit:
-            for prog in run_logger.programs_epoch[run_logger.notkept]:
-                try:
-                    y_plot =  prog(X_plot).detach().cpu().numpy()
-                    if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
-                    curr_ax.plot(x_plot_cpu, y_plot, color='b', alpha=0.05, linestyle='solid')
-                except:
-                    unable_to_draw_a_prog = True
+        # Best program of epoch
+        try:
+            y_plot = run_logger.best_prog_epoch(X_plot).detach().cpu().numpy()
+            if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
+            curr_ax.plot(x_plot_cpu, y_plot, color='orange', linestyle='solid', linewidth=2)
+        except:
+            unable_to_draw_a_prog = True
+            
+        # Best overall program
+        try:
+            y_plot = run_logger.best_prog(X_plot).detach().cpu().numpy()
+            if y_plot.shape == (): y_plot = np.full(n_plot, y_plot)
+            curr_ax.plot(x_plot_cpu, y_plot, color='k', linestyle='solid', linewidth=2)
+        except:
+            unable_to_draw_a_prog = True
 
         if unable_to_draw_a_prog:
             print("Unable to draw one or more prog curve on monitoring plot.")
