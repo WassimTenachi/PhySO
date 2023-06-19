@@ -380,7 +380,7 @@ class RunVisualiser:
             curr_ax.plot(x_plot_cpu, y_plot, color='orange', linestyle='solid', linewidth=2)
         except:
             unable_to_draw_a_prog = True
-            
+
         # Best overall program
         try:
             y_plot = run_logger.best_prog(X_plot).detach().cpu().numpy()
