@@ -169,7 +169,7 @@ class FreeConstUtilsTest(unittest.TestCase):
         works_bool = (np.abs(ideal_const_array0 - obs_const0) < exp_tol).all()
         self.assertEqual(works_bool, True)
 
-        # testing that constants are recovered in FreeConstantsTable
+        # testing that constants are recovered in FreeConstantsTable (the first one does not matter)
         obs_const1   = data_conversion_inv(my_programs.free_consts.values[1])
         works_bool = (np.abs(ideal_const_array1[1:] - obs_const1[1:]) < exp_tol).all()
         self.assertEqual(works_bool, True)
