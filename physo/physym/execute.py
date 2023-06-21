@@ -172,7 +172,8 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
     # ----- Parallel mode -----
     if parallel_mode:
         # Opening a pull of processes
-        pool = mp.get_context("fork").Pool(processes=n_cpus)
+        # pool = mp.get_context("fork").Pool(processes=n_cpus)
+        pool = mp.Pool(processes=n_cpus)
         results = []
         for i in range(progs.batch_size):
             # Computing y = prog(X) where mask is True
@@ -245,7 +246,8 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
     # Parallel mode
     if parallel_mode:
         # Opening a pull of processes
-        pool = mp.get_context("fork").Pool(processes=n_cpus)
+        # pool = mp.get_context("fork").Pool(processes=n_cpus)
+        pool = mp.Pool(processes=n_cpus)
         for i in range(progs.batch_size):
             # Optimizing free constants of programs where mask is True
             if mask[i]:
