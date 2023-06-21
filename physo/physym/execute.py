@@ -2,6 +2,8 @@ import warnings
 
 import numpy as np
 import torch as torch
+import torch.multiprocessing as mp
+
 
 def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
     """
@@ -65,7 +67,6 @@ def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
     y = curr_stack[0]
     return y
 
-
 def ComputeInfixNotation (program_tokens):
     """
     Computes infix str representation of a program.
@@ -112,3 +113,156 @@ def ComputeInfixNotation (program_tokens):
         curr_stack.append(res)
     return curr_stack[0]
 
+
+def ParallelExeAvailability(verbose=False):
+    """
+    Checks if parallel run is available on this system.
+    Parameters
+    ----------
+    verbose : bool
+        Prints log.
+    Returns
+    -------
+    is_parallel_exe_available : bool
+    """
+    if verbose:
+        print("default get_start_method", mp.get_start_method())
+    is_parallel_exe_available = True
+    print("Is parallel execution available:", is_parallel_exe_available)
+    return is_parallel_exe_available
+
+
+
+# Utils pickable function (non nested definition) executing a program (for parallelization purposes)
+def task_exe(prog, X):
+    res = prog(X)
+    return res
+
+def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
+    """
+    Executes prog(X) for each prog in progs and returns the results.
+    NB: Parallel execution is typically slower because of communication time (parallel_mode = False is recommended).
+    Parameters
+    ----------
+    progs : program.VectPrograms
+        Programs in the batch.
+    X : torch.tensor of shape (n_dim, ?,) of float
+        Values of the input variables of the problem with n_dim = nb of input variables.
+    mask : array_like of shape (progs.batch_size) of bool
+        Only programs where mask is True are executed. By default, all programs are executed.
+    n_cpus : int
+        Number of CPUs to use when running in parallel mode.
+    parallel_mode : bool
+        Parallel execution if True, execution in a loop else.
+    Returns
+    -------
+    y_batch : torch.tensor of shape (progs.batch_size, ?,) of float
+        Returns result of execution for each program in progs. Returns NaNs for executed programs thar are not executed
+        (where mask is False).
+    """
+    # mask : should program be executed ?
+    # By default, all programs of batch are executed
+    # ? = mask.sum() # Number of programs to execute
+    if mask is None:
+        mask = np.full(shape=(progs.batch_size), fill_value=True)                           # (batch_size)
+
+    # Number of data point per dimension
+    n_samples = X.shape[1]
+
+    # ----- Parallel mode -----
+    if parallel_mode:
+        # Opening a pull of processes
+        pool = mp.get_context("fork").Pool(processes=n_cpus)
+        results = []
+        for i in range(progs.batch_size):
+            # Computing y = prog(X) where mask is True
+            if mask[i]:
+                # Getting minimum executable skeleton pickable program
+                prog = progs.get_prog(i, skeleton=True)
+                result = pool.apply_async(task_exe, args=(prog, X,))
+                results.append(result)
+
+        # Waiting for all tasks to complete and collecting the results
+        results = [result.get() for result in results]
+
+        # Closing the pool of processes
+        pool.close()
+        pool.join()
+
+    # ----- Non parallel mode -----
+    else:
+        results = []
+        for i in range (progs.batch_size):
+            # Computing y = prog(X) where mask is True
+            if mask[i]:
+                prog = progs.get_prog(i, skeleton=True)
+                result = task_exe(prog, X)                                                 # (n_samples,)
+                results.append(result)
+
+    # ----- Results -----
+    # Stacking results
+    results = torch.stack(results)                                                         # (?, n_samples)
+    # Batch of evaluation results
+    y_batch = torch.full((progs.batch_size, n_samples), torch.nan, dtype=results.dtype)    # (batch_size, n_samples)
+    # Updating y_batch with results
+    y_batch[mask] = results                                                                # (?, n_samples)
+
+    return y_batch
+
+# Utils pickable function (non nested definition) optimizing the free consts of a program (for parallelization purposes)
+def task_free_const_opti(prog, X, y_target, free_const_opti_args):
+    history = prog.optimize_constants(X=X, y_target=y_target, args_opti=free_const_opti_args)
+    return None
+
+def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n_cpus = 1, parallel_mode = True):
+    """
+    Executes prog(X) for each prog in progs and returns the results.
+    NB: Parallel execution is typically faster.
+    Parameters
+    ----------
+    progs : program.VectPrograms
+        Programs in the batch.
+    X : torch.tensor of shape (n_dim, ?,) of float
+        Values of the input variables of the problem with n_dim = nb of input variables.
+    y_target : torch.tensor of shape (?,) of float
+        Values of target output.
+    args_opti : dict or None, optional
+        Arguments to pass to free_const.optimize_free_const. By default, free_const.DEFAULT_OPTI_ARGS
+        arguments are used.
+    mask : array_like of shape (progs.batch_size) of bool
+        Only programs' constants where mask is True are optimized. By default, all programs' constants are opitmized.
+    n_cpus : int
+        Number of CPUs to use when running in parallel mode.
+    parallel_mode : bool
+        Parallel execution if True, execution in a loop else.
+    """
+    # mask : should program be executed ?
+    # By default, all programs of batch are executed
+    # ? = mask.sum() # Number of programs to execute
+    if mask is None:
+        mask = np.full(shape=(progs.batch_size), fill_value=True)                           # (batch_size)
+
+    # Parallel mode
+    if parallel_mode:
+        # Opening a pull of processes
+        pool = mp.get_context("fork").Pool(processes=n_cpus)
+        for i in range(progs.batch_size):
+            # Optimizing free constants of programs where mask is True
+            if mask[i]:
+                # Getting minimum executable skeleton pickable program
+                prog = progs.get_prog(i, skeleton=True)
+                pool.apply_async(task_free_const_opti, args=(prog, X, y_target, free_const_opti_args))
+        # Closing the pool of processes
+        pool.close()
+        pool.join()
+
+    # Non parallel mode
+    else:
+        for i in range (progs.batch_size):
+            # Optimizing free constants of programs where mask is True
+            if mask[i]:
+                # Getting minimum executable skeleton pickable program
+                prog = progs.get_prog(i, skeleton=True)
+                task_free_const_opti(prog, X = X, y_target = y_target, free_const_opti_args = free_const_opti_args)
+
+    return None
