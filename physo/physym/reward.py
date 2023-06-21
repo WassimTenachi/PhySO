@@ -119,8 +119,9 @@ def RewardsComputer(programs,
                     # Optimizing free constants
                     history = prog.optimize_constants(X, y_target, args_opti=args_opti)
                     # Logging free constant optimization process
-                    programs.free_consts.is_opti    [i] = True
-                    programs.free_consts.opti_steps [i] = len(history)
+                    # Responsibility transferred to prog.optimize_constants
+                    # programs.free_consts.is_opti    [i] = True
+                    # programs.free_consts.opti_steps [i] = len(history)
                 except:
                     # Safety
                     warnings.warn("Unable to optimize.py free constants of prog %i -> r = 0"%(i))

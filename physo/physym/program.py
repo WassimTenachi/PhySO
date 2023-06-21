@@ -278,6 +278,11 @@ class Program:
                                                        params   = self.free_const_values,
                                                        y_target = y_target,
                                                        **args_opti)
+
+        # Logging optimization process
+        self.is_opti    [0] = True
+        self.opti_steps [0] = len(history)  # Number of iterations it took to optimize the constants
+
         return history
 
     def __call__(self, X):
