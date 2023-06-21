@@ -25,6 +25,9 @@ from physo.physym import execute as Exec
 from physo.physym import dimensional_analysis as phy
 from physo.physym import free_const
 
+# Pickable default identity wrapper
+def DEFAULT_WRAPPER (func, X):
+        return func(X)
 
 class Cursor:
     """
@@ -187,11 +190,15 @@ class Program:
         Is program physical (units-wize) ?
     free_const_values : array_like of float or None
         Values of free constants for each constant in the library.
+    is_opti : numpy.array of shape (1,) of bool or None
+        Is set of free constant optimized ? Use is_opti[0] to access the value.
+    opti_steps : numpy.array of shape (1,) of int or None
+        Number of iterations necessary to optimize the set of free constants. Use opti_steps[0] to access the value.
     candidate_wrapper : callable
         Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
         a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
     """
-    def __init__(self, tokens, library, is_physical=None, free_const_values=None, candidate_wrapper = lambda func, X : func(X)):
+    def __init__(self, tokens, library, is_physical = None, free_const_values = None, is_opti = None, opti_steps = None, candidate_wrapper = None):
         """
         Parameters
         ----------
@@ -207,11 +214,16 @@ class Program:
         self.is_physical  = is_physical
 
         if candidate_wrapper is None:
-            candidate_wrapper = lambda f,x: f(x)
+            candidate_wrapper = DEFAULT_WRAPPER
         self.candidate_wrapper = candidate_wrapper
 
-        # free const related
-        self.free_const_values = free_const_values
+        # ----- free const related -----
+        # Values
+        self.free_const_values = free_const_values                                                  # (?,)
+        # Using an array of shape (1,) (ie. reference) in order to affect the underlying values in the
+        # FreeConstantsTable object.
+        self.is_opti           = is_opti                                                            # (1,)
+        self.opti_steps        = opti_steps                                                         # (1,)
 
     def execute_wo_wrapper(self, X):
         """
@@ -262,7 +274,7 @@ class Program:
             args_opti = free_const.DEFAULT_OPTI_ARGS
         func_params = lambda params: self.__call__(X)
 
-        history = free_const.optimize_free_const ( func     = func_params,
+        history = free_const.optimize_free_const (     func     = func_params,
                                                        params   = self.free_const_values,
                                                        y_target = y_target,
                                                        **args_opti)
@@ -672,7 +684,7 @@ class VectPrograms:
         # ---------------------------- EXECUTION RELATED ----------------------------
         # Wrapper to apply to candidate programs when executing
         if candidate_wrapper is None:
-            candidate_wrapper = lambda func, X : func(X)
+            candidate_wrapper = DEFAULT_WRAPPER
         self.candidate_wrapper = candidate_wrapper
 
         return None
@@ -2096,7 +2108,7 @@ class VectPrograms:
         prog_idx : int
             Index of program in batch.
         skeleton : bool
-            Only exports the bare minimum for execution purposes only.
+            Only exports the bare minimum pickable version of the program for parallel execution purposes.
         Returns
         -------
         program : program.Program
@@ -2104,8 +2116,15 @@ class VectPrograms:
         """
 
         tokens = self.get_prog_tokens(prog_idx = prog_idx)
-        is_physical              = self.is_physical        [prog_idx]
-        free_const_values        = self.free_consts.values [prog_idx]
+        is_physical              = self.is_physical         [prog_idx]
+
+        # --- Free constant related ---
+        free_const_values        = self.free_consts.values  [prog_idx]                          # (n_free_const,)
+        # Using an array of shape (1,) (ie. reference) in order to affect the underlying values in the
+        # FreeConstantsTable object.
+        is_opti                  = self.free_consts.is_opti    [prog_idx, np.newaxis]           # (1,)
+        opti_steps               = self.free_consts.opti_steps [prog_idx, np.newaxis]           # (1,)
+
         lib     = self.library
         wrapper = self.candidate_wrapper
 
@@ -2117,7 +2136,12 @@ class VectPrograms:
         prog = Program(tokens            = tokens,
                        library           = lib,
                        is_physical       = is_physical,
+
+                       # Free constant related
                        free_const_values = free_const_values,
+                       is_opti           = is_opti,
+                       opti_steps        = opti_steps,
+
                        candidate_wrapper = wrapper,
                        )
         return prog
