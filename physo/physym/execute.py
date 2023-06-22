@@ -284,7 +284,7 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, n_cpus = 
 
     # ----- Results -----
     # Stacking results
-    results = torch.tensor(results)                                                         # (?,)
+    results = torch.tensor(results)                                                        # (?,)
     # Batch of evaluation results
     res = torch.full((progs.batch_size,), torch.nan, dtype=results.dtype)                  # (batch_size,)
     # Updating res with results
