@@ -147,7 +147,7 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
     ----------
     progs : program.VectPrograms
         Programs in the batch.
-    X : torch.tensor of shape (n_dim, ?,) of float
+    X : torch.tensor of shape (n_dim, n_samples,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
     mask : array_like of shape (progs.batch_size) of bool
         Only programs where mask is True are executed. By default, all programs are executed.
@@ -157,8 +157,8 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
         Parallel execution if True, execution in a loop else.
     Returns
     -------
-    y_batch : torch.tensor of shape (progs.batch_size, ?,) of float
-        Returns result of execution for each program in progs. Returns NaNs for executed programs thar are not executed
+    y_batch : torch.tensor of shape (progs.batch_size, n_samples,) of float
+        Returns result of execution for each program in progs. Returns NaNs for programs that are not executed
         (where mask is False).
     """
     # mask : should program be executed ?
@@ -210,6 +210,83 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
     y_batch[mask] = results                                                                # (?, n_samples)
 
     return y_batch
+
+# Utils pickable function (non nested definition) executing a program (for parallelization purposes)
+def task_exe_wrapper_scalar(prog, X, wrapper_scalar):
+    res = wrapper_scalar(prog(X))
+    return res
+
+def BatchExecutionScalarGather (progs, X, wrapper_scalar, mask = None, n_cpus = 1, parallel_mode = False):
+    """
+    Executes prog(X) for each prog in progs and gathers wrapper_scalar(prog(X)) as a result.
+    NB: Parallel execution is typically faster because of communication time is lower when just gathering a scalar.
+    Parameters
+    ----------
+    progs : program.VectPrograms
+        Programs in the batch.
+    X : torch.tensor of shape (n_dim, n_samples,) of float
+        Values of the input variables of the problem with n_dim = nb of input variables.
+    wrapper_scalar : callable
+        Function returning a single scalar float number when applied on prog(X). The function must be pickable
+        (defined explicitly at the highest level when using parallel_mode).
+    mask : array_like of shape (progs.batch_size) of bool
+        Only programs where mask is True are executed. By default, all programs are executed.
+    n_cpus : int
+        Number of CPUs to use when running in parallel mode.
+    parallel_mode : bool
+        Parallel execution if True, execution in a loop else.
+    Returns
+    -------
+    results : torch.tensor of shape (progs.batch_size,) of float
+        Returns wrapper_scalar(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
+        (where mask is False).
+    """
+    # mask : should program be executed ?
+    # By default, all programs of batch are executed
+    # ? = mask.sum() # Number of programs to execute
+    if mask is None:
+        mask = np.full(shape=(progs.batch_size), fill_value=True)                           # (batch_size)
+
+    # ----- Parallel mode -----
+    if parallel_mode:
+        # Opening a pull of processes
+        # pool = mp.get_context("fork").Pool(processes=n_cpus)
+        pool = mp.Pool(processes=n_cpus)
+        results = []
+        for i in range(progs.batch_size):
+            # Computing y = prog(X) where mask is True
+            if mask[i]:
+                # Getting minimum executable skeleton pickable program
+                prog = progs.get_prog(i, skeleton=True)
+                result = pool.apply_async(task_exe_wrapper_scalar, args=(prog, X, wrapper_scalar))
+                results.append(result)
+
+        # Waiting for all tasks to complete and collecting the results
+        results = [result.get() for result in results]
+
+        # Closing the pool of processes
+        pool.close()
+        pool.join()
+
+    # ----- Non parallel mode -----
+    else:
+        results = []
+        for i in range (progs.batch_size):
+            # Computing y = prog(X) where mask is True
+            if mask[i]:
+                prog = progs.get_prog(i, skeleton=True)
+                result = task_exe_wrapper_scalar(prog, X, wrapper_scalar)                 # float
+                results.append(result)
+
+    # ----- Results -----
+    # Stacking results
+    results = torch.stack(results)                                                         # (?,)
+    # Batch of evaluation results
+    res = torch.full((progs.batch_size,), torch.nan, dtype=results.dtype)                  # (batch_size,)
+    # Updating res with results
+    res[mask] = results                                                                    # (?,)
+
+    return res
 
 # Utils pickable function (non nested definition) optimizing the free consts of a program (for parallelization purposes)
 def task_free_const_opti(prog, X, y_target, free_const_opti_args):

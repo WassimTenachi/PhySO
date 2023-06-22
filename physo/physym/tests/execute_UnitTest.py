@@ -26,6 +26,10 @@ def get_ncpus(max_ncpus):
     results = [max_ncpus,] + results
     return np.array(results)
 
+# Pickable test function for BatchExecutionWrapperScalar
+def TEST_WRAPPER_SCALAR(y):
+    return y.mean()
+
 class ExecuteProgramTest(unittest.TestCase):
 
     # Test program execution on a complicated function
@@ -310,6 +314,112 @@ class ExecuteProgramTest(unittest.TestCase):
         # ax.set_ylabel("time [ms]")
         # ax.legend()
         # plt.show()
+
+        return None
+
+    # Test parallelized execution + gathering of scalars
+    def test_ParallelizedExeWrapperScalar (self):
+
+        DEVICE = 'cpu'
+        if torch.cuda.is_available():
+            DEVICE = 'cuda'
+
+        # LIBRARY CONFIG
+        args_make_tokens = {
+                        # operations
+                        "op_names"             : "all",  # or ["mul", "neg", "inv", "sin"]
+                        "use_protected_ops"    : True,
+                        # input variables
+                        "input_var_ids"        : {"x" : 0         },
+                        "input_var_units"      : {"x" : [0, 0, 0] },
+                        "input_var_complexity" : {"x" : 0.        },
+                        # constants
+                        "constants"            : {"pi" : np.pi     , "const1" : 1         },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "const1" : [0, 0, 0] },
+                        "constants_complexity" : {"pi" : 0.        , "const1" : 1.        },
+                        # free constants
+                        "free_constants"            : {"a"             , "b"              },
+                        "free_constants_init_val"   : {"a" : 1.        , "b"  : 1.        },
+                        "free_constants_units"      : {"a" : [0, 0, 0] , "b"  : [0, 0, 0] },
+                        "free_constants_complexity" : {"a" : 0.        , "b"  : 0.        },
+                           }
+        my_lib = Lib.Library(args_make_tokens = args_make_tokens,
+                             superparent_units = [0, 0, 0], superparent_name = "y")
+
+        # TEST PROGRAM
+        batch_size = 10000
+        test_program_str = ["mul", "a", "sin", "mul", "x", "b"]
+        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_length = len(test_program_str)
+        test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
+
+        # BATCH
+        my_programs = Prog.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs.set_programs(test_program_idx)
+
+        # TEST DATA
+        ideal_params = [1.14, 0.936] # Mock target free constants
+        n_params = len(ideal_params)
+        x = torch.tensor(np.linspace(-10, 10, 1000))
+        # Sending dataset to device te simulate a real environment
+        X = torch.stack((x,), axis=0).to(DEVICE)
+        y_target  = ideal_params[0]*torch.sin(ideal_params[1]*x).to(DEVICE)
+
+        # MASK: WHICH PROGRAM SHOULD BE EXECUTED
+        # Simulating an evenly spread 90% load task
+        mask = np.random.rand(batch_size) < 0.9
+
+        # Function to run the hyper-task once with a given config
+        def run (parallel=True, n_cpus=1):
+            # Run tasks
+            t0 = time.perf_counter()
+            results = Exec.BatchExecutionScalarGather(progs=my_programs,
+                                                      X = X,
+                                                      wrapper_scalar = TEST_WRAPPER_SCALAR,
+                                                      mask = mask,
+                                                      parallel_mode = parallel,
+                                                      n_cpus = n_cpus)
+            t1 = time.perf_counter()
+            task_time = (t1 - t0) * 1e3 / mask.sum()
+            #torch.set_printoptions(threshold=100)
+            #print(results)
+            return task_time
+
+        is_parallel_exe_available = Exec.ParallelExeAvailability(verbose=True)
+
+        # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
+
+        print("\nParallelized execution test:")
+
+        max_ncpus = mp.cpu_count()
+        print("Total nb. of CPUs: ", max_ncpus)
+
+        # Getting computation times as a function of the number of CPUs
+        times = []
+        ncpus_list = get_ncpus(max_ncpus)
+        print("Testing nb. of CPUs = ", ncpus_list)
+        for ncpus in ncpus_list:
+            print("n cpu =", ncpus)
+            task_time = run(parallel=True, n_cpus=ncpus)
+            # task_time = np.exp(-ncpus) # fast mock plot
+            print("-> %f ms per task"%(task_time))
+            times.append(task_time)
+        times = np.array(times)
+
+        # Getting computation times when running in a non-parallelized loop
+        print("Not parallelized")
+        not_parallelized_time = run(parallel=False)
+        print("-> %f ms per task" % (not_parallelized_time))
+
+        # Plot
+        fig,ax = plt.subplots(1,1)
+        fig.suptitle("Efficiency curve: execution and scalar gathering")
+        ax.plot(ncpus_list, times, 'ko')
+        ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
+        ax.set_xlabel("Nb. of CPUs")
+        ax.set_ylabel("time [ms]")
+        ax.legend()
+        plt.show()
 
         return None
 
