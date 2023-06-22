@@ -142,7 +142,7 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
     Executes prog(X) for each prog in progs and returns the results.
     NB: Parallel execution is typically slower because of communication time (parallel_mode = False is recommended).
     Parallel mode causes inter-process communication errors on some systems (probably due to the large number of
-    information to pass).
+    information to pass which would not work in fork mode but would work in spawn mode ?).
     Parameters
     ----------
     progs : program.VectPrograms
