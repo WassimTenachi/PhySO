@@ -132,7 +132,6 @@ def ParallelExeAvailability(verbose=False):
     return is_parallel_exe_available
 
 
-
 # Utils pickable function (non nested definition) executing a program (for parallelization purposes)
 def task_exe(prog, X):
     res = prog(X)
@@ -142,6 +141,8 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
     """
     Executes prog(X) for each prog in progs and returns the results.
     NB: Parallel execution is typically slower because of communication time (parallel_mode = False is recommended).
+    Parallel mode causes inter-process communication errors on some systems (probably due to the large number of
+    information to pass).
     Parameters
     ----------
     progs : program.VectPrograms
