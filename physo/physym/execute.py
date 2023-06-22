@@ -127,25 +127,50 @@ def IsNotebook():
 
 def ParallelExeAvailability(verbose=False):
     """
-    Checks if parallel run is available on this system.
+    Checks if parallel run is available on this system and produces a recommended config.
     Parameters
     ----------
     verbose : bool
         Prints log.
     Returns
     -------
-    is_parallel_exe_available : bool
+    recommended_config : dict
+        bool recommended_config[parallel_mode] : will parallel mode  work on this system ?
+        int recommended_config[n_cpus] : Nb. of CPUs to use.
+
     """
+
+    # Gathering info
     is_notebook = IsNotebook()
     is_cuda_available = torch.cuda.is_available()
-    # mp.get_context("fork").Pool(processes=n_cpus)
+    mp_start_method = mp.get_start_method()  # Fork or Spawn ? # mp.get_context("fork").Pool(processes=n_cpus)
+    max_ncpus = mp.cpu_count() # Nb. of CPUs available
+
+    # Parallel mode or not
+    parallel_mode = True
+    if mp_start_method == "spawn" and is_notebook:
+        parallel_mode = False
+
+    # recommended config
+    recommended_config = {
+        "parallel_mode" : parallel_mode,
+        "n_cpus" : max_ncpus,
+    }
+
+    # Report
     if verbose:
-        print("default get_start_method", mp.get_start_method())
-        print("Running from notebook", is_notebook)
-        print("Is CUDA available", is_cuda_available)  # OK if dataset on CPU
-    is_parallel_exe_available = True
-    print("Is parallel execution available:", is_parallel_exe_available)
-    return is_parallel_exe_available
+        print("\ndefault get_start_method :", mp_start_method)
+        print("Running from notebook :", is_notebook)
+        print("Is CUDA available :", is_cuda_available)  # OK if dataset on CPU
+        print("Total nb. of CPUs : ", max_ncpus)
+        print("Recommended config", recommended_config)
+
+    if is_cuda_available and parallel_mode == True:
+        warnings.warn("Both CUDA and CPU parallel mode are available. If you plan on using CPU parallel mode (which is "
+                      "typically faster), please ensure that the dataset is manually transferred to the CPU device as "
+                      "it will automatically be sent to the CUDA device otherwise which will cause a conflict.")
+
+    return recommended_config
 
 
 # Utils pickable function (non nested definition) executing a program (for parallelization purposes)
