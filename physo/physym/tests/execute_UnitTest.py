@@ -288,6 +288,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # Getting computation times as a function of the number of CPUs
         times = []
         ncpus_list = get_ncpus(max_ncpus)
+        print("Testing nb. of CPUs = ", ncpus_list)
         for ncpus in ncpus_list:
             print("n cpu =", ncpus)
             task_time = run(parallel=True, n_cpus=ncpus)
@@ -406,10 +407,10 @@ class ExecuteProgramTest(unittest.TestCase):
 
         max_ncpus = mp.cpu_count()
         print("Total nb. of CPUs: ", max_ncpus)
-
         # Getting computation times as a function of the number of CPUs
         times = []
         ncpus_list = get_ncpus(max_ncpus)
+        print("Testing nb. of CPUs = ", ncpus_list)
         for ncpus in ncpus_list:
             print("n cpu =", ncpus)
             task_time = run(parallel=True, n_cpus=ncpus)
