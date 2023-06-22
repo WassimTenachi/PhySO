@@ -113,6 +113,17 @@ def ComputeInfixNotation (program_tokens):
         curr_stack.append(res)
     return curr_stack[0]
 
+def IsNotebook():
+    try:
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':
+            return True   # Jupyter notebook or qtconsole
+        elif shell == 'TerminalInteractiveShell':
+            return False  # Terminal running IPython
+        else:
+            return False  # Other type (?)
+    except NameError:
+        return False      # Probably standard Python interpreter
 
 def ParallelExeAvailability(verbose=False):
     """
@@ -125,8 +136,13 @@ def ParallelExeAvailability(verbose=False):
     -------
     is_parallel_exe_available : bool
     """
+    is_notebook = IsNotebook()
+    is_cuda_available = torch.cuda.is_available()
+    # mp.get_context("fork").Pool(processes=n_cpus)
     if verbose:
         print("default get_start_method", mp.get_start_method())
+        print("Running from notebook", is_notebook)
+        print("Is CUDA available", is_cuda_available)  # OK if dataset on CPU
     is_parallel_exe_available = True
     print("Is parallel execution available:", is_parallel_exe_available)
     return is_parallel_exe_available
