@@ -213,7 +213,8 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
 
 # Utils pickable function (non nested definition) executing a program (for parallelization purposes)
 def task_exe_wrapper_reduce(prog, X, reduce_wrapper):
-    res = reduce_wrapper(prog(X))
+    y_pred = prog(X)
+    res = reduce_wrapper(y_pred)
     # Kills gradients ! Necessary to minimize communications so it won't crash on some systems. (BatchExecution doc for
     # details on this issue)
     res = float(res)
