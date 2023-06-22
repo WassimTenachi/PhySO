@@ -320,9 +320,11 @@ class ExecuteProgramTest(unittest.TestCase):
     # Test parallelized execution + gathering of reduced floats
     def test_A_ParallelizedExeReduceGather (self):
 
+        # Testing everything on CPU. If user has CUDA and wants to use CPU parallel mode, it is their responsability to
+        # send the dataset to the proper device.
         DEVICE = 'cpu'
-        if torch.cuda.is_available():
-            DEVICE = 'cuda'
+        #if torch.cuda.is_available():
+        #    DEVICE = 'cuda'
 
         # LIBRARY CONFIG
         args_make_tokens = {
@@ -426,10 +428,11 @@ class ExecuteProgramTest(unittest.TestCase):
     # Test parallelized execution of free constant optimization
     def test_B_ParallelizedExeFreeConstants (self):
 
-        # todo: test behavior in jupyter (only causes pb on mac ?) and cuda, linux # mp.get_context("fork")
+        # Testing everything on CPU. If user has CUDA and wants to use CPU parallel mode, it is their responsability to
+        # send the dataset to the proper device.
         DEVICE = 'cpu'
-        if torch.cuda.is_available():
-            DEVICE = 'cuda'
+        #if torch.cuda.is_available():
+        #    DEVICE = 'cuda'
 
         # LIBRARY CONFIG
         args_make_tokens = {
