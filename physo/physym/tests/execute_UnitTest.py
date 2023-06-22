@@ -318,7 +318,7 @@ class ExecuteProgramTest(unittest.TestCase):
         return None
 
     # Test parallelized execution + gathering of reduced floats
-    def test_ParallelizedExeReduceGather (self):
+    def test_A_ParallelizedExeReduceGather (self):
 
         DEVICE = 'cpu'
         if torch.cuda.is_available():
@@ -424,7 +424,7 @@ class ExecuteProgramTest(unittest.TestCase):
         return None
 
     # Test parallelized execution of free constant optimization
-    def test_ParallelizedExeFreeConstants (self):
+    def test_B_ParallelizedExeFreeConstants (self):
 
         # todo: test behavior in jupyter (only causes pb on mac ?) and cuda, linux # mp.get_context("fork")
         DEVICE = 'cpu'
