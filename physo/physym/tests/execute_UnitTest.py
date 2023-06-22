@@ -26,8 +26,8 @@ def get_ncpus(max_ncpus):
     results = [max_ncpus,] + results
     return np.array(results)
 
-# Pickable test function for BatchExecutionWrapperScalar
-def TEST_WRAPPER_SCALAR(y):
+# Pickable test function for BatchExecutionReduceGather
+def TEST_REDUCE_WRAPPER(y):
     return y.mean()
 
 class ExecuteProgramTest(unittest.TestCase):
@@ -317,8 +317,8 @@ class ExecuteProgramTest(unittest.TestCase):
 
         return None
 
-    # Test parallelized execution + gathering of scalars
-    def test_ParallelizedExeWrapperScalar (self):
+    # Test parallelized execution + gathering of reduced floats
+    def test_ParallelizedExeReduceGather (self):
 
         DEVICE = 'cpu'
         if torch.cuda.is_available():
@@ -373,9 +373,9 @@ class ExecuteProgramTest(unittest.TestCase):
         def run (parallel=True, n_cpus=1):
             # Run tasks
             t0 = time.perf_counter()
-            results = Exec.BatchExecutionScalarGather(progs=my_programs,
+            results = Exec.BatchExecutionReduceGather(progs=my_programs,
                                                       X = X,
-                                                      wrapper_scalar = TEST_WRAPPER_SCALAR,
+                                                      reduce_wrapper= TEST_REDUCE_WRAPPER,
                                                       mask = mask,
                                                       parallel_mode = parallel,
                                                       n_cpus = n_cpus)
@@ -413,7 +413,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
         # Plot
         fig,ax = plt.subplots(1,1)
-        fig.suptitle("Efficiency curve: execution and scalar gathering")
+        fig.suptitle("Efficiency curve: execution and reduced gathering")
         ax.plot(ncpus_list, times, 'ko')
         ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
         ax.set_xlabel("Nb. of CPUs")

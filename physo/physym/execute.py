@@ -212,22 +212,22 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
     return y_batch
 
 # Utils pickable function (non nested definition) executing a program (for parallelization purposes)
-def task_exe_wrapper_scalar(prog, X, wrapper_scalar):
-    res = wrapper_scalar(prog(X))
+def task_exe_wrapper_reduce(prog, X, reduce_wrapper):
+    res = reduce_wrapper(prog(X))
     return res
 
-def BatchExecutionScalarGather (progs, X, wrapper_scalar, mask = None, n_cpus = 1, parallel_mode = False):
+def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, n_cpus = 1, parallel_mode = False):
     """
-    Executes prog(X) for each prog in progs and gathers wrapper_scalar(prog(X)) as a result.
-    NB: Parallel execution is typically faster because of communication time is lower when just gathering a scalar.
+    Executes prog(X) for each prog in progs and gathers reduce_wrapper(prog(X)) as a result.
+    NB: Parallel execution is typically faster because of communication time is lower when just gathering a float.
     Parameters
     ----------
     progs : program.VectPrograms
         Programs in the batch.
     X : torch.tensor of shape (n_dim, n_samples,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
-    wrapper_scalar : callable
-        Function returning a single scalar float number when applied on prog(X). The function must be pickable
+    reduce_wrapper : callable
+        Function returning a single float number when applied on prog(X). The function must be pickable
         (defined explicitly at the highest level when using parallel_mode).
     mask : array_like of shape (progs.batch_size) of bool
         Only programs where mask is True are executed. By default, all programs are executed.
@@ -238,7 +238,7 @@ def BatchExecutionScalarGather (progs, X, wrapper_scalar, mask = None, n_cpus = 
     Returns
     -------
     results : torch.tensor of shape (progs.batch_size,) of float
-        Returns wrapper_scalar(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
+        Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
         (where mask is False).
     """
     # mask : should program be executed ?
@@ -258,7 +258,7 @@ def BatchExecutionScalarGather (progs, X, wrapper_scalar, mask = None, n_cpus = 
             if mask[i]:
                 # Getting minimum executable skeleton pickable program
                 prog = progs.get_prog(i, skeleton=True)
-                result = pool.apply_async(task_exe_wrapper_scalar, args=(prog, X, wrapper_scalar))
+                result = pool.apply_async(task_exe_wrapper_reduce, args=(prog, X, reduce_wrapper))
                 results.append(result)
 
         # Waiting for all tasks to complete and collecting the results
@@ -275,7 +275,7 @@ def BatchExecutionScalarGather (progs, X, wrapper_scalar, mask = None, n_cpus = 
             # Computing y = prog(X) where mask is True
             if mask[i]:
                 prog = progs.get_prog(i, skeleton=True)
-                result = task_exe_wrapper_scalar(prog, X, wrapper_scalar)                 # float
+                result = task_exe_wrapper_reduce(prog, X, reduce_wrapper)                 # float
                 results.append(result)
 
     # ----- Results -----
