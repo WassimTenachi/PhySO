@@ -304,9 +304,9 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
     ----------
     progs : program.VectPrograms
         Programs in the batch.
-    X : torch.tensor of shape (n_dim, ?,) of float
+    X : torch.tensor of shape (n_dim, n_samples,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
-    y_target : torch.tensor of shape (?,) of float
+    y_target : torch.tensor of shape (n_samples,) of float
         Values of target output.
     args_opti : dict or None, optional
         Arguments to pass to free_const.optimize_free_const. By default, free_const.DEFAULT_OPTI_ARGS
