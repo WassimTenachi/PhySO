@@ -6,6 +6,10 @@ import torch as torch
 from tqdm import tqdm
 SHOW_PROGRESS_BAR = False
 
+# During programs evaluation, should parallel execution be used ?
+USE_PARALLEL_EXE        = False  # Only worth it if n_samples > 1e6
+USE_PARALLEL_OPTI_CONST = True   # Almost always worth it
+
 def SquashedNRMSE (y_target, y_pred,):
     """
     Squashed NRMSE reward.

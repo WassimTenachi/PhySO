@@ -363,7 +363,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # TEST DATA
         ideal_params = [1.14, 0.936] # Mock target free constants
         n_params = len(ideal_params)
-        x = torch.tensor(np.linspace(-10, 10, 1000))
+        x = torch.tensor(np.linspace(-10, 10, 1000)) # parallel exe is worth it N > int(1e6)
         # Sending dataset to device te simulate a real environment
         X = torch.stack((x,), axis=0).to(DEVICE)
         y_target  = ideal_params[0]*torch.sin(ideal_params[1]*x).to(DEVICE)
@@ -416,7 +416,10 @@ class ExecuteProgramTest(unittest.TestCase):
 
         # Plot
         fig,ax = plt.subplots(1,1)
-        fig.suptitle("Efficiency curve: execution and reduced gathering")
+        # Is feature used ?
+        enabled = physo.physym.reward.USE_PARALLEL_EXE
+        fig.suptitle("Efficiency curve: execution and reduced gathering\n "
+                     "Using parallelization in physo run : %s"%(str(enabled)))
         ax.plot(ncpus_list, times, 'ko')
         ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
         ax.set_xlabel("Nb. of CPUs")
@@ -470,7 +473,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # TEST DATA
         ideal_params = [1.14, 0.936] # Mock target free constants
         n_params = len(ideal_params)
-        x = torch.tensor(np.linspace(-10, 10, 1000))
+        x = torch.tensor(np.linspace(-10, 10, 1000)) # parallel exe is worth it N > int(1e6)
         # Sending dataset to device te simulate a real environment
         X = torch.stack((x,), axis=0).to(DEVICE)
         y_target  = ideal_params[0]*torch.sin(ideal_params[1]*x).to(DEVICE)
@@ -524,7 +527,10 @@ class ExecuteProgramTest(unittest.TestCase):
 
         # Plot
         fig,ax = plt.subplots(1,1)
-        fig.suptitle("Efficiency curve: execution and reduced gathering of rewards")
+        # Is feature used ?
+        enabled = physo.physym.reward.USE_PARALLEL_EXE
+        fig.suptitle("Efficiency curve: execution and reduced gathering of rewards\n "
+                     "Using parallelization in physo run : %s"%(str(enabled)))
         ax.plot(ncpus_list, times, 'ko')
         ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
         ax.set_xlabel("Nb. of CPUs")
@@ -647,7 +653,8 @@ class ExecuteProgramTest(unittest.TestCase):
 
         # Plot
         fig,ax = plt.subplots(1,1)
-        fig.suptitle("Efficiency curve: free const. opti.")
+        enabled = physo.physym.reward.USE_PARALLEL_OPTI_CONST
+        fig.suptitle("Efficiency curve: free const. opti.\n Using parallelization in physo run : %s"%(str(enabled)))
         ax.plot(ncpus_list, times, 'ko')
         ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
         ax.set_xlabel("Nb. of CPUs")
