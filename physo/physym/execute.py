@@ -5,6 +5,10 @@ import torch as torch
 import torch.multiprocessing as mp
 
 
+# ------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------ SINGLE EXECUTION ------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
+
 def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
     """
     Executes a symbolic function program.
@@ -113,6 +117,10 @@ def ComputeInfixNotation (program_tokens):
         curr_stack.append(res)
     return curr_stack[0]
 
+# ------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------ PARALLEL EXECUTION DIAGNOSIS ------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
+
 def IsNotebook():
     try:
         shell = get_ipython().__class__.__name__
@@ -193,6 +201,9 @@ def ParallelExeAvailability(verbose=False):
 
     return recommended_config
 
+# ------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------- PARALLEL EXECUTION -----------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
 
 # Utils pickable function (non nested definition) executing a program (for parallelization purposes)
 def task_exe(prog, X):
