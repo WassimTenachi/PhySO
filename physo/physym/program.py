@@ -2237,7 +2237,7 @@ class VectPrograms:
                                             parallel_mode   = parallel_mode)
         return results
 
-    def batch_optimize_constants (self, X, y_target, free_const_opti_args = None, mask = None, n_cpus = 1, parallel_mode = True):
+    def batch_optimize_constants (self, X, y_target, free_const_opti_args = None, mask = None, n_cpus = 1, parallel_mode = False):
         """
         Optimizes the free constants of programs.
         NB: Parallel execution is typically faster.

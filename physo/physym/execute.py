@@ -458,7 +458,7 @@ def task_free_const_opti(prog, X, y_target, free_const_opti_args):
     history = prog.optimize_constants(X=X, y_target=y_target, args_opti=free_const_opti_args)
     return None
 
-def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n_cpus = 1, parallel_mode = True):
+def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n_cpus = 1, parallel_mode = False):
     """
     Optimizes the free constants of each program in progs.
     NB: Parallel execution is typically faster.
