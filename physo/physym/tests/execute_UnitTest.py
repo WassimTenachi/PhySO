@@ -64,16 +64,16 @@ class ExecuteProgramTest(unittest.TestCase):
                         "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
                         "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
                         # constants
-                        "constants"            : {"pi" : pi        , "c" : c         , "M" : M         , "const1" : const1    },
-                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] , "const1" : [0, 0, 0] },
-                        "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        , "const1" : 1.        },
+                        "constants"            : {"pi" : pi        , "c" : c         , "M" : M         , "1" : const1    },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] , "1" : [0, 0, 0] },
+                        "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        , "1" : 1.        },
                            }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
 
         # PROGRAM
-        test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
-                            "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "div", "x", "t", "c"]
+        test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "1", "div", "n2", "v", "n2",
+                            "c", "cos", "div", "sub", "1", "div", "v", "c", "div", "div", "x", "t", "c"]
         test_program     = [my_lib.lib_name_to_token[name] for name in test_program_str]
         # EXPECTED RES
         expected_res     = M*(c**2)*(1./torch.sqrt(1.-(v**2)/(c**2))-torch.cos((1.-(v/c))/((x/t)/c)))
@@ -134,9 +134,9 @@ class ExecuteProgramTest(unittest.TestCase):
                         "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
                         "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
                         # constants
-                        "constants"            : {"pi" : pi        , "const1" : const1    },
-                        "constants_units"      : {"pi" : [0, 0, 0] , "const1" : [0, 0, 0] },
-                        "constants_complexity" : {"pi" : 0.        , "const1" : 1.        },
+                        "constants"            : {"pi" : pi        , "1" : const1    },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "1" : [0, 0, 0] },
+                        "constants_complexity" : {"pi" : 0.        , "1" : 1.        },
                         # free constants
                         "free_constants"            : {"c"              , "M"             },
                         "free_constants_init_val"   : {"c" : 1.         , "M" : 1.        },
@@ -147,8 +147,8 @@ class ExecuteProgramTest(unittest.TestCase):
                              superparent_units = [1, -2, 1], superparent_name = "y")
 
         # PROGRAM
-        test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
-                            "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "div", "x", "t", "c"]
+        test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "1", "div", "n2", "v", "n2",
+                            "c", "cos", "div", "sub", "1", "div", "v", "c", "div", "div", "x", "t", "c"]
         test_program     = [my_lib.lib_name_to_token[name] for name in test_program_str]
         # EXPECTED RES
         expected_res     = M*(c**2)*(1./torch.sqrt(1.-(v**2)/(c**2))-torch.cos((1.-(v/c))/((x/t)/c)))
@@ -230,9 +230,9 @@ class ExecuteProgramTest(unittest.TestCase):
         #                 "input_var_units"      : {"x" : [0, 0, 0] },
         #                 "input_var_complexity" : {"x" : 0.        },
         #                 # constants
-        #                 "constants"            : {"pi" : np.pi     , "const1" : 1         },
-        #                 "constants_units"      : {"pi" : [0, 0, 0] , "const1" : [0, 0, 0] },
-        #                 "constants_complexity" : {"pi" : 0.        , "const1" : 1.        },
+        #                 "constants"            : {"pi" : np.pi     , "1" : 1         },
+        #                 "constants_units"      : {"pi" : [0, 0, 0] , "1" : [0, 0, 0] },
+        #                 "constants_complexity" : {"pi" : 0.        , "1" : 1.        },
         #                 # free constants
         #                 "free_constants"            : {"a"             , "b"              },
         #                 "free_constants_init_val"   : {"a" : 1.        , "b"  : 1.        },
@@ -337,9 +337,9 @@ class ExecuteProgramTest(unittest.TestCase):
                         "input_var_units"      : {"x" : [0, 0, 0] },
                         "input_var_complexity" : {"x" : 0.        },
                         # constants
-                        "constants"            : {"pi" : np.pi     , "const1" : 1         },
-                        "constants_units"      : {"pi" : [0, 0, 0] , "const1" : [0, 0, 0] },
-                        "constants_complexity" : {"pi" : 0.        , "const1" : 1.        },
+                        "constants"            : {"pi" : np.pi     , "1" : 1         },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "1" : [0, 0, 0] },
+                        "constants_complexity" : {"pi" : 0.        , "1" : 1.        },
                         # free constants
                         "free_constants"            : {"a"             , "b"              },
                         "free_constants_init_val"   : {"a" : 1.        , "b"  : 1.        },
@@ -351,7 +351,8 @@ class ExecuteProgramTest(unittest.TestCase):
 
         # TEST PROGRAM
         batch_size = 10000
-        test_program_str = ["mul", "a", "sin", "mul", "x", "b"]
+        # Using protected functions (eg. log) and (fixed constants) to test their pickability
+        test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "x",]# "add", "x", "sub", "1", "1"]
         test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
@@ -454,9 +455,9 @@ class ExecuteProgramTest(unittest.TestCase):
                         "input_var_units"      : {"x" : [0, 0, 0] },
                         "input_var_complexity" : {"x" : 0.        },
                         # constants
-                        "constants"            : {"pi" : np.pi     , "const1" : 1         },
-                        "constants_units"      : {"pi" : [0, 0, 0] , "const1" : [0, 0, 0] },
-                        "constants_complexity" : {"pi" : 0.        , "const1" : 1.        },
+                        "constants"            : {"pi" : np.pi     , "1" : 1         },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "1" : [0, 0, 0] },
+                        "constants_complexity" : {"pi" : 0.        , "1" : 1.        },
                         # free constants
                         "free_constants"            : {"a"             , "b"              },
                         "free_constants_init_val"   : {"a" : 1.        , "b"  : 1.        },
@@ -468,7 +469,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
         # TEST PROGRAM
         batch_size = 10000
-        test_program_str = ["mul", "a", "sin", "mul", "x", "b"]
+        test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "x"] # Using protected functions to test their pickability
         test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
@@ -574,9 +575,9 @@ class ExecuteProgramTest(unittest.TestCase):
                         "input_var_units"      : {"x" : [0, 0, 0] },
                         "input_var_complexity" : {"x" : 0.        },
                         # constants
-                        "constants"            : {"pi" : np.pi     , "const1" : 1         },
-                        "constants_units"      : {"pi" : [0, 0, 0] , "const1" : [0, 0, 0] },
-                        "constants_complexity" : {"pi" : 0.        , "const1" : 1.        },
+                        "constants"            : {"pi" : np.pi     , "1" : 1         },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "1" : [0, 0, 0] },
+                        "constants_complexity" : {"pi" : 0.        , "1" : 1.        },
                         # free constants
                         "free_constants"            : {"a"             , "b"              },
                         "free_constants_init_val"   : {"a" : 1.        , "b"  : 1.        },
@@ -588,7 +589,8 @@ class ExecuteProgramTest(unittest.TestCase):
 
         # TEST PROGRAM
         batch_size = 10000
-        test_program_str = ["mul", "a", "sin", "mul", "x", "b"]
+        # Testing with protected ops
+        test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "x"] # Using protected functions to test their pickability
         test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
