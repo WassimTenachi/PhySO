@@ -2166,6 +2166,38 @@ class VectPrograms:
         return progs
 
     # ------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------ UTILS : EXECUTION -----------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+    def optimize_constants (self, X, y_target, free_const_opti_args = None, mask = None, n_cpus = 1, parallel_mode = True):
+        """
+        Optimizes the free constants of programs.
+        NB: Parallel execution is typically faster.
+        Parameters
+        ----------
+        X : torch.tensor of shape (n_dim, n_samples,) of float
+            Values of the input variables of the problem with n_dim = nb of input variables.
+        y_target : torch.tensor of shape (n_samples,) of float
+            Values of target output.
+        args_opti : dict or None, optional
+            Arguments to pass to free_const.optimize_free_const. By default, free_const.DEFAULT_OPTI_ARGS
+            arguments are used.
+        mask : array_like of shape (progs.batch_size) of bool
+            Only programs' constants where mask is True are optimized. By default, all programs' constants are opitmized.
+        n_cpus : int
+            Number of CPUs to use when running in parallel mode.
+        parallel_mode : bool
+            Parallel execution if True, execution in a loop else.
+        """
+        Exec.BatchFreeConstOpti(progs                = self,
+                                X                    = X,
+                                y_target             = y_target,
+                                free_const_opti_args = free_const_opti_args,
+                                mask                 = mask,
+                                n_cpus               = n_cpus,
+                                parallel_mode        = parallel_mode,
+                                )
+
+    # ------------------------------------------------------------------------------------------------------------------
     # ----------------------------------------- REPRESENTATION : INFIX RELATED -----------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
 
