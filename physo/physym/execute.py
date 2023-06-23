@@ -354,6 +354,94 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, n_cpus = 
 
     return res
 
+
+
+# Utils pickable function (non nested definition) executing a program (for parallelization purposes)
+def task_exe_reward(prog, X, y_target, reward_function):
+    y_pred = prog(X)
+    res = reward_function(y_target, y_pred)
+    # Kills gradients ! Necessary to minimize communications so it won't crash on some systems. (BatchExecution doc for
+    # details on this issue)
+    res = float(res)
+    return res
+
+def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, n_cpus = 1, parallel_mode = False):
+    """
+    Executes prog(X) for each prog in progs and gathers reward_function(y_target, prog(X)) as a result.
+    NB: Parallel execution is typically faster because of communication time is lower when just gathering a float.
+    Parameters
+    ----------
+    progs : program.VectPrograms
+        Programs in the batch.
+    X : torch.tensor of shape (n_dim, n_samples,) of float
+        Values of the input variables of the problem with n_dim = nb of input variables.
+    y_target : torch.tensor of shape (n_samples,) of float
+        Values of target output.
+    reward_function : callable
+        Function that taking y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of shape (?,)
+        of float) as key arguments and returning a float reward of an individual program. The function must be pickable
+        (defined explicitly at the highest level when using parallel_mode).
+    mask : array_like of shape (progs.batch_size) of bool
+        Only programs where mask is True are executed. By default, all programs are executed.
+    n_cpus : int
+        Number of CPUs to use when running in parallel mode.
+    parallel_mode : bool
+        Parallel execution if True, execution in a loop else.
+    Returns
+    -------
+    results : torch.tensor of shape (progs.batch_size,) of float
+        Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
+        (where mask is False).
+    """
+    # mask : should program be executed ?
+    # By default, all programs of batch are executed
+    # ? = mask.sum() # Number of programs to execute
+    if mask is None:
+        mask = np.full(shape=(progs.batch_size), fill_value=True)                           # (batch_size)
+
+    # ----- Parallel mode -----
+    if parallel_mode:
+        # Opening a pull of processes
+        # pool = mp.get_context("fork").Pool(processes=n_cpus)
+        pool = mp.Pool(processes=n_cpus)
+        results = []
+        for i in range(progs.batch_size):
+            # Computing y = prog(X) where mask is True
+            if mask[i]:
+                # Getting minimum executable skeleton pickable program
+                prog = progs.get_prog(i, skeleton=True)
+                result = pool.apply_async(task_exe_reward, args=(prog, X, y_target, reward_function))
+                results.append(result)
+
+        # Waiting for all tasks to complete and collecting the results
+        results = [result.get() for result in results]
+
+        # Closing the pool of processes
+        pool.close()
+        pool.join()
+
+    # ----- Non parallel mode -----
+    else:
+        results = []
+        for i in range (progs.batch_size):
+            # Computing y = prog(X) where mask is True
+            if mask[i]:
+                prog = progs.get_prog(i, skeleton=True)
+                result = task_exe_reward(prog, X, y_target, reward_function)              # float
+                results.append(result)
+
+    # ----- Results -----
+    # Stacking results
+    results = torch.tensor(results)                                                        # (?,)
+    # Batch of evaluation results
+    res = torch.full((progs.batch_size,), torch.nan, dtype=results.dtype)                  # (batch_size,)
+    # Updating res with results
+    res[mask] = results                                                                    # (?,)
+
+    return res
+
+
+
 # Utils pickable function (non nested definition) optimizing the free consts of a program (for parallelization purposes)
 def task_free_const_opti(prog, X, y_target, free_const_opti_args):
     history = prog.optimize_constants(X=X, y_target=y_target, args_opti=free_const_opti_args)
