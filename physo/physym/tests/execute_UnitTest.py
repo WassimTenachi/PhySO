@@ -382,6 +382,13 @@ class ExecuteProgramTest(unittest.TestCase):
                                                       mask = mask,
                                                       parallel_mode = parallel,
                                                       n_cpus = n_cpus)
+            # Through VectPrograms method
+            # results = my_programs.batch_exe_reduce_gather(
+            #                                           X = X,
+            #                                           reduce_wrapper= TEST_REDUCE_WRAPPER,
+            #                                           mask = mask,
+            #                                           parallel_mode = parallel,
+            #                                           n_cpus = n_cpus)
             t1 = time.perf_counter()
             task_time = (t1 - t0) * 1e3 / mask.sum()
             #torch.set_printoptions(threshold=100)
@@ -493,6 +500,14 @@ class ExecuteProgramTest(unittest.TestCase):
                                                  mask = mask,
                                                  parallel_mode = parallel,
                                                  n_cpus = n_cpus)
+            # Through VectPrograms method
+            # results = my_programs.batch_exe_reward (
+            #                                      X = X,
+            #                                      y_target = y_target,
+            #                                      reward_function = physo.physym.reward.SquashedNRMSE,
+            #                                      mask = mask,
+            #                                      parallel_mode = parallel,
+            #                                      n_cpus = n_cpus)
             t1 = time.perf_counter()
             task_time = (t1 - t0) * 1e3 / mask.sum()
             #torch.set_printoptions(threshold=100)
@@ -622,6 +637,14 @@ class ExecuteProgramTest(unittest.TestCase):
                                     mask = mask,
                                     parallel_mode= parallel,
                                     n_cpus = n_cpus, )
+            # Through VectPrograms method
+            # my_programs.batch_optimize_constants(
+            #                                     X = X,
+            #                                     y_target = y_target,
+            #                                     free_const_opti_args = free_const_opti_args,
+            #                                     mask = mask,
+            #                                     parallel_mode= parallel,
+            #                                     n_cpus = n_cpus, )
             t1 = time.perf_counter()
             task_time = (t1 - t0) * 1e3 / mask.sum()
             return task_time

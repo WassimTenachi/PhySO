@@ -2168,7 +2168,76 @@ class VectPrograms:
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------ UTILS : EXECUTION -----------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
-    def optimize_constants (self, X, y_target, free_const_opti_args = None, mask = None, n_cpus = 1, parallel_mode = True):
+
+    def batch_exe_reduce_gather (self, X, reduce_wrapper, mask = None, n_cpus = 1, parallel_mode = False):
+        """
+        Executes prog(X) for each prog in progs and gathers reduce_wrapper(prog(X)) as a result.
+        NB: Parallel execution is typically slower because of communication time (even just gathering a float).
+        Parameters
+        ----------
+        X : torch.tensor of shape (n_dim, n_samples,) of float
+            Values of the input variables of the problem with n_dim = nb of input variables.
+        reduce_wrapper : callable
+            Function returning a single float number when applied on prog(X). The function must be pickable
+            (defined explicitly at the highest level when using parallel_mode).
+        mask : array_like of shape (progs.batch_size) of bool
+            Only programs where mask is True are executed. By default, all programs are executed.
+        n_cpus : int
+            Number of CPUs to use when running in parallel mode.
+        parallel_mode : bool
+            Parallel execution if True, execution in a loop else.
+        Returns
+        -------
+        results : torch.tensor of shape (progs.batch_size,) of float
+            Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
+            (where mask is False).
+        """
+        results = Exec.BatchExecutionReduceGather(self,
+                                                  X               = X,
+                                                  reduce_wrapper  = reduce_wrapper,
+                                                  mask            = mask,
+                                                  n_cpus          = n_cpus,
+                                                  parallel_mode   = parallel_mode
+                                                  )
+        return results
+
+
+    def batch_exe_reward (self, X, y_target, reward_function, mask = None, n_cpus = 1, parallel_mode = False):
+        """
+        Executes prog(X) for each prog in progs and gathers reward_function(y_target, prog(X)) as a result.
+        NB: Parallel execution is typically slower because of communication time (even just gathering a float).
+        Parameters
+        ----------
+        X : torch.tensor of shape (n_dim, n_samples,) of float
+            Values of the input variables of the problem with n_dim = nb of input variables.
+        y_target : torch.tensor of shape (n_samples,) of float
+            Values of target output.
+        reward_function : callable
+            Function that taking y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of shape (?,)
+            of float) as key arguments and returning a float reward of an individual program. The function must be pickable
+            (defined explicitly at the highest level when using parallel_mode).
+        mask : array_like of shape (progs.batch_size) of bool
+            Only programs where mask is True are executed. By default, all programs are executed.
+        n_cpus : int
+            Number of CPUs to use when running in parallel mode.
+        parallel_mode : bool
+            Parallel execution if True, execution in a loop else.
+        Returns
+        -------
+        results : torch.tensor of shape (progs.batch_size,) of float
+            Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
+            (where mask is False).
+        """
+        results = Exec.BatchExecutionReward(self,
+                                            X               = X,
+                                            y_target        = y_target,
+                                            reward_function = reward_function,
+                                            mask            = mask,
+                                            n_cpus          = n_cpus,
+                                            parallel_mode   = parallel_mode)
+        return results
+
+    def batch_optimize_constants (self, X, y_target, free_const_opti_args = None, mask = None, n_cpus = 1, parallel_mode = True):
         """
         Optimizes the free constants of programs.
         NB: Parallel execution is typically faster.
@@ -2196,7 +2265,7 @@ class VectPrograms:
                                 n_cpus               = n_cpus,
                                 parallel_mode        = parallel_mode,
                                 )
-
+        return None
     # ------------------------------------------------------------------------------------------------------------------
     # ----------------------------------------- REPRESENTATION : INFIX RELATED -----------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
