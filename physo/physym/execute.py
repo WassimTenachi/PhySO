@@ -161,8 +161,8 @@ def ParallelExeAvailability(verbose=False):
         parallel_mode = False
         warnings.warn("Parallel mode is not available because having a CUDA-able version of pytorch was found to cause"
                       "issues on some systems (even if the dataset is sent to the proper device). Please install the "
-                      "vanilla non CUDA-able version of pytorch (returning torch.cuda.is_available() = False) to use "
-                      "parallel mode.")
+                      "vanilla non CUDA-able version of pytorch via conda install pytorch (returning "
+                      "torch.cuda.is_available() = False) to use parallel mode.")
 
     # recommended config
     recommended_config = {
