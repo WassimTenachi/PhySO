@@ -285,7 +285,7 @@ def task_exe_wrapper_reduce(prog, X, reduce_wrapper):
 def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, n_cpus = 1, parallel_mode = False):
     """
     Executes prog(X) for each prog in progs and gathers reduce_wrapper(prog(X)) as a result.
-    NB: Parallel execution is typically faster because of communication time is lower when just gathering a float.
+    NB: Parallel execution is typically slower because of communication time (even just gathering a float).
     Parameters
     ----------
     progs : program.VectPrograms
@@ -368,7 +368,7 @@ def task_exe_reward(prog, X, y_target, reward_function):
 def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, n_cpus = 1, parallel_mode = False):
     """
     Executes prog(X) for each prog in progs and gathers reward_function(y_target, prog(X)) as a result.
-    NB: Parallel execution is typically faster because of communication time is lower when just gathering a float.
+    NB: Parallel execution is typically slower because of communication time (even just gathering a float).
     Parameters
     ----------
     progs : program.VectPrograms
