@@ -281,12 +281,12 @@ Summary of expected performances with `physo`:
 
 Please note that using a CPU typically results in higher performances than when using a GPU.
 
-By default, parallelization is used for free constant optimization as it is typically much faster.
-The default setting is therefore:
+By default, parallelization is used for free constant optimization as it is typically faster.
+However if you have a batch size $<10k$, due to communication overhead it might be worth it to disable it via:
 ```
-physo.physym.reward.USE_PARALLEL_OPTI_CONST = True
+physo.physym.reward.USE_PARALLEL_OPTI_CONST = False
 ```
-It is not used by default for computing the reward due to communication time making it slower for such an easy task.
+Parallelization is not used by default for computing the reward due to communication overhead making it typically slower for such individually inexpensive tasks.
 However, if you are using $>10^6$ data points it tends to be faster, so we recommend enabling it by setting:
 ```
 physo.physym.reward.USE_PARALLEL_EXE = True

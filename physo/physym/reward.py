@@ -8,7 +8,7 @@ SHOW_PROGRESS_BAR = False
 
 # During programs evaluation, should parallel execution be used ?
 USE_PARALLEL_EXE        = False  # Only worth it if n_samples > 1e6
-USE_PARALLEL_OPTI_CONST = True   # Almost always worth it
+USE_PARALLEL_OPTI_CONST = True   # Only worth it if batch_size > 1k
 
 def SquashedNRMSE (y_target, y_pred,):
     """
