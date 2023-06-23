@@ -146,10 +146,23 @@ def ParallelExeAvailability(verbose=False):
     mp_start_method = mp.get_start_method()  # Fork or Spawn ? # mp.get_context("fork").Pool(processes=n_cpus)
     max_ncpus = mp.cpu_count() # Nb. of CPUs available
 
-    # Parallel mode or not
+    # Is parallel mode available or not
     parallel_mode = True
+
+    # spawn (mac) + notebook causes issues
     if mp_start_method == "spawn" and is_notebook:
         parallel_mode = False
+        warnings.warn("Parallel mode is not available because physo is being ran from a notebook on a system returning "
+                      "multiprocessing.get_start_method() = 'spawn' (typically MACs). Run physo from the terminal to "
+                      "use parallel mode.")
+
+    # CUDA available causes issues on some systems even when sending to proper device
+    if is_cuda_available:
+        parallel_mode = False
+        warnings.warn("Parallel mode is not available because having a CUDA-able version of pytorch was found to cause"
+                      "issues on some systems (even if the dataset is sent to the proper device). Please install the "
+                      "vanilla non CUDA-able version of pytorch (returning torch.cuda.is_available() = False) to use "
+                      "parallel mode.")
 
     # recommended config
     recommended_config = {
@@ -165,10 +178,12 @@ def ParallelExeAvailability(verbose=False):
         print("Total nb. of CPUs : ", max_ncpus)
         print("Recommended config", recommended_config)
 
-    if is_cuda_available and parallel_mode == True:
-        warnings.warn("Both CUDA and CPU parallel mode are available. If you plan on using CPU parallel mode (which is "
-                      "typically faster), please ensure that the dataset is manually transferred to the CPU device as "
-                      "it will automatically be sent to the CUDA device otherwise which will cause a conflict.")
+    # Too many issues with cuda available + parallel mode on linux (even when sending to proper device).
+    #if is_cuda_available and parallel_mode == True:
+    #    warnings.warn("Both CUDA and CPU parallel mode are available. If you plan on using CPU parallel mode (which is "
+    #                  "typically faster), please ensure that the dataset is manually transferred to the CPU device as "
+    #                  "it will automatically be sent to the CUDA device otherwise which will cause a conflict.")
+    #
 
     return recommended_config
 
