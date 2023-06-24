@@ -262,11 +262,13 @@ After adding a new function, running the functions unit test via `python ./physo
 
 If you found the function you have added useful, don't hesitate to make a pull request so other people can use it too !
 
-# About performances
+# About computational performances
 
 The main performance bottleneck of `physo` is free constant optimization, therefore, performances are almost linearly dependent on the number of free constant optimization steps and on the number of trial expressions per epoch (ie. the batch size).
 
 In addition, it should be noted that generating monitoring plots takes ~3s, therefore we suggest making monitoring plots every >10 epochs for low time / epoch cases. 
+
+## Expected computational performances
 
 Summary of expected performances with `physo`:
 
@@ -281,16 +283,38 @@ Summary of expected performances with `physo`:
 
 Please note that using a CPU typically results in higher performances than when using a GPU.
 
-By default, parallelization is used for free constant optimization as it is typically faster.
-However if you have a batch size $<10k$, due to communication overhead it might be worth it to disable it via:
+## Parallel mode
+
+1. Free constant optimization
+
+Parallel constant optimization is enabled if and only if :
+- The system is compatible (checked by `physo.physym.execute.ParallelExeAvailability`).
+- `parallel_mode = True` in the reward computation configuration.
+- `physo.physym.reward.USE_PARALLEL_OPTI_CONST = True`.
+
+By default, both of these are true as parallel mode is typically faster for this task.
+However, if you are using a batch size $<10k$, due to communication overhead it might be worth it to disable it for this task via:
 ```
 physo.physym.reward.USE_PARALLEL_OPTI_CONST = False
 ```
-Parallelization is not used by default for computing the reward due to communication overhead making it typically slower for such individually inexpensive tasks.
+
+2. Reward computation
+
+Parallel reward computation is enabled if and only if :
+- The system is compatible (checked by `physo.physym.execute.ParallelExeAvailability`).
+- `parallel_mode = True` in the reward computation configuration.
+- `physo.physym.reward.USE_PARALLEL_EXE = True`.
+
+By default, `physo.physym.reward.USE_PARALLEL_EXE = False`, i.e. parallelization is not used for this task due to communication overhead making it typically slower for such individually inexpensive tasks.
 However, if you are using $>10^6$ data points it tends to be faster, so we recommend enabling it by setting:
 ```
 physo.physym.reward.USE_PARALLEL_EXE = True
 ```
+
+3. Miscellaneous
+
+- Efficiency curves (nb. of CPUs vs individual task time) are produced by `execute_UnitTest.py` in a toy case with batch size = 10k and $10^3$ data points.
+- The use of `parallel_mode` can be managed by the configuration of the reward which can be managed through a hyperparameter config files which is handy for running a benchmark on an HPC with a predetermined number of CPUs.
 
 # Uninstalling
 Uninstalling the package.
