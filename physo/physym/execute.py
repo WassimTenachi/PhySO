@@ -160,21 +160,22 @@ def ParallelExeAvailability(verbose=False):
     mp_start_method = mp.get_start_method()  # Fork or Spawn ? # mp.get_context("fork").Pool(processes=n_cpus)
     max_ncpus = mp.cpu_count() # Nb. of CPUs available
 
-    # Typically MACs return spawn and LINUX systems return fork. Empirical results:
+    # Typically MACs / Windows systems return spawn and LINUX systems return fork. Empirical results:
     # Linux / Intel -> fork
     # Linux / AMD   -> fork
     # MAC / ARM     -> spawn
     # MAC / Intel   -> spawn
+    # Windows / Intel -> spawn
 
     # Is parallel mode available or not
     parallel_mode = True
 
-    # spawn (mac) + notebook causes issues
+    # spawn (MAC/Windows) + notebook causes issues
     if mp_start_method == "spawn" and is_notebook:
         parallel_mode = False
         msg = "Parallel mode is not available because physo is being ran from a notebook on a system returning " \
-              "multiprocessing.get_start_method() = 'spawn' (typically MACs). Run physo from the terminal to use " \
-              "parallel mode."
+              "multiprocessing.get_start_method() = 'spawn' (typically MACs/Windows). Run physo from the terminal to " \
+              "use parallel mode."
         print(msg)
         warnings.warn(msg)
 
