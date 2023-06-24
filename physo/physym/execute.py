@@ -338,8 +338,8 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with 
         (where mask is False).
     """
     pb = lambda x: x
-    if SHOW_PROGRESS_BAR:
-        pb = tqdm
+    #if SHOW_PROGRESS_BAR:
+    #    pb = tqdm
 
     # mask : should program be executed ?
     # By default, all programs of batch are executed
@@ -430,8 +430,8 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_
         (where mask is False).
     """
     pb = lambda x: x
-    if SHOW_PROGRESS_BAR:
-        pb = tqdm
+    #if SHOW_PROGRESS_BAR:
+    #    pb = tqdm
 
     # mask : should program be executed ?
     # By default, all programs of batch are executed
