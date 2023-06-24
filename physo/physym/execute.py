@@ -211,7 +211,10 @@ def ParallelExeAvailability(verbose=False):
 
 # Utils pickable function (non nested definition) executing a program (for parallelization purposes)
 def task_exe(prog, X):
-    res = prog(X)
+    try:
+        res = prog(X)
+    except:
+        res = 0.
     return res
 
 def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
@@ -290,11 +293,14 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
 
 # Utils pickable function (non nested definition) executing a program (for parallelization purposes)
 def task_exe_wrapper_reduce(prog, X, reduce_wrapper):
-    y_pred = prog(X)
-    res = reduce_wrapper(y_pred)
-    # Kills gradients ! Necessary to minimize communications so it won't crash on some systems. (BatchExecution doc for
-    # details on this issue)
-    res = float(res)
+    try:
+        y_pred = prog(X)
+        res = reduce_wrapper(y_pred)
+        # Kills gradients ! Necessary to minimize communications so it won't crash on some systems. (BatchExecution doc for
+        # details on this issue)
+        res = float(res)
+    except:
+        res = 0.
     return res
 
 def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, n_cpus = 1, parallel_mode = False):
@@ -459,7 +465,11 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, n_cp
 
 # Utils pickable function (non nested definition) optimizing the free consts of a program (for parallelization purposes)
 def task_free_const_opti(prog, X, y_target, free_const_opti_args):
-    history = prog.optimize_constants(X=X, y_target=y_target, args_opti=free_const_opti_args)
+    try:
+        history = prog.optimize_constants(X=X, y_target=y_target, args_opti=free_const_opti_args)
+    except:
+        # Safety
+        warnings.warn("Unable to optimize free constants of prog %s -> r = 0" % (str(prog)))
     return None
 
 def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n_cpus = 1, parallel_mode = False):
@@ -496,8 +506,9 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
         # pool = mp.get_context("fork").Pool(processes=n_cpus)
         pool = mp.Pool(processes=n_cpus)
         for i in range(progs.batch_size):
-            # Optimizing free constants of programs where mask is True
-            if mask[i]:
+            # Optimizing free constants of programs where mask is True and only if it actually contains free constants
+            # (Else we should not bother optimizing its free constants)
+            if mask[i] and progs.n_free_const_occurrences[i]:
                 # Getting minimum executable skeleton pickable program
                 prog = progs.get_prog(i, skeleton=True)
                 pool.apply_async(task_free_const_opti, args=(prog, X, y_target, free_const_opti_args))
@@ -508,8 +519,9 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
     # Non parallel mode
     else:
         for i in range (progs.batch_size):
-            # Optimizing free constants of programs where mask is True
-            if mask[i]:
+            # Optimizing free constants of programs where mask is True and only if it actually contains free constants
+            # (Else we should not bother optimizing its free constants)
+            if mask[i] and progs.n_free_const_occurrences[i]:
                 # Getting minimum executable skeleton pickable program
                 prog = progs.get_prog(i, skeleton=True)
                 task_free_const_opti(prog, X = X, y_target = y_target, free_const_opti_args = free_const_opti_args)
