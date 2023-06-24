@@ -21,6 +21,8 @@ reward_config = {
                  "zero_out_unphysical" : True,
                  "zero_out_duplicates" : False,
                  "keep_lowest_complexity_duplicate" : False,
+                 # "parallel_mode" : True,
+                 # "n_cpus"        : None,
                 }
 
 # ---------- LEARNING CONFIG ----------
