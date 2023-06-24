@@ -324,7 +324,7 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, n_cpus = 
         Parallel execution if True, execution in a loop else.
     Returns
     -------
-    results : torch.tensor of shape (progs.batch_size,) of float
+    results : numpy.array of shape (progs.batch_size,) of float
         Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
         (where mask is False).
     """
@@ -367,9 +367,9 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, n_cpus = 
 
     # ----- Results -----
     # Stacking results
-    results = torch.tensor(results)                                                        # (?,)
+    results = np.array(results)                                                            # (?,)
     # Batch of evaluation results
-    res = torch.full((progs.batch_size,), torch.nan, dtype=results.dtype)                  # (batch_size,)
+    res = np.full((progs.batch_size,), np.nan, dtype=results.dtype)                        # (batch_size,)
     # Updating res with results
     res[mask] = results                                                                    # (?,)
 
@@ -410,7 +410,7 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, n_cp
         Parallel execution if True, execution in a loop else.
     Returns
     -------
-    results : torch.tensor of shape (progs.batch_size,) of float
+    results : numpy.array of shape (progs.batch_size,) of float
         Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
         (where mask is False).
     """
@@ -453,9 +453,9 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, n_cp
 
     # ----- Results -----
     # Stacking results
-    results = torch.tensor(results)                                                        # (?,)
+    results = np.array(results)                                                            # (?,)
     # Batch of evaluation results
-    res = torch.full((progs.batch_size,), torch.nan, dtype=results.dtype)                  # (batch_size,)
+    res = np.full((progs.batch_size,), np.nan, dtype=results.dtype)                        # (batch_size,)
     # Updating res with results
     res[mask] = results                                                                    # (?,)
 

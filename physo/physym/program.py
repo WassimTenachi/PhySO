@@ -2188,7 +2188,7 @@ class VectPrograms:
             Parallel execution if True, execution in a loop else.
         Returns
         -------
-        results : torch.tensor of shape (progs.batch_size,) of float
+        results : numpy.array of shape (progs.batch_size,) of float
             Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
             (where mask is False).
         """
@@ -2224,7 +2224,7 @@ class VectPrograms:
             Parallel execution if True, execution in a loop else.
         Returns
         -------
-        results : torch.tensor of shape (progs.batch_size,) of float
+        results : numpy.array of shape (progs.batch_size,) of float
             Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
             (where mask is False).
         """
