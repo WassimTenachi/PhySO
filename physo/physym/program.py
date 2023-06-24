@@ -2169,7 +2169,7 @@ class VectPrograms:
     # ------------------------------------------------ UTILS : EXECUTION -----------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
 
-    def batch_exe_reduce_gather (self, X, reduce_wrapper, mask = None, n_cpus = 1, parallel_mode = False):
+    def batch_exe_reduce_gather (self, X, reduce_wrapper, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False):
         """
         Executes prog(X) for each prog in progs and gathers reduce_wrapper(prog(X)) as a result.
         NB: Parallel execution is typically slower because of communication time (even just gathering a float).
@@ -2182,6 +2182,8 @@ class VectPrograms:
             (defined explicitly at the highest level when using parallel_mode).
         mask : array_like of shape (progs.batch_size) of bool
             Only programs where mask is True are executed. By default, all programs are executed.
+        pad_with : float
+            Value to pad with where mask is False. (Default = nan).
         n_cpus : int
             Number of CPUs to use when running in parallel mode.
         parallel_mode : bool
@@ -2196,13 +2198,14 @@ class VectPrograms:
                                                   X               = X,
                                                   reduce_wrapper  = reduce_wrapper,
                                                   mask            = mask,
+                                                  pad_with        = pad_with,
                                                   n_cpus          = n_cpus,
                                                   parallel_mode   = parallel_mode
                                                   )
         return results
 
 
-    def batch_exe_reward (self, X, y_target, reward_function, mask = None, n_cpus = 1, parallel_mode = False):
+    def batch_exe_reward (self, X, y_target, reward_function, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False):
         """
         Executes prog(X) for each prog in progs and gathers reward_function(y_target, prog(X)) as a result.
         NB: Parallel execution is typically slower because of communication time (even just gathering a float).
@@ -2218,6 +2221,8 @@ class VectPrograms:
             (defined explicitly at the highest level when using parallel_mode).
         mask : array_like of shape (progs.batch_size) of bool
             Only programs where mask is True are executed. By default, all programs are executed.
+        pad_with : float
+            Value to pad with where mask is False. (Default = nan).
         n_cpus : int
             Number of CPUs to use when running in parallel mode.
         parallel_mode : bool
@@ -2233,6 +2238,7 @@ class VectPrograms:
                                             y_target        = y_target,
                                             reward_function = reward_function,
                                             mask            = mask,
+                                            pad_with        = pad_with,
                                             n_cpus          = n_cpus,
                                             parallel_mode   = parallel_mode)
         return results

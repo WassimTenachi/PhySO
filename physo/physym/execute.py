@@ -303,7 +303,7 @@ def task_exe_wrapper_reduce(prog, X, reduce_wrapper):
         res = 0.
     return res
 
-def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, n_cpus = 1, parallel_mode = False):
+def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False):
     """
     Executes prog(X) for each prog in progs and gathers reduce_wrapper(prog(X)) as a result.
     NB: Parallel execution is typically slower because of communication time (even just gathering a float).
@@ -318,6 +318,8 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, n_cpus = 
         (defined explicitly at the highest level when using parallel_mode).
     mask : array_like of shape (progs.batch_size) of bool
         Only programs where mask is True are executed. By default, all programs are executed.
+    pad_with : float
+        Value to pad with where mask is False. (Default = nan).
     n_cpus : int
         Number of CPUs to use when running in parallel mode.
     parallel_mode : bool
@@ -369,7 +371,7 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, n_cpus = 
     # Stacking results
     results = np.array(results)                                                            # (?,)
     # Batch of evaluation results
-    res = np.full((progs.batch_size,), np.nan, dtype=results.dtype)                        # (batch_size,)
+    res = np.full((progs.batch_size,), pad_with, dtype=results.dtype)                      # (batch_size,)
     # Updating res with results
     res[mask] = results                                                                    # (?,)
 
@@ -386,7 +388,7 @@ def task_exe_reward(prog, X, y_target, reward_function):
     res = float(res)
     return res
 
-def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, n_cpus = 1, parallel_mode = False):
+def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False):
     """
     Executes prog(X) for each prog in progs and gathers reward_function(y_target, prog(X)) as a result.
     NB: Parallel execution is typically slower because of communication time (even just gathering a float).
@@ -404,6 +406,8 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, n_cp
         (defined explicitly at the highest level when using parallel_mode).
     mask : array_like of shape (progs.batch_size) of bool
         Only programs where mask is True are executed. By default, all programs are executed.
+    pad_with : float
+        Value to pad with where mask is False. (Default = nan).
     n_cpus : int
         Number of CPUs to use when running in parallel mode.
     parallel_mode : bool
@@ -455,7 +459,7 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, n_cp
     # Stacking results
     results = np.array(results)                                                            # (?,)
     # Batch of evaluation results
-    res = np.full((progs.batch_size,), np.nan, dtype=results.dtype)                        # (batch_size,)
+    res = np.full((progs.batch_size,), pad_with, dtype=results.dtype)                      # (batch_size,)
     # Updating res with results
     res[mask] = results                                                                    # (?,)
 
