@@ -274,11 +274,11 @@ Summary of expected performances with `physo`:
 
 | Time / epoch | Batch size | # free const | free const <br>opti steps | Example                             | Device                                      |
 |--------------|------------|--------------|---------------------------|-------------------------------------|---------------------------------------------|
-| ~20s         | 10k        | 2            | 15                        | eg: demo_damped_harmonic_oscillator | CPU: Mac M1 <br>RAM: 16 Go                  |
-| ~30s         | 10k        | 2            | 15                        | eg: demo_damped_harmonic_oscillator | CPU: Intel W-2155 10c/20t <br>RAM: 128 Go   |
+| ~10s         | 10k        | 2            | 15                        | eg: demo_damped_harmonic_oscillator | CPU: Mac M1 <br>RAM: 16 Go                  |
+| ~5s          | 10k        | 2            | 15                        | eg: demo_damped_harmonic_oscillator | CPU: Intel W-2155 10c/20t <br>RAM: 128 Go   |
 | ~250s        | 10k        | 2            | 15                        | eg: demo_damped_harmonic_oscillator | GPU: Nvidia GV100 <br>VRAM : 32 Go          |
-| ~3s          | 1k         | 2            | 15                        | eg: demo_mechanical_energy          | CPU: Mac M1 <br>RAM: 16 Go                  |
-| ~3s          | 1k         | 2            | 15                        | eg: demo_mechanical_energy          | CPU: Intel W-2155 10c/20t <br>RAM: 128 Go   |
+| ~6s          | 1k         | 2            | 15                        | eg: demo_mechanical_energy          | CPU: Mac M1 <br>RAM: 16 Go                  |
+| ~1s          | 1k         | 2            | 15                        | eg: demo_mechanical_energy          | CPU: Intel W-2155 10c/20t <br>RAM: 128 Go   |
 | ~4s          | 1k         | 2            | 15                        | eg: demo_mechanical_energy          | GPU: Nvidia GV100 <br>VRAM : 32 Go          |
 
 Please note that using a CPU typically results in higher performances than when using a GPU.
