@@ -170,17 +170,21 @@ def ParallelExeAvailability(verbose=False):
     # spawn (mac) + notebook causes issues
     if mp_start_method == "spawn" and is_notebook:
         parallel_mode = False
-        warnings.warn("Parallel mode is not available because physo is being ran from a notebook on a system returning "
-                      "multiprocessing.get_start_method() = 'spawn' (typically MACs). Run physo from the terminal to "
-                      "use parallel mode.")
+        msg = "Parallel mode is not available because physo is being ran from a notebook on a system returning " \
+              "multiprocessing.get_start_method() = 'spawn' (typically MACs). Run physo from the terminal to use " \
+              "parallel mode."
+        print(msg)
+        warnings.warn(msg)
 
     # CUDA available causes issues on some systems even when sending to proper device
     if is_cuda_available:
         parallel_mode = False
-        warnings.warn("Parallel mode is not available because having a CUDA-able version of pytorch was found to cause"
-                      "issues on some systems (even if the dataset is sent to the proper device). Please install the "
-                      "vanilla non CUDA-able version of pytorch via conda install pytorch (returning "
-                      "torch.cuda.is_available() = False) to use parallel mode.")
+        msg = "Parallel mode is not available because having a CUDA-able version of pytorch was found to cause issues " \
+              "on some systems (even if the dataset is sent to the proper device). Please install the vanilla non " \
+              "CUDA-able version of pytorch via conda install pytorch (returning torch.cuda.is_available() = False) " \
+              "to use parallel mode."
+        print(msg)
+        warnings.warn(msg)
 
     # recommended config
     recommended_config = {
