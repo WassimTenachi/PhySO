@@ -4,9 +4,6 @@ import numpy as np
 import torch as torch
 import physo.physym.execute as exec
 
-from tqdm import tqdm
-SHOW_PROGRESS_BAR = False
-
 # During programs evaluation, should parallel execution be used ?
 USE_PARALLEL_EXE        = False  # Only worth it if n_samples > 1e6
 USE_PARALLEL_OPTI_CONST = True   # Only worth it if batch_size > 1k
@@ -73,9 +70,6 @@ def RewardsComputer(programs,
     rewards : numpy.array of shape (?,) of float
         Rewards of programs.
     """
-    pb = lambda x: x
-    if SHOW_PROGRESS_BAR:
-        pb = tqdm
 
     # ----- SETUP -----
 

@@ -6,7 +6,7 @@ import warnings
 from physo.config.config0 import config0
 import physo.learn.monitoring as monitoring
 from physo.task.fit import fit
-from physo.physym import reward
+import physo.physym.execute as exec
 
 # DEFAULT RUN CONFIG TO USE
 default_config = config0
@@ -241,7 +241,7 @@ def SR(X, y,
         run_config["learning_config"]["n_epochs"] = epochs
 
     # Show progress bar
-    reward.SHOW_PROGRESS_BAR = True
+    exec.SHOW_PROGRESS_BAR = True
 
     # ------------------------------- RUN -------------------------------
 

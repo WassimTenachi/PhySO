@@ -4,6 +4,8 @@ import numpy as np
 import torch as torch
 import torch.multiprocessing as mp
 
+from tqdm import tqdm
+SHOW_PROGRESS_BAR = False
 
 # ------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------ SINGLE EXECUTION ------------------------------------------------
@@ -334,6 +336,10 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with 
         Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
         (where mask is False).
     """
+    pb = lambda x: x
+    if SHOW_PROGRESS_BAR:
+        pb = tqdm
+
     # mask : should program be executed ?
     # By default, all programs of batch are executed
     # ? = mask.sum() # Number of programs to execute
@@ -364,7 +370,7 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with 
     # ----- Non parallel mode -----
     else:
         results = []
-        for i in range (progs.batch_size):
+        for i in pb(range(progs.batch_size)):
             # Computing y = prog(X) where mask is True
             if mask[i]:
                 prog = progs.get_prog(i, skeleton=True)
@@ -422,6 +428,10 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_
         Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
         (where mask is False).
     """
+    pb = lambda x: x
+    if SHOW_PROGRESS_BAR:
+        pb = tqdm
+
     # mask : should program be executed ?
     # By default, all programs of batch are executed
     # ? = mask.sum() # Number of programs to execute
@@ -452,7 +462,7 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_
     # ----- Non parallel mode -----
     else:
         results = []
-        for i in range (progs.batch_size):
+        for i in pb(range(progs.batch_size)):
             # Computing y = prog(X) where mask is True
             if mask[i]:
                 prog = progs.get_prog(i, skeleton=True)
@@ -502,6 +512,10 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
     parallel_mode : bool
         Parallel execution if True, execution in a loop else.
     """
+    pb = lambda x: x
+    if SHOW_PROGRESS_BAR:
+        pb = tqdm
+
     # mask : should program be executed ?
     # By default, all programs of batch are executed
     # ? = mask.sum() # Number of programs to execute
@@ -526,7 +540,7 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
 
     # Non parallel mode
     else:
-        for i in range (progs.batch_size):
+        for i in pb(range(progs.batch_size)):
             # Optimizing free constants of programs where mask is True and only if it actually contains free constants
             # (Else we should not bother optimizing its free constants)
             if mask[i] and progs.n_free_const_occurrences[i]:
