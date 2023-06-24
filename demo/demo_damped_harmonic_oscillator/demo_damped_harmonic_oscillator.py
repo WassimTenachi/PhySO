@@ -23,8 +23,7 @@ from physo.task  import benchmark
 
 # In[2]:
 
-# Guard for spawn systems (typically MACs)
-
+# Guard for spawn systems (typically MACs/Windows)
 if __name__ == '__main__':
 
 
