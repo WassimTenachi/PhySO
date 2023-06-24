@@ -315,6 +315,7 @@ physo.physym.reward.USE_PARALLEL_EXE = True
 
 - Efficiency curves (nb. of CPUs vs individual task time) are produced by `execute_UnitTest.py` in a toy case with batch size = 10k and $10^3$ data points.
 - The use of `parallel_mode` can be managed by the configuration of the reward which can be managed through a hyperparameter config files which is handy for running a benchmark on an HPC with a predetermined number of CPUs.
+- Disabling parallel mode entirely via `USE_PARALLEL_EXE=False` `USE_PARALLEL_OPTI_CONST=False` is recommended before running `physo` in a debugger.
 
 # Uninstalling
 Uninstalling the package.
