@@ -1,8 +1,10 @@
 import unittest
+import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
 import time as time
+import platform
 
 # Internal imports
 from physo.physym import library as Lib
@@ -110,67 +112,72 @@ class DisplayTest(unittest.TestCase):
         return None
 
     def test_tree_rpr(self):
-        # LIBRARY CONFIG
-        args_make_tokens = {
-                        # operations
-                        "op_names"             : "all",  # or ["mul", "neg", "inv", "sin"]
-                        "use_protected_ops"    : True,
-                        # input variables
-                        "input_var_ids"        : {"x" : 0         , "v" : 1          , "t" : 2,        },
-                        "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
-                        "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
-                        # constants
-                        "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       , "const1" : 1         },
-                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] , "const1" : [0, 0, 0] },
-                        "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        , "const1" : 1.        },
-                            }
-        my_lib = Lib.Library(args_make_tokens = args_make_tokens,
-                             superparent_units = [1, -2, 1], superparent_name = "y")
 
-        # TEST PROGRAM WO DUMMIES
-        test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
-                            "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
-        test_program_length = len(test_program_str)
-        test_program_idx = test_program_idx[np.newaxis, :]
-        my_programs_wo_dummies = Prog.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
-        my_programs_wo_dummies.set_programs(test_program_idx)
+        if platform.system() == "Windows":
+            print("Not testing tree representation features on Windows as this generally causes problems and is only "
+                  "useful for physo developers.")
+        else:
+            # LIBRARY CONFIG
+            args_make_tokens = {
+                            # operations
+                            "op_names"             : "all",  # or ["mul", "neg", "inv", "sin"]
+                            "use_protected_ops"    : True,
+                            # input variables
+                            "input_var_ids"        : {"x" : 0         , "v" : 1          , "t" : 2,        },
+                            "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
+                            "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
+                            # constants
+                            "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       , "const1" : 1         },
+                            "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] , "const1" : [0, 0, 0] },
+                            "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        , "const1" : 1.        },
+                                }
+            my_lib = Lib.Library(args_make_tokens = args_make_tokens,
+                                 superparent_units = [1, -2, 1], superparent_name = "y")
 
-        # TEST PROGRAM W DUMMIES
-        test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
-                            "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v",]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
-        test_program_length = len(test_program_str) + 1
-        test_program_idx = test_program_idx[np.newaxis, :]
-        my_programs_w_dummies = Prog.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
-        my_programs_w_dummies.set_programs(test_program_idx)
+            # TEST PROGRAM WO DUMMIES
+            test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
+                                "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
+            test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+            test_program_length = len(test_program_str)
+            test_program_idx = test_program_idx[np.newaxis, :]
+            my_programs_wo_dummies = Prog.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
+            my_programs_wo_dummies.set_programs(test_program_idx)
 
-        # TEST
-        for my_programs in [my_programs_wo_dummies,my_programs_w_dummies]:
-            # get_tree_latex
-            try:
-                t0 = time.perf_counter()
-                tree_latex = my_programs.get_tree_latex(prog_idx=0,)
-                t1 = time.perf_counter()
-                print("\nget_tree_latex time = %.3f s"%(t1-t0))
-            except:
-                self.fail("Tree generation failed : get_tree_latex")
-            # get_tree_image
-            try:
-                t0 = time.perf_counter()
-                img        = my_programs.get_tree_image(prog_idx=0)
-                t1 = time.perf_counter()
-                print("\nget_tree_image time = %.3f s"%(t1-t0))
-            except:
-                self.fail("Tree generation failed : get_tree_image")
-            # get_tree_image_via_tex
-            try:
-                t0 = time.perf_counter()
-                img        = my_programs.get_tree_image_via_tex(prog_idx=0)
-                t1 = time.perf_counter()
-                print("\nget_tree_image_via_tex time = %.3f s"%(t1-t0))
-            except:
-                self.fail("Tree generation failed : get_tree_image_via_tex")
+            # TEST PROGRAM W DUMMIES
+            test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
+                                "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v",]
+            test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+            test_program_length = len(test_program_str) + 1
+            test_program_idx = test_program_idx[np.newaxis, :]
+            my_programs_w_dummies = Prog.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
+            my_programs_w_dummies.set_programs(test_program_idx)
+
+            # TEST
+            for my_programs in [my_programs_wo_dummies,my_programs_w_dummies]:
+                # get_tree_latex
+                try:
+                    t0 = time.perf_counter()
+                    tree_latex = my_programs.get_tree_latex(prog_idx=0,)
+                    t1 = time.perf_counter()
+                    print("\nget_tree_latex time = %.3f s"%(t1-t0))
+                except:
+                    self.fail("Tree generation failed : get_tree_latex")
+                # get_tree_image
+                try:
+                    t0 = time.perf_counter()
+                    img        = my_programs.get_tree_image(prog_idx=0)
+                    t1 = time.perf_counter()
+                    print("\nget_tree_image time = %.3f s"%(t1-t0))
+                except:
+                    self.fail("Tree generation failed : get_tree_image")
+                # get_tree_image_via_tex
+                try:
+                    t0 = time.perf_counter()
+                    img        = my_programs.get_tree_image_via_tex(prog_idx=0)
+                    t1 = time.perf_counter()
+                    print("\nget_tree_image_via_tex time = %.3f s"%(t1-t0))
+                except:
+                    self.fail("Tree generation failed : get_tree_image_via_tex")
         return None
 
 if __name__ == '__main__':
