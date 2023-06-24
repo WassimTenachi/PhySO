@@ -43,9 +43,10 @@ def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
         token = program_tokens[i]
         # Terminal token
         if token.arity == 0:
-            # Fixed constant (eg. pi, 1 etc.)
+            # Function type token
             if token.var_type == 0:
-                curr_stack.append(token.function())
+                #curr_stack.append(token.function())
+                raise ValueError("Function of arity = 0 encountered. Use var_type = 3 for fixed constants.")
             # Input variable (eg. x0, x1 etc.)
             elif token.var_type == 1:
                 curr_stack.append(input_var_data[token.var_id])
@@ -57,6 +58,9 @@ def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
                 else:
                     raise ValueError("Free constant encountered in program evaluation but free constant values were "
                                      "not given.")
+            # Fixed constant (eg. pi, 1 etc.)
+            elif token.var_type == 3:
+                curr_stack.append(token.fixed_const)
             else:
                 raise NotImplementedError("Token of unknown var_type encountered in ExecuteProgram.")
         # Non-terminal token

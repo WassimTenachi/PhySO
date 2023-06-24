@@ -561,9 +561,9 @@ def make_tokens(
                                           sympy_repr   = const_name,
                                           arity        = 0,
                                           complexity   = complexity,
-                                          var_type     = 0,
-                                          # Function specific
-                                          function     = lambda c=const_val: c,
+                                          var_type     = 3,
+                                          # Fixed const specific
+                                          fixed_const  = const_val,
                                           # ---- Physical units : units ----
                                           is_constraining_phy_units = is_constraining_phy_units,
                                           phy_units                 = phy_units,))
