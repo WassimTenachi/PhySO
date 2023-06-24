@@ -1,7 +1,7 @@
 
 # $\Phi$-SO : Physical Symbolic Optimization
 
-The physical symbolic optimization ( $\Phi$-SO ) package `physo` is a symbolic regression package that fully leverages physical units constraints in order to infer analytical physical laws from data points searching in the space of functional forms. For more details see: [[Tenachi et al 2023]](https://arxiv.org/abs/2303.03192).
+The physical symbolic optimization ( $\Phi$-SO ) package `physo` is a symbolic regression package that fully leverages physical units constraints in order to infer analytical physical laws from data points, searching in the space of functional forms. For more details see: [[Tenachi et al 2023]](https://arxiv.org/abs/2303.03192).
 
 https://user-images.githubusercontent.com/63928316/225642347-a07127da-a84e-4af3-96f4-4c7fef5a673b.mp4
 
@@ -14,7 +14,7 @@ The package has been tested on:
 - Linux
 - OSX (ARM & Intel)
 
-Running `physo` on Windows is not recommended.
+Running `physo` on Windows is not recommended (for now).
 
 To install the package it is recommended to first create a conda virtual environment:
 ```
@@ -264,13 +264,13 @@ If you found the function you have added useful, don't hesitate to make a pull r
 
 # About computational performances
 
-The main performance bottleneck of `physo` is free constant optimization, therefore, performances are almost linearly dependent on the number of free constant optimization steps and on the number of trial expressions per epoch (ie. the batch size).
+The main performance bottleneck of `physo` is free constant optimization, therefore, in non-parallel execution mode, performances are almost linearly dependent on the number of free constant optimization steps and on the number of trial expressions per epoch (ie. the batch size).
 
 In addition, it should be noted that generating monitoring plots takes ~3s, therefore we suggest making monitoring plots every >10 epochs for low time / epoch cases. 
 
 ## Expected computational performances
 
-Summary of expected performances with `physo`:
+Summary of expected performances with `physo` (in parallel mode):
 
 | Time / epoch | Batch size | # free const | free const <br>opti steps | Example                             | Device                                      |
 |--------------|------------|--------------|---------------------------|-------------------------------------|---------------------------------------------|
@@ -285,7 +285,7 @@ Please note that using a CPU typically results in higher performances than when 
 
 ## Parallel mode
 
-1. Free constant optimization
+1. Parallel free constant optimization
 
 Parallel constant optimization is enabled if and only if :
 - The system is compatible (checked by `physo.physym.execute.ParallelExeAvailability`).
@@ -293,12 +293,12 @@ Parallel constant optimization is enabled if and only if :
 - `physo.physym.reward.USE_PARALLEL_OPTI_CONST = True`.
 
 By default, both of these are true as parallel mode is typically faster for this task.
-However, if you are using a batch size $<10k$, due to communication overhead it might be worth it to disable it for this task via:
+However, if you are using a batch size <10k, due to communication overhead it might be worth it to disable it for this task via:
 ```
 physo.physym.reward.USE_PARALLEL_OPTI_CONST = False
 ```
 
-2. Reward computation
+2. Parallel reward computation
 
 Parallel reward computation is enabled if and only if :
 - The system is compatible (checked by `physo.physym.execute.ParallelExeAvailability`).
@@ -313,8 +313,8 @@ physo.physym.reward.USE_PARALLEL_EXE = True
 
 3. Miscellaneous
 
-- Efficiency curves (nb. of CPUs vs individual task time) are produced by `execute_UnitTest.py` in a toy case with batch size = 10k and $10^3$ data points.
-- The use of `parallel_mode` can be managed by the configuration of the reward which can be managed through a hyperparameter config files which is handy for running a benchmark on an HPC with a predetermined number of CPUs.
+- Efficiency curves (nb. of CPUs vs individual task time) are produced by `execute_UnitTest.py` in a realistic toy case with batch size = 10k and $10^3$ data points.
+- The use of `parallel_mode` can be managed in the configuration of the reward which can itself be managed through a hyperparameter config file (see `config` folder) which is handy for running a benchmark on an HPC with a predetermined number of CPUs.
 - Disabling parallel mode entirely via `USE_PARALLEL_EXE=False` `USE_PARALLEL_OPTI_CONST=False` is recommended before running `physo` in a debugger.
 
 # Uninstalling
