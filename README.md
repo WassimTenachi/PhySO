@@ -1,7 +1,7 @@
 
 # $\Phi$-SO : Physical Symbolic Optimization
 
-The physical symbolic regression ( $\Phi$-SO ) package `physo` is a symbolic regression package that fully leverages physical units constraints. For more details see: [[Tenachi et al 2023]](https://arxiv.org/abs/2303.03192).
+The physical symbolic optimization ( $\Phi$-SO ) package `physo` is a symbolic regression package that fully leverages physical units constraints in order to infer analytical physical laws from data points searching in the space of functional forms. For more details see: [[Tenachi et al 2023]](https://arxiv.org/abs/2303.03192).
 
 https://user-images.githubusercontent.com/63928316/225642347-a07127da-a84e-4af3-96f4-4c7fef5a673b.mp4
 
