@@ -153,9 +153,33 @@ class FreeConstUtilsTest(unittest.TestCase):
         MSE_before_opti_0 = data_conversion_inv(torch.mean((prog0(X) - y_target0) ** 2))
         MSE_before_opti_1 = data_conversion_inv(torch.mean((prog1(X) - y_target1) ** 2))
 
-        # Optimize free constants
+        # Optimizing free constants of prog 0
         prog0.optimize_constants(X=X, y_target=y_target0)
+
+        # Testing that opti processed was logged in Program
+        works_bool = (prog0.is_opti[0] == True) and (prog1.is_opti[0] == False)
+        self.assertEqual(works_bool, True)
+        works_bool = (prog0.opti_steps[0] > 0) and (prog1.opti_steps[0] == 0)
+        self.assertEqual(works_bool, True)
+        # Testing that opti processed was logged in FreeConstantsTable
+        works_bool = (my_programs.free_consts.is_opti[0] == True) and (my_programs.free_consts.is_opti[1] == False)
+        self.assertEqual(works_bool, True)
+        works_bool = (my_programs.free_consts.opti_steps[0] > 0) and (my_programs.free_consts.opti_steps[1] == 0)
+        self.assertEqual(works_bool, True)
+
+        # Optimizing free constants of prog 1
         prog1.optimize_constants(X=X, y_target=y_target1)
+
+        # Testing that opti processed was logged in Program
+        works_bool = (prog0.is_opti[0] == True) and (prog1.is_opti[0] == True)
+        self.assertEqual(works_bool, True)
+        works_bool = (prog0.opti_steps[0] > 0) and (prog1.opti_steps[0] > 0)
+        self.assertEqual(works_bool, True)
+        # Testing that opti processed was logged in FreeConstantsTable
+        works_bool = (my_programs.free_consts.is_opti[0] == True) and (my_programs.free_consts.is_opti[1] == True)
+        self.assertEqual(works_bool, True)
+        works_bool = (my_programs.free_consts.opti_steps[0] > 0) and (my_programs.free_consts.opti_steps[1] > 0)
+        self.assertEqual(works_bool, True)
 
         # TEST CONSTANTS RECOVERY
         exp_tol = 1e-4
@@ -169,7 +193,7 @@ class FreeConstUtilsTest(unittest.TestCase):
         works_bool = (np.abs(ideal_const_array0 - obs_const0) < exp_tol).all()
         self.assertEqual(works_bool, True)
 
-        # testing that constants are recovered in FreeConstantsTable
+        # testing that constants are recovered in FreeConstantsTable (the first one does not matter)
         obs_const1   = data_conversion_inv(my_programs.free_consts.values[1])
         works_bool = (np.abs(ideal_const_array1[1:] - obs_const1[1:]) < exp_tol).all()
         self.assertEqual(works_bool, True)
@@ -178,12 +202,11 @@ class FreeConstUtilsTest(unittest.TestCase):
         works_bool = (np.abs(ideal_const_array1[1:] - obs_const1[1:]) < exp_tol).all()
         self.assertEqual(works_bool, True)
 
-        # TEST PROG
+        # testing that target y are reproduced
         exp_tol = 1e-6
         MSE_0 = data_conversion_inv(torch.mean((prog0(X) - y_target0) ** 2))
         works_bool = np.abs(MSE_0)<exp_tol
         self.assertEqual(works_bool, True)
-
         MSE_1 = data_conversion_inv(torch.mean((prog1(X) - y_target1) ** 2))
         works_bool = np.abs(MSE_1) < exp_tol
         self.assertEqual(works_bool, True)

@@ -25,9 +25,9 @@ class FreeConstantsTable:
         # If free_constants_init_val already contains torch tensors, they are converted by np.tile (if on same device)
         self.values = torch.tensor(values_array)                                       # (batch_size, n_free_const,) of float
         self.values = self.values
-        # mask : is free constant optimized
+        # mask : Is set of free constants optimized
         self.is_opti    = np.full(shape=self.batch_size, fill_value=False, dtype=bool)  # (batch_size,) of bool
-        # Number of epochs necessary to optimize.py free constant
+        # Number of iterations necessary to optimize free constant
         self.opti_steps = np.full(shape=self.batch_size, fill_value=False, dtype=int )  # (batch_size,) of int
 
     def __repr__(self):

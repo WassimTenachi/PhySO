@@ -427,14 +427,14 @@ class FuncTest(unittest.TestCase):
 
     # Test that tokens pointing to data work
     def test_data_pointers_work(self):
-        const_data0 = data_conversion ( np.random.rand(100) )
-        const_data1 = data_conversion ( np.random.rand(100) )
+        const_data0 = data_conversion ( np.random.rand() )
+        const_data1 = data_conversion ( np.random.rand() )
         my_tokens = Func.make_tokens(op_names="all",
                                      constants={"pi": np.pi, "const1": 1., "data0": const_data0,
                                                            "data1": const_data1}, )
         my_tokens_dict = {token.name: token for token in my_tokens}
         # test that tokens point to data
-        bool = np.array_equal(data_conversion_inv ( my_tokens_dict["pi"]()     ) , np.pi)
+        bool = np.array_equal(data_conversion_inv ( my_tokens_dict["pi"]()    ) , np.pi)
         self.assertEqual(bool, True)
         bool = np.array_equal(data_conversion_inv ( my_tokens_dict["const1"]() ) , 1.)
         self.assertEqual(bool, True)

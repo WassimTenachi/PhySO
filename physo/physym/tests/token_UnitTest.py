@@ -88,28 +88,38 @@ class TokenTest(unittest.TestCase):
     def test_token_constant_creation(self):
         # Test token creation
         try:
-            pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=0,
-                           function=lambda const=np.pi: const,
+            pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=3,
+                           fixed_const=np.pi,
+                           function=None,
                            var_id=None)
         except:
             self.fail("Token creation failed")
 
     # Test token creation exceptions
     def test_token_constant_creation_exceptions(self):
-        # Test exception: function is supposed to be callable
+        # Test exception: fixed_const is supposed to be non nan
         with self.assertRaises(AssertionError):
-            pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=0,
-                           function=np.pi,
+            pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=3,
+                           fixed_const=np.NaN,
+                           function=None,
+                           var_id=None)
+        # Test exception: function is supposed to be None
+        with self.assertRaises(AssertionError):
+            pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=3,
+                           fixed_const=np.pi,
+                           function=lambda const = np.pi: const,
                            var_id=None)
         # Test exception: var_id is supposed to be Nan
         with self.assertRaises(AssertionError):
-            pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=0,
-                           function=lambda const=np.pi: const,
+            pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=3,
+                           fixed_const=np.pi,
+                           function=None,
                            var_id=0)
-        # Test exception: arity is supposed to be >= 0
+        # Test exception: arity is supposed to be = 0
         with self.assertRaises(AssertionError):
-            pi = Tok.Token(name='pi', sympy_repr='pi', arity=-1, complexity=0, var_type=0,
-                           function=lambda const=np.pi: const,
+            pi = Tok.Token(name='pi', sympy_repr='pi', arity=1, complexity=0, var_type=3,
+                           fixed_const=np.pi,
+                           function=None,
                            var_id=None)
 
     # --------------------- Token representing free constant ---------------------

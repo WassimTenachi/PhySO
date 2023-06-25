@@ -7,7 +7,7 @@ import torch as torch
 from physo.physym import reward
 from physo.physym.functions import data_conversion, data_conversion_inv
 
-class ExecuteProgramTest(unittest.TestCase):
+class RewardTest(unittest.TestCase):
 
     # Test Squashed NRMSE reward
     def test_Reward_SquashedNRMSE (self):

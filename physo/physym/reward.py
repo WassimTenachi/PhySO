@@ -2,9 +2,11 @@ import warnings
 
 import numpy as np
 import torch as torch
+import physo.physym.execute as exec
 
-from tqdm import tqdm
-SHOW_PROGRESS_BAR = False
+# During programs evaluation, should parallel execution be used ?
+USE_PARALLEL_EXE        = False  # Only worth it if n_samples > 1e6
+USE_PARALLEL_OPTI_CONST = True   # Only worth it if batch_size > 1k
 
 def SquashedNRMSE (y_target, y_pred,):
     """
@@ -34,8 +36,9 @@ def RewardsComputer(programs,
                     zero_out_unphysical = False,
                     zero_out_duplicates = False,
                     keep_lowest_complexity_duplicate = False,
+                    parallel_mode = False,
+                    n_cpus = None,
                     progress_bar = False,
-
                     ):
     """
     Computes rewards of programs on X data accordingly with target y_target and reward reward_function using torch
@@ -67,64 +70,8 @@ def RewardsComputer(programs,
     rewards : numpy.array of shape (?,) of float
         Rewards of programs.
     """
-    pb = lambda x: x
-    if SHOW_PROGRESS_BAR:
-        pb = tqdm
 
     # ----- SETUP -----
-
-    def batch_compute_rewards (programs, X, y_target, reward_function, mask_valid):
-        """
-        Helper function to compute reward of a batch of program where mask_valid is True.
-        """
-        rewards = []
-        # Iterating through batch
-        for i in pb(range(programs.batch_size)):
-            # print("rewarding %i/%i" % (i, programs.batch_size))
-            # If valid prog, reward should be computed
-            if mask_valid[i]:
-                try:
-                    # Getting prog
-                    prog = programs.get_prog(i)
-                    # Making prediction
-                    y_pred = prog(X)
-                    # Computing reward
-                    r = reward_function(y_pred=y_pred, y_target=y_target,)
-                except:
-                    # Safety
-                    warnings.warn("Unable to compute reward of prog %i -> r = 0"%(i))
-                    r = torch.tensor(0.)
-            # If this is not a valid prog, we should not bother computing reward
-            else:
-                r = torch.tensor(0.)
-            # Only using torch for gpu acceleration, no backpropagation happening here -> converting to numpy
-            rewards.append(r.detach().cpu().numpy())
-        rewards = np.array(rewards)                                                                      # (batch_size,)
-        return rewards
-
-    def batch_optimize_free_const (programs, X, y_target, args_opti, mask_valid,):
-        """
-        Helper function to optimize.py constants of a batch of program where mask_valid is True.
-        """
-        # Iterating through batch
-        for i in pb(range(programs.batch_size)):
-            #print("%i/%i"%(i, programs.batch_size))
-            # print("optimizing free const %i/%i"%(i, programs.batch_size))
-            # If this is a valid prog AND it contains free constants then we try to optimize.py its free constants.
-            # (Else we should not bother optimizing its free constants)
-            if mask_valid[i] and programs.n_free_const_occurrences[i]:
-                try:
-                    # Getting prog
-                    prog = programs.get_prog(i)
-                    # Optimizing free constants
-                    history = prog.optimize_constants(X, y_target, args_opti=args_opti)
-                    # Logging free constant optimization process
-                    programs.free_consts.is_opti    [i] = True
-                    programs.free_consts.opti_steps [i] = len(history)
-                except:
-                    # Safety
-                    warnings.warn("Unable to optimize.py free constants of prog %i -> r = 0"%(i))
-        return None
 
     # mask : should program reward NOT be zeroed out ie. is program invalid ?
     # By default all programs are considered valid
@@ -141,9 +88,19 @@ def RewardsComputer(programs,
     if zero_out_duplicates:
         # Compute rewards (even if programs have non-optimized free consts) to serve as a unique numeric identifier of
         # functional forms (programs having equivalent forms will have the same reward).
-        rewards_non_opt = batch_compute_rewards (programs, X, y_target,
-                                                 reward_function = reward_function,
-                                                 mask_valid = mask_valid)
+
+        # Only use parallel mode if enabled in function param and in USE_PARALLEL_EXE flag.
+        # This way users can use flags to specifically enable or disable parallel exe and/or const opti.
+        parallel_mode_exe = parallel_mode and USE_PARALLEL_EXE
+        rewards_non_opt = programs.batch_exe_reward (X        = X,
+                                                     y_target = y_target,
+                                                     reward_function = reward_function,
+                                                     mask            = mask_valid,
+                                                     pad_with        = 0.0,
+                                                     # Parallel related
+                                                     parallel_mode   = parallel_mode_exe,
+                                                     n_cpus          = n_cpus,
+                                                    )
         # mask : is program a unique one we should keep ?
         # By default, all programs are eliminated.
         mask_unique_keep = np.full(shape=programs.batch_size, fill_value=False, dtype=bool)              # (batch_size,)
@@ -173,7 +130,18 @@ def RewardsComputer(programs,
     # ----- FREE CONST OPTIMIZATION -----
     # If there are free constants in the library, we have to optimize.py them
     if programs.library.n_free_const > 0:
-        batch_optimize_free_const (programs, X, y_target, args_opti = free_const_opti_args, mask_valid = mask_valid)
+        # Only use parallel mode if enabled in function param and in USE_PARALLEL_OPTI_CONST flag.
+        # This way users can use flags to specifically enable or disable parallel exe and/or const opti.
+        parallel_mode_const_opti = parallel_mode and USE_PARALLEL_OPTI_CONST
+        # Opti const
+        # batch_optimize_free_const (programs, X, y_target, args_opti = free_const_opti_args, mask_valid = mask_valid)
+        programs.batch_optimize_constants(X        = X,
+                                          y_target = y_target,
+                                          free_const_opti_args = free_const_opti_args,
+                                          mask                 = mask_valid,
+                                          # Parallel related
+                                          parallel_mode        = parallel_mode_const_opti,
+                                          n_cpus               = n_cpus)
 
     # ----- REWARDS -----
     # If rewards were already computed at the duplicate elimination step and there are no free constants in the library
@@ -182,7 +150,18 @@ def RewardsComputer(programs,
         rewards = rewards_non_opt
     # Else we need to compute rewards
     else:
-        rewards = batch_compute_rewards (programs, X, y_target, reward_function = reward_function, mask_valid = mask_valid)
+        # Only use parallel mode if enabled in function param and in USE_PARALLEL_EXE flag.
+        # This way users can use flags to specifically enable or disable parallel exe and/or const opti.
+        parallel_mode_exe = parallel_mode and USE_PARALLEL_EXE
+        rewards = programs.batch_exe_reward (X        = X,
+                                             y_target = y_target,
+                                             reward_function = reward_function,
+                                             mask            = mask_valid,
+                                             pad_with        = 0.0,
+                                             # Parallel related
+                                             parallel_mode   = parallel_mode_exe,
+                                             n_cpus          = n_cpus,
+                                            )
 
     # Applying mask (this is redundant)
     rewards = rewards * mask_valid.astype(float)
@@ -195,7 +174,11 @@ def RewardsComputer(programs,
 def make_RewardsComputer(reward_function     = SquashedNRMSE,
                          zero_out_unphysical = False,
                          zero_out_duplicates = False,
-                         keep_lowest_complexity_duplicate = False):
+                         keep_lowest_complexity_duplicate = False,
+                         # Parallel related
+                         parallel_mode = True,
+                         n_cpus        = None,
+                         ):
     """
     Helper function to make custom reward computing function.
     Parameters
@@ -210,20 +193,42 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
     keep_lowest_complexity_duplicate : bool
         If True, when eliminating duplicates (via zero_out_duplicates = True), the least complex duplicate is kept, else
         a random duplicate is kept.
+    parallel_mode : bool
+        Tries to use parallel execution if True (availability will be checked by execute.ParallelExeAvailability),
+        execution in a loop else.
+    n_cpus : int or None
+        Number of CPUs to use when running in parallel mode. By default, uses the maximum number of CPUs available.
     Returns
     -------
     rewards_computer : callable
          Custom reward computing function taking programs (program.VectPrograms), X (torch.tensor of shape (n_dim,?,)
-         of float), y_target (torch.tensor of shape (?,) of float) as key arguments and returning reward for each
+         of float), y_target (torch.tensor of shape (?,) of float), free_const_opti_args as key arguments and returning reward for each
          program (array_like of float).
     """
-    rewards_computer = lambda programs, X, y_target, free_const_opti_args : RewardsComputer(programs = programs,
-                                                                                            X        = X,
-                                                                                            y_target = y_target,
-                                                                                            free_const_opti_args = free_const_opti_args,
-                                                                                            # Frozen args
-                                                                                            reward_function     = reward_function,
-                                                                                            zero_out_unphysical = zero_out_unphysical,
-                                                                                            zero_out_duplicates = zero_out_duplicates,
-                                                                                            keep_lowest_complexity_duplicate = keep_lowest_complexity_duplicate,)
+    # Check that parallel execution is available on this system
+    recommended_config = exec.ParallelExeAvailability()
+    is_parallel_mode_available_on_system = recommended_config["parallel_mode"]
+    # If not available and parallel_mode was still instructed warn and disable
+    if not is_parallel_mode_available_on_system and parallel_mode:
+        exec.ParallelExeAvailability(verbose=True) # prints explanation
+        warnings.warn("Parallel mode is not available on this system, switching to non parallel mode.")
+        parallel_mode = False
+
+    # rewards_computer
+    def rewards_computer(programs, X, y_target, free_const_opti_args):
+        R = RewardsComputer(programs = programs,
+                            X        = X,
+                            y_target = y_target,
+                            free_const_opti_args = free_const_opti_args,
+                            # Frozen args
+                            reward_function     = reward_function,
+                            zero_out_unphysical = zero_out_unphysical,
+                            zero_out_duplicates = zero_out_duplicates,
+                            keep_lowest_complexity_duplicate = keep_lowest_complexity_duplicate,
+                            # Parallel related
+                            parallel_mode = parallel_mode,
+                            n_cpus        = n_cpus,
+                            )
+        return R
+
     return rewards_computer
