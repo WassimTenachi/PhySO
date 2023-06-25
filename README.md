@@ -8,13 +8,12 @@ https://user-images.githubusercontent.com/63928316/225642347-a07127da-a84e-4af3-
 
 # Installation
 
-### Virtual environment
-
 The package has been tested on:
 - Linux
 - OSX (ARM & Intel)
+- Windows
 
-Running `physo` on Windows is not recommended (for now).
+### Virtual environment
 
 To install the package it is recommended to first create a conda virtual environment:
 ```
