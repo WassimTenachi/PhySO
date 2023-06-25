@@ -418,6 +418,9 @@ class ExecuteProgramTest(unittest.TestCase):
             print("-> %f ms per task"%(task_time))
             times.append(task_time)
         times = np.array(times)
+        # Ordering results
+        ncpus_list = np.array(ncpus_list[1:].tolist() + [ncpus_list[0]])
+        times = np.array(times[1:].tolist() + [times[0]])
 
         # Getting computation times when running in a non-parallelized loop
         print("Not parallelized")
@@ -430,6 +433,7 @@ class ExecuteProgramTest(unittest.TestCase):
         enabled = physo.physym.reward.USE_PARALLEL_EXE
         fig.suptitle("Efficiency curve: execution and reduced gathering\n "
                      "Using parallelization in physo run : %s"%(str(enabled)))
+        ax.plot(ncpus_list, times, 'k--')
         ax.plot(ncpus_list, times, 'ko')
         ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
         ax.set_xlabel("Nb. of CPUs")
@@ -540,6 +544,9 @@ class ExecuteProgramTest(unittest.TestCase):
             print("-> %f ms per task"%(task_time))
             times.append(task_time)
         times = np.array(times)
+        # Ordering results
+        ncpus_list = np.array(ncpus_list[1:].tolist() + [ncpus_list[0]])
+        times = np.array(times[1:].tolist() + [times[0]])
 
         # Getting computation times when running in a non-parallelized loop
         print("Not parallelized")
@@ -552,6 +559,7 @@ class ExecuteProgramTest(unittest.TestCase):
         enabled = physo.physym.reward.USE_PARALLEL_EXE
         fig.suptitle("Efficiency curve: execution and reduced gathering of rewards\n "
                      "Using parallelization in physo run : %s"%(str(enabled)))
+        ax.plot(ncpus_list, times, 'k--')
         ax.plot(ncpus_list, times, 'ko')
         ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
         ax.set_xlabel("Nb. of CPUs")
@@ -678,6 +686,9 @@ class ExecuteProgramTest(unittest.TestCase):
             print("-> %f ms per task"%(task_time))
             times.append(task_time)
         times = np.array(times)
+        # Ordering results
+        ncpus_list = np.array(ncpus_list[1:].tolist() + [ncpus_list[0]])
+        times = np.array(times[1:].tolist() + [times[0]])
 
         # Getting computation times when running in a non-parallelized loop
         print("Not parallelized")
@@ -688,6 +699,7 @@ class ExecuteProgramTest(unittest.TestCase):
         fig,ax = plt.subplots(1,1)
         enabled = physo.physym.reward.USE_PARALLEL_OPTI_CONST
         fig.suptitle("Efficiency curve: free const. opti.\n Using parallelization in physo run : %s"%(str(enabled)))
+        ax.plot(ncpus_list, times, 'k--')
         ax.plot(ncpus_list, times, 'ko')
         ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
         ax.set_xlabel("Nb. of CPUs")
