@@ -77,7 +77,8 @@ From the repository root:
 ```
 python -m unittest discover -p "*UnitTest.py"
 ```
-This should result in all tests being successfully passed (except for program_display_UnitTest tests if optional dependencies were not installed). 
+This should result in all tests being successfully passed (except for program_display_UnitTest tests if optional dependencies were not installed).
+This  should take 5-15 min depending on your system (as if you have a lot of CPU cores, it will take longer to make the efficiency curves).
 
 # Getting started
 
@@ -315,6 +316,7 @@ physo.physym.reward.USE_PARALLEL_EXE = True
 3. Miscellaneous
 
 - Efficiency curves (nb. of CPUs vs individual task time) are produced by `execute_UnitTest.py` in a realistic toy case with batch size = 10k and $10^3$ data points.
+- Parallel mode is not available from jupyter notebooks on spawn multiprocessing systems (typically MACs/Windows), run .py scripts on those.
 - The use of `parallel_mode` can be managed in the configuration of the reward which can itself be managed through a hyperparameter config file (see `config` folder) which is handy for running a benchmark on an HPC with a predetermined number of CPUs.
 - Disabling parallel mode entirely via `USE_PARALLEL_EXE=False` `USE_PARALLEL_OPTI_CONST=False` is recommended before running `physo` in a debugger.
 
