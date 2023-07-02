@@ -133,31 +133,63 @@ class FeynmanProblem:
         i_eq : int
             Equation number in the set of equations.
         """
+
         # Equation line in dataframe
         self.eq_df = EQS_FEYNMAN_DF.iloc[i_eq]
-
         # Number of input variables
-        self.n_vars = int(self.eq_df["# variables"])  # (,)
+        self.n_vars = int(self.eq_df["# variables"])    # int
 
+        # ----------- y : output variable -----------
         # Name of output variable
-        self.y_name = self.eq_df["Output"]       # (,)
+        self.y_name   = self.eq_df["Output"]            # str
         # Units of output variables
-        out_units = get_units(self.y_name)  # (max_units,)
+        self.y_units = get_units(self.y_name)           # (FEYN_UNITS_VECTOR_SIZE,)
 
-
-        # Id of input variables v1_name, v2_name etc.
-        var_names_str = np.array( [ "v%i"%(i_var) + "_name" for i_var in range(1, n_vars+1) ]          ).astype(str)   # (n_vars,)
+        # ----------- X : input variables -----------
+        # Utils id of input variables v1_name, v2_name etc. in .csv
+        var_names_str = np.array( [ "v%i"%(i_var) + "_name" for i_var in range(1, self.n_vars+1) ]              ).astype(str)            # (n_vars,)
         # Names of input variables
-        var_names = np.array( [ eq_df[ var_names_str[i] ] for i_var in range(1, n_vars+1) ]            ).astype(str)   # (n_vars,)
+        self.X_names = np.array( [ self.eq_df[ var_names_str[i_var] ] for i_var in range(1, self.n_vars+1)  ]   ).astype(str)            # (n_vars,)
         # Lowest values taken by input variables
-        var_lows  = np.array( [ eq_df[ var_names_str[i]  ] for i_var in range(1, n_vars+1) ]           ).astype(float) # (n_vars,)
+        self.X_lows  = np.array( [ self.eq_df[ var_names_str[i_var] ] for i_var in range(1, self.n_vars+1) ]    ).astype(float)          # (n_vars,)
         # Highest values taken by input variables
-        var_highs = np.array( [ eq_df[ var_names_str[i] ] for i_var in range(1, n_vars+1) ]            ).astype(float) # (n_vars,)
+        self.X_highs = np.array( [ self.eq_df[ var_names_str[i_var] ] for i_var in range(1, self.n_vars+1)  ]   ).astype(float)          # (n_vars,)
         # Units of input variables
-        var_units = np.array( [ get_units(eq_df[ var_names_str[i] ]) for i_var in range(1, n_vars+1) ] ).astype(float) # (n_vars, max_units,)
+        self.X_units = np.array( [ get_units(self.eq_df[ var_names_str[i_var] ]) for i_var in range(1, self.n_vars+1) ] ).astype(float)  # (n_vars, FEYN_UNITS_VECTOR_SIZE,)
 
-dict_for_feynman_formula_var_names = {var_names[i_var]:"X[%i]"%(i_var) for i_var in range(n_vars)}
+        # ----------- Formula -----------
+        self.formula_display = self.eq_df["Formula"]
+        dict_for_feynman_formula_var_names = {self.X_names[i_var]:"X[%i]"%(i_var) for i_var in range(self.n_vars)}
+        self.formula = replace_symbols_in_formula(self.formula_display, dict_for_feynman_formula_var_names)
 
-formula = replace_symbols_in_formula(eq_df["Formula"], dict_for_feynman_formula_var_names)
+        return None
 
-X = np.stack([np.random.uniform(var_lows[i_var], var_highs[i_var], 10) for i_var in range(n_vars)])
+    def target_function(self, X):
+        """
+        Evaluates X with target function.
+        Parameters
+        ----------
+        X : numpy.array of shape (n_vars, ?,) of floats
+        Returns
+        -------
+        y : numpy.array of shape (?,) of floats
+        """
+        y = eval(self.formula)
+        return y
+
+    def generate_data_points (self, n_samples = int(1e6)):
+        """
+        Generates data points accordingly for this Feynman problem.
+        Parameters
+        ----------
+        n_samples : int
+            Number of samples to draw. By default, 1e6 as this is the number of data points for each problem in the
+            files in https://space.mit.edu/home/tegmark/aifeynman.html
+        Returns
+        -------
+        X, y : numpy.array of shape (n_vars, ?,) of floats, numpy.array of shape (?,) of floats
+        """
+        X = np.stack([np.random.uniform(self.X_lows[i_var], self.X_highs[i_var], n_samples) for i_var in range(self.n_vars)])
+        y = self.target_function(X)
+        return X,y
+
