@@ -17,7 +17,7 @@ PATH_UNITS_CSV       = PARENT_FOLER / "units.csv"
 
 def load_feynman_equations_csv (filepath = "FeynmanEquations.csv"):
     """
-    Loads FeynmanEquations.csv into a clean pd.DataFrame.
+    Loads FeynmanEquations.csv into a clean pd.DataFrame (corrects typos).
     Source file can be found here: https://space.mit.edu/home/tegmark/aifeynman.html
     Parameters
     ----------
@@ -32,16 +32,31 @@ def load_feynman_equations_csv (filepath = "FeynmanEquations.csv"):
     eqs_feynman_df = eqs_feynman_df[~eqs_feynman_df[eqs_feynman_df.columns[0]].isnull()]
     # Set types for int columns
     eqs_feynman_df = eqs_feynman_df.astype({'Number': int, '# variables': int})
+
     # ---- Correcting typos in the file ----
-    # Equation II.37.1 takes 3 variables not 6
+    # Equation II.37.1 takes 3 arguments not 6
     eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "II.37.1",   "# variables"] = 3
-    # Equation I.18.12 takes 3 variables not 2
+    # Equation I.18.12 takes 3 arguments not 2
     eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "I.18.12",   "# variables"] = 3
-    # Equation I.18.14 takes 4 variables not 3
+    # Equation I.18.14 takes 4 arguments not 3
     eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "I.18.14",   "# variables"] = 4
-    # Equation III.10.19 takes 4 variables not 3
+    # Equation III.10.19 takes 4 arguments not 3
     eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "III.10.19", "# variables"] = 4
-    # todo: count myself and assert if inconsistent for safety
+    # Equation I.38.12 takes 4 arguments not 3
+    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "I.38.12",   "# variables"] = 4
+    # Equation III.19.51 takes 5 arguments not 4
+    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "III.19.51", "# variables"] = 5
+
+    # ---- Verifying number of variables for safety ----
+    # Checking the number of variables declared in the file for each problem
+    # Expected number of variables for each problem
+    expected_n_vars = (~eqs_feynman_df[["v%i_name" % (i) for i in range(1, 11)]].isnull().to_numpy()).sum(axis=1)       # (N_EQS,)
+    # Declared number of variables for each problem
+    n_vars = eqs_feynman_df["# variables"].to_numpy()                                                                   # (N_EQS,)
+    # Is nb of declared variable consistent with variables columns ?
+    is_consistent = np.equal(expected_n_vars, n_vars)                                                                   # (N_EQS,)
+    assert is_consistent.all(), "Nb. of filled variables columns not consistent with declared nb. of variables for " \
+                                "problems:\n %s"%(str(eqs_feynman_df.loc[~is_consistent]))
     return eqs_feynman_df
 
 def load_feynman_units_csv (filepath = "units.csv"):
@@ -233,19 +248,26 @@ class FeynmanProblem:
         # Input variables as sympy symbols
         self.X_sympy_symbols = []
         for i in range(self.n_vars):
-            self.X_sympy_symbols.append(sympy.Symbol(self.X_names[i],  #  (n_vars,)
+            self.X_sympy_symbols.append(sympy.Symbol(self.X_names[i],                                                   #  (n_vars,)
                                                      # Useful assumptions for simplifying etc
                                                      real     = True,
                                                      positive = self.X_lows  [i] > 0,
                                                      negative = self.X_highs [i] < 0,
-                                                     nonzero  = not (self.X_lows[i] <= 0 and self.X_highs[i] >= 0),
+                                                     # If nonzero = False assumes that always = 0 which causes problems
+                                                     # when simplifying
+                                                     # nonzero  = not (self.X_lows[i] <= 0 and self.X_highs[i] >= 0),
                                                      domain   = sympy.sets.sets.Interval(self.X_lows[i], self.X_highs[i]),
                                                      ))
         # Input variables names to sympy symbols dict
-        sympy_X_symbols_dict = {self.X_names[i] : self.X_sympy_symbols[i] for i in range(self.n_vars)}                     #  (n_vars,)
+        sympy_X_symbols_dict = {self.X_names[i] : self.X_sympy_symbols[i] for i in range(self.n_vars)}                  #  (n_vars,)
         # Declaring input variables via local_dict to avoid confusion
         # Eg. So sympy knows that we are referring to gamma as a variable and not the function etc.
-        self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula_display, local_dict = sympy_X_symbols_dict)
+        local_dict = sympy_X_symbols_dict
+        # Avoids eg. sin(theta) = 0 when theta domain = [0,5] ie. nonzero=False
+        evaluate = False
+        self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula_display,
+                                                                     local_dict = local_dict,
+                                                                     evaluate   = evaluate)
 
         return None
 
@@ -267,7 +289,12 @@ class FeynmanProblem:
         # Mapping between variables names and their data value
         mapping_var_name_to_X = {self.X_names[i]: X[i] for i in range(self.n_vars)}
         # Evaluation
-        y = f(**mapping_var_name_to_X)
+        # Forcing float type so if some symbols are not evaluated as floats (eg. if some variables are not declared
+        # properly in source file) resulting partly symbolic expressions will not be able to be converted to floats
+        # and an error can be raised).
+        # This is also useful for detecting issues such as sin(theta) = 0 because theta.is_nonzero = False -> the result
+        # is just an int of float
+        y = f(**mapping_var_name_to_X).astype(float)
 
         return y
 
