@@ -21,6 +21,7 @@ setuptools.setup(
     author_email     = 'w.tenachi@gmail.com',
     license          = 'MIT',
     packages         = setuptools.find_packages(),
+    package_data     = {"physo": ["/benchmark/FeynmanBenchmark/*.csv"]},
     #install_requires = REQUIRED,
     #extras_require   = EXTRAS,
 )
