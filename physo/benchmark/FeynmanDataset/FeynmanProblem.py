@@ -124,11 +124,11 @@ def replace_symbols_in_formula(formula,
     formula : str
         Formula with corrected symbols ready for execution via evaluate(formula).
     """
-    dict_fml = DICT_FOR_FEYNMAN_FORMULA_FUNC_TO_NP
+    dict_fml = dict_for_feynman_formula_var_names
     for symbol in dict_fml.keys():
         new_symbol = dict_fml[symbol]
         formula = formula.replace(symbol, new_symbol)
-    dict_fml = dict_for_feynman_formula_var_names
+    dict_fml = DICT_FOR_FEYNMAN_FORMULA_FUNC_TO_NP
     for symbol in dict_fml.keys():
         new_symbol = dict_fml[symbol]
         formula = formula.replace(symbol, new_symbol)
@@ -140,15 +140,51 @@ def replace_symbols_in_formula(formula,
 # ---------------------------------------------------------------------------------------------------------------------
 
 class FeynmanProblem:
+    """
+    Represents a single Feynman benchmark problem.
+    Attributes
+    ----------
+    i_eq : int
+        Equation number in the set of equations (e.g. 1 to 100).
+    eq_name : str
+        Equation name in the set of equations (e.g. I.6.2a).
+    n_vars : int
+        Number of input variables.
+
+    y_name : str
+        Name of output variable.
+    y_units : array_like of shape (FEYN_UNITS_VECTOR_SIZE,) of floats
+        Units of output variables.
+
+    X_names : array_like of shape (n_vars,) of str
+        Names of input variables.
+    X_lows : array_like of shape (n_vars,) of floats
+        Lowest values taken by input variables.
+    X_highs : array_like of shape (n_vars,) of floats
+        Highest values taken by input variables.
+    X_units :  array_like of shape (n_vars, FEYN_UNITS_VECTOR_SIZE,) of floats
+        Units of input variables.
+
+    y_name : str
+        Name of output variable
+    y_name : str
+        Name of output variable
+    y_name : str
+        Name of output variable
+    y_name : str
+        Name of output variable
+
+    """
+
     def __init__(self, i_eq = None, eq_name = None):
         """
         Loads a Feynman problem based on its number in the set or its equation name
         Parameters
         ----------
         i_eq : int
-            Equation number in the set of equations (eg. 1 to 100).
+            Equation number in the set of equations (e.g. 1 to 100).
         eq_name : str
-            Equation name in the set of equations (eg. I.6.2a).
+            Equation name in the set of equations (e.g. I.6.2a).
         """
         # Select equation line in dataframe
         if i_eq is not None:
