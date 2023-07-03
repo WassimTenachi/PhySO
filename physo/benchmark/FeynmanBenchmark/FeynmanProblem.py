@@ -1,6 +1,14 @@
 import pandas as pd
 import numpy as np
 import os
+import pathlib
+import sympy
+
+# Dataset paths
+PARENT_FOLER = pathlib.Path(__file__).parents[0]
+PATH_FEYNMAN_EQS_CSV = PARENT_FOLER / "FeynmanEquations.csv"
+PATH_UNITS_CSV       = PARENT_FOLER / "units.csv"
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------- LOADING CSVs  ---------------------------------------------------
@@ -45,8 +53,8 @@ def load_feynman_units_csv (filepath = "units.csv"):
 path_feynman_eqs_csv = os.path.join("physo", "benchmark", "FeynmanBenchmark", "FeynmanEquations.csv")
 path_units_csv       = os.path.join("physo", "benchmark", "FeynmanBenchmark", "units.csv")
 
-EQS_FEYNMAN_DF = load_feynman_equations_csv(path_feynman_eqs_csv)
-UNITS_DF       = load_feynman_units_csv(path_units_csv)
+EQS_FEYNMAN_DF = load_feynman_equations_csv(PATH_FEYNMAN_EQS_CSV)
+UNITS_DF       = load_feynman_units_csv(PATH_UNITS_CSV)
 
 # Size of units vector
 FEYN_UNITS_VECTOR_SIZE = UNITS_DF.shape[1] - 2
@@ -125,7 +133,7 @@ def replace_symbols_in_formula(formula,
 # ---------------------------------------------------------------------------------------------------------------------
 
 class FeynmanProblem:
-    def __int__(self, i_eq):
+    def __init__(self, i_eq):
         """
         Loads a Feynman problem based on its number in the set.
         Parameters
@@ -135,7 +143,9 @@ class FeynmanProblem:
         """
 
         # Equation line in dataframe
-        self.eq_df = EQS_FEYNMAN_DF.iloc[i_eq]
+        self.eq_df  = EQS_FEYNMAN_DF.iloc[i_eq]
+        # Code name of equation (eg. 'I.6.2a')
+        self.eq_name = self.eq_df["Filename"]   # str
         # Number of input variables
         self.n_vars = int(self.eq_df["# variables"])    # int
 
@@ -146,19 +156,20 @@ class FeynmanProblem:
         self.y_units = get_units(self.y_name)           # (FEYN_UNITS_VECTOR_SIZE,)
 
         # ----------- X : input variables -----------
-        # Utils id of input variables v1_name, v2_name etc. in .csv
-        var_names_str = np.array( [ "v%i"%(i_var) + "_name" for i_var in range(1, self.n_vars+1) ]              ).astype(str)            # (n_vars,)
+        # Utils id of input variables v1, v2 etc. in .csv
+        var_names_str = np.array( [ "v%i"%(i_var) for i_var in range(1, self.n_vars+1) ]                             ).astype(str)            # (n_vars,)
         # Names of input variables
-        self.X_names = np.array( [ self.eq_df[ var_names_str[i_var] ] for i_var in range(1, self.n_vars+1)  ]   ).astype(str)            # (n_vars,)
+        self.X_names = np.array( [ self.eq_df[ var_names_str[i_var] + "_name" ] for i_var in range(self.n_vars)  ]   ).astype(str)            # (n_vars,)
         # Lowest values taken by input variables
-        self.X_lows  = np.array( [ self.eq_df[ var_names_str[i_var] ] for i_var in range(1, self.n_vars+1) ]    ).astype(float)          # (n_vars,)
+        self.X_lows  = np.array( [ self.eq_df[ var_names_str[i_var] + "_low"  ] for i_var in range(self.n_vars) ]    ).astype(float)          # (n_vars,)
         # Highest values taken by input variables
-        self.X_highs = np.array( [ self.eq_df[ var_names_str[i_var] ] for i_var in range(1, self.n_vars+1)  ]   ).astype(float)          # (n_vars,)
+        self.X_highs = np.array( [ self.eq_df[ var_names_str[i_var] + "_high" ] for i_var in range(self.n_vars)  ]   ).astype(float)          # (n_vars,)
         # Units of input variables
-        self.X_units = np.array( [ get_units(self.eq_df[ var_names_str[i_var] ]) for i_var in range(1, self.n_vars+1) ] ).astype(float)  # (n_vars, FEYN_UNITS_VECTOR_SIZE,)
+        self.X_units = np.array( [ get_units(self.eq_df[ var_names_str[i_var] + "_name" ]) for i_var in range(self.n_vars) ] ).astype(float)  # (n_vars, FEYN_UNITS_VECTOR_SIZE,)
 
         # ----------- Formula -----------
         self.formula_display = self.eq_df["Formula"]
+        self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula_display)
         dict_for_feynman_formula_var_names = {self.X_names[i_var]:"X[%i]"%(i_var) for i_var in range(self.n_vars)}
         self.formula = replace_symbols_in_formula(self.formula_display, dict_for_feynman_formula_var_names)
 
