@@ -114,48 +114,49 @@ def get_units (var_name):
 # -------------------------------------------------- EQUATIONS UTILS  -------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-
-# How to replace str symbols of functions appearing in the Feynman benchmark by their numpy equivalent
-DICT_FOR_FEYNMAN_FORMULA_FUNC_TO_NP = {
-    "exp"    : "np.exp"    ,
-    "sqrt"   : "np.sqrt"   ,
-    "pi"     : "np.pi"     ,
-    "cos"    : "np.cos"    ,
-    "sin"    : "np.sin"    ,
-    "tan"    : "np.tan"    ,
-    "tanh"   : "np.tanh"   ,
-    "ln"     : "np.log"    ,
-    "arcsin" : "np.arcsin" ,
-}
-
-
-def replace_symbols_in_formula(formula,
-                               dict_for_feynman_formula_var_names
-                               ):
-    """
-    Replaces symbols in a Feynman equation formula by numpy functions for functions and input variables accordingly
-    with dict_for_feynman_formula_var_names;
-    Parameters
-    ----------
-    formula : str
-        Raw initial formula.
-    dict_for_feynman_formula_var_names : dict of (str: str)
-        Which symbol to replace by which other for input variables.
-    Returns
-    -------
-    formula : str
-        Formula with corrected symbols ready for execution via evaluate(formula).
-    """
-    dict_fml = dict_for_feynman_formula_var_names
-    for symbol in dict_fml.keys():
-        new_symbol = dict_fml[symbol]
-        formula = formula.replace(symbol, new_symbol)
-    dict_fml = DICT_FOR_FEYNMAN_FORMULA_FUNC_TO_NP
-    for symbol in dict_fml.keys():
-        new_symbol = dict_fml[symbol]
-        formula = formula.replace(symbol, new_symbol)
-    return formula
-
+# Too dangerous to just replace and evaluate (eg. arscin and sin, theta and theta1 etc.)
+# Evaluation using sympy parser is safer
+#
+# # How to replace str symbols of functions appearing in the Feynman benchmark by their numpy equivalent
+# DICT_FOR_FEYNMAN_FORMULA_FUNC_TO_NP = {
+#     "exp"    : "np.exp"    ,
+#     "sqrt"   : "np.sqrt"   ,
+#     "pi"     : "np.pi"     ,
+#     "cos"    : "np.cos"    ,
+#     "sin"    : "np.sin"    ,
+#     "tan"    : "np.tan"    ,
+#     "tanh"   : "np.tanh"   ,
+#     "ln"     : "np.log"    ,
+#     "arcsin" : "np.arcsin" ,
+# }
+#
+# def replace_symbols_in_formula(formula,
+#                                dict_for_feynman_formula_var_names
+#                                ):
+#     """
+#     Replaces symbols in a Feynman equation formula by numpy functions for functions and input variables accordingly
+#     with dict_for_feynman_formula_var_names;
+#     Parameters
+#     ----------
+#     formula : str
+#         Raw initial formula.
+#     dict_for_feynman_formula_var_names : dict of (str: str)
+#         Which symbol to replace by which other for input variables.
+#     Returns
+#     -------
+#     formula : str
+#         Formula with corrected symbols ready for execution via evaluate(formula).
+#     """
+#     dict_fml = dict_for_feynman_formula_var_names
+#     for symbol in dict_fml.keys():
+#         new_symbol = dict_fml[symbol]
+#         formula = formula.replace(symbol, new_symbol)
+#     dict_fml = DICT_FOR_FEYNMAN_FORMULA_FUNC_TO_NP
+#     for symbol in dict_fml.keys():
+#         new_symbol = dict_fml[symbol]
+#         formula = formula.replace(symbol, new_symbol)
+#     return formula
+#
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------- FEYNMAN PROBLEM  --------------------------------------------------
@@ -188,7 +189,7 @@ class FeynmanProblem:
     X_units :  array_like of shape (n_vars, FEYN_UNITS_VECTOR_SIZE,) of floats
         Units of input variables.
 
-    formula_display : str
+    formula : str
         Formula as in the Feynman dataset.
     X_sympy_symbols : array_like of shape (n_vars,) of sympy.Symbol
         Sympy symbols representing each input variables.
@@ -239,12 +240,11 @@ class FeynmanProblem:
         # Units of input variables
         self.X_units = np.array( [ get_units(self.eq_df[ id + "_name" ]) for id in var_ids_str ] ).astype(float)  # (n_vars, FEYN_UNITS_VECTOR_SIZE,)
 
-        # ----------- Formula : eval utils -----------
-        self.formula_display = self.eq_df["Formula"] # (str)
-        dict_for_feynman_formula_var_names = {self.X_names[i_var]:"X[%i]"%(i_var) for i_var in range(self.n_vars)}
-        self.formula = replace_symbols_in_formula(self.formula_display, dict_for_feynman_formula_var_names)
+        # ----------- Formula -----------
+        self.formula = self.eq_df["Formula"] # (str)
+        #dict_for_feynman_formula_var_names = {self.X_names[i_var]:"X[%i]"%(i_var) for i_var in range(self.n_vars)}
+        #self.formula = replace_symbols_in_formula(self.formula_display, dict_for_feynman_formula_var_names)
 
-        # ----------- Formula : sympy utils -----------
         # Input variables as sympy symbols
         self.X_sympy_symbols = []
         for i in range(self.n_vars):
@@ -265,7 +265,7 @@ class FeynmanProblem:
         local_dict = sympy_X_symbols_dict
         # Avoids eg. sin(theta) = 0 when theta domain = [0,5] ie. nonzero=False
         evaluate = False
-        self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula_display,
+        self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula,
                                                                      local_dict = local_dict,
                                                                      evaluate   = evaluate)
 
@@ -281,8 +281,7 @@ class FeynmanProblem:
         -------
         y : numpy.array of shape (?,) of floats
         """
-        #todo: clean
-        #y = eval(self.formula)
+        # y = eval(self.formula)
 
         # Getting sympy function
         f = sympy.lambdify(self.X_sympy_symbols, self.formula_sympy, "numpy")
