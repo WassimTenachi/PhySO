@@ -142,6 +142,7 @@ def replace_symbols_in_formula(formula,
 class FeynmanProblem:
     """
     Represents a single Feynman benchmark problem.
+    (See https://arxiv.org/abs/1905.11481 and https://space.mit.edu/home/tegmark/aifeynman.html for details).
     Attributes
     ----------
     i_eq : int
@@ -165,15 +166,12 @@ class FeynmanProblem:
     X_units :  array_like of shape (n_vars, FEYN_UNITS_VECTOR_SIZE,) of floats
         Units of input variables.
 
-    y_name : str
-        Name of output variable
-    y_name : str
-        Name of output variable
-    y_name : str
-        Name of output variable
-    y_name : str
-        Name of output variable
-
+    formula_display : str
+        Formula as in the Feynman dataset.
+    X_sympy_symbols : array_like of shape (n_vars,) of sympy.Symbol
+        Sympy symbols representing each input variables.
+    formula_sympy : sympy expression
+        Formula in sympy
     """
 
     def __init__(self, i_eq = None, eq_name = None):
@@ -209,7 +207,7 @@ class FeynmanProblem:
 
         # ----------- X : input variables -----------
         # Utils id of input variables v1, v2 etc. in .csv
-        var_ids_str = np.array( [ "v%i"%(i_var) for i_var in range(1, self.n_vars+1) ]                             ).astype(str)            # (n_vars,)
+        var_ids_str = np.array( [ "v%i"%(i_var) for i_var in range(1, self.n_vars+1) ]   ).astype(str)            # (n_vars,)
         # Names of input variables
         self.X_names = np.array( [ self.eq_df[ id + "_name" ] for id in var_ids_str  ]   ).astype(str)            # (n_vars,)
         # Lowest values taken by input variables
@@ -220,24 +218,24 @@ class FeynmanProblem:
         self.X_units = np.array( [ get_units(self.eq_df[ id + "_name" ]) for id in var_ids_str ] ).astype(float)  # (n_vars, FEYN_UNITS_VECTOR_SIZE,)
 
         # ----------- Formula : eval utils -----------
-        self.formula_display = self.eq_df["Formula"]
+        self.formula_display = self.eq_df["Formula"] # (str)
         dict_for_feynman_formula_var_names = {self.X_names[i_var]:"X[%i]"%(i_var) for i_var in range(self.n_vars)}
         self.formula = replace_symbols_in_formula(self.formula_display, dict_for_feynman_formula_var_names)
 
         # ----------- Formula : sympy utils -----------
         # Input variables as sympy symbols
-        self.sympy_symbols = []
+        self.X_sympy_symbols = []
         for i in range(self.n_vars):
-            self.sympy_symbols.append(sympy.Symbol(self.X_names[i],                                                      #  (n_vars,)
-                                               # Useful assumptions for simplifying etc
-                                               real     = True,
-                                               positive = self.X_lows  [i] > 0,
-                                               negative = self.X_highs [i] < 0,
-                                               nonzero  = not (self.X_lows[i] <= 0 and self.X_highs[i] >= 0),
-                                               domain   = sympy.sets.sets.Interval(self.X_lows[i], self.X_highs[i]),
-                                               ))
+            self.X_sympy_symbols.append(sympy.Symbol(self.X_names[i],  #  (n_vars,)
+                                                     # Useful assumptions for simplifying etc
+                                                     real     = True,
+                                                     positive = self.X_lows  [i] > 0,
+                                                     negative = self.X_highs [i] < 0,
+                                                     nonzero  = not (self.X_lows[i] <= 0 and self.X_highs[i] >= 0),
+                                                     domain   = sympy.sets.sets.Interval(self.X_lows[i], self.X_highs[i]),
+                                                     ))
         # Input variables names to sympy symbols dict
-        sympy_X_symbols_dict = {self.X_names[i] : self.sympy_symbols[i] for i in range(self.n_vars)}                     #  (n_vars,)
+        sympy_X_symbols_dict = {self.X_names[i] : self.X_sympy_symbols[i] for i in range(self.n_vars)}                     #  (n_vars,)
         # Declaring input variables via local_dict to avoid confusion
         # Eg. So sympy knows that we are referring to gamma as a variable and not the function etc.
         self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula_display, local_dict = sympy_X_symbols_dict)
