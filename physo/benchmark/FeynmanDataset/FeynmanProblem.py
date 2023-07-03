@@ -34,7 +34,14 @@ def load_feynman_equations_csv (filepath = "FeynmanEquations.csv"):
     eqs_feynman_df = eqs_feynman_df.astype({'Number': int, '# variables': int})
     # ---- Correcting typos in the file ----
     # Equation II.37.1 takes 3 variables not 6
-    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "II.37.1", "# variables"] = 3
+    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "II.37.1",   "# variables"] = 3
+    # Equation I.18.12 takes 3 variables not 2
+    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "I.18.12",   "# variables"] = 3
+    # Equation I.18.14 takes 4 variables not 3
+    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "I.18.14",   "# variables"] = 4
+    # Equation III.10.19 takes 4 variables not 3
+    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "III.10.19", "# variables"] = 4
+    # todo: count myself and assert if inconsistent for safety
     return eqs_feynman_df
 
 def load_feynman_units_csv (filepath = "units.csv"):
@@ -252,7 +259,16 @@ class FeynmanProblem:
         -------
         y : numpy.array of shape (?,) of floats
         """
-        y = eval(self.formula)
+        #todo: clean
+        #y = eval(self.formula)
+
+        # Getting sympy function
+        f = sympy.lambdify(self.X_sympy_symbols, self.formula_sympy, "numpy")
+        # Mapping between variables names and their data value
+        mapping_var_name_to_X = {self.X_names[i]: X[i] for i in range(self.n_vars)}
+        # Evaluation
+        y = f(**mapping_var_name_to_X)
+
         return y
 
     def generate_data_points (self, n_samples = 1_000_000):
