@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pathlib
 import sympy
+import matplotlib.pyplot as plt
 
 # Dataset paths
 PARENT_FOLER = pathlib.Path(__file__).parents[0]
@@ -29,6 +30,11 @@ def load_feynman_equations_csv (filepath = "FeynmanEquations.csv"):
     eqs_feynman_df = pd.read_csv(filepath, sep=",")
     # drop last row(s) of NaNs
     eqs_feynman_df = eqs_feynman_df[~eqs_feynman_df[eqs_feynman_df.columns[0]].isnull()]
+    # Set types for int columns
+    eqs_feynman_df = eqs_feynman_df.astype({'Number': int, '# variables': int})
+    # ---- Correcting typos in the file ----
+    # Equation II.37.1 takes 3 variables not 6
+    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "II.37.1", "# variables"] = 3
     return eqs_feynman_df
 
 def load_feynman_units_csv (filepath = "units.csv"):
@@ -49,9 +55,6 @@ def load_feynman_units_csv (filepath = "units.csv"):
     # drop last column as it contains nothing
     units_df = units_df.iloc[:, :-1]
     return units_df
-
-path_feynman_eqs_csv = os.path.join("physo", "benchmark", "FeynmanBenchmark", "FeynmanEquations.csv")
-path_units_csv       = os.path.join("physo", "benchmark", "FeynmanBenchmark", "units.csv")
 
 EQS_FEYNMAN_DF = load_feynman_equations_csv(PATH_FEYNMAN_EQS_CSV)
 UNITS_DF       = load_feynman_units_csv(PATH_UNITS_CSV)
@@ -78,7 +81,11 @@ def get_units (var_name):
     units : numpy.array of shape (FEYN_UNITS_VECTOR_SIZE,) of floats
         Units of variable.
     """
-    units = UNITS_DF[UNITS_DF["Variable"] == var_name].to_numpy()[0][2:].astype(float)
+    assert not pd.isnull(var_name), "Can not get the units of %s as it is a null."%(var_name)
+    try:
+        units = UNITS_DF[UNITS_DF["Variable"] == var_name].to_numpy()[0][2:].astype(float)
+    except:
+        raise IndexError("Could not load units of %s"%(var_name))
     return units
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -133,19 +140,28 @@ def replace_symbols_in_formula(formula,
 # ---------------------------------------------------------------------------------------------------------------------
 
 class FeynmanProblem:
-    def __init__(self, i_eq):
+    def __init__(self, i_eq = None, eq_name = None):
         """
-        Loads a Feynman problem based on its number in the set.
+        Loads a Feynman problem based on its number in the set or its equation name
         Parameters
         ----------
         i_eq : int
-            Equation number in the set of equations.
+            Equation number in the set of equations (eg. 1 to 100).
+        eq_name : str
+            Equation name in the set of equations (eg. I.6.2a).
         """
+        # Select equation line in dataframe
+        if i_eq is not None:
+            self.eq_df  = EQS_FEYNMAN_DF[EQS_FEYNMAN_DF ["Number"]  == i_eq    ].iloc[0] # pandas.core.frame.DataFrame
+        elif eq_name is not None:
+            self.eq_df = EQS_FEYNMAN_DF[EQS_FEYNMAN_DF ["Filename"] == eq_name ].iloc[0] # pandas.core.frame.DataFrame
+        else:
+            raise ValueError("At least one of equation number (i_eq) or equation name (eq_name) should be specified to select a Feynman problem.")
 
-        # Equation line in dataframe
-        self.eq_df  = EQS_FEYNMAN_DF.iloc[i_eq]
+        # Equation number (eg. 1 to 100)
+        self.i_eq = self.eq_df["Number"]                # int
         # Code name of equation (eg. 'I.6.2a')
-        self.eq_name = self.eq_df["Filename"]   # str
+        self.eq_name = self.eq_df["Filename"]           # str
         # Number of input variables
         self.n_vars = int(self.eq_df["# variables"])    # int
 
@@ -157,21 +173,38 @@ class FeynmanProblem:
 
         # ----------- X : input variables -----------
         # Utils id of input variables v1, v2 etc. in .csv
-        var_names_str = np.array( [ "v%i"%(i_var) for i_var in range(1, self.n_vars+1) ]                             ).astype(str)            # (n_vars,)
+        var_ids_str = np.array( [ "v%i"%(i_var) for i_var in range(1, self.n_vars+1) ]                             ).astype(str)            # (n_vars,)
         # Names of input variables
-        self.X_names = np.array( [ self.eq_df[ var_names_str[i_var] + "_name" ] for i_var in range(self.n_vars)  ]   ).astype(str)            # (n_vars,)
+        self.X_names = np.array( [ self.eq_df[ id + "_name" ] for id in var_ids_str  ]   ).astype(str)            # (n_vars,)
         # Lowest values taken by input variables
-        self.X_lows  = np.array( [ self.eq_df[ var_names_str[i_var] + "_low"  ] for i_var in range(self.n_vars) ]    ).astype(float)          # (n_vars,)
+        self.X_lows  = np.array( [ self.eq_df[ id + "_low"  ] for id in var_ids_str ]    ).astype(float)          # (n_vars,)
         # Highest values taken by input variables
-        self.X_highs = np.array( [ self.eq_df[ var_names_str[i_var] + "_high" ] for i_var in range(self.n_vars)  ]   ).astype(float)          # (n_vars,)
+        self.X_highs = np.array( [ self.eq_df[ id + "_high" ] for id in var_ids_str  ]   ).astype(float)          # (n_vars,)
         # Units of input variables
-        self.X_units = np.array( [ get_units(self.eq_df[ var_names_str[i_var] + "_name" ]) for i_var in range(self.n_vars) ] ).astype(float)  # (n_vars, FEYN_UNITS_VECTOR_SIZE,)
+        self.X_units = np.array( [ get_units(self.eq_df[ id + "_name" ]) for id in var_ids_str ] ).astype(float)  # (n_vars, FEYN_UNITS_VECTOR_SIZE,)
 
-        # ----------- Formula -----------
+        # ----------- Formula : eval utils -----------
         self.formula_display = self.eq_df["Formula"]
-        self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula_display)
         dict_for_feynman_formula_var_names = {self.X_names[i_var]:"X[%i]"%(i_var) for i_var in range(self.n_vars)}
         self.formula = replace_symbols_in_formula(self.formula_display, dict_for_feynman_formula_var_names)
+
+        # ----------- Formula : sympy utils -----------
+        # Input variables as sympy symbols
+        self.sympy_symbols = []
+        for i in range(self.n_vars):
+            self.sympy_symbols.append(sympy.Symbol(self.X_names[i],                                                      #  (n_vars,)
+                                               # Useful assumptions for simplifying etc
+                                               real     = True,
+                                               positive = self.X_lows  [i] > 0,
+                                               negative = self.X_highs [i] < 0,
+                                               nonzero  = not (self.X_lows[i] <= 0 and self.X_highs[i] >= 0),
+                                               domain   = sympy.sets.sets.Interval(self.X_lows[i], self.X_highs[i]),
+                                               ))
+        # Input variables names to sympy symbols dict
+        sympy_X_symbols_dict = {self.X_names[i] : self.sympy_symbols[i] for i in range(self.n_vars)}                     #  (n_vars,)
+        # Declaring input variables via local_dict to avoid confusion
+        # Eg. So sympy knows that we are referring to gamma as a variable and not the function etc.
+        self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula_display, local_dict = sympy_X_symbols_dict)
 
         return None
 
@@ -188,7 +221,7 @@ class FeynmanProblem:
         y = eval(self.formula)
         return y
 
-    def generate_data_points (self, n_samples = int(1e6)):
+    def generate_data_points (self, n_samples = 1_000_000):
         """
         Generates data points accordingly for this Feynman problem.
         Parameters
@@ -204,3 +237,16 @@ class FeynmanProblem:
         y = self.target_function(X)
         return X,y
 
+    def show_sample(self, n_samples = 100):
+        X_array, y_array = self.generate_data_points(n_samples = n_samples)
+        n_dim = X_array.shape[0]
+        fig, ax = plt.subplots(n_dim, 1, figsize=(10, 5))
+        for i in range(n_dim):
+            curr_ax = ax if n_dim == 1 else ax[i]
+            curr_ax.plot(X_array[i], y_array, 'k.', )
+            curr_ax.set_xlabel("X[%i]" % (i))
+            curr_ax.set_ylabel("y")
+        plt.show()
+
+    def __str__(self):
+        return str(self.formula_sympy)
