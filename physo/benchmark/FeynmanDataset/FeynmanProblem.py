@@ -283,4 +283,7 @@ class FeynmanProblem:
         plt.show()
 
     def __str__(self):
-        return str(self.formula_sympy)
+        return "FeynmanProblem : eq %s\n%s"%(self.eq_name, str(self.formula_sympy))
+
+    def __repr__(self):
+        return str(self)
