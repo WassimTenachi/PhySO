@@ -1,1 +1,1 @@
-from . import FeynmanBenchmark
+from . import FeynmanDataset
