@@ -308,16 +308,21 @@ class FeynmanProblem:
         y = self.target_function(X)
         return X,y
 
-    def show_sample(self, n_samples = 100):
+    def show_sample(self, n_samples = 100, do_show = True, save_path = None):
         X_array, y_array = self.generate_data_points(n_samples = n_samples)
         n_dim = X_array.shape[0]
-        fig, ax = plt.subplots(n_dim, 1, figsize=(10, 5))
+        fig, ax = plt.subplots(n_dim, 1, figsize=(10, n_dim * 4))
         for i in range(n_dim):
             curr_ax = ax if n_dim == 1 else ax[i]
             curr_ax.plot(X_array[i], y_array, 'k.', )
-            curr_ax.set_xlabel("X[%i]" % (i))
-            curr_ax.set_ylabel("y")
-        plt.show()
+            curr_ax.set_xlabel("%s" % (self.X_names[i]))
+            curr_ax.set_ylabel("%s" % (self.y_name))
+        if save_path is not None:
+            fig.savefig(save_path)
+        if do_show:
+            plt.show()
+
+
 
     def __str__(self):
         return "FeynmanProblem : eq %s\n%s"%(self.eq_name, str(self.formula_sympy))
