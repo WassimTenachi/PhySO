@@ -242,8 +242,6 @@ class FeynmanProblem:
 
         # ----------- Formula -----------
         self.formula = self.eq_df["Formula"] # (str)
-        #dict_for_feynman_formula_var_names = {self.X_names[i_var]:"X[%i]"%(i_var) for i_var in range(self.n_vars)}
-        #self.formula = replace_symbols_in_formula(self.formula_display, dict_for_feynman_formula_var_names)
 
         # Input variables as sympy symbols
         self.X_sympy_symbols = []
@@ -268,7 +266,6 @@ class FeynmanProblem:
         self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula,
                                                                      local_dict = local_dict,
                                                                      evaluate   = evaluate)
-
         return None
 
     def target_function(self, X):
@@ -281,8 +278,6 @@ class FeynmanProblem:
         -------
         y : numpy.array of shape (?,) of floats
         """
-        # y = eval(self.formula)
-
         # Getting sympy function
         f = sympy.lambdify(self.X_sympy_symbols, self.formula_sympy, "numpy")
         # Mapping between variables names and their data value
