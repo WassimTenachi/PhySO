@@ -7,6 +7,7 @@ from physo.config.config0 import config0
 import physo.learn.monitoring as monitoring
 from physo.task.fit import fit
 import physo.physym.execute as exec
+import physo
 
 # DEFAULT RUN CONFIG TO USE
 default_config = config0
@@ -49,6 +50,9 @@ def SR(X, y,
        # Default run monitoring
        get_run_logger     = get_default_run_logger,
        get_run_visualiser = get_default_run_visualiser,
+       # Parallel mode
+       parallel_mode = True,
+       n_cpus        = None,
        ):
     """
     Runs a symbolic regression task with default hyperparameters config.
@@ -97,6 +101,12 @@ def SR(X, y,
         Run logger (by default uses physo.task.sr.get_default_run_logger)
     get_run_visualiser : callable returning physo.learn.monitoring.RunVisualiser (optional)
         Run visualiser (by default uses physo.task.sr.get_default_run_visualiser)
+
+    parallel_mode : bool (optional)
+        Parallel execution if True, execution in a loop else. True by default. Overides parameter in run_config.
+    n_cpus : int or None (optional)
+        Number of CPUs to use when running in parallel mode. Uses max nb. of CPUs by default.
+        Overides parameter in run_config.
 
     Returns
     -------
@@ -230,11 +240,20 @@ def SR(X, y,
     # Monitoring
     run_logger     = get_run_logger()
     run_visualiser = get_run_visualiser()
+    # Updating config
     run_config.update({
         "library_config"       : library_config,
         "run_logger"           : run_logger,
         "run_visualiser"       : run_visualiser,
     })
+    # Update config with parallel config
+    run_config["reward_config"].update({
+        "parallel_mode" : parallel_mode,
+        "n_cpus"        : n_cpus,
+        })
+    #  Updating reward config for parallel mode
+    reward_config = run_config["reward_config"]
+    run_config["learning_config"]["rewards_computer"] = physo.physym.reward.make_RewardsComputer(**reward_config)
 
     # Number of epochs
     if epochs is not None:
