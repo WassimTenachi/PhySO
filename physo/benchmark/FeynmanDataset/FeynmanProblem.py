@@ -7,31 +7,34 @@ import matplotlib.pyplot as plt
 
 # Dataset paths
 PARENT_FOLER = pathlib.Path(__file__).parents[0]
-PATH_FEYNMAN_EQS_CSV = PARENT_FOLER / "FeynmanEquations.csv"
-PATH_UNITS_CSV       = PARENT_FOLER / "units.csv"
+PATH_FEYNMAN_EQS_CSV       = PARENT_FOLER / "FeynmanEquations.csv"
+PATH_FEYNMAN_EQS_BONUS_CSV = PARENT_FOLER / "BonusEquations.csv"
+PATH_UNITS_CSV             = PARENT_FOLER / "units.csv"
 
 
 # ---------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------- LOADING CSVs  ---------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-def load_feynman_equations_csv (filepath = "FeynmanEquations.csv"):
+def load_feynman_bulk_equations_csv (filepath_eqs ="FeynmanEquations.csv"):
     """
     Loads FeynmanEquations.csv into a clean pd.DataFrame (corrects typos).
     Source file can be found here: https://space.mit.edu/home/tegmark/aifeynman.html
     Parameters
     ----------
-    filepath : str
+    filepath_eqs : str
         Path to FeynmanEquations.csv.
     Returns
     -------
     eqs_feynman_df : pd.DataFrame
     """
-    eqs_feynman_df = pd.read_csv(filepath, sep=",")
+    eqs_feynman_df = pd.read_csv(filepath_eqs, sep=",")
     # drop last row(s) of NaNs
     eqs_feynman_df = eqs_feynman_df[~eqs_feynman_df[eqs_feynman_df.columns[0]].isnull()]
     # Set types for int columns
     eqs_feynman_df = eqs_feynman_df.astype({'Number': int, '# variables': int})
+    # Number of equations
+    n_eqs = len(eqs_feynman_df)
 
     # ---- Correcting typos in the file ----
     # Equation II.37.1 takes 3 arguments not 6
@@ -50,13 +53,115 @@ def load_feynman_equations_csv (filepath = "FeynmanEquations.csv"):
     # ---- Verifying number of variables for safety ----
     # Checking the number of variables declared in the file for each problem
     # Expected number of variables for each problem
-    expected_n_vars = (~eqs_feynman_df[["v%i_name" % (i) for i in range(1, 11)]].isnull().to_numpy()).sum(axis=1)       # (N_EQS,)
+    expected_n_vars = (~eqs_feynman_df[["v%i_name" % (i) for i in range(1, 11)]].isnull().to_numpy()).sum(axis=1)       # (n_eqs,)
     # Declared number of variables for each problem
-    n_vars = eqs_feynman_df["# variables"].to_numpy()                                                                   # (N_EQS,)
+    n_vars = eqs_feynman_df["# variables"].to_numpy()                                                                   # (n_eqs,)
     # Is nb of declared variable consistent with variables columns ?
-    is_consistent = np.equal(expected_n_vars, n_vars)                                                                   # (N_EQS,)
+    is_consistent = np.equal(expected_n_vars, n_vars)                                                                   # (n_eqs,)
     assert is_consistent.all(), "Nb. of filled variables columns not consistent with declared nb. of variables for " \
                                 "problems:\n %s"%(str(eqs_feynman_df.loc[~is_consistent]))
+
+
+    # ---- Making bulk and bonus datasets consistent ----
+
+    # Input variable related columns names: 'v1_name', 'v1_low', 'v1_high', 'v2_name' etc.
+    variables_columns_names = np.array([['v%i_name'%(i), 'v%i_low'%(i), 'v%i_high'%(i)] for i in range (1,11)]).flatten()
+    # Essential equations related columns names: 'Output', 'Formula', '# variables', 'v1_name', 'v1_low', etc.
+    essential_columns_names = ['Output', 'Formula', '# variables'] + variables_columns_names.tolist()
+
+    # Adding columns
+    # Adding set columns indicating from which file these equations come from (bulk file or bonus file)
+    eqs_feynman_df["Set"] = "bulk"
+    # Adding equation names as a column (I.6.2a etc.)
+    eqs_feynman_df["Name"] = eqs_feynman_df["Filename"]
+
+    # Columns to keep: 'Filename', 'Name', 'Set', 'Number', 'Output', 'Formula', '# variables', 'v1_name', 'v1_low',etc.
+    columns_to_keep_names = ['Filename', 'Name', 'Set', 'Number'] + essential_columns_names
+    # Selecting
+    eqs_feynman_df = eqs_feynman_df[columns_to_keep_names]
+
+    return eqs_feynman_df
+
+def load_feynman_bonus_equations_csv (filepath_eqs_bonus = "BonusEquations.csv"):
+    """
+    Loads BonusEquations.csv into a clean pd.DataFrame (corrects typos).
+    Source file can be found here: https://space.mit.edu/home/tegmark/aifeynman.html
+    Parameters
+    ----------
+    filepath_eqs_bonus : str
+        Path to BonusEquations.csv.
+    Returns
+    -------
+    eqs_feynman_df : pd.DataFrame
+    """
+    eqs_feynman_df = pd.read_csv(filepath_eqs_bonus, sep=",")
+    # drop last row(s) of NaNs
+    eqs_feynman_df = eqs_feynman_df[~eqs_feynman_df[eqs_feynman_df.columns[0]].isnull()]
+    # Set types for int columns
+    eqs_feynman_df = eqs_feynman_df.astype({'Number': int, '# variables': int})
+    # Number of equations
+    n_eqs = len(eqs_feynman_df)
+
+    # ---- Correcting typos in the file ----
+    # Equation test_12 takes 5 arguments not 4
+    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "test_12",   "# variables"] = 5
+    # Equation test_13 takes 5 arguments not 4
+    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "test_13",   "# variables"] = 5
+    # Equation test_18 takes 5 arguments not 4
+    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "test_18",   "# variables"] = 5
+    # Equation test_19 takes 6 arguments not 5
+    eqs_feynman_df.loc[eqs_feynman_df["Filename"] == "test_19",   "# variables"] = 6
+
+    # ---- Verifying number of variables for safety ----
+    # Checking the number of variables declared in the file for each problem
+    # Expected number of variables for each problem
+    expected_n_vars = (~eqs_feynman_df[["v%i_name" % (i) for i in range(1, 11)]].isnull().to_numpy()).sum(axis=1)       # (n_eqs,)
+    # Declared number of variables for each problem
+    n_vars = eqs_feynman_df["# variables"].to_numpy()                                                                   # (n_eqs,)
+    # Is nb of declared variable consistent with variables columns ?
+    is_consistent = np.equal(expected_n_vars, n_vars)                                                                   # (n_eqs,)
+    assert is_consistent.all(), "Nb. of filled variables columns not consistent with declared nb. of variables for " \
+                                "problems:\n %s"%(str(eqs_feynman_df.loc[~is_consistent]))
+
+    # ---- Making bulk and bonus datasets consistent ----
+
+    # Input variable related columns names: 'v1_name', 'v1_low', 'v1_high', 'v2_name' etc.
+    variables_columns_names = np.array([['v%i_name'%(i), 'v%i_low'%(i), 'v%i_high'%(i)] for i in range (1,11)]).flatten()
+    # Essential equations related columns names: 'Output', 'Formula', '# variables', 'v1_name', 'v1_low', etc.
+    essential_columns_names = ['Output', 'Formula', '# variables'] + variables_columns_names.tolist()
+
+    # Adding columns
+    # Adding set columns indicating from which file these equations come from (bulk file or bonus file)
+    eqs_feynman_df["Set"] = "bonus"
+
+    # Columns to keep: 'Filename', 'Name', 'Set', 'Number', 'Output', 'Formula', '# variables', 'v1_name', 'v1_low',etc.
+    columns_to_keep_names = ['Filename', 'Name', 'Set', 'Number'] + essential_columns_names
+    # Selecting
+    eqs_feynman_df = eqs_feynman_df[columns_to_keep_names]
+
+    return eqs_feynman_df
+
+
+def load_feynman_all_equations_csv (filepath_eqs ="FeynmanEquations.csv", filepath_eqs_bonus = "BonusEquations.csv"):
+    """
+    Loads FeynmanEquations.csv and BonusEquations.csv into a clean pd.DataFrame (corrects typos).
+    Source files can be found here: https://space.mit.edu/home/tegmark/aifeynman.html
+    Parameters
+    ----------
+    filepath_eqs : str
+        Path to FeynmanEquations.csv.
+    filepath_eqs_bonus : str
+        Path to BonusEquations.csv.
+    Returns
+    -------
+    eqs_feynman_df : pd.DataFrame
+    """
+    bulk_eqs_feynman_df  = load_feynman_bulk_equations_csv  (filepath_eqs       = filepath_eqs       )
+    bonus_eqs_feynman_df = load_feynman_bonus_equations_csv (filepath_eqs_bonus = filepath_eqs_bonus )
+
+    eqs_feynman_df = pd.concat((bulk_eqs_feynman_df, bonus_eqs_feynman_df),
+                                # True so to get index going from 0 to 119 instead of 0 to 99 and then 0 to 19
+                               ignore_index=True)
     return eqs_feynman_df
 
 def load_feynman_units_csv (filepath = "units.csv"):
@@ -78,8 +183,10 @@ def load_feynman_units_csv (filepath = "units.csv"):
     units_df = units_df.iloc[:, :-1]
     return units_df
 
-EQS_FEYNMAN_DF = load_feynman_equations_csv(PATH_FEYNMAN_EQS_CSV)
-UNITS_DF       = load_feynman_units_csv(PATH_UNITS_CSV)
+EQS_FEYNMAN_DF = load_feynman_all_equations_csv (filepath_eqs       = PATH_FEYNMAN_EQS_CSV,
+                                                 filepath_eqs_bonus = PATH_FEYNMAN_EQS_BONUS_CSV,
+                                                 )
+UNITS_DF       = load_feynman_units_csv     (filepath           = PATH_UNITS_CSV)
 
 # Size of units vector
 FEYN_UNITS_VECTOR_SIZE = UNITS_DF.shape[1] - 2
@@ -111,54 +218,6 @@ def get_units (var_name):
     return units
 
 # ---------------------------------------------------------------------------------------------------------------------
-# -------------------------------------------------- EQUATIONS UTILS  -------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------
-
-# Too dangerous to just replace and evaluate (eg. arscin and sin, theta and theta1 etc.)
-# Evaluation using sympy parser is safer
-#
-# # How to replace str symbols of functions appearing in the Feynman benchmark by their numpy equivalent
-# DICT_FOR_FEYNMAN_FORMULA_FUNC_TO_NP = {
-#     "exp"    : "np.exp"    ,
-#     "sqrt"   : "np.sqrt"   ,
-#     "pi"     : "np.pi"     ,
-#     "cos"    : "np.cos"    ,
-#     "sin"    : "np.sin"    ,
-#     "tan"    : "np.tan"    ,
-#     "tanh"   : "np.tanh"   ,
-#     "ln"     : "np.log"    ,
-#     "arcsin" : "np.arcsin" ,
-# }
-#
-# def replace_symbols_in_formula(formula,
-#                                dict_for_feynman_formula_var_names
-#                                ):
-#     """
-#     Replaces symbols in a Feynman equation formula by numpy functions for functions and input variables accordingly
-#     with dict_for_feynman_formula_var_names;
-#     Parameters
-#     ----------
-#     formula : str
-#         Raw initial formula.
-#     dict_for_feynman_formula_var_names : dict of (str: str)
-#         Which symbol to replace by which other for input variables.
-#     Returns
-#     -------
-#     formula : str
-#         Formula with corrected symbols ready for execution via evaluate(formula).
-#     """
-#     dict_fml = dict_for_feynman_formula_var_names
-#     for symbol in dict_fml.keys():
-#         new_symbol = dict_fml[symbol]
-#         formula = formula.replace(symbol, new_symbol)
-#     dict_fml = DICT_FOR_FEYNMAN_FORMULA_FUNC_TO_NP
-#     for symbol in dict_fml.keys():
-#         new_symbol = dict_fml[symbol]
-#         formula = formula.replace(symbol, new_symbol)
-#     return formula
-#
-
-# ---------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------- FEYNMAN PROBLEM  --------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
@@ -174,6 +233,8 @@ class FeynmanProblem:
         Equation name in the set of equations (e.g. I.6.2a).
     n_vars : int
         Number of input variables.
+    eq_df : pandas.core.series.Series
+        Underlying pandas dataframe line of this equation.
 
     y_name : str
         Name of output variable.
@@ -203,15 +264,15 @@ class FeynmanProblem:
         Parameters
         ----------
         i_eq : int
-            Equation number in the set of equations (e.g. 1 to 100).
+            Equation number in the whole set of equations (0 to 99 for bulk eqs and 100 to 119 for bonus eqs).
         eq_name : str
             Equation name in the set of equations (e.g. I.6.2a).
         """
-        # Select equation line in dataframe
+        # Selecting equation line in dataframe
         if i_eq is not None:
-            self.eq_df  = EQS_FEYNMAN_DF[EQS_FEYNMAN_DF ["Number"]  == i_eq    ].iloc[0] # pandas.core.frame.DataFrame
+            self.eq_df  = EQS_FEYNMAN_DF.iloc[i_eq]                                         # pandas.core.series.Series
         elif eq_name is not None:
-            self.eq_df = EQS_FEYNMAN_DF[EQS_FEYNMAN_DF ["Filename"] == eq_name ].iloc[0] # pandas.core.frame.DataFrame
+            self.eq_df = EQS_FEYNMAN_DF[EQS_FEYNMAN_DF ["Filename"] == eq_name ].iloc[0]    # pandas.core.series.Series
         else:
             raise ValueError("At least one of equation number (i_eq) or equation name (eq_name) should be specified to select a Feynman problem.")
 
