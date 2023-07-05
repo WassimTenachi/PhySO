@@ -298,8 +298,9 @@ class FeynmanProblem:
         Parameters
         ----------
         n_samples : int
-            Number of samples to draw. By default, 1e6 as this is the number of data points for each problem in the
+            Number of samples to draw. By default, 1e6  as this is the number of data points for each problem in the
             files in https://space.mit.edu/home/tegmark/aifeynman.html
+            Note that SRBench https://arxiv.org/abs/2107.14351 uses 1e5.
         Returns
         -------
         X, y : numpy.array of shape (n_vars, ?,) of floats, numpy.array of shape (?,) of floats
