@@ -270,16 +270,18 @@ class FeynmanProblem:
         """
         # Selecting equation line in dataframe
         if i_eq is not None:
-            self.eq_df  = EQS_FEYNMAN_DF.iloc[i_eq]                                         # pandas.core.series.Series
+            self.eq_df  = EQS_FEYNMAN_DF.iloc[i_eq]                                     # pandas.core.series.Series
         elif eq_name is not None:
-            self.eq_df = EQS_FEYNMAN_DF[EQS_FEYNMAN_DF ["Filename"] == eq_name ].iloc[0]    # pandas.core.series.Series
+            self.eq_df = EQS_FEYNMAN_DF[EQS_FEYNMAN_DF ["Name"] == eq_name ].iloc[0]    # pandas.core.series.Series
         else:
             raise ValueError("At least one of equation number (i_eq) or equation name (eq_name) should be specified to select a Feynman problem.")
 
-        # Equation number (eg. 1 to 100)
+        # Equation number (eg. 1 to 100 for bulk and 1 to 20 for bonus)
         self.i_eq = self.eq_df["Number"]                # int
         # Code name of equation (eg. 'I.6.2a')
-        self.eq_name = self.eq_df["Filename"]           # str
+        self.eq_name = self.eq_df["Name"]               # str
+        # Filename column in the Feynman dataset
+        self.eq_filename = self.eq_df["Filename"]       # str
         # Number of input variables
         self.n_vars = int(self.eq_df["# variables"])    # int
 
@@ -384,10 +386,8 @@ class FeynmanProblem:
         if do_show:
             plt.show()
 
-
-
     def __str__(self):
-        return "FeynmanProblem : eq %s\n%s"%(self.eq_name, str(self.formula_sympy))
+        return "FeynmanProblem : %s : %s\n%s"%(self.eq_filename, self.eq_name, str(self.formula_sympy))
 
     def __repr__(self):
         return str(self)
