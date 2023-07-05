@@ -91,7 +91,7 @@ if __name__ == '__main__':
                                 fixed_consts_units = [ [0,0,0] ],
                                 # Free constants names (for display purposes)
                                 free_consts_names = [ "m"       , "g"        ],
-                                # Units offFree constants
+                                # Units of free constants
                                 free_consts_units = [ [0, 0, 1] , [1, -2, 0] ],
                                 # Run config
                                 run_config = physo.config.config0.config0,
