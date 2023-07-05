@@ -7,5 +7,7 @@ demo/**/*.log
 demo/**/*.png
 demo/**/*.csv
 demo/**/*.pdf
-benchmarking/FeynmanBenchmark/run_file_example/*.csv
-benchmarking/FeynmanBenchmark/run_file_example/*.png
+benchmarking/FeynmanBenchmark/run_file_example/**/*.csv
+benchmarking/FeynmanBenchmark/run_file_example/**/*.png
+benchmarking/FeynmanBenchmark/run_file_example/**/*.pdf
+benchmarking/FeynmanBenchmark/run_file_example/**/*.log
