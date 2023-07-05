@@ -15,6 +15,7 @@ def learner ( model,
              verbose = True,
              stop_reward = 1.,
              stop_after_n_epochs = 50,
+             max_n_evaluations   = None,
              run_logger     = None,
              run_visualiser = None,
             ):
@@ -45,6 +46,11 @@ def learner ( model,
         constants.
     stop_after_n_epochs : int, optional
         Number of additional epochs to do after early stop condition is reached.
+    max_n_evaluations : int or None, optional
+        Maximum number of unique expression evaluations allowed (for benchmarking purposes). Immediately terminates
+        the symbolic regression task if the limit is about to be reached. The parameter max_n_evaluations is distinct
+        from batch_size * n_epochs because batch_size * n_epochs sets the number of expressions generated but a lot of
+        these are not evaluated because they have inconsistent units.
     run_logger : object or None, optional
         Custom run logger to use having a run_logger.log method taking as args (epoch, batch, model, rewards, keep,
         notkept, loss_val).
@@ -62,6 +68,8 @@ def learner ( model,
     # Basic logs
     overall_max_R_history = []
     hall_of_fame          = []
+    # Nb. of expressions evaluated
+    n_evaluated           = 0
 
     for epoch in range (n_epochs):
 
@@ -102,7 +110,7 @@ def learner ( model,
 
             # ------------ MODEL ------------
 
-            # Giving up to date observations
+            # Giving up-to-date observations
             output, states = model(input_tensor = observations,    # (batch_size, output_size), (n_layers, 2, batch_size, hidden_size)
                                             states = states      )
 
@@ -251,7 +259,7 @@ def learner ( model,
             run_visualiser.visualise(run_logger = run_logger, batch = batch)
 
         # -------------------------------------------------
-        # -------------------- STOPPER --------------------
+        # ----------------- EARLY STOPPER -----------------
         # -------------------------------------------------
         early_stop_reward_eps = 2*np.finfo(np.float32).eps
 
@@ -264,9 +272,27 @@ def learner ( model,
                     run_visualiser.save_pareto_data()
                     run_visualiser.save_pareto_fig()
                 except:
-                    print("Unable to save last plots and data before stopping.")
+                    print("Unable to save last plots and data before early stopping.")
                 break
             stop_after_n_epochs -= 1
+
+        # -------------------------------------------------
+        # ------------ MAX EVALUATIONS STOPPER ------------
+        # -------------------------------------------------
+
+        # Update nb. of evaluated programs
+        n_evaluated += (R > 0.).sum()
+
+        # If max_n_evaluations mode is used and we are one batch away from reaching the limit, stop.
+        if (max_n_evaluations is not None) and (n_evaluated + batch_size > max_n_evaluations):
+            try:
+                run_visualiser.save_visualisation()
+                run_visualiser.save_data()
+                run_visualiser.save_pareto_data()
+                run_visualiser.save_pareto_fig()
+            except:
+                print("Unable to save last plots and data before stopping due to max evaluation limit.")
+            break
 
     t111 = time.perf_counter()
     if verbose:

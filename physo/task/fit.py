@@ -5,7 +5,7 @@ from physo.learn import rnn
 from physo.learn import learn
 
 
-def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after_n_epochs = 1):
+def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after_n_epochs = 1, max_n_evaluations = None):
     """
     Run a symbolic regression task on (X,y) data.
     Parameters
@@ -24,6 +24,11 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after
         constants.
     stop_after_n_epochs : int, optional
         Number of additional epochs to do after early stop condition is reached.
+    max_n_evaluations : int or None, optional
+        Maximum number of unique expression evaluations allowed (for benchmarking purposes). Immediately terminates
+        the symbolic regression task if the limit is about to be reached. The parameter max_n_evaluations is distinct
+        from batch_size * n_epochs because batch_size * n_epochs sets the number of expressions generated but a lot of
+        these are not evaluated because they have inconsistent units.
     Returns
     -------
     hall_of_fame_R, hall_of_fame : list of float, list of physym.program.Program
@@ -77,6 +82,7 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after
                                                     verbose             = False,
                                                     stop_reward         = stop_reward,
                                                     stop_after_n_epochs = stop_after_n_epochs,
+                                                    max_n_evaluations   = max_n_evaluations,
                                                     run_logger          = run_config["run_logger"],
                                                     run_visualiser      = run_config["run_visualiser"],
                                                    )
