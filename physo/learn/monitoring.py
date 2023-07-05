@@ -15,6 +15,9 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 plt.rc('font', size=16)
 
+# Faster than searching for best loc
+LEGEND_LOC = 'upper left' # "best"
+
 class RunLogger:
     """
     Custom logger function.
@@ -277,7 +280,7 @@ class RunVisualiser:
         curr_ax.plot(run_logger.epochs_history, run_logger.max_R_history         , color='orange' , linestyle='solid' , alpha = 0.6, label="Best of epoch")
         curr_ax.set_ylabel("Reward")
         curr_ax.set_xlabel("Epochs")
-        curr_ax.legend()
+        curr_ax.legend(loc=LEGEND_LOC)
 
         # -------- Reward distrbution vs epoch --------
         curr_ax = self.ax1
@@ -319,7 +322,7 @@ class RunVisualiser:
         curr_ax.plot(run_logger.epochs_history, run_logger.mean_complexity_history     , 'b',      linestyle='solid'   ,  label="Mean")
         curr_ax.set_ylabel("Complexity")
         curr_ax.set_xlabel("Epochs")
-        curr_ax.legend()
+        curr_ax.legend(loc=LEGEND_LOC)
 
         # -------- Loss --------
         curr_ax = self.ax3
@@ -327,7 +330,7 @@ class RunVisualiser:
         curr_ax.plot(run_logger.epochs_history, run_logger.loss_history, 'grey', label="loss")
         curr_ax.set_ylabel("Loss")
         curr_ax.set_xlabel("Epochs")
-        curr_ax.legend()
+        curr_ax.legend(loc=LEGEND_LOC)
 
         # -------- Fit --------
         curr_ax = self.ax4
@@ -401,7 +404,7 @@ class RunVisualiser:
             Line2D([0], [0], color='orange', lw=3),
             Line2D([0], [0], color='r',      lw=3),
             Line2D([0], [0], color='b',      lw=3),]
-        curr_ax.legend(custom_lines, ['Overall Best', 'Best of epoch', 'Train', 'Others'])
+        curr_ax.legend(custom_lines, ['Overall Best', 'Best of epoch', 'Train', 'Others'], loc=LEGEND_LOC)
 
         # -------- Number of physical progs --------
         curr_ax = self.ax5
@@ -410,7 +413,7 @@ class RunVisualiser:
         curr_ax.plot(run_logger.epochs_history, run_logger.n_rewarded, 'black' , label="Rewarded count")
         curr_ax.set_xlabel("Epochs")
         curr_ax.set_ylabel("Count")
-        curr_ax.legend()
+        curr_ax.legend(loc=LEGEND_LOC)
 
         # -------- Lengths of physical distribution vs epoch --------
         curr_ax  = self.ax6
