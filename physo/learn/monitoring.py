@@ -12,7 +12,7 @@ from IPython.display import display, clear_output
 
 # Fig params
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif')
+#plt.rc('font', family='serif')
 plt.rc('font', size=16)
 
 # Faster than searching for best loc
