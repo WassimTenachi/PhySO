@@ -1,3 +1,5 @@
+import warnings
+
 import torch
 import numpy as np
 import pandas as pd
@@ -11,9 +13,12 @@ from sklearn.neighbors import KernelDensity
 from IPython.display import display, clear_output
 
 # Fig params
-plt.rc('text', usetex=True)
-#plt.rc('font', family='serif')
-plt.rc('font', size=16)
+try:
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+    plt.rc('font', size=16)
+except:
+    warnings.warn("Latex display not available.")
 
 # Faster than searching for best loc
 LEGEND_LOC = 'upper left' # "best"
