@@ -1,3 +1,5 @@
+import warnings
+
 import pandas as pd
 import numpy as np
 import os
@@ -217,6 +219,49 @@ def get_units (var_name):
         raise IndexError("Could not load units of %s"%(var_name))
     return units
 
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------- SYMPY UTILS  ---------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
+
+def round_floats(expr):
+    """
+    Rounds the floats in a sympy expression as in SRBench (see https://github.com/cavalab/srbench).
+    Parameters
+    ----------
+    expr : Sympy Expression
+    Returns
+    -------
+    ex2 : Sympy Expression
+    """
+    ex2 = expr
+    for a in sympy.preorder_traversal(expr):
+        if isinstance(a, sympy.Float):
+            if abs(a) < 0.0001:
+                ex2 = ex2.subs(a, sympy.Integer(0))
+            else:
+                ex2 = ex2.subs(a, round(a, 3))
+    return ex2
+
+def clean_sympy_expr(expr):
+    """
+    Cleans (rounds floats, simplifies) sympy expression for symbolic comparison purposes as in SRBench
+    (see https://github.com/cavalab/srbench).
+    Parameters
+    ----------
+    expr : Sympy Expression
+    Returns
+    -------
+    expr : Sympy Expression
+    """
+    # Evaluates numeric constants such as sqrt(2*pi)
+    expr = expr.evalf()
+    # Rounding floats
+    expr = round_floats(expr)
+    # Simplifying
+    expr = sympy.simplify(expr, ratio=1)
+    return expr
+
 # ---------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------- FEYNMAN PROBLEM  --------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
@@ -253,7 +298,10 @@ class FeynmanProblem:
     formula : str
         Formula as in the Feynman dataset.
     X_sympy_symbols : array_like of shape (n_vars,) of sympy.Symbol
-        Sympy symbols representing each input variables.
+        Sympy symbols representing each input variables with assumptions (negative, positive etc.).
+    sympy_X_symbols_dict : dict of {str : sympy.Symbol}
+        Input variables names to sympy symbols (w assumptions), can be passed to sympy.parsing.sympy_parser.parse_expr
+        as local_dict.
     formula_sympy : sympy expression
         Formula in sympy
     """
@@ -325,11 +373,12 @@ class FeynmanProblem:
                                                      domain   = sympy.sets.sets.Interval(self.X_lows[i], self.X_highs[i]),
                                                      ))
         # Input variables names to sympy symbols dict
-        sympy_X_symbols_dict = {self.X_names[i] : self.X_sympy_symbols[i] for i in range(self.n_vars)}                  #  (n_vars,)
+        self.sympy_X_symbols_dict = {self.X_names[i] : self.X_sympy_symbols[i] for i in range(self.n_vars)}                  #  (n_vars,)
         # Declaring input variables via local_dict to avoid confusion
         # Eg. So sympy knows that we are referring to gamma as a variable and not the function etc.
-        local_dict = sympy_X_symbols_dict
-        # Avoids eg. sin(theta) = 0 when theta domain = [0,5] ie. nonzero=False
+        local_dict = self.sympy_X_symbols_dict
+        # evaluate = False avoids eg. sin(theta) = 0 when theta domain = [0,5] ie. nonzero=False, but no need for this
+        # if nonzero assumption is not used
         evaluate = False
         self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula,
                                                                      local_dict = local_dict,
@@ -390,6 +439,84 @@ class FeynmanProblem:
             fig.savefig(save_path)
         if do_show:
             plt.show()
+
+    def compare_expression (self, trial_expr, verbose=False):
+        """
+        Checks if trial_expr is symbolically equivalent to the target expression of this Feynman problem, following a
+        similar methodology as SRBench (see https://github.com/cavalab/srbench).
+        I.e, it is deemed equivalent if:
+            - the symbolic difference simplifies to 0
+            - OR the symbolic difference is a constant
+            - OR the symbolic ratio simplifies to a constant
+        Parameters
+        ----------
+        trial_expr : Sympy Expression
+            Trial sympy expression with evaluated numeric free constants and assumptions regarding variables
+            (positivity etc.) encoded in expression.
+        verbose : bool
+            Verbose.
+        Returns
+        -------
+        is_equivalent : bool
+            Is the expression equivalent.
+        """
+
+        # Cleaning target expression like SRBench
+        target_expr = clean_sympy_expr(self.formula_sympy)
+
+        if verbose:
+            print("  -> Assessing if %s (target) is equivalent to %s (trial)"%(target_expr, trial_expr))
+
+        try:
+            # Cleaning trial expression
+            trial_expr = clean_sympy_expr(trial_expr)
+            # Computing symbolic difference
+            sym_diff = clean_sympy_expr(target_expr - trial_expr)
+            # Computing fraction difference
+            sym_frac = clean_sympy_expr(target_expr / trial_expr)
+
+            if verbose:
+                print('   -> Symbolic difference :', sym_diff)
+                print('   -> Symbolic fraction   :', sym_frac)
+
+            # Equivalent if diff simplifies to 0 or if the diff is a constant or if the ratio is a constant
+            is_equivalent = (str(sym_diff) == '0') \
+                            or sym_diff.is_constant() \
+                            or sym_frac.is_constant()
+
+        except:
+            is_equivalent = False
+            warn_msg = "Could not assess symbolic equivalence of %s with %s (Feynman problem: %s)."%(target_expr, trial_expr, self.eq_name)
+            warnings.warn(warn_msg)
+
+        return is_equivalent
+
+    def compare_expressions (self, trial_expressions, verbose = False):
+        """
+        Checks if at least one of trial_expressions is symbolically equivalent to the target expression of this Feynman
+        problem, following a similar methodology as SRBench (see https://github.com/cavalab/srbench).
+        I.e, it is deemed equivalent if:
+            - the symbolic difference simplifies to 0
+            - OR the symbolic difference is a constant
+            - OR the symbolic ratio simplifies to a constant
+        Parameters
+        ----------
+        trial_expressions : array_like of Sympy Expression
+            Trial sympy expressions with evaluated numeric free constants and assumptions regarding variables
+            (positivity etc.) encoded in expressions.
+        verbose : bool
+            Verbose.
+        Returns
+        -------
+        is_equivalent : bool
+            Is at leat one of those expressions equivalent.
+        """
+        are_equivalent = []
+        for trial_expr in trial_expressions:
+            are_equivalent.append(self.compare_expression(trial_expr, verbose=verbose))
+        are_equivalent = np.array(are_equivalent)
+        is_equivalent = are_equivalent.any()
+        return is_equivalent
 
     def __str__(self):
         return "FeynmanProblem : %s : %s\n%s"%(self.eq_filename, self.eq_name, str(self.formula_sympy))
