@@ -491,33 +491,6 @@ class FeynmanProblem:
 
         return is_equivalent
 
-    def compare_expressions (self, trial_expressions, verbose = False):
-        """
-        Checks if at least one of trial_expressions is symbolically equivalent to the target expression of this Feynman
-        problem, following a similar methodology as SRBench (see https://github.com/cavalab/srbench).
-        I.e, it is deemed equivalent if:
-            - the symbolic difference simplifies to 0
-            - OR the symbolic difference is a constant
-            - OR the symbolic ratio simplifies to a constant
-        Parameters
-        ----------
-        trial_expressions : array_like of Sympy Expression
-            Trial sympy expressions with evaluated numeric free constants and assumptions regarding variables
-            (positivity etc.) encoded in expressions.
-        verbose : bool
-            Verbose.
-        Returns
-        -------
-        is_equivalent : bool
-            Is at leat one of those expressions equivalent.
-        """
-        are_equivalent = []
-        for trial_expr in trial_expressions:
-            are_equivalent.append(self.compare_expression(trial_expr, verbose=verbose))
-        are_equivalent = np.array(are_equivalent)
-        is_equivalent = are_equivalent.any()
-        return is_equivalent
-
     def __str__(self):
         return "FeynmanProblem : %s : %s\n%s"%(self.eq_filename, self.eq_name, str(self.formula_sympy))
 
