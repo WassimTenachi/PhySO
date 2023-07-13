@@ -239,6 +239,9 @@ def round_floats(expr):
         if isinstance(a, sympy.Float):
             if abs(a) < 0.0001:
                 ex2 = ex2.subs(a, sympy.Integer(0))
+            # Should prevent sympy not being able to simplify 1.0*x - x to 0 for example
+            elif abs(a - 1.) < 0.0001:
+                ex2 = ex2.subs(a, sympy.Integer(1))
             else:
                 ex2 = ex2.subs(a, round(a, 3))
     return ex2
@@ -476,8 +479,9 @@ class FeynmanProblem:
             sym_frac = clean_sympy_expr(target_expr / trial_expr)
 
             if verbose:
-                print('   -> Symbolic difference :', sym_diff)
-                print('   -> Symbolic fraction   :', sym_frac)
+                print('   -> Simplified expression :', trial_expr)
+                print('   -> Symbolic difference   :', sym_diff)
+                print('   -> Symbolic fraction     :', sym_frac)
 
             # Equivalent if diff simplifies to 0 or if the diff is a constant or if the ratio is a constant
             is_equivalent = (str(sym_diff) == '0') \
