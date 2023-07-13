@@ -73,11 +73,16 @@ This should result in `physo` being successfully imported.
 
 #####  Unit tests:
 
-From the repository root:
+Running all unit tests except parallel mode ones (from the repository root):
 ```
 python -m unittest discover -p "*UnitTest.py"
 ```
 This should result in all tests being successfully passed (except for program_display_UnitTest tests if optional dependencies were not installed).
+
+Running all unit tests (from the repository root):
+```
+python -m unittest discover -p "*Test.py"
+```
 This  should take 5-15 min depending on your system (as if you have a lot of CPU cores, it will take longer to make the efficiency curves).
 
 # Getting started
