@@ -32,6 +32,7 @@ def TEST_REDUCE_WRAPPER(y):
     return y.mean()
 
 class ExecuteProgramTest(unittest.TestCase):
+    
     # Test parallelized execution (due to large data communication causes error on some linux systems -> commented).
     # def test_ParallelizedExe (self):
         #
