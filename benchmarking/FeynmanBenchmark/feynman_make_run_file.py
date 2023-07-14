@@ -1,17 +1,19 @@
 import numpy as np
 import os
 import shutil
-
 import argparse
+
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 
+# ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Creates a jobfile to run all Feynman problems.",
                                   formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-n", "--noize", default = 0.,
                     help = "Noize level.")
 config = vars(parser.parse_args())
 
-NOIZE_LEVEL = config["noize"]
+NOIZE_LEVEL = float(config["noize"])
+# ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
 # Expected performances on unistra HPC
 # With N_SAMPLES = 1e5 on 1 CPU core -> 40min/10k evaluations
