@@ -18,5 +18,5 @@ python feynman_make_run_file.py --noize 0.0
 
 Analyzing a results folder:
 ```
-
+python feynman_results_analysis.py --path [results folder]
 ```
