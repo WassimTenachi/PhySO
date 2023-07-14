@@ -4,17 +4,30 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import matplotlib as mpl
-import shutil
+import argparse
 
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 import physo
+# todo: Checkout produce file with noize
+
+parser = argparse.ArgumentParser (description     = "Runs a Feynman problem job.",
+                                  formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("-i", "--equation", default = 0,
+                    help = "Equation number in the set (e.g. 0 to 99 for bulk eqs and 100 to 119 for bonus eqs).")
+parser.add_argument("-t", "--trial", default = 0,
+                    help = "Trial number (sets seed accordingly).")
+parser.add_argument("-n", "--noize", default = 0.,
+                    help = "Noize level.")
+config = vars(parser.parse_args())
 
 if __name__ == '__main__':
 
-    # Trial number
-    N_TRIAL = [I_TRIAL]
     # Feynman problem number
-    I_FEYN  = [I_FEYN]
+    I_FEYN  = config["equation"]
+    # Trial number
+    N_TRIAL = config["trial"]
+    # Noize level
+    NOIZE_LEVEL = config["noize"]
 
     # Parallel config
     PARALLEL_MODE = False
@@ -49,7 +62,7 @@ if __name__ == '__main__':
     torch.manual_seed(seed)
 
     # Paths
-    RUN_NAME       = "FR_%i_%i"%(I_FEYN, N_TRIAL)
+    RUN_NAME       = "FR_%i_%i_%f"%(I_FEYN, N_TRIAL, NOIZE_LEVEL)
     PATH_DATA      = "%s_data.csv"%(RUN_NAME)
     PATH_DATA_PLOT = "%s_data.png"%(RUN_NAME)
 
