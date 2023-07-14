@@ -3,15 +3,11 @@ import numpy as np
 import time as time
 import torch as torch
 import sympy as sympy
-import torch.multiprocessing as mp
-import matplotlib.pyplot as plt
 
-import physo.physym.reward
 # Internal imports
 from physo.physym import execute as Exec
 from physo.physym import library as Lib
 from physo.physym.functions import data_conversion, data_conversion_inv
-from physo.physym import program as Prog
 
 class ExecuteProgramTest(unittest.TestCase):
 
