@@ -8,8 +8,13 @@ import argparse
 
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 import physo
-# todo: Checkout produce file with noize
+# todo: Make noize
 
+# Parallel config
+PARALLEL_MODE_DEFAULT = False
+N_CPUS_DEFAULT        = 1
+
+# ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Runs a Feynman problem job.",
                                   formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-i", "--equation", default = 0,
@@ -17,21 +22,25 @@ parser.add_argument("-i", "--equation", default = 0,
 parser.add_argument("-t", "--trial", default = 0,
                     help = "Trial number (sets seed accordingly).")
 parser.add_argument("-n", "--noize", default = 0.,
-                    help = "Noize level.")
+                    help = "Noize level fraction.")
+parser.add_argument("-p", "--parallel_mode", default = PARALLEL_MODE_DEFAULT,
+                    help = "Should parallel mode be used.")
+parser.add_argument("-ncpus", "--ncpus", default = N_CPUS_DEFAULT,
+                    help = "Nb. of CPUs to use")
 config = vars(parser.parse_args())
 
+# Feynman problem number
+I_FEYN  = int(config["equation"])
+# Trial number
+N_TRIAL = int(config["trial"])
+# Noize level
+NOIZE_LEVEL = float(config["noize"])
+# Parallel config
+PARALLEL_MODE = bool(config["parallel_mode"])
+N_CPUS        = int(config["ncpus"])
+# ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
+
 if __name__ == '__main__':
-
-    # Feynman problem number
-    I_FEYN  = config["equation"]
-    # Trial number
-    N_TRIAL = config["trial"]
-    # Noize level
-    NOIZE_LEVEL = config["noize"]
-
-    # Parallel config
-    PARALLEL_MODE = False
-    N_CPUS        = 1
 
     # ----- HYPERPARAMS : CONSTANTS -----
     # Since physical constants (G, c etc.) are treated as input variables taking a range of values, two dimensionless
