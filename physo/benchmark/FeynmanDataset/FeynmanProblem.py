@@ -276,7 +276,7 @@ class FeynmanProblem:
     Attributes
     ----------
     i_eq : int
-        Equation number in the set of equations (e.g. 1 to 100).
+        Equation number in the set of equations (e.g. 0 to 99 for bulk eqs and 100 to 119 for bonus eqs).
     eq_name : str
         Equation name in the set of equations (e.g. I.6.2a).
     n_vars : int
@@ -327,7 +327,7 @@ class FeynmanProblem:
         else:
             raise ValueError("At least one of equation number (i_eq) or equation name (eq_name) should be specified to select a Feynman problem.")
 
-        # Equation number (eg. 1 to 100 for bulk and 1 to 20 for bonus)
+        # Equation number (0 to 99 for bulk eqs and 100 to 119 for bonus eqs)
         self.i_eq = self.eq_df["Number"]                # int
         # Code name of equation (eg. 'I.6.2a')
         self.eq_name = self.eq_df["Name"]               # str
