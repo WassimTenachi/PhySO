@@ -5,7 +5,11 @@ import sympy
 import pandas as pd
 import argparse
 
+# Internal imports
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
+
+# Local imports
+import feynman_config as fconfig
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Analyzes Feynman run results folder and produces a .csv summary.",
@@ -16,8 +20,9 @@ config = vars(parser.parse_args())
 RESULTS_PATH = str(config["path"])
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
-# Nb of trials
-N_TRIALS = 5
+N_TRIALS = fconfig.N_TRIALS
+EXCLUDED_IN_SRBENCH_EQS_FILENAMES = fconfig.EXCLUDED_IN_SRBENCH_EQS_FILENAMES
+
 # Where to save results summary
 PATH_RESULTS_SAVE = os.path.join(RESULTS_PATH, "results.csv")
 
@@ -27,8 +32,7 @@ START_COL_FREE_CONST_PARETO_CSV = 6
 # Only assessing symbolic equivalence if reward is above:
 R_LIM = 0.6
 
-# Equations that are excluded in SRBench (see section Feynman datasets of https://arxiv.org/abs/2107.14351)
-EXCLUDED_IN_SRBENCH_EQS_FILENAMES = ['I.26.2', 'I.30.5', 'II.11.17', 'test_10']
+
 
 def load_pareto_expressions (pareto_df, sympy_X_symbols_dict):
     """

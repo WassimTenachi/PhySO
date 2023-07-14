@@ -1,9 +1,10 @@
-import numpy as np
-import os
-import shutil
 import argparse
 
+# Internal imports
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
+
+# Local imports
+import feynman_config as fconfig
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Creates a jobfile to run all Feynman problems.",
@@ -19,14 +20,12 @@ NOIZE_LEVEL = float(config["noize"])
 # With N_SAMPLES = 1e5 on 1 CPU core -> 40min/10k evaluations
 # With 1M expressions -> each run .log -> 400 Mo
 
-# Nb of trials per problem
-N_TRIALS = 5
+N_TRIALS = fconfig.N_TRIALS
+EXCLUDED_IN_SRBENCH_EQS_FILENAMES = fconfig.EXCLUDED_IN_SRBENCH_EQS_FILENAMES
+
 
 # Output jobfile name
 PATH_OUT_JOBFILE = "jobfile"
-
-# Equations that are excluded in SRBench (see section Feynman datasets of https://arxiv.org/abs/2107.14351)
-EXCLUDED_IN_SRBENCH_EQS_FILENAMES = ['I.26.2', 'I.30.5', 'II.11.17', 'test_10']
 
 commands = []
 # Iterating through Feynman problems
