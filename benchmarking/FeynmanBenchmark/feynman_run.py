@@ -106,11 +106,12 @@ if __name__ == '__main__':
     mpl.rcParams.update(mpl.rcParamsDefault)
     n_dim = X.shape[0]
     fig, ax = plt.subplots(n_dim, 1, figsize=(10, n_dim * 4))
+    fig.suptitle(pb.formula)
     for i in range(n_dim):
         curr_ax = ax if n_dim == 1 else ax[i]
         curr_ax.plot(X[i], y, 'k.', markersize=0.1)
-        curr_ax.set_xlabel("%s" % (pb.X_names[i]))
-        curr_ax.set_ylabel("%s" % (pb.y_name))
+        curr_ax.set_xlabel("%s : %s" % (pb.X_names[i], pb.X_units[i]))
+        curr_ax.set_ylabel("%s : %s" % (pb.y_name    , pb.y_units))
     # Save plot
     fig.savefig(PATH_DATA_PLOT)
 

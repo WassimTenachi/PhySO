@@ -386,6 +386,7 @@ class FeynmanProblem:
         self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula,
                                                                      local_dict = local_dict,
                                                                      evaluate   = evaluate)
+        self.formula_latex   = sympy.printing.latex(self.formula_sympy)
         return None
 
     def target_function(self, X):
@@ -433,11 +434,12 @@ class FeynmanProblem:
         X_array, y_array = self.generate_data_points(n_samples = n_samples)
         n_dim = X_array.shape[0]
         fig, ax = plt.subplots(n_dim, 1, figsize=(10, n_dim * 4))
+        fig.suptitle(self.formula)
         for i in range(n_dim):
             curr_ax = ax if n_dim == 1 else ax[i]
-            curr_ax.plot(X_array[i], y_array, 'k.', )
-            curr_ax.set_xlabel("%s" % (self.X_names[i]))
-            curr_ax.set_ylabel("%s" % (self.y_name))
+            curr_ax.plot(X_array[i], y_array, 'k.', markersize=1.)
+            curr_ax.set_xlabel("%s : %s" % (self.X_names[i], self.X_units[i]))
+            curr_ax.set_ylabel("%s : %s" % (self.y_name    , self.y_units))
         if save_path is not None:
             fig.savefig(save_path)
         if do_show:
