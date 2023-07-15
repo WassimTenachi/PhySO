@@ -13,8 +13,6 @@ import physo
 # Local imports
 import feynman_config as fconfig
 
-# todo: Make noize
-
 # Parallel config :
 # Parallel mode may cause issues due to the number of samples, non-parallel mode is recommended
 # Single core with so many samples will actually use up to 10 cores via pytorch parallelization along sample dim
@@ -93,6 +91,12 @@ if __name__ == '__main__':
 
     # Generate data
     X, y = pb.generate_data_points (n_samples = N_SAMPLES)
+
+    # Noize
+    y_rms = ((y ** 2).mean()) ** 0.5
+    epsilon = NOIZE_LEVEL * np.random.normal(0, y_rms, len(y))
+    y = y + epsilon
+
     # Save data
     df = pd.DataFrame(data    = np.concatenate((y[np.newaxis,:], X), axis=0).transpose(),
                       columns = [pb.y_name] + pb.X_names.tolist())
@@ -104,7 +108,7 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(n_dim, 1, figsize=(10, n_dim * 4))
     for i in range(n_dim):
         curr_ax = ax if n_dim == 1 else ax[i]
-        curr_ax.plot(X[i], y, 'k.', )
+        curr_ax.plot(X[i], y, 'k.', markersize=0.1)
         curr_ax.set_xlabel("%s" % (pb.X_names[i]))
         curr_ax.set_ylabel("%s" % (pb.y_name))
     # Save plot
