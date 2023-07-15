@@ -28,7 +28,7 @@ def get_ncpus(max_ncpus):
         if result < max_ncpus:
             results.append(result)
     # start with the highest then lowest to immediately see difference
-    results = [4,] #[max_ncpus,] + results
+    results = [max_ncpus,] + results
     return np.array(results)
 
 if __name__ == '__main__':
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     not_parallelized_time = run(parallel=False)
     print("-> %f ms per task" % (not_parallelized_time))
 
-    # Parallel times
+    # Getting parallel times
     print("\nParallelized free constant optimization test:")
     max_ncpus = mp.cpu_count()
     print("Total nb. of CPUs: ", max_ncpus)
