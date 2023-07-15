@@ -28,7 +28,7 @@ def get_ncpus(max_ncpus):
         if result < max_ncpus:
             results.append(result)
     # start with the highest then lowest to immediately see difference
-    results = results + [max_ncpus,]
+    results = [max_ncpus,] + results
     return np.array(results)
 
 if __name__ == '__main__':
