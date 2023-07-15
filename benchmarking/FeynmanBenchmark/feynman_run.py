@@ -15,7 +15,9 @@ import feynman_config as fconfig
 
 # todo: Make noize
 
-# Parallel config
+# Parallel config :
+# Parallel mode may cause issues due to the number of samples, non-parallel mode is recommended
+# Single core with so many samples will actually use up to 10 cores via pytorch parallelization along sample dim
 PARALLEL_MODE_DEFAULT = False
 N_CPUS_DEFAULT        = 1
 
@@ -135,7 +137,7 @@ if __name__ == '__main__':
                 get_run_logger     = get_run_logger,
                 get_run_visualiser = get_run_visualiser,
                 # Stopping condition
-                stop_reward = 1.1, # not stopping even if perfect reward is reached
+                stop_reward = 1.1,  # not stopping even if perfect 1.0 reward is reached
                 max_n_evaluations = MAX_N_EVALUATIONS,
                 epochs            = N_EPOCHS,
                 # Parallel mode
