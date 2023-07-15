@@ -135,6 +135,7 @@ if __name__ == '__main__':
                 get_run_logger     = get_run_logger,
                 get_run_visualiser = get_run_visualiser,
                 # Stopping condition
+                stop_reward = 1.1, # not stopping even if perfect reward is reached
                 max_n_evaluations = MAX_N_EVALUATIONS,
                 epochs            = N_EPOCHS,
                 # Parallel mode
