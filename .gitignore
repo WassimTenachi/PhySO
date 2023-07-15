@@ -8,3 +8,4 @@ demo/**/*.png
 demo/**/*.csv
 demo/**/*.pdf
 benchmarking/FeynmanBenchmark/FR*
+benchmarking/FeynmanBenchmark/feynman_efficiency_curves.png
