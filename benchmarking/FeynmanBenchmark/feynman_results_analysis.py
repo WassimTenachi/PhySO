@@ -121,8 +121,8 @@ def assess_equivalence_in_pareto (pareto_df, Feynman_pb, verbose = False):
     return is_equivalent
 
 # Results df settings
-column_names = ["Eq Nb"] + ["Trial %i"%(i) for i in range(N_TRIALS)] + ["Recovery Rate"]
-column_dtypes = {"Eq Nb": int, "Recovery Rate" : float}
+column_names = ["Eq Nb"] + ["Trial %i"%(i) for i in range(N_TRIALS)] + ["Recovery Rate", "# evaluations"]
+column_dtypes = {"Eq Nb": int, "Recovery Rate" : float, "# evaluations" : int}
 column_dtypes.update({"Trial %i"%(i) : bool for i in range(N_TRIALS)})
 results_lines = []
 
@@ -135,6 +135,7 @@ for i_eq in range (Feyn.N_EQS):
     if pb.eq_filename not in EXCLUDED_IN_SRBENCH_EQS_FILENAMES:
         print(pb)
         is_equivalent_list = []
+        n_evaluations_list = []
         # Iterating through trials
         for i_trial in range (N_TRIALS):
             # Run folder
@@ -145,22 +146,32 @@ for i_eq in range (Feyn.N_EQS):
             if len(pb_folder)==0:
                 warnings.warn("Unable to find folder starting with: %s" % (pb_folder_prefix))
                 path_pareto = None
+                path_curves = None
             else:
                 pb_folder = pb_folder[0]
                 print("-> Analyzing run folder: %s"%(pb_folder))
                 path_pareto = os.path.join(RESULTS_PATH, pb_folder, 'SR_curves_pareto.csv')
+                path_curves = os.path.join(RESULTS_PATH, pb_folder, 'SR_curves_data.csv'  )
             try:
                 # Loading pareto expressions
                 pareto_data = pd.read_csv(path_pareto)
+                # Loading curves data
+                curves_data = pd.read_csv(path_curves)
+                # Nb of evaluations
+                n_evaluations = curves_data["n_rewarded"].sum()
+                print(" -> # evals = %i"%(n_evaluations))
                 # Compare expressions
                 is_equivalent = assess_equivalence_in_pareto (pareto_df = pareto_data, Feynman_pb = pb, verbose = True)
             except:
                 warnings.warn("Unable to load file: %s"%(path_pareto))
                 is_equivalent = False
+                n_evaluations = 0
             is_equivalent_list .append(is_equivalent)
+            n_evaluations_list .append(n_evaluations)
         # Logging result line
+        tot_evals  = np.sum(n_evaluations_list)
         recov_rate = np.sum(is_equivalent_list)/N_TRIALS
-        data = np.array([i_eq] + is_equivalent_list + [recov_rate])[:, np.newaxis].transpose()
+        data = np.array([i_eq] + is_equivalent_list + [recov_rate, tot_evals])[:, np.newaxis].transpose()
         result_line = pd.DataFrame(data    = data,
                                    columns = column_names)
         results_lines.append(result_line)
@@ -172,4 +183,11 @@ for i_eq in range (Feyn.N_EQS):
         print("Problem excluded.")
 
 total_recov_rate = results_df["Recovery Rate"].mean()
-print("\n\nTotal recovery rate = %f"%(total_recov_rate))
+print("\n\nTotal recovery rate   = %f %%"%(100*total_recov_rate))
+
+total_evals      = results_df["# evaluations"].sum()
+# Total evaluations to do = [nb of pb] x [n trials] * [n evals allowed]
+total_evals_todo = len(results_df) * fconfig.N_TRIALS * fconfig.MAX_N_EVALUATIONS
+# Nb. of evals done / nb of evals allowed
+print("Frac of evals allowed = %f %%"%(100*total_evals/total_evals_todo))
+
