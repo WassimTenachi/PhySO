@@ -20,7 +20,9 @@ FREE_CONSTS_UNITS   = [dimensionless_units, dimensionless_units]
 
 # ----- HYPERPARAMS : DATA -----
 # SRBench uses 100k data points https://arxiv.org/abs/2107.14351
-N_SAMPLES = int(1e5)
+# N_SAMPLES = int(1e5)
+# Faster with fewer samples (but may hinder results).
+N_SAMPLES = int(1e4)
 
 # ----- HYPERPARAMS : CONFIG -----
 CONFIG = physo.config.config1.config1
