@@ -121,8 +121,8 @@ def assess_equivalence_in_pareto (pareto_df, Feynman_pb, verbose = False):
     return is_equivalent
 
 # Results df settings
-column_names = ["Eq Nb"] + ["Trial %i"%(i) for i in range(N_TRIALS)] + ["Recovery Rate", "# evaluations"]
-column_dtypes = {"Eq Nb": int, "Recovery Rate" : float, "# evaluations" : int}
+column_names = ["Eq Nb"] + ["Trial %i"%(i) for i in range(N_TRIALS)] + ["Recovery Rate", "# evaluations", "# started"]
+column_dtypes = {"Eq Nb": int, "Recovery Rate" : float, "# evaluations" : int, "# started" : int,}
 column_dtypes.update({"Trial %i"%(i) : bool for i in range(N_TRIALS)})
 results_lines = []
 
@@ -136,6 +136,7 @@ for i_eq in range (Feyn.N_EQS):
         print(pb)
         is_equivalent_list = []
         n_evaluations_list = []
+        n_started_list     = []
         # Iterating through trials
         for i_trial in range (N_TRIALS):
             # Run folder
@@ -162,16 +163,20 @@ for i_eq in range (Feyn.N_EQS):
                 print(" -> # evals = %i"%(n_evaluations))
                 # Compare expressions
                 is_equivalent = assess_equivalence_in_pareto (pareto_df = pareto_data, Feynman_pb = pb, verbose = True)
+                is_started    = True
             except:
                 warnings.warn("Unable to load file: %s"%(path_pareto))
                 is_equivalent = False
                 n_evaluations = 0
+                is_started    = False
             is_equivalent_list .append(is_equivalent)
             n_evaluations_list .append(n_evaluations)
+            n_started_list     .append(is_started   )
         # Logging result line
         tot_evals  = np.sum(n_evaluations_list)
+        n_started  = np.sum(n_started_list)
         recov_rate = np.sum(is_equivalent_list)/N_TRIALS
-        data = np.array([i_eq] + is_equivalent_list + [recov_rate, tot_evals])[:, np.newaxis].transpose()
+        data = np.array([i_eq] + is_equivalent_list + [recov_rate, tot_evals, n_started])[:, np.newaxis].transpose()
         result_line = pd.DataFrame(data    = data,
                                    columns = column_names)
         results_lines.append(result_line)
@@ -182,12 +187,24 @@ for i_eq in range (Feyn.N_EQS):
     else:
         print("Problem excluded.")
 
-total_recov_rate = results_df["Recovery Rate"].mean()
-print("\n\nTotal recovery rate   = %f %%"%(100*total_recov_rate))
 
+n_runs = len(results_df)*N_TRIALS
+
+# Total recovery rate
+total_recov_rate = results_df["Recovery Rate"].mean()
+
+# Nb of runs successfully started
+total_started = results_df["# started"].sum()
+frac_started = total_started/n_runs
+
+# Nb of evaluation performed
 total_evals      = results_df["# evaluations"].sum()
 # Total evaluations to do = [nb of pb] x [n trials] * [n evals allowed]
-total_evals_todo = len(results_df) * fconfig.N_TRIALS * fconfig.MAX_N_EVALUATIONS
+total_evals_todo = n_runs * fconfig.MAX_N_EVALUATIONS
 # Nb. of evals done / nb of evals allowed
+
+print("\n\n")
+print("Total recovery rate   = %f %%"%(100*total_recov_rate))
 print("Frac of evals allowed = %f %%"%(100*total_evals/total_evals_todo))
+print("Frac of runs started  = %f %% (-> %i)"%(100*frac_started, total_started))
 
