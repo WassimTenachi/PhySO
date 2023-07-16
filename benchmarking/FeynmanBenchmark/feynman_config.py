@@ -28,5 +28,6 @@ CONFIG = physo.config.config1.config1
 # ----- HYPERPARAMS : MAX NUMBER OF EVALUATIONS -----
 # 1M evaluation maximum allowed in SRBench https://arxiv.org/abs/2107.14351
 MAX_N_EVALUATIONS = int(1e6) + 1
-# Also setting the nb. of epochs for safety
-N_EPOCHS = int(MAX_N_EVALUATIONS/CONFIG["learning_config"]["batch_size"])
+# Allowed to search in an infinitely large search space, research will be stopped by MAX_N_EVALUATIONS
+N_EPOCHS = int(1e99)
+#int(MAX_N_EVALUATIONS/CONFIG["learning_config"]["batch_size"])
