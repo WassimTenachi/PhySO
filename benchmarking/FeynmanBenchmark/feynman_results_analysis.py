@@ -141,9 +141,14 @@ for i_eq in range (Feyn.N_EQS):
             pb_folder_prefix = "FR_%s_%s"%(i_eq, i_trial)
             # Getting folder starting with [pb_folder_prefix] str
             # Working with prefix only is better to
-            pb_folder   = list(filter(lambda folders: pb_folder_prefix in folders, os.listdir(RESULTS_PATH)))[0]
-            print("-> Analyzing run folder: %s"%(pb_folder))
-            path_pareto = os.path.join(RESULTS_PATH, pb_folder, 'SR_curves_pareto.csv')
+            pb_folder   = list(filter(lambda folders: pb_folder_prefix in folders, os.listdir(RESULTS_PATH)))
+            if len(pb_folder)==0:
+                warnings.warn("Unable to find folder starting with: %s" % (pb_folder_prefix))
+                path_pareto = None
+            else:
+                pb_folder = pb_folder[0]
+                print("-> Analyzing run folder: %s"%(pb_folder))
+                path_pareto = os.path.join(RESULTS_PATH, pb_folder, 'SR_curves_pareto.csv')
             try:
                 # Loading pareto expressions
                 pareto_data = pd.read_csv(path_pareto)
