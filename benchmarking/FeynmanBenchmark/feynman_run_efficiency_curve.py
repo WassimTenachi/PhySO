@@ -166,5 +166,5 @@ if __name__ == '__main__':
     ax.set_xlabel("Nb. of CPUs")
     ax.set_ylabel("time [ms]")
     ax.legend()
-    fig.savefig("feynman_efficiency_curves.png")
+    fig.savefig("feynman_efficiency_curve.png")
 
