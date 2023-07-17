@@ -4,6 +4,7 @@ import numpy as np
 import sympy
 import pandas as pd
 import argparse
+import scipy.stats as st
 
 # Internal imports
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
@@ -121,8 +122,8 @@ def assess_equivalence_in_pareto (pareto_df, Feynman_pb, verbose = False):
     return is_equivalent
 
 # Results df settings
-column_names = ["Eq Nb"] + ["Trial %i"%(i) for i in range(N_TRIALS)] + ["Recovery Rate", "# evaluations", "# started"]
-column_dtypes = {"Eq Nb": int, "Recovery Rate" : float, "# evaluations" : int, "# started" : int,}
+column_names = ["Eq Nb"] + ["Trial %i"%(i) for i in range(N_TRIALS)] + ["Recovery Rate", "# evaluations", "# started", "# finished"]
+column_dtypes = {"Eq Nb": int, "Recovery Rate" : float, "# evaluations" : int, "# started" : int, "# finished" : int,}
 column_dtypes.update({"Trial %i"%(i) : bool for i in range(N_TRIALS)})
 results_lines = []
 
@@ -137,6 +138,7 @@ for i_eq in range (Feyn.N_EQS):
         is_equivalent_list = []
         n_evaluations_list = []
         n_started_list     = []
+        n_finished_list    = []
         # Iterating through trials
         for i_trial in range (N_TRIALS):
             # Run folder
@@ -163,20 +165,25 @@ for i_eq in range (Feyn.N_EQS):
                 print(" -> # evals = %i"%(n_evaluations))
                 # Compare expressions
                 is_equivalent = assess_equivalence_in_pareto (pareto_df = pareto_data, Feynman_pb = pb, verbose = True)
+                # Managing runs
                 is_started    = True
+                is_finished   = n_evaluations >= (fconfig.MAX_N_EVALUATIONS - fconfig.CONFIG["learning_config"]["batch_size"])
             except:
                 warnings.warn("Unable to load file: %s"%(path_pareto))
                 is_equivalent = False
                 n_evaluations = 0
                 is_started    = False
+                is_finished   = False
             is_equivalent_list .append(is_equivalent)
             n_evaluations_list .append(n_evaluations)
             n_started_list     .append(is_started   )
+            n_finished_list    .append(is_finished  )
         # Logging result line
         tot_evals  = np.sum(n_evaluations_list)
-        n_started  = np.sum(n_started_list)
+        n_started  = np.sum(n_started_list    )
+        n_finished = np.sum(n_finished_list   )
         recov_rate = np.sum(is_equivalent_list)/N_TRIALS
-        data = np.array([i_eq] + is_equivalent_list + [recov_rate, tot_evals, n_started])[:, np.newaxis].transpose()
+        data = np.array([i_eq] + is_equivalent_list + [recov_rate, tot_evals, n_started, n_finished])[:, np.newaxis].transpose()
         result_line = pd.DataFrame(data    = data,
                                    columns = column_names)
         results_lines.append(result_line)
@@ -195,16 +202,29 @@ total_recov_rate = results_df["Recovery Rate"].mean()
 
 # Nb of runs successfully started
 total_started = results_df["# started"].sum()
-frac_started = total_started/n_runs
+frac_started  = total_started/n_runs
+
+# Nb of runs successfully finished
+total_finished = results_df["# finished"].sum()
+frac_finished  = total_finished/n_runs
 
 # Nb of evaluation performed
 total_evals      = results_df["# evaluations"].sum()
 # Total evaluations to do = [nb of pb] x [n trials] * [n evals allowed]
 total_evals_todo = n_runs * fconfig.MAX_N_EVALUATIONS
-# Nb. of evals done / nb of evals allowed
+
+# 95% confidence interval
+# Computes 95% confidence interval
+def compute_95_ci (data):
+    res = np.array(st.t.interval(alpha=0.95, df=len(data)-1, loc=np.mean(data), scale=st.sem(data)))
+    return res
+ci_95 = compute_95_ci(results_df["Recovery Rate"])
+
 
 print("\n\n")
-print("Total recovery rate   = %f %%"%(100*total_recov_rate))
-print("Frac of evals allowed = %f %%"%(100*total_evals/total_evals_todo))
-print("Frac of runs started  = %f %% (-> %i)"%(100*frac_started, total_started))
+print("Total recovery rate    = %f %%"          %(100*total_recov_rate))
+print("Recovery rate 95%% CI   = %f %%  - %f %%" %(100*ci_95[0], 100*ci_95[1]))
+print("Frac of evals allowed  = %f %%"          %(100*total_evals/total_evals_todo))
+print("Frac of runs started   = %f %% (-> %i)"  %(100*frac_started , total_started ))
+print("Frac of runs finished  = %f %% (-> %i)"  %(100*frac_finished, total_finished))
 
