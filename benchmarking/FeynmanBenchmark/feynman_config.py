@@ -25,6 +25,9 @@ FREE_CONSTS_UNITS   = [dimensionless_units, dimensionless_units]
 # Faster with fewer samples (this should not hinder performances to much).
 N_SAMPLES = int(1e4)
 
+# Nb of samples for testing results
+N_SAMPLES_TEST = int(1e5)
+
 # ----- HYPERPARAMS : CONFIG -----
 CONFIG = physo.config.config1.config1
 
