@@ -19,9 +19,10 @@ FREE_CONSTS_NAMES   = ["c1", "c2"]
 FREE_CONSTS_UNITS   = [dimensionless_units, dimensionless_units]
 
 # ----- HYPERPARAMS : DATA -----
-# SRBench uses 100k data points https://arxiv.org/abs/2107.14351
+# SRBench (https://arxiv.org/abs/2107.14351) uses 100k data points for Feynman (subsec A.4)
+# But they say they downsample to 10k in subsec A.5
 # N_SAMPLES = int(1e5)
-# Faster with fewer samples (but may hinder results).
+# Faster with fewer samples (this should not hinder performances to much).
 N_SAMPLES = int(1e4)
 
 # ----- HYPERPARAMS : CONFIG -----
