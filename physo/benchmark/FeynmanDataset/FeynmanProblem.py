@@ -497,6 +497,32 @@ class FeynmanProblem:
 
         return is_equivalent
 
+    def trial_function (self, trial_expr, X):
+        """
+        Evaluates X on a trial expression mapping X to input variables names in sympy.
+        Parameters
+        ----------
+        trial_expr : Sympy Expression
+            Trial sympy expression with evaluated numeric free constants and assumptions regarding variables
+            (positivity etc.) encoded in expression.
+        X : numpy.array of shape (n_vars, ?,) of floats
+        Returns
+        -------
+        y : numpy.array of shape (?,) of floats
+        """
+        # Getting sympy function
+        f = sympy.lambdify(self.X_sympy_symbols, trial_expr, "numpy")
+        # Mapping between variables names and their data value
+        mapping_var_name_to_X = {self.X_names[i]: X[i] for i in range(self.n_vars)}
+        # Evaluation
+        # Forcing float type so if some symbols are not evaluated as floats (eg. if some variables are not declared
+        # properly in source file) resulting partly symbolic expressions will not be able to be converted to floats
+        # and an error can be raised).
+        # This is also useful for detecting issues such as sin(theta) = 0 because theta.is_nonzero = False -> the result
+        # is just an int of float
+        y = f(**mapping_var_name_to_X).astype(float)
+        return y
+
     def __str__(self):
         return "FeynmanProblem : %s : %s\n%s"%(self.eq_filename, self.eq_name, str(self.formula_sympy))
 
