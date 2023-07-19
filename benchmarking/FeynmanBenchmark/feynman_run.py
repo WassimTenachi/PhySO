@@ -26,8 +26,8 @@ parser.add_argument("-i", "--equation", default = 0,
                     help = "Equation number in the set (e.g. 0 to 99 for bulk eqs and 100 to 119 for bonus eqs).")
 parser.add_argument("-t", "--trial", default = 0,
                     help = "Trial number (sets seed accordingly).")
-parser.add_argument("-n", "--noize", default = 0.,
-                    help = "Noize level fraction.")
+parser.add_argument("-n", "--noise", default = 0.,
+                    help = "Noise level fraction.")
 parser.add_argument("-p", "--parallel_mode", default = PARALLEL_MODE_DEFAULT,
                     help = "Should parallel mode be used.")
 parser.add_argument("-ncpus", "--ncpus", default = N_CPUS_DEFAULT,
@@ -38,8 +38,8 @@ config = vars(parser.parse_args())
 I_FEYN  = int(config["equation"])
 # Trial number
 N_TRIAL = int(config["trial"])
-# Noize level
-NOIZE_LEVEL = float(config["noize"])
+# Noise level
+NOISE_LEVEL = float(config["noise"])
 # Parallel config
 PARALLEL_MODE = bool(config["parallel_mode"])
 N_CPUS        = int(config["ncpus"])
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     torch.manual_seed(seed)
 
     # Paths
-    RUN_NAME       = "FR_%i_%i_%f"%(I_FEYN, N_TRIAL, NOIZE_LEVEL)
+    RUN_NAME       = "FR_%i_%i_%f"%(I_FEYN, N_TRIAL, NOISE_LEVEL)
     PATH_DATA      = "%s_data.csv"%(RUN_NAME)
     PATH_DATA_PLOT = "%s_data.png"%(RUN_NAME)
 
@@ -92,9 +92,9 @@ if __name__ == '__main__':
     # Generate data
     X, y = pb.generate_data_points (n_samples = N_SAMPLES)
 
-    # Noize
+    # Noise
     y_rms = ((y ** 2).mean()) ** 0.5
-    epsilon = NOIZE_LEVEL * np.random.normal(0, y_rms, len(y))
+    epsilon = NOISE_LEVEL * np.random.normal(0, y_rms, len(y))
     y = y + epsilon
 
     # Save data

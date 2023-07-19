@@ -9,11 +9,11 @@ import feynman_config as fconfig
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Creates a jobfile to run all Feynman problems.",
                                   formatter_class = argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-n", "--noize", default = 0.,
-                    help = "Noize level.")
+parser.add_argument("-n", "--noise", default = 0.,
+                    help = "Noise level.")
 config = vars(parser.parse_args())
 
-NOIZE_LEVEL = float(config["noize"])
+NOISE_LEVEL = float(config["noise"])
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
 # Expected performances on unistra HPC
@@ -39,7 +39,7 @@ for i_eq in range (Feyn.N_EQS):
         # Iterating through trials
         for i_trial in range (N_TRIALS):
             # File name
-            command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, NOIZE_LEVEL)
+            command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, NOISE_LEVEL)
             commands.append(command)
 
 # Creating a jobfile containing all commands to run
