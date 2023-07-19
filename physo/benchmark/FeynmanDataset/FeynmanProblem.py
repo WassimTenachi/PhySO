@@ -265,6 +265,23 @@ def clean_sympy_expr(expr):
     expr = sympy.simplify(expr, ratio=1)
     return expr
 
+
+def complexity(expr):
+    """
+    Evaluates complexity as in SRBench
+    (see https://github.com/cavalab/srbench).
+    Parameters
+    ----------
+    expr : Sympy Expression
+    Returns
+    -------
+    c : int
+    """
+    c=0
+    for arg in sympy.preorder_traversal(expr):
+        c += 1
+    return c
+
 # ---------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------- FEYNMAN PROBLEM  --------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
@@ -328,13 +345,15 @@ class FeynmanProblem:
             raise ValueError("At least one of equation number (i_eq) or equation name (eq_name) should be specified to select a Feynman problem.")
 
         # Equation number (0 to 99 for bulk eqs and 100 to 119 for bonus eqs)
-        self.i_eq = self.eq_df["Number"]                # int
+        self.i_eq = self.eq_df["Number"]                                     # int
         # Code name of equation (eg. 'I.6.2a')
-        self.eq_name = self.eq_df["Name"]               # str
+        self.eq_name = self.eq_df["Name"]                                    # str
         # Filename column in the Feynman dataset
-        self.eq_filename = self.eq_df["Filename"]       # str
+        self.eq_filename = self.eq_df["Filename"]                            # str
+        # SRBench style name
+        self.SRBench_name = "feynman_" + self.eq_filename.replace('.', '_')  # str
         # Number of input variables
-        self.n_vars = int(self.eq_df["# variables"])    # int
+        self.n_vars = int(self.eq_df["# variables"])                         # int
 
         # ----------- y : output variable -----------
         # Name of output variable
