@@ -234,6 +234,7 @@ def round_floats(expr):
     -------
     ex2 : Sympy Expression
     """
+    round_decimal = 3
     ex2 = expr
     for a in sympy.preorder_traversal(expr):
         if isinstance(a, sympy.Float):
@@ -243,7 +244,10 @@ def round_floats(expr):
             elif abs(a - 1.) < 0.0001:
                 ex2 = ex2.subs(a, sympy.Integer(1))
             else:
-                ex2 = ex2.subs(a, round(a, 3))
+                # Sometimes in sympy, a node can have the value 0.398986816406250 but the exact same node can have
+                # a different value such as 0.39898681640625 in the upper node 0.39898681640625*x.
+                ex2 = ex2.subs(a, round(a, round_decimal))
+                #ex2 = ex2.xreplace({a: round(a, round_decimal)})
     return ex2
 
 def clean_sympy_expr(expr):
@@ -345,7 +349,9 @@ class FeynmanProblem:
             raise ValueError("At least one of equation number (i_eq) or equation name (eq_name) should be specified to select a Feynman problem.")
 
         # Equation number (0 to 99 for bulk eqs and 100 to 119 for bonus eqs)
-        self.i_eq = self.eq_df["Number"]                                     # int
+        self.i_eq = i_eq                                                     # int
+        # Equation number in individual datasets (1 to 100 for bulk eqs and 1 to 20 for bonus eqs)
+        self.i_eq_feyn = self.eq_df["Number"]                                # int
         # Code name of equation (eg. 'I.6.2a')
         self.eq_name = self.eq_df["Name"]                                    # str
         # Filename column in the Feynman dataset
@@ -481,8 +487,8 @@ class FeynmanProblem:
             Verbose.
         Returns
         -------
-        is_equivalent : bool
-            Is the expression equivalent.
+        is_equivalent, report : bool, dict
+            Is the expression equivalent, A dict containing details about the equivalence SRBench style.
         """
 
         # Cleaning target expression like SRBench
@@ -495,26 +501,49 @@ class FeynmanProblem:
             # Cleaning trial expression
             trial_expr = clean_sympy_expr(trial_expr)
             # Computing symbolic difference
-            sym_diff = clean_sympy_expr(target_expr - trial_expr)
-            # Computing fraction difference
+            sym_err = clean_sympy_expr(target_expr - trial_expr)
+            # Computing fraction
             sym_frac = clean_sympy_expr(target_expr / trial_expr)
 
             if verbose:
                 print('   -> Simplified expression :', trial_expr)
-                print('   -> Symbolic difference   :', sym_diff)
+                print('   -> Symbolic error        :', sym_err)
                 print('   -> Symbolic fraction     :', sym_frac)
 
+            symbolic_error_is_zero        = str(sym_err) == '0'
+            symbolic_error_is_constant    = sym_err  .is_constant()
+            symbolic_fraction_is_constant = sym_frac .is_constant()
             # Equivalent if diff simplifies to 0 or if the diff is a constant or if the ratio is a constant
-            is_equivalent = (str(sym_diff) == '0') \
-                            or sym_diff.is_constant() \
-                            or sym_frac.is_constant()
+            is_equivalent = symbolic_error_is_zero or symbolic_error_is_constant or symbolic_fraction_is_constant
 
-        except:
+            # SRBench style report
+            report = {
+                'symbolic_error'                : str(sym_err),
+                'symbolic_fraction'             : str(sym_frac),
+                'symbolic_error_is_zero'        : symbolic_error_is_zero,
+                'symbolic_error_is_constant'    : symbolic_error_is_constant,
+                'symbolic_fraction_is_constant' : symbolic_fraction_is_constant,
+                'sympy_exception'               : '',
+                'symbolic_solution'             : is_equivalent,
+                }
+
+
+        except Exception as e:
+
             is_equivalent = False
             warn_msg = "Could not assess symbolic equivalence of %s with %s (Feynman problem: %s)."%(target_expr, trial_expr, self.eq_name)
             warnings.warn(warn_msg)
+            report = {
+                'symbolic_error'                : '',
+                'symbolic_fraction'             : '',
+                'symbolic_error_is_zero'        : None,
+                'symbolic_error_is_constant'    : None,
+                'symbolic_fraction_is_constant' : None,
+                'sympy_exception'               : str(e),
+                'symbolic_solution'             : False,
+                }
 
-        return is_equivalent
+        return is_equivalent, report
 
     def trial_function (self, trial_expr, X):
         """
