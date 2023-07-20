@@ -41,6 +41,8 @@ for i_eq in range (Feyn.N_EQS):
             # File name
             command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, NOISE_LEVEL)
             commands.append(command)
+    else:
+        print("Problem excluded.")
 
 # Creating a jobfile containing all commands to run
 jobfile_name    = PATH_OUT_JOBFILE
