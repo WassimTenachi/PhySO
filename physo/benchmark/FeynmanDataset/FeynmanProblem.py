@@ -189,6 +189,7 @@ def load_feynman_units_csv (filepath = "units.csv"):
     # This variable only appears in eq. I.43.16 : velocity = mu_drift.force = mu_drift.(q.E/d)
     # Hence m.s-1 = (s.kg-1).(m.s-2.kg) i.e. [mu_drift] = s.kg-1
     # (see https://www.feynmanlectures.caltech.edu/I_43.html)
+    # NB: charge [q] = A.s = (m2.s-3.kg.V-1).s = m2.s-2.kg.V-1 so this is fine.
     units_df.loc[units_df["Variable"] == "mu_drift", ["s", "kg"]] = [1, -1]
     return units_df
 
