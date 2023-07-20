@@ -168,7 +168,7 @@ def load_feynman_all_equations_csv (filepath_eqs ="FeynmanEquations.csv", filepa
 
 def load_feynman_units_csv (filepath = "units.csv"):
     """
-    Loads units.csv into a clean pd.DataFrame.
+    Loads units.csv into a clean pd.DataFrame and corrects known errors.
     Source file can be found here: https://space.mit.edu/home/tegmark/aifeynman.html
     Parameters
     ----------
@@ -183,6 +183,13 @@ def load_feynman_units_csv (filepath = "units.csv"):
     units_df = units_df[~units_df[units_df.columns[0]].isnull()]
     # drop last column as it contains nothing
     units_df = units_df.iloc[:, :-1]
+
+    # ---- Correcting errors in the file ----
+    # Variable mu_drift should have units s.kg-1 not s-1.kg
+    # This variable only appears in eq. I.43.16 : velocity = mu_drift.force = mu_drift.(q.E/d)
+    # Hence m.s-1 = (s.kg-1).(m.s-2.kg) i.e. [mu_drift] = s.kg-1
+    # (see https://www.feynmanlectures.caltech.edu/I_43.html)
+    units_df.loc[units_df["Variable"] == "mu_drift", ["s", "kg"]] = [1, -1]
     return units_df
 
 EQS_FEYNMAN_DF = load_feynman_all_equations_csv (filepath_eqs       = PATH_FEYNMAN_EQS_CSV,
@@ -217,6 +224,10 @@ def get_units (var_name):
         units = UNITS_DF[UNITS_DF["Variable"] == var_name].to_numpy()[0][2:].astype(float)
     except:
         raise IndexError("Could not load units of %s"%(var_name))
+    if var_name == "mu_drift":
+        print(units)
+        print("Using mu_drift units")
+        warnings.warn("Using mu_drift units")
     return units
 
 
