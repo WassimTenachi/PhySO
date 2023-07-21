@@ -26,7 +26,7 @@ def round_to_sympy_integer (k, limit_err = 0.001,):
         res = k
     return res
 
-def rationalize_expr_to_PIs (expr,limit_err = 0.001, limit_denominator = 10 ):
+def expr_floats_to_pi_fracs (expr, limit_err = 0.001, limit_denominator = 10 ):
     """
     Replaces floats in sympy expression by rational fractions of pi.
     Parameters
@@ -48,18 +48,18 @@ def rationalize_expr_to_PIs (expr,limit_err = 0.001, limit_denominator = 10 ):
     expr2 = sympy.sin(x)
     sympy.sympify(expr1-expr2)
         >> -sin(x) + cos(x - 1.57079632725)
-    sympy.sympify(rationalize_expr_to_PIs(expr1-expr2))
+    sympy.sympify(expr_floats_to_pi_fracs(expr1-expr2))
         >> 0
     """
     res_expr = expr
     numbers = [s for s in res_expr.atoms(sympy.Number)]
     for n in numbers:
-        new_n  = rationalize_to_PIs (n, limit_err=limit_err, limit_denominator=limit_denominator)
+        new_n  = rationalize_to_pi_frac (n, limit_err=limit_err, limit_denominator=limit_denominator)
         res_expr = res_expr.subs(n, new_n)
     return res_expr
 
 
-def rationalize_to_PIs (a, limit_err = 0.001, limit_denominator = 10):
+def rationalize_to_pi_frac (a, limit_err = 0.001, limit_denominator = 10):
     """
     Rationalizes a float to a rational fraction of pi using sympy.
     Parameters
@@ -75,9 +75,9 @@ def rationalize_to_PIs (a, limit_err = 0.001, limit_denominator = 10):
     res : sympy expression or float
     Examples
     --------
-    rationalize_to_PIs(0.3333333*3.1415926535)
+    rationalize_to_pi_frac(0.3333333*3.1415926535)
         >> pi/3
-    rationalize_to_PIs(0.33*3.1415926535) = 1.036725575655
+    rationalize_to_pi_frac(0.33*3.1415926535) = 1.036725575655
         >> pi/3
     """
     k = a/np.pi
