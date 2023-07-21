@@ -73,8 +73,10 @@ def load_pareto_expressions (pareto_df, sympy_X_symbols_dict):
     for i_expr in range (len(pareto_df)):
         # Expression str
         expr_str = pareto_df["expression"].iloc[i_expr]
-        # Free const name to value dict
-        free_const_dict = {free_consts_names[i_const]: pareto_df[free_consts_names[i_const]].iloc[i_expr]
+        # Free const name to value dict, replacing nans by 1
+        free_const_dict = {free_consts_names[i_const]: np.nan_to_num(
+                                                    pareto_df[free_consts_names[i_const]].iloc[i_expr],
+                                                    nan=1.)
                            for i_const in range(n_fconsts)}
         # Variables + const to their values or symbols dict
         local_dict = {}
