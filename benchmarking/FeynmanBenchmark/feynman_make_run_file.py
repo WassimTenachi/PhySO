@@ -4,6 +4,7 @@ import argparse
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 
 # Local imports
+from benchmarking.utils import utils
 import feynman_config as fconfig
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
@@ -44,12 +45,7 @@ for i_eq in range (Feyn.N_EQS):
     else:
         print("Problem excluded.")
 
-# Creating a jobfile containing all commands to run
-jobfile_name    = PATH_OUT_JOBFILE
-jobfile_content = ''.join('%s\n'%com for com in commands)
-f = open(jobfile_name, "w")
-f.write(jobfile_content)
-f.close()
+utils.make_jobfile_from_command_list(PATH_OUT_JOBFILE, commands)
 
 n_jobs = len(commands)
 print("\nSuccessfully created a jobile with %i commands : %s"%(n_jobs, PATH_OUT_JOBFILE))
