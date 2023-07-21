@@ -7,6 +7,9 @@ import pathlib
 import sympy
 import matplotlib.pyplot as plt
 
+# Internal imports
+from benchmarking.utils import symbolic_utils
+
 # Dataset paths
 PARENT_FOLER = pathlib.Path(__file__).parents[0]
 PATH_FEYNMAN_EQS_CSV       = PARENT_FOLER / "FeynmanEquations.csv"
@@ -232,18 +235,21 @@ def get_units (var_name):
 # ---------------------------------------------------- SYMPY UTILS  ---------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-def round_floats(expr):
+def round_floats(expr, round_decimal = 3):
     """
     Rounds the floats in a sympy expression as in SRBench (see https://github.com/cavalab/srbench).
     Parameters
     ----------
     expr : Sympy Expression
+    round_decimal : int
+        Rounding up to this decimal.
     Returns
     -------
     ex2 : Sympy Expression
     """
-    round_decimal = 3
     ex2 = expr
+    # Why not use expr.atoms ?
+    # Doing it like SRBench
     for a in sympy.preorder_traversal(expr):
         if isinstance(a, sympy.Float):
             if abs(a) < 0.0001:
@@ -252,10 +258,17 @@ def round_floats(expr):
             elif abs(a - 1.) < 0.0001:
                 ex2 = ex2.subs(a, sympy.Integer(1))
             else:
-                # Sometimes in sympy, a node can have the value 0.398986816406250 but the exact same node can have
+                # A. SRBench postprocessing function uses this (but they actually never use it in the code ?):
+                # ex2 = ex2.subs(a, round(a, round_decimal))
+
+                # B. SRBench actually uses this to check if an expr is equivalent (this is visible when checking their
+                # positive results on "dataset" feynman_III_8_54)
+                # With round_decimal = 3, this rounds up to only 2 decimals, actually.
+                ex2 = ex2.subs(a, sympy.Float(round(a, round_decimal), round_decimal))
+
+                # C. Sometimes in sympy, a node can have the value 0.398986816406250 but the exact same node can have
                 # a different value such as 0.39898681640625 in the upper node 0.39898681640625*x.
-                ex2 = ex2.subs(a, round(a, round_decimal))
-                #ex2 = ex2.xreplace({a: round(a, round_decimal)})
+                #ex2 = ex2.xreplace({a: round(a, round_decimal)}) # xreplace is for exact node replacment
     return ex2
 
 def clean_sympy_expr(expr):
