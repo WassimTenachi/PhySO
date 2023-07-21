@@ -12,6 +12,7 @@ import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 # Local imports
 import feynman_config as fconfig
 from benchmarking.utils import timeout_unix
+from benchmarking.utils import metrics_utils
 from benchmarking.utils import utils
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
@@ -47,22 +48,6 @@ START_COL_FREE_CONST_PARETO_CSV = 6
 
 # Only assessing symbolic equivalence if reward is above:
 R_LIM = 0.6
-
-# Metrics
-def r2(y_target, y_pred):
-    return 1 - ((y_target - y_pred) ** 2).sum() / ((y_target - y_target.mean()) ** 2).sum()
-
-def r2_zero(y_target, y_pred):
-    res = r2(y_target, y_pred)
-    if res < 0.:
-        res = 0.
-    return res
-
-def MAE(y_target, y_pred):
-    return np.mean(np.abs(y_target - y_pred))
-
-def MSE(y_target, y_pred):
-    return ((y_target - y_pred) ** 2).mean()
 
 def load_pareto_expressions (pareto_df, sympy_X_symbols_dict):
     """
@@ -348,8 +333,7 @@ DATA_GROUP = "Feynman"
 unfinished_jobs = []
 
 # Iterating through Feynman problems
-#for i_eq in range (Feyn.N_EQS):
-for i_eq in range (85, 86):
+for i_eq in range (Feyn.N_EQS):
     print("\nProblem #%i"%(i_eq))
     # Loading a problem
     pb = Feyn.FeynmanProblem(i_eq)
@@ -460,7 +444,7 @@ for i_eq in range (85, 86):
 
             # mse_test
             try:
-                mse_test = assess_metric_test (pareto_df = pareto_df, Feynman_pb = pb, metric_func = MSE)
+                mse_test = assess_metric_test (pareto_df = pareto_df, Feynman_pb = pb, metric_func = metrics_utils.MSE)
                 # If a Nan is returned (eg because of unprotected sqrt) go straight to except
                 if np.isnan(mse_test): raise ValueError
             except:
@@ -468,7 +452,7 @@ for i_eq in range (85, 86):
 
             # mae_test
             try:
-                mae_test = assess_metric_test(pareto_df=pareto_df, Feynman_pb=pb, metric_func=MAE)
+                mae_test = assess_metric_test(pareto_df=pareto_df, Feynman_pb=pb, metric_func=metrics_utils.MAE)
                 # If a Nan is returned (eg because of unprotected sqrt) go straight to except
                 if np.isnan(mae_test): raise ValueError
             except:
@@ -476,7 +460,7 @@ for i_eq in range (85, 86):
 
             # r2_test
             try:
-                r2_test = assess_metric_test(pareto_df=pareto_df, Feynman_pb=pb, metric_func=r2)
+                r2_test = assess_metric_test(pareto_df=pareto_df, Feynman_pb=pb, metric_func=metrics_utils.r2)
                 # If a Nan is returned (eg because of unprotected sqrt) go straight to except
                 if np.isnan(r2_test): raise ValueError
             except:
@@ -484,7 +468,7 @@ for i_eq in range (85, 86):
 
             # r2_zero_test
             try:
-                r2_zero_test = assess_metric_test (pareto_df = pareto_df, Feynman_pb = pb, metric_func = r2_zero)
+                r2_zero_test = assess_metric_test (pareto_df = pareto_df, Feynman_pb = pb, metric_func = metrics_utils.r2_zero)
                 # If a Nan is returned go straight to except
                 if np.isnan(r2_zero_test): raise ValueError
             except:
