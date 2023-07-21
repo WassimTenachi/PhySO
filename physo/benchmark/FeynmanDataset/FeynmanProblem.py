@@ -514,7 +514,7 @@ class FeynmanProblem:
         """
 
         # Cleaning target expression like SRBench
-        target_expr = clean_sympy_expr(self.formula_sympy)
+        target_expr = clean_sympy_expr(self.formula_sympy_eval)
 
         if verbose:
             print("  -> Assessing if %s (target) is equivalent to %s (trial)"%(target_expr, trial_expr))
