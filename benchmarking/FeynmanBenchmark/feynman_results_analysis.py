@@ -1,17 +1,18 @@
-import os
-import time
 import warnings
 import numpy as np
 import sympy
 import pandas as pd
 import argparse
 import scipy.stats as st
+import os
+import time
 
 # Internal imports
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
-
 # Local imports
 import feynman_config as fconfig
+from benchmarking.utils import timeout_unix
+from benchmarking.utils import utils
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Analyzes Feynman run results folder (works on ongoing benchmarks) "
@@ -38,7 +39,8 @@ PATH_RESULTS_SUMMARY_SAVE = os.path.join(RESULTS_PATH, "results_summary.csv")
 PATH_RESULTS_ESSENTIAL_SAVE = os.path.join(RESULTS_PATH, "results_summary_essential.csv")
 # Statistics on the results
 PATH_RESULTS_STATS_SAVE = os.path.join(RESULTS_PATH, "results_stats.txt")
-
+# Path where to save jobfile to relaunch unfinished jobs
+PATH_UNFINISHED_JOBFILE = os.path.join(RESULTS_PATH, "jobfile_unfinished")
 
 # First column to contain free constants in Pareto front csv
 START_COL_FREE_CONST_PARETO_CSV = 6
@@ -100,6 +102,11 @@ def load_pareto_expressions (pareto_df, sympy_X_symbols_dict):
         sympy_expressions.append(formula_sympy)
     return sympy_expressions
 
+
+@timeout_unix.timeout(20) # Max 20s wrapper
+def timed_compare_expr(Feynman_pb, trial_expr, verbose):
+    return Feynman_pb.compare_expression(trial_expr=trial_expr, verbose=verbose)
+
 def assess_equivalence (pareto_df, Feynman_pb, verbose = False):
     """
     Checks if at least one expression in the Pareto front is symbolically equivalent to target expression, following a
@@ -145,8 +152,23 @@ def assess_equivalence (pareto_df, Feynman_pb, verbose = False):
         if r > R_LIM:
 
             # Equivalence check
-            is_equivalent, report = Feynman_pb.compare_expression(trial_expr = trial_expr,
-                                                                  verbose    = verbose)
+            try:
+                is_equivalent, report = timed_compare_expr(Feynman_pb  = Feynman_pb,
+                                                           trial_expr  = trial_expr,
+                                                           verbose     = verbose)
+            except:
+                # Negative report
+                is_equivalent = False
+                report = {
+                    'symbolic_error'                : '',
+                    'symbolic_fraction'             : '',
+                    'symbolic_error_is_zero'        : None,
+                    'symbolic_error_is_constant'    : None,
+                    'symbolic_fraction_is_constant' : None,
+                    'sympy_exception'               : "Timeout",
+                    'symbolic_solution'             : False,
+                }
+                warnings.warn("Sympy timeout.")
             equivalence_list .append(is_equivalent)
             report_list      .append(report)
 
@@ -308,7 +330,6 @@ columns = [
     ('r2_test'      , float, np.median ),
     ('r2_zero_test' , float, np.median ),
 ]
-
 columns_names  = [x[0] for x in columns]
 columns_dtypes = {x[0]:x[1] for x in columns}
 columns_to_aggregate_on     = [x[0] for x in columns if x[2] is True]
@@ -323,8 +344,12 @@ all_results = []
 ALGORITHM  = "PhySO"
 DATA_GROUP = "Feynman"
 
+# Unfinished jobs list
+unfinished_jobs = []
+
 # Iterating through Feynman problems
-for i_eq in range (Feyn.N_EQS):
+#for i_eq in range (Feyn.N_EQS):
+for i_eq in range (85, 86):
     print("\nProblem #%i"%(i_eq))
     # Loading a problem
     pb = Feyn.FeynmanProblem(i_eq)
@@ -360,7 +385,7 @@ for i_eq in range (Feyn.N_EQS):
             try:
                 n_evals     = curves_df["n_rewarded"].sum()
                 is_started  = curves_df["epoch"].iloc[-1] >= 0
-                is_finished = n_evals >= (fconfig.MAX_N_EVALUATIONS - fconfig.CONFIG["learning_config"]["batch_size"])
+                is_finished = n_evals >= (fconfig.MAX_N_EVALUATIONS - fconfig.CONFIG["learning_config"]["batch_size"] - 1)
             except:
                 # If curves were not loaded -> run was not started
                 n_evals     = 0
@@ -373,6 +398,13 @@ for i_eq in range (Feyn.N_EQS):
                 'FINISHED'      : is_finished,
                 }
             run_result.update(run_details)
+
+            # ----- Listing unfinished jobs -----
+
+            if not is_finished :
+                command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, noise_lvl)
+                unfinished_jobs.append(command)
+                utils.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
 
             # ----- Symbolic results related -----
 
@@ -429,24 +461,32 @@ for i_eq in range (Feyn.N_EQS):
             # mse_test
             try:
                 mse_test = assess_metric_test (pareto_df = pareto_df, Feynman_pb = pb, metric_func = MSE)
+                # If a Nan is returned (eg because of unprotected sqrt) go straight to except
+                if np.isnan(mse_test): raise ValueError
             except:
                 mse_test = np.inf
 
             # mae_test
             try:
                 mae_test = assess_metric_test(pareto_df=pareto_df, Feynman_pb=pb, metric_func=MAE)
+                # If a Nan is returned (eg because of unprotected sqrt) go straight to except
+                if np.isnan(mae_test): raise ValueError
             except:
                 mae_test = np.inf
 
             # r2_test
             try:
                 r2_test = assess_metric_test(pareto_df=pareto_df, Feynman_pb=pb, metric_func=r2)
+                # If a Nan is returned (eg because of unprotected sqrt) go straight to except
+                if np.isnan(r2_test): raise ValueError
             except:
                 r2_test = 0.
 
             # r2_zero_test
             try:
                 r2_zero_test = assess_metric_test (pareto_df = pareto_df, Feynman_pb = pb, metric_func = r2_zero)
+                # If a Nan is returned go straight to except
+                if np.isnan(r2_zero_test): raise ValueError
             except:
                 r2_zero_test = 0.
 
@@ -472,7 +512,6 @@ for i_eq in range (Feyn.N_EQS):
     # Saving at each iteration : aggregated summary -> essential
     results_essential_df = results_agg_df[["EQ NB", '# EVALUATIONS', 'STARTED', 'FINISHED', 'symbolic_solution', 'r2_test', 'r2_zero_test']]
     results_essential_df.to_csv(PATH_RESULTS_ESSENTIAL_SAVE)
-
 
 # ----------------------- PRINTING SOME STATS -----------------------
 
