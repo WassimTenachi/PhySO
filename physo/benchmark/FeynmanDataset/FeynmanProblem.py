@@ -225,10 +225,6 @@ def get_units (var_name):
         units = UNITS_DF[UNITS_DF["Variable"] == var_name].to_numpy()[0][2:].astype(float)
     except:
         raise IndexError("Could not load units of %s"%(var_name))
-    if var_name == "mu_drift":
-        print(units)
-        print("Using mu_drift units")
-        warnings.warn("Using mu_drift units")
     return units
 
 
@@ -301,6 +297,7 @@ def complexity(expr):
 # ---------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------- FEYNMAN PROBLEM  --------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
+CONST_LOCAL_DICT = {"pi" : np.pi}
 
 class FeynmanProblem:
     """
@@ -338,8 +335,15 @@ class FeynmanProblem:
     sympy_X_symbols_dict : dict of {str : sympy.Symbol}
         Input variables names to sympy symbols (w assumptions), can be passed to sympy.parsing.sympy_parser.parse_expr
         as local_dict.
+    local_dict : dict of {str : sympy.Symbol or float}
+        Input variables names to sympy symbols (w assumptions) and constants (eg. pi : np.pi etc.), can be passed to
+        sympy.parsing.sympy_parser.parse_expr as local_dict.
     formula_sympy : sympy expression
-        Formula in sympy
+        Formula in sympy.
+    formula_sympy_eval : sympy expression
+        Formula in sympy with evaluated fixed constants (eg. pi -> 3.14... etc).
+    formula_latex : str
+        Formula in latex.
     """
 
     def __init__(self, i_eq = None, eq_name = None):
@@ -416,13 +420,20 @@ class FeynmanProblem:
         self.sympy_X_symbols_dict = {self.X_names[i] : self.X_sympy_symbols[i] for i in range(self.n_vars)}                  #  (n_vars,)
         # Declaring input variables via local_dict to avoid confusion
         # Eg. So sympy knows that we are referring to gamma as a variable and not the function etc.
-        local_dict = self.sympy_X_symbols_dict
         # evaluate = False avoids eg. sin(theta) = 0 when theta domain = [0,5] ie. nonzero=False, but no need for this
         # if nonzero assumption is not used
         evaluate = False
         self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula,
-                                                                     local_dict = local_dict,
+                                                                     local_dict = self.sympy_X_symbols_dict,
                                                                      evaluate   = evaluate)
+        # Local dict : dict of input variables (sympy_X_symbols_dict) and fixed constants (pi -> 3.14.. etc)
+        self.local_dict = {}
+        self.local_dict.update(self.sympy_X_symbols_dict)
+        self.local_dict.update(CONST_LOCAL_DICT)
+        self.formula_sympy_eval = sympy.parsing.sympy_parser.parse_expr(self.formula,
+                                                                     local_dict = self.local_dict,
+                                                                     evaluate   = evaluate)
+        # Latex formula
         self.formula_latex   = sympy.printing.latex(self.formula_sympy)
         return None
 
@@ -447,7 +458,6 @@ class FeynmanProblem:
         # This is also useful for detecting issues such as sin(theta) = 0 because theta.is_nonzero = False -> the result
         # is just an int of float
         y = f(**mapping_var_name_to_X).astype(float)
-
         return y
 
     def generate_data_points (self, n_samples = 1_000_000):
