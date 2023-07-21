@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 from benchmarking.utils import symbolic_utils
 
 # Dataset paths
-PARENT_FOLER = pathlib.Path(__file__).parents[0]
-PATH_FEYNMAN_EQS_CSV       = PARENT_FOLER / "FeynmanEquations.csv"
-PATH_FEYNMAN_EQS_BONUS_CSV = PARENT_FOLER / "BonusEquations.csv"
-PATH_UNITS_CSV             = PARENT_FOLER / "units.csv"
+PARENT_FOLDER = pathlib.Path(__file__).parents[0]
+PATH_FEYNMAN_EQS_CSV       = PARENT_FOLDER / "FeynmanEquations.csv"
+PATH_FEYNMAN_EQS_BONUS_CSV = PARENT_FOLDER / "BonusEquations.csv"
+PATH_UNITS_CSV             = PARENT_FOLDER / "units.csv"
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -86,6 +86,7 @@ def load_feynman_bulk_equations_csv (filepath_eqs ="FeynmanEquations.csv"):
     eqs_feynman_df = eqs_feynman_df[columns_to_keep_names]
 
     return eqs_feynman_df
+
 
 def load_feynman_bonus_equations_csv (filepath_eqs_bonus = "BonusEquations.csv"):
     """
@@ -168,6 +169,7 @@ def load_feynman_all_equations_csv (filepath_eqs ="FeynmanEquations.csv", filepa
                                 # True so to get index going from 0 to 119 instead of 0 to 99 and then 0 to 19
                                ignore_index=True)
     return eqs_feynman_df
+
 
 def load_feynman_units_csv (filepath = "units.csv"):
     """
