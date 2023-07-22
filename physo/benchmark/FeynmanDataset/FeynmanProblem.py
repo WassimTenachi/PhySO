@@ -8,7 +8,7 @@ import sympy
 import matplotlib.pyplot as plt
 
 # Internal imports
-from benchmarking.utils import symbolic_utils
+from benchmarking.utils import symbolic_utils as su
 
 # Dataset paths
 PARENT_FOLDER = pathlib.Path(__file__).parents[0]
@@ -574,7 +574,7 @@ class FeynmanProblem:
 
         # For trigo cases
         try:
-            trigo_sym_err = clean_sympy_expr(symbolic_utils.expr_floats_to_pi_fracs(target_expr - trial_expr))
+            trigo_sym_err = clean_sympy_expr(su.expr_floats_to_pi_fracs(target_expr - trial_expr))
             trigo_sym_err_is_zero  = str(trigo_sym_err) == '0'
             trigo_sym_err_is_const = trigo_sym_err.is_constant() and contains_no_inf(trigo_sym_err)
         except Exception as e:
@@ -601,7 +601,7 @@ class FeynmanProblem:
 
         # For trigo cases
         try:
-            trigo_sym_frac = clean_sympy_expr(symbolic_utils.expr_floats_to_pi_fracs(target_expr / trial_expr))
+            trigo_sym_frac = clean_sympy_expr(su.expr_floats_to_pi_fracs(target_expr / trial_expr))
             trigo_sym_frac_is_const = trigo_sym_frac.is_constant() \
                                       and (str(trigo_sym_frac) != '0' or not prevent_zero_frac) \
                                       and contains_no_inf(trigo_sym_frac)
