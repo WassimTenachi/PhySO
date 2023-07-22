@@ -507,7 +507,11 @@ class FeynmanProblem:
         if do_show:
             plt.show()
 
-    def compare_expression (self, trial_expr, verbose=False):
+    def compare_expression (self, trial_expr,
+                            handle_trigo            = True,
+                            prevent_zero_frac       = True,
+                            prevent_inf_equivalence = True,
+                            verbose=False):
         """
         Checks if trial_expr is symbolically equivalent to the target expression of this Feynman problem, following a
         similar methodology as SRBench (see https://github.com/cavalab/srbench).
@@ -520,6 +524,12 @@ class FeynmanProblem:
         trial_expr : Sympy Expression
             Trial sympy expression with evaluated numeric free constants and assumptions regarding variables
             (positivity etc.) encoded in expression.
+        handle_trigo : bool
+            Tries replacing floats by rationalized factors of pi and simplify with that.
+        prevent_zero_frac : bool
+            If fraction = 0 does not consider expression equivalent.
+        prevent_inf_equivalence: bool
+            If symbolic error or fraction is infinite does not consider expression equivalent.
         verbose : bool
             Verbose.
         Returns
@@ -534,51 +544,96 @@ class FeynmanProblem:
         if verbose:
             print("  -> Assessing if %s (target) is equivalent to %s (trial)"%(target_expr, trial_expr))
 
+
+        e = ""
+        warn_msg = "Could not assess symbolic equivalence of %s with %s (Feynman problem: %s)." % (
+        target_expr, trial_expr, self.eq_name)
+
+        def contains_no_inf (expr):
+            return not('oo' in str(expr) and prevent_inf_equivalence)
+
+        # ------ Trial expression cleaning ------
         try:
             # Cleaning trial expression
             trial_expr = clean_sympy_expr(trial_expr)
-            # Computing symbolic difference
-            sym_err = clean_sympy_expr(target_expr - trial_expr)
-            # Computing fraction
-            sym_frac = clean_sympy_expr(target_expr / trial_expr)
-
-            if verbose:
-                print('   -> Simplified expression :', trial_expr)
-                print('   -> Symbolic error        :', sym_err)
-                print('   -> Symbolic fraction     :', sym_frac)
-
-            symbolic_error_is_zero        = str(sym_err) == '0'
-            symbolic_error_is_constant    = sym_err  .is_constant()
-            symbolic_fraction_is_constant = sym_frac .is_constant()
-            # Equivalent if diff simplifies to 0 or if the diff is a constant or if the ratio is a constant
-            is_equivalent = symbolic_error_is_zero or symbolic_error_is_constant or symbolic_fraction_is_constant
-
-            # SRBench style report
-            report = {
-                'symbolic_error'                : str(sym_err),
-                'symbolic_fraction'             : str(sym_frac),
-                'symbolic_error_is_zero'        : symbolic_error_is_zero,
-                'symbolic_error_is_constant'    : symbolic_error_is_constant,
-                'symbolic_fraction_is_constant' : symbolic_fraction_is_constant,
-                'sympy_exception'               : '',
-                'symbolic_solution'             : is_equivalent,
-                }
-
-
         except Exception as e:
+            trial_expr = trial_expr
 
-            is_equivalent = False
-            warn_msg = "Could not assess symbolic equivalence of %s with %s (Feynman problem: %s)."%(target_expr, trial_expr, self.eq_name)
+        # ------ Checking symbolic difference ------
+
+        # Vanilla
+        try:
+            vanilla_sym_err = clean_sympy_expr(target_expr - trial_expr)
+            vanilla_sym_err_is_zero  = str(vanilla_sym_err) == '0'
+            vanilla_sym_err_is_const = vanilla_sym_err.is_constant() and contains_no_inf(vanilla_sym_err)
+        except Exception as e:
             warnings.warn(warn_msg)
-            report = {
-                'symbolic_error'                : '',
-                'symbolic_fraction'             : '',
-                'symbolic_error_is_zero'        : None,
-                'symbolic_error_is_constant'    : None,
-                'symbolic_fraction_is_constant' : None,
-                'sympy_exception'               : str(e),
-                'symbolic_solution'             : False,
-                }
+            vanilla_sym_err = ""
+            vanilla_sym_err_is_zero  = False
+            vanilla_sym_err_is_const = False
+
+        # For trigo cases
+        try:
+            trigo_sym_err = clean_sympy_expr(symbolic_utils.expr_floats_to_pi_fracs(target_expr - trial_expr))
+            trigo_sym_err_is_zero  = str(trigo_sym_err) == '0'
+            trigo_sym_err_is_const = trigo_sym_err.is_constant() and contains_no_inf(trigo_sym_err)
+        except Exception as e:
+            warnings.warn(warn_msg)
+            trigo_sym_err = ""
+            trigo_sym_err_is_zero  = False
+            trigo_sym_err_is_const = False
+
+        symbolic_error_is_zero     = vanilla_sym_err_is_zero  or (trigo_sym_err_is_zero  and handle_trigo)
+        symbolic_error_is_constant = vanilla_sym_err_is_const or (trigo_sym_err_is_const and handle_trigo)
+
+        # ------ Checking symbolic fraction ------
+
+        # Vanilla
+        try:
+            vanilla_sym_frac = clean_sympy_expr(target_expr / trial_expr)
+            vanilla_sym_frac_is_const = vanilla_sym_frac.is_constant() \
+                                        and (str(vanilla_sym_frac) != '0' or not prevent_zero_frac) \
+                                        and contains_no_inf(vanilla_sym_frac)
+        except Exception as e:
+            warnings.warn(warn_msg)
+            vanilla_sym_frac = ""
+            vanilla_sym_frac_is_const = False
+
+        # For trigo cases
+        try:
+            trigo_sym_frac = clean_sympy_expr(symbolic_utils.expr_floats_to_pi_fracs(target_expr / trial_expr))
+            trigo_sym_frac_is_const = trigo_sym_frac.is_constant() \
+                                      and (str(trigo_sym_frac) != '0' or not prevent_zero_frac) \
+                                      and contains_no_inf(trigo_sym_frac)
+        except Exception as e:
+            warnings.warn(warn_msg)
+            trigo_sym_frac = ""
+            trigo_sym_frac_is_const = False
+
+        symbolic_fraction_is_constant = vanilla_sym_frac_is_const or (trigo_sym_frac_is_const and handle_trigo)
+
+        # ------ Results ------
+
+        if verbose:
+            print('   -> Simplified expression :', trial_expr)
+            print('   -> Symbolic error        :', vanilla_sym_err)
+            print('   -> Symbolic fraction     :', vanilla_sym_frac)
+            print('   -> Trigo symbolic error        :', trigo_sym_err)
+            print('   -> Trigo symbolic fraction     :', trigo_sym_frac)
+
+        # Equivalent if diff simplifies to 0 or if the diff is a constant or if the ratio is a constant
+        is_equivalent = symbolic_error_is_zero or symbolic_error_is_constant or symbolic_fraction_is_constant
+
+        # SRBench style report
+        report = {
+            'symbolic_error'                : str(vanilla_sym_err),
+            'symbolic_fraction'             : str(vanilla_sym_frac),
+            'symbolic_error_is_zero'        : symbolic_error_is_zero,
+            'symbolic_error_is_constant'    : symbolic_error_is_constant,
+            'symbolic_fraction_is_constant' : symbolic_fraction_is_constant,
+            'sympy_exception'               : str(e),
+            'symbolic_solution'             : is_equivalent,
+            }
 
         return is_equivalent, report
 
