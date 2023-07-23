@@ -97,7 +97,7 @@ def load_pareto_expressions (pareto_df, sympy_X_symbols_dict):
 def timed_compare_expr(Feynman_pb, trial_expr, verbose):
     return Feynman_pb.compare_expression(trial_expr=trial_expr, verbose=verbose)
 
-def assess_equivalence (pareto_df, Feynman_pb, check_only_most_acc = True, verbose = False):
+def assess_equivalence (pareto_df, Feynman_pb, check_only_most_acc = False, verbose = False):
     """
     Checks if at least one expression in the Pareto front is symbolically equivalent to target expression, following a
     similar methodology as SRBench (see https://github.com/cavalab/srbench).
