@@ -616,15 +616,16 @@ class FeynmanProblem:
 
         # ------ Results ------
 
+        # Equivalent if diff simplifies to 0 or if the diff is a constant or if the ratio is a constant
+        is_equivalent = symbolic_error_is_zero or symbolic_error_is_constant or symbolic_fraction_is_constant
+
         if verbose:
             print('   -> Simplified expression :', trial_expr)
             print('   -> Symbolic error        :', vanilla_sym_err)
             print('   -> Symbolic fraction     :', vanilla_sym_frac)
             print('   -> Trigo symbolic error        :', trigo_sym_err)
             print('   -> Trigo symbolic fraction     :', trigo_sym_frac)
-
-        # Equivalent if diff simplifies to 0 or if the diff is a constant or if the ratio is a constant
-        is_equivalent = symbolic_error_is_zero or symbolic_error_is_constant or symbolic_fraction_is_constant
+            print('   -> Equivalent :', is_equivalent)
 
         # SRBench style report
         report = {
