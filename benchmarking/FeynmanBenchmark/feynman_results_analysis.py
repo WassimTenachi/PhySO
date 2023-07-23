@@ -134,12 +134,12 @@ def assess_equivalence (pareto_df, Feynman_pb, check_only_most_acc = True, verbo
 
     if check_only_most_acc:
         # Only checking most accurate in Pareto
-        range= [-1,]
+        rrange = [-1,]
     else:
         # Iterating through Pareto front expressions (starting with most accurate/complex and going down)
-        range = reversed(range(n_expr))
+        rrange = reversed(range(n_expr))
 
-    for i in range:
+    for i in rrange:
         r          = rewards            [i]
         trial_expr = pareto_expressions [i]
 
@@ -403,20 +403,6 @@ for i_eq in range (Feyn.N_EQS):
                 }
             run_result.update(run_details)
 
-            # ----- Listing unfinished jobs -----
-
-            if not is_finished :
-                command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, noise_lvl)
-                unfinished_jobs.append(command)
-                utils.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
-
-            # If job is started and at least N_EXPRESSIONS_WO_EVALS_WARN expressions were generated but none were
-            # evaluated, warn
-            N_EXPRESSIONS_WO_EVALS_WARN = 1e5
-            n_expr_generated = n_epochs*BATCH_SIZE
-            if is_started and n_expr_generated > N_EXPRESSIONS_WO_EVALS_WARN and n_evals == 0:
-                warnings.warn("%f expressions generated but 0 were evaluated." %(n_expr_generated))
-
             # ----- Symbolic results related -----
 
             try:
@@ -466,6 +452,21 @@ for i_eq in range (Feyn.N_EQS):
                 }
 
             run_result.update(equivalence_report)
+
+            # ----- Listing unfinished jobs -----
+
+            # If job was not finished let's re run it
+            if (not is_finished): #and (not equivalence_report["symbolic_solution"]):
+                command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, noise_lvl)
+                unfinished_jobs.append(command)
+                utils.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
+
+            # If job is started and at least N_EXPRESSIONS_WO_EVALS_WARN expressions were generated but none were
+            # evaluated, warn
+            N_EXPRESSIONS_WO_EVALS_WARN = 1e5
+            n_expr_generated = n_epochs*BATCH_SIZE
+            if is_started and n_expr_generated > N_EXPRESSIONS_WO_EVALS_WARN and n_evals == 0:
+                warnings.warn("%f expressions generated but 0 were evaluated." %(n_expr_generated))
 
             # ----- Numeric accuracy related -----
 
