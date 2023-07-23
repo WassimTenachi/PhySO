@@ -23,10 +23,13 @@ parser.add_argument("-n", "--noise",
                     help = "Noise to encode in log results files.")
 parser.add_argument("-p", "--path", default = ".",
                     help = "Paths to results folder.")
+parser.add_argument("-u", "--list_unfinished", default = True,
+                    help = "Save a list of unfinished runs.")
 config = vars(parser.parse_args())
 
-NOISE_LVL    = float(config["noise"])
-RESULTS_PATH = str(config["path"])
+NOISE_LVL       = float(config["noise"])
+RESULTS_PATH    = str(config["path"])
+SAVE_UNFINISHED = bool(int(config["list_unfinished"]))
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
 N_TRIALS = fconfig.N_TRIALS
@@ -455,11 +458,12 @@ for i_eq in range (Feyn.N_EQS):
 
             # ----- Listing unfinished jobs -----
 
-            # If job was not finished let's re run it
+            # If job was not finished let's rerun it
             if (not is_finished): #and (not equivalence_report["symbolic_solution"]):
                 command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, noise_lvl)
                 unfinished_jobs.append(command)
-                utils.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
+                if SAVE_UNFINISHED:
+                    utils.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
 
             # If job is started and at least N_EXPRESSIONS_WO_EVALS_WARN expressions were generated but none were
             # evaluated, warn
