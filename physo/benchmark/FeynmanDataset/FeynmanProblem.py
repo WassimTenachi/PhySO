@@ -252,8 +252,10 @@ def round_floats(expr, round_decimal = 3):
     ex2 = expr
     # Why not use expr.atoms ?
     # Doing it like SRBench
+    # todo: clean func
     for a in sympy.preorder_traversal(expr):
         if isinstance(a, sympy.Float):
+            ex2 = ex2.subs(a, su.round_to_sympy_integer(a, limit_err=10**(-round_decimal),))
             if abs(a) < 0.0001:
                 ex2 = ex2.subs(a, sympy.Integer(0))
             # Should prevent sympy not being able to simplify 1.0*x - x to 0 for example
