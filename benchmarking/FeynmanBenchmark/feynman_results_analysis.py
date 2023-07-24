@@ -52,6 +52,9 @@ START_COL_FREE_CONST_PARETO_CSV = 6
 # Only assessing symbolic equivalence if reward is above:
 R_LIM = 0.6
 
+# R2 threshold above which an expression is deemed an accuracy solution
+R2_ACCURACY_SOLUTION_THRESHOLD = 0.999
+
 # Batch size
 BATCH_SIZE = fconfig.CONFIG["learning_config"]["batch_size"]
 
@@ -382,10 +385,11 @@ columns = [
     ('sympy_exception'               , str  , False   ),
     ('symbolic_solution'             , bool , np.mean ),
     # Numeric accuracy related (aggregated using a median as SRBench)
-    ('mse_test'     , float, np.median ),
-    ('mae_test'     , float, np.median ),
-    ('r2_test'      , float, np.median ),
-    ('r2_zero_test' , float, np.median ),
+    ('mse_test'          , float, np.median ),
+    ('mae_test'          , float, np.median ),
+    ('r2_test'           , float, np.median ),
+    ('r2_zero_test'      , float, np.median ),
+    ('accuracy_solution' , bool , np.mean   ),
 ]
 columns_names  = [x[0] for x in columns]
 columns_dtypes = {x[0]:x[1] for x in columns}
@@ -531,11 +535,14 @@ for i_eq in range (Feyn.N_EQS):
             except:
                 r2_zero_test = 0.
 
+            is_accuracy_solution = r2_test > R2_ACCURACY_SOLUTION_THRESHOLD
+
             numeric_result = {
-                 'mse_test'     : mse_test,
-                 'mae_test'     : mae_test,
-                 'r2_test'      : r2_test,
-                 'r2_zero_test' : r2_zero_test,
+                 'mse_test'          : mse_test,
+                 'mae_test'          : mae_test,
+                 'r2_test'           : r2_test,
+                 'r2_zero_test'      : r2_zero_test,
+                 'accuracy_solution' : is_accuracy_solution,
              }
             run_result.update(numeric_result)
 
