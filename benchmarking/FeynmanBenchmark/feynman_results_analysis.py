@@ -577,6 +577,11 @@ all_recov_rates  = results_agg_df["symbolic_solution"]
 total_recov_rate = all_recov_rates.mean()
 ci_95_rr = compute_95_ci(all_recov_rates)
 
+# Total accurate solutions
+all_acc_sol  = results_agg_df["accuracy_solution"]
+total_acc_sol = all_acc_sol.mean()
+ci_95_as = compute_95_ci(all_acc_sol)
+
 # Total R2
 all_r2s  = results_agg_df["r2_zero_test"]
 total_r2 = all_r2s.mean()
@@ -601,6 +606,8 @@ exec_time = t111 - t000
 out_str = "\n\n"\
 + "Total recovery rate    = %f %%"             %(100*total_recov_rate)\
 + "\nRecovery rate 95%% CI   = %f %%  - %f %%" %(100*ci_95_rr[0], 100*ci_95_rr[1])\
++ "\nAcc. solution rate     = %f %%"           % (total_acc_sol)\
++ "\nAcc. solution 95%% CI   = %f - %f "       %(ci_95_as[0], ci_95_as[1])\
 + "\nTotal R2 coef          = %f"              % (total_r2)\
 + "\nR2 coef 95%% CI         = %f - %f "       %(ci_95_r2[0], ci_95_r2[1])\
 + "\nFrac of evals allowed  = %f %%"           %(100*total_evals/total_evals_todo)\
