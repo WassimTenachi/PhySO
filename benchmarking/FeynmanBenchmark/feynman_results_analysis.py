@@ -24,13 +24,13 @@ parser.add_argument("-n", "--noise",
 parser.add_argument("-p", "--path", default = ".",
                     help = "Paths to results folder.")
 parser.add_argument("-u", "--list_unfinished", default = 1,
-                    help = "Save a list of unfinished runs (0 to not do it, 1 to do it, 2 to do it only if run is not "
-                           "finished and target was not recovered.")
+                    help = "Save a list of unfinished runs.")
 config = vars(parser.parse_args())
 
 NOISE_LVL       = float(config["noise"])
 RESULTS_PATH    = str(config["path"])
-SAVE_UNFINISHED = int(config["list_unfinished"])
+SAVE_UNFINISHED = bool(int(config["list_unfinished"]))
+
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
 N_TRIALS = fconfig.N_TRIALS
@@ -45,7 +45,8 @@ PATH_RESULTS_ESSENTIAL_SAVE = os.path.join(RESULTS_PATH, "results_summary_essent
 # Statistics on the results
 PATH_RESULTS_STATS_SAVE = os.path.join(RESULTS_PATH, "results_stats.txt")
 # Path where to save jobfile to relaunch unfinished jobs
-PATH_UNFINISHED_JOBFILE = os.path.join(RESULTS_PATH, "jobfile_unfinished")
+PATH_UNFINISHED_JOBFILE          = os.path.join(RESULTS_PATH, "jobfile_unfinished")
+PATH_UNFINISHED_BUSINESS_JOBFILE = os.path.join(RESULTS_PATH, "jobfile_unfinished_business")
 
 # First column to contain free constants in Pareto front csv
 START_COL_FREE_CONST_PARETO_CSV = 6
@@ -407,7 +408,9 @@ ALGORITHM  = "PhySO"
 DATA_GROUP = "Feynman"
 
 # Unfinished jobs list
-unfinished_jobs = []
+unfinished_jobs          = []
+# Unfinished + target not recovered job list
+unfinished_business_jobs = []
 
 # Iterating through Feynman problems
 for i_eq in range (Feyn.N_EQS):
@@ -490,23 +493,15 @@ for i_eq in range (Feyn.N_EQS):
 
             # If job was not finished let's put it in the joblist of runs to be re-started.
 
-            # If option is disabled never do it
-            if   SAVE_UNFINISHED == 0:
-                add_to_unfinished_joblist = False
-            # If option is 1 do it if job is not finished
-            elif SAVE_UNFINISHED == 1:
-                add_to_unfinished_joblist = not is_finished
-            # If option is 2 do it only if job is not finished AND it is not equivalent to target
-            elif SAVE_UNFINISHED == 2:
-                add_to_unfinished_joblist = (not is_finished) and (not equivalence_report["symbolic_solution"])
-            # Else do not do it
-            else:
-                add_to_unfinished_joblist = False
-
-            if add_to_unfinished_joblist:
+            if SAVE_UNFINISHED and (not is_finished):
                 command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, noise_lvl)
                 unfinished_jobs.append(command)
                 utils.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
+
+            if SAVE_UNFINISHED and (not is_finished) and (not equivalence_report["symbolic_solution"]):
+                command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, noise_lvl)
+                unfinished_business_jobs.append(command)
+                utils.make_jobfile_from_command_list(PATH_UNFINISHED_BUSINESS_JOBFILE, unfinished_business_jobs)
 
             # If job is started and at least N_EXPRESSIONS_WO_EVALS_WARN expressions were generated but none were
             # evaluated, warn (as units may be inconsistent in Feynman benchmark formulation)
