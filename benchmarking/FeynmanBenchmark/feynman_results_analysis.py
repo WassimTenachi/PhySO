@@ -99,7 +99,7 @@ def load_pareto_expressions (pareto_df, sympy_X_symbols_dict):
     return sympy_expressions
 
 
-@timeout_unix.timeout(20) # Max 20s wrapper
+#@timeout_unix.timeout(20) # Max 20s wrapper (works on unix only)
 def timed_compare_expr(Feynman_pb, trial_expr, verbose):
     return Feynman_pb.compare_expression(trial_expr=trial_expr, verbose=verbose)
 
