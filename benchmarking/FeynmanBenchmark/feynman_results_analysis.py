@@ -23,13 +23,14 @@ parser.add_argument("-n", "--noise",
                     help = "Noise to encode in log results files.")
 parser.add_argument("-p", "--path", default = ".",
                     help = "Paths to results folder.")
-parser.add_argument("-u", "--list_unfinished", default = True,
-                    help = "Save a list of unfinished runs.")
+parser.add_argument("-u", "--list_unfinished", default = 1,
+                    help = "Save a list of unfinished runs (0 to not do it, 1 to do it, 2 to do it only if run is not "
+                           "finished and target was not recovered.")
 config = vars(parser.parse_args())
 
 NOISE_LVL       = float(config["noise"])
 RESULTS_PATH    = str(config["path"])
-SAVE_UNFINISHED = bool(int(config["list_unfinished"]))
+SAVE_UNFINISHED = int(config["list_unfinished"])
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
 N_TRIALS = fconfig.N_TRIALS
@@ -99,7 +100,7 @@ def load_pareto_expressions (pareto_df, sympy_X_symbols_dict):
     return sympy_expressions
 
 
-#@timeout_unix.timeout(20) # Max 20s wrapper (works on unix only)
+@timeout_unix.timeout(20) # Max 20s wrapper (works on unix only)
 def timed_compare_expr(Feynman_pb, trial_expr, verbose):
     return Feynman_pb.compare_expression(trial_expr=trial_expr, verbose=verbose)
 
@@ -488,14 +489,27 @@ for i_eq in range (Feyn.N_EQS):
             # ----- Listing unfinished jobs -----
 
             # If job was not finished let's put it in the joblist of runs to be re-started.
-            if (not is_finished): #and (not equivalence_report["symbolic_solution"]):
+
+            # If option is disabled never do it
+            if   SAVE_UNFINISHED == 0:
+                add_to_unfinished_joblist = False
+            # If option is 1 do it if job is not finished
+            elif SAVE_UNFINISHED == 1:
+                add_to_unfinished_joblist = not is_finished
+            # If option is 2 do it only if job is not finished AND it is not equivalent to target
+            elif SAVE_UNFINISHED == 2:
+                add_to_unfinished_joblist = (not is_finished) and (not equivalence_report["symbolic_solution"])
+            # Else do not do it
+            else:
+                add_to_unfinished_joblist = False
+
+            if add_to_unfinished_joblist:
                 command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, noise_lvl)
                 unfinished_jobs.append(command)
-                if SAVE_UNFINISHED:
-                    utils.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
+                utils.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
 
             # If job is started and at least N_EXPRESSIONS_WO_EVALS_WARN expressions were generated but none were
-            # evaluated, warn
+            # evaluated, warn (as units may be inconsistent in Feynman benchmark formulation)
             N_EXPRESSIONS_WO_EVALS_WARN = 1e5
             n_expr_generated = n_epochs*BATCH_SIZE
             if is_started and n_expr_generated > N_EXPRESSIONS_WO_EVALS_WARN and n_evals == 0:
