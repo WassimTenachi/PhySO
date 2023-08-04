@@ -275,6 +275,7 @@ def round_floats(expr, round_decimal = 3):
                 #ex2 = ex2.xreplace({a: round(a, round_decimal)}) # xreplace is for exact node replacment
     return ex2
 
+
 def clean_sympy_expr(expr):
     """
     Cleans (rounds floats, simplifies) sympy expression for symbolic comparison purposes as in SRBench
@@ -294,22 +295,6 @@ def clean_sympy_expr(expr):
     expr = sympy.simplify(expr, ratio=1)
     return expr
 
-
-def expression_size(expr):
-    """
-    Evaluates complexity as in SRBench
-    (see https://github.com/cavalab/srbench).
-    Parameters
-    ----------
-    expr : Sympy Expression
-    Returns
-    -------
-    c : int
-    """
-    c=0
-    for arg in sympy.preorder_traversal(expr):
-        c += 1
-    return c
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------- FEYNMAN PROBLEM  --------------------------------------------------

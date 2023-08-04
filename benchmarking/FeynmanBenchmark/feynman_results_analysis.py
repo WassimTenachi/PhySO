@@ -11,6 +11,7 @@ import time
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 # Local imports
 import feynman_config as fconfig
+from benchmarking.utils import symbolic_utils
 from benchmarking.utils import timeout_unix
 from benchmarking.utils import metrics_utils
 from benchmarking.utils import utils
@@ -282,7 +283,7 @@ def get_symbolic_result (pareto_df, Feynman_pb, i_pareto = -1):
 
         best_expr = pareto_expressions[i_pareto]
         symbolic_model = str(best_expr)
-        model_size     = Feyn.expression_size(best_expr)
+        model_size     = symbolic_utils.expression_size(best_expr)
     except:
         # Should never fail if Pareto df is loaded properly
         if pareto_df is not None:
@@ -292,7 +293,7 @@ def get_symbolic_result (pareto_df, Feynman_pb, i_pareto = -1):
 
     try:
         # Could fail because best_expr is not defined or because simplification won't work
-        simplified_symbolic_model  = Feyn.clean_sympy_expr(best_expr)
+        simplified_symbolic_model  = symbolic_utils.clean_sympy_expr(best_expr)
         simplified_complexity      = Feyn.expression_size(simplified_symbolic_model)
     except:
         simplified_symbolic_model = ""

@@ -119,3 +119,20 @@ def rationalize (k, limit_err = 0.001, limit_denominator = 10):
         is_rationalized = False
         res = k
     return res, is_rationalized
+
+
+def expression_size(expr):
+    """
+    Evaluates complexity as in SRBench
+    (see https://github.com/cavalab/srbench).
+    Parameters
+    ----------
+    expr : Sympy Expression
+    Returns
+    -------
+    c : int
+    """
+    c=0
+    for arg in sympy.preorder_traversal(expr):
+        c += 1
+    return c
