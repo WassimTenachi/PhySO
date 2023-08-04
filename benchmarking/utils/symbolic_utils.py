@@ -26,6 +26,7 @@ def round_to_sympy_integer (k, limit_err = 0.001,):
         res = k
     return res
 
+
 def expr_floats_to_pi_fracs (expr, limit_err = 0.001, limit_denominator = 10 ):
     """
     Replaces floats in sympy expression by rational fractions of pi.
