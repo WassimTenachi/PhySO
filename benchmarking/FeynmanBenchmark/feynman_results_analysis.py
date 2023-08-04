@@ -282,7 +282,7 @@ def get_symbolic_result (pareto_df, Feynman_pb, i_pareto = -1):
 
         best_expr = pareto_expressions[i_pareto]
         symbolic_model = str(best_expr)
-        model_size     = Feyn.complexity(best_expr)
+        model_size     = Feyn.expression_size(best_expr)
     except:
         # Should never fail if Pareto df is loaded properly
         if pareto_df is not None:
@@ -293,7 +293,7 @@ def get_symbolic_result (pareto_df, Feynman_pb, i_pareto = -1):
     try:
         # Could fail because best_expr is not defined or because simplification won't work
         simplified_symbolic_model  = Feyn.clean_sympy_expr(best_expr)
-        simplified_complexity      = Feyn.complexity(simplified_symbolic_model)
+        simplified_complexity      = Feyn.expression_size(simplified_symbolic_model)
     except:
         simplified_symbolic_model = ""
         simplified_complexity     = 0.

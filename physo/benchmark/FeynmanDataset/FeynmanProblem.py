@@ -295,7 +295,7 @@ def clean_sympy_expr(expr):
     return expr
 
 
-def complexity(expr):
+def expression_size(expr):
     """
     Evaluates complexity as in SRBench
     (see https://github.com/cavalab/srbench).
