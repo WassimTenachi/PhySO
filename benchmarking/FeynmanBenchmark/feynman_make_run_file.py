@@ -4,7 +4,7 @@ import argparse
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 
 # Local imports
-from benchmarking.utils import utils
+from physo.benchmark.utils import utils
 import feynman_config as fconfig
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------

@@ -11,10 +11,10 @@ import time
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 # Local imports
 import feynman_config as fconfig
-from benchmarking.utils import timeout_unix
-from benchmarking.utils import metrics_utils
-from benchmarking.utils import utils
-from benchmarking.utils import symbolic_utils as su
+import physo.benchmark.utils as utils
+import physo.benchmark.utils.symbolic_utils as su
+import physo.benchmark.utils.metrics_utils as metrics_utils
+import physo.benchmark.utils.timeout_unix  as timeout_unix
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Analyzes Feynman run results folder (works on ongoing benchmarks) "

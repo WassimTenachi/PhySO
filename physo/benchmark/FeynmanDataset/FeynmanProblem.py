@@ -1,14 +1,11 @@
-import warnings
-
 import pandas as pd
 import numpy as np
-import os
 import pathlib
 import sympy
 import matplotlib.pyplot as plt
 
 # Internal imports
-from benchmarking.utils import symbolic_utils as su
+from physo.benchmark.utils import symbolic_utils as su
 
 # Dataset paths
 PARENT_FOLDER = pathlib.Path(__file__).parents[0]
