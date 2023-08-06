@@ -234,69 +234,6 @@ def get_units (var_name):
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------- SYMPY UTILS  ---------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------------------
-
-def round_floats(expr, round_decimal = 3):
-    """
-    Rounds the floats in a sympy expression as in SRBench (see https://github.com/cavalab/srbench).
-    Parameters
-    ----------
-    expr : Sympy Expression
-    round_decimal : int
-        Rounding up to this decimal.
-    Returns
-    -------
-    ex2 : Sympy Expression
-    """
-    ex2 = expr
-    # Why not use expr.atoms ?
-    # Doing it like SRBench
-    # todo: clean func
-    for a in sympy.preorder_traversal(expr):
-        if isinstance(a, sympy.Float):
-            ex2 = ex2.subs(a, su.round_to_sympy_integer(a, limit_err=10**(-round_decimal),))
-            if abs(a) < 0.0001:
-                ex2 = ex2.subs(a, sympy.Integer(0))
-            # Should prevent sympy not being able to simplify 1.0*x - x to 0 for example
-            elif abs(a - 1.) < 0.0001:
-                ex2 = ex2.subs(a, sympy.Integer(1))
-            else:
-                # A. SRBench postprocessing function uses this (but they actually never use it in the code ?):
-                # ex2 = ex2.subs(a, round(a, round_decimal))
-
-                # B. SRBench actually uses this to check if an expr is equivalent (this is visible when checking their
-                # positive results on "dataset" feynman_III_8_54)
-                # With round_decimal = 3, this rounds up to only 2 decimals, actually.
-                ex2 = ex2.subs(a, sympy.Float(round(a, round_decimal), round_decimal))
-
-                # C. Sometimes in sympy, a node can have the value 0.398986816406250 but the exact same node can have
-                # a different value such as 0.39898681640625 in the upper node 0.39898681640625*x.
-                #ex2 = ex2.xreplace({a: round(a, round_decimal)}) # xreplace is for exact node replacment
-    return ex2
-
-
-def clean_sympy_expr(expr):
-    """
-    Cleans (rounds floats, simplifies) sympy expression for symbolic comparison purposes as in SRBench
-    (see https://github.com/cavalab/srbench).
-    Parameters
-    ----------
-    expr : Sympy Expression
-    Returns
-    -------
-    expr : Sympy Expression
-    """
-    # Evaluates numeric constants such as sqrt(2*pi)
-    expr = expr.evalf()
-    # Rounding floats
-    expr = round_floats(expr)
-    # Simplifying
-    expr = sympy.simplify(expr, ratio=1)
-    return expr
-
-
-# ---------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------- FEYNMAN PROBLEM  --------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 CONST_LOCAL_DICT = {"pi" : np.pi}
@@ -526,102 +463,14 @@ class FeynmanProblem:
         """
 
         # Cleaning target expression like SRBench
-        target_expr = clean_sympy_expr(self.formula_sympy_eval)
+        target_expr = su.clean_sympy_expr(self.formula_sympy_eval)
 
-        if verbose:
-            print("  -> Assessing if %s (target) is equivalent to %s (trial)"%(target_expr, trial_expr))
-
-
-        e = ""
-        warn_msg = "Could not assess symbolic equivalence of %s with %s (Feynman problem: %s)." % (
-        target_expr, trial_expr, self.eq_name)
-
-        def contains_no_inf (expr):
-            return not('oo' in str(expr) and prevent_inf_equivalence)
-
-        # ------ Trial expression cleaning ------
-        try:
-            # Cleaning trial expression
-            trial_expr = clean_sympy_expr(trial_expr)
-        except Exception as e:
-            trial_expr = trial_expr
-
-        # ------ Checking symbolic difference ------
-
-        # Vanilla
-        try:
-            vanilla_sym_err = clean_sympy_expr(target_expr - trial_expr)
-            vanilla_sym_err_is_zero  = str(vanilla_sym_err) == '0'
-            vanilla_sym_err_is_const = vanilla_sym_err.is_constant() and contains_no_inf(vanilla_sym_err)
-        except Exception as e:
-            warnings.warn(warn_msg)
-            vanilla_sym_err = ""
-            vanilla_sym_err_is_zero  = False
-            vanilla_sym_err_is_const = False
-
-        # For trigo cases
-        try:
-            trigo_sym_err = clean_sympy_expr(su.expr_floats_to_pi_fracs(target_expr - trial_expr))
-            trigo_sym_err_is_zero  = str(trigo_sym_err) == '0'
-            trigo_sym_err_is_const = trigo_sym_err.is_constant() and contains_no_inf(trigo_sym_err)
-        except Exception as e:
-            warnings.warn(warn_msg)
-            trigo_sym_err = ""
-            trigo_sym_err_is_zero  = False
-            trigo_sym_err_is_const = False
-
-        symbolic_error_is_zero     = vanilla_sym_err_is_zero  or (trigo_sym_err_is_zero  and handle_trigo)
-        symbolic_error_is_constant = vanilla_sym_err_is_const or (trigo_sym_err_is_const and handle_trigo)
-
-        # ------ Checking symbolic fraction ------
-
-        # Vanilla
-        try:
-            vanilla_sym_frac = clean_sympy_expr(target_expr / trial_expr)
-            vanilla_sym_frac_is_const = vanilla_sym_frac.is_constant() \
-                                        and (str(vanilla_sym_frac) != '0' or not prevent_zero_frac) \
-                                        and contains_no_inf(vanilla_sym_frac)
-        except Exception as e:
-            warnings.warn(warn_msg)
-            vanilla_sym_frac = ""
-            vanilla_sym_frac_is_const = False
-
-        # For trigo cases
-        try:
-            trigo_sym_frac = clean_sympy_expr(su.expr_floats_to_pi_fracs(target_expr / trial_expr))
-            trigo_sym_frac_is_const = trigo_sym_frac.is_constant() \
-                                      and (str(trigo_sym_frac) != '0' or not prevent_zero_frac) \
-                                      and contains_no_inf(trigo_sym_frac)
-        except Exception as e:
-            warnings.warn(warn_msg)
-            trigo_sym_frac = ""
-            trigo_sym_frac_is_const = False
-
-        symbolic_fraction_is_constant = vanilla_sym_frac_is_const or (trigo_sym_frac_is_const and handle_trigo)
-
-        # ------ Results ------
-
-        # Equivalent if diff simplifies to 0 or if the diff is a constant or if the ratio is a constant
-        is_equivalent = symbolic_error_is_zero or symbolic_error_is_constant or symbolic_fraction_is_constant
-
-        if verbose:
-            print('   -> Simplified expression :', trial_expr)
-            print('   -> Symbolic error        :', vanilla_sym_err)
-            print('   -> Symbolic fraction     :', vanilla_sym_frac)
-            print('   -> Trigo symbolic error        :', trigo_sym_err)
-            print('   -> Trigo symbolic fraction     :', trigo_sym_frac)
-            print('   -> Equivalent :', is_equivalent)
-
-        # SRBench style report
-        report = {
-            'symbolic_error'                : str(vanilla_sym_err),
-            'symbolic_fraction'             : str(vanilla_sym_frac),
-            'symbolic_error_is_zero'        : symbolic_error_is_zero,
-            'symbolic_error_is_constant'    : symbolic_error_is_constant,
-            'symbolic_fraction_is_constant' : symbolic_fraction_is_constant,
-            'sympy_exception'               : str(e),
-            'symbolic_solution'             : is_equivalent,
-            }
+        is_equivalent, report = su.compare_expression (trial_expr  = trial_expr,
+                                                       target_expr = target_expr,
+                                                       handle_trigo            = handle_trigo,
+                                                       prevent_zero_frac       = prevent_zero_frac,
+                                                       prevent_inf_equivalence = prevent_inf_equivalence,
+                                                       verbose                 = verbose,)
 
         return is_equivalent, report
 

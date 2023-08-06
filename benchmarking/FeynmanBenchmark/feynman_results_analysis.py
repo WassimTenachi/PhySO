@@ -11,10 +11,10 @@ import time
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 # Local imports
 import feynman_config as fconfig
-from benchmarking.utils import symbolic_utils
 from benchmarking.utils import timeout_unix
 from benchmarking.utils import metrics_utils
 from benchmarking.utils import utils
+from benchmarking.utils import symbolic_utils as su
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Analyzes Feynman run results folder (works on ongoing benchmarks) "
@@ -283,7 +283,7 @@ def get_symbolic_result (pareto_df, Feynman_pb, i_pareto = -1):
 
         best_expr = pareto_expressions[i_pareto]
         symbolic_model = str(best_expr)
-        model_size     = symbolic_utils.expression_size(best_expr)
+        model_size     = su.expression_size(best_expr)
     except:
         # Should never fail if Pareto df is loaded properly
         if pareto_df is not None:
@@ -293,8 +293,8 @@ def get_symbolic_result (pareto_df, Feynman_pb, i_pareto = -1):
 
     try:
         # Could fail because best_expr is not defined or because simplification won't work
-        simplified_symbolic_model  = symbolic_utils.clean_sympy_expr(best_expr)
-        simplified_complexity      = Feyn.expression_size(simplified_symbolic_model)
+        simplified_symbolic_model  = su.clean_sympy_expr(best_expr)
+        simplified_complexity      = su.expression_size(simplified_symbolic_model)
     except:
         simplified_symbolic_model = ""
         simplified_complexity     = 0.
@@ -442,7 +442,7 @@ for i_eq in range (Feyn.N_EQS):
                 'random_state' : i_trial,
                 'target_noise' : noise_lvl,
                 # Saving true_model with evaluated fixed const (eg. 1/sqrt(2pi) = 0.399) SRBench style
-                'true_model'   : str(Feyn.clean_sympy_expr(pb.formula_sympy_eval)),
+                'true_model'   : str(su.clean_sympy_expr(pb.formula_sympy_eval)),
             }
             run_result.update(run_settings)
 
