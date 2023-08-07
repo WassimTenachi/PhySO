@@ -11,7 +11,7 @@ import time
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 # Local imports
 import feynman_config as fconfig
-import physo.benchmark.utils as utils
+from benchmarking import utils as bu
 import physo.benchmark.utils.symbolic_utils as su
 import physo.benchmark.utils.metrics_utils as metrics_utils
 import physo.benchmark.utils.timeout_unix  as timeout_unix
@@ -497,12 +497,12 @@ for i_eq in range (Feyn.N_EQS):
             if SAVE_UNFINISHED and (not is_finished):
                 command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, noise_lvl)
                 unfinished_jobs.append(command)
-                utils.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
+                bu.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
 
             if SAVE_UNFINISHED and (not is_finished) and (not equivalence_report["symbolic_solution"]):
                 command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, noise_lvl)
                 unfinished_business_jobs.append(command)
-                utils.make_jobfile_from_command_list(PATH_UNFINISHED_BUSINESS_JOBFILE, unfinished_business_jobs)
+                bu.make_jobfile_from_command_list(PATH_UNFINISHED_BUSINESS_JOBFILE, unfinished_business_jobs)
 
             # If job is started and at least N_EXPRESSIONS_WO_EVALS_WARN expressions were generated but none were
             # evaluated, warn (as units may be inconsistent in Feynman benchmark formulation)
