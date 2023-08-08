@@ -1,3 +1,4 @@
+import numpy as np
 
 # Metrics
 def r2(y_target, y_pred):
