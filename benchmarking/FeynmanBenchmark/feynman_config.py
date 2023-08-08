@@ -22,7 +22,7 @@ FREE_CONSTS_UNITS   = [dimensionless_units, dimensionless_units]
 # SRBench (https://arxiv.org/abs/2107.14351) uses 100k data points for Feynman (subsec A.4)
 # But they say they downsample to 10k in subsec A.5
 # N_SAMPLES = int(1e5)
-# Faster with fewer samples (this should not hinder performances to much).
+# Faster with fewer samples (this should not hinder performances too much).
 N_SAMPLES = int(1e4)
 
 # Nb of samples for testing results
