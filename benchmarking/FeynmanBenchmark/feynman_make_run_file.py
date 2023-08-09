@@ -22,6 +22,7 @@ NOISE_LEVEL = float(config["noise"])
 # With 1M expressions -> each run .log -> 400 Mo
 
 N_TRIALS = fconfig.N_TRIALS
+ORIGINAL_VAR_NAMES = fconfig.ORIGINAL_VAR_NAMES
 EXCLUDED_IN_SRBENCH_EQS_FILENAMES = fconfig.EXCLUDED_IN_SRBENCH_EQS_FILENAMES
 
 
@@ -33,7 +34,7 @@ commands = []
 for i_eq in range (Feyn.N_EQS):
     print("\nProblem #%i"%(i_eq))
     # Loading a problem
-    pb = Feyn.FeynmanProblem(i_eq)
+    pb = Feyn.FeynmanProblem(i_eq, original_var_names=ORIGINAL_VAR_NAMES)
     # Making run file only if it is not in excluded problems
     if pb.eq_filename not in EXCLUDED_IN_SRBENCH_EQS_FILENAMES:
         print(pb)

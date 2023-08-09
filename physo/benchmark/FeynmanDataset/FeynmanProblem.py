@@ -249,12 +249,19 @@ class FeynmanProblem:
         Number of input variables.
     eq_df : pandas.core.series.Series
         Underlying pandas dataframe line of this equation.
+    original_var_names : bool
+        Using original variable names (e.g. theta, sigma etc.) and original output variable name (e.g. f, E etc.) if
+        True, using x0, x1 ... as input variable names and y as output variable name otherwise.
 
+    y_name_original : str
+        Name of output variable as in the Feynman dataset.
     y_name : str
         Name of output variable.
     y_units : array_like of shape (FEYN_UNITS_VECTOR_SIZE,) of floats
         Units of output variables.
 
+    X_names_original : array_like of shape (n_vars,) of str
+        Names of input variables as in the Feynman dataset.
     X_names : array_like of shape (n_vars,) of str
         Names of input variables.
     X_lows : array_like of shape (n_vars,) of floats
@@ -264,7 +271,7 @@ class FeynmanProblem:
     X_units :  array_like of shape (n_vars, FEYN_UNITS_VECTOR_SIZE,) of floats
         Units of input variables.
 
-    formula : str
+    formula_original : str
         Formula as in the Feynman dataset.
     X_sympy_symbols : array_like of shape (n_vars,) of sympy.Symbol
         Sympy symbols representing each input variables with assumptions (negative, positive etc.).
@@ -282,7 +289,7 @@ class FeynmanProblem:
         Formula in latex.
     """
 
-    def __init__(self, i_eq = None, eq_name = None):
+    def __init__(self, i_eq = None, eq_name = None, original_var_names = False):
         """
         Loads a Feynman problem based on its number in the set or its equation name
         Parameters
@@ -291,6 +298,9 @@ class FeynmanProblem:
             Equation number in the whole set of equations (0 to 99 for bulk eqs and 100 to 119 for bonus eqs).
         eq_name : str
             Equation name in the set of equations (e.g. I.6.2a).
+        original_var_names : bool
+            Using original variable names (e.g. theta, sigma etc.) and original output variable name (e.g. f, E etc.) if
+            True, using x0, x1 ... as input variable names and y as output variable name otherwise.
         """
         # Selecting equation line in dataframe
         if i_eq is not None:
@@ -312,27 +322,33 @@ class FeynmanProblem:
         self.SRBench_name = "feynman_" + self.eq_filename.replace('.', '_')  # str
         # Number of input variables
         self.n_vars = int(self.eq_df["# variables"])                         # int
+        # Using x0, x1 ... and y names or original names (e.g. theta, sigma, f etc.)
+        self.original_var_names = original_var_names                         # bool
 
         # ----------- y : output variable -----------
         # Name of output variable
-        self.y_name   = self.eq_df["Output"]            # str
+        self.y_name_original = self.eq_df["Output"]                              # str
+        # Name of output variable : y or original name (eg. f, E etc.)
+        self.y_name = self.y_name_original if self.original_var_names else 'y'   # str
         # Units of output variables
-        self.y_units = get_units(self.y_name)           # (FEYN_UNITS_VECTOR_SIZE,)
+        self.y_units = get_units(self.y_name)                                    # (FEYN_UNITS_VECTOR_SIZE,)
 
         # ----------- X : input variables -----------
         # Utils id of input variables v1, v2 etc. in .csv
-        var_ids_str = np.array( [ "v%i"%(i_var) for i_var in range(1, self.n_vars+1) ]   ).astype(str)            # (n_vars,)
+        var_ids_str = np.array( [ "v%i"%(i_var) for i_var in range(1, self.n_vars+1) ]   ).astype(str)                     # (n_vars,)
         # Names of input variables
-        self.X_names = np.array( [ self.eq_df[ id + "_name" ] for id in var_ids_str  ]   ).astype(str)            # (n_vars,)
+        self.X_names_original = np.array( [ self.eq_df[ id + "_name" ] for id in var_ids_str  ]   ).astype(str)            # (n_vars,)
+        X_names_xi_style      = np.array( [ "x%i"%(i_var) for i_var in range(self.n_vars)     ]   ).astype(str)            # (n_vars,)
+        self.X_names          = self.X_names_original if self.original_var_names else X_names_xi_style                     # (n_vars,)
         # Lowest values taken by input variables
-        self.X_lows  = np.array( [ self.eq_df[ id + "_low"  ] for id in var_ids_str ]    ).astype(float)          # (n_vars,)
+        self.X_lows           = np.array( [ self.eq_df[ id + "_low"  ] for id in var_ids_str ]    ).astype(float)          # (n_vars,)
         # Highest values taken by input variables
-        self.X_highs = np.array( [ self.eq_df[ id + "_high" ] for id in var_ids_str  ]   ).astype(float)          # (n_vars,)
+        self.X_highs          = np.array( [ self.eq_df[ id + "_high" ] for id in var_ids_str  ]   ).astype(float)          # (n_vars,)
         # Units of input variables
-        self.X_units = np.array( [ get_units(self.eq_df[ id + "_name" ]) for id in var_ids_str ] ).astype(float)  # (n_vars, FEYN_UNITS_VECTOR_SIZE,)
+        self.X_units          = np.array( [ get_units(self.eq_df[ id + "_name" ]) for id in var_ids_str ] ).astype(float)  # (n_vars, FEYN_UNITS_VECTOR_SIZE,)
 
         # ----------- Formula -----------
-        self.formula = self.eq_df["Formula"] # (str)
+        self.formula_original = self.eq_df["Formula"] # (str)
 
         # Input variables as sympy symbols
         self.X_sympy_symbols = []
@@ -352,21 +368,28 @@ class FeynmanProblem:
                                                      # nonzero  = not (self.X_lows[i] <= 0 and self.X_highs[i] >= 0),
                                                      domain   = sympy.sets.sets.Interval(self.X_lows[i], self.X_highs[i]),
                                                      ))
+
         # Input variables names to sympy symbols dict
-        self.sympy_X_symbols_dict = {self.X_names[i] : self.X_sympy_symbols[i] for i in range(self.n_vars)}                  #  (n_vars,)
+        self.sympy_X_symbols_dict = {self.X_names[i] : self.X_sympy_symbols[i] for i in range(self.n_vars)}                     #  (n_vars,)
+        # Dict to use to read original feynman dataset formula
+        # Original names to symbols in usage (i.e. symbols having original names or not)
+        # eg. 'theta' -> theta symbol etc. (if original_var_names=True) or 'theta' -> x0 symbol etc. (else)
+        self.sympy_original_to_X_symbols_dict = {self.X_names_original[i] : self.X_sympy_symbols[i] for i in range(self.n_vars)} #  (n_vars,)
+        # NB: if original_var_names=True, then self.sympy_X_symbols_dict = self.sympy_original_to_X_symbols_dict
+
         # Declaring input variables via local_dict to avoid confusion
         # Eg. So sympy knows that we are referring to gamma as a variable and not the function etc.
         # evaluate = False avoids eg. sin(theta) = 0 when theta domain = [0,5] ie. nonzero=False, but no need for this
         # if nonzero assumption is not used
         evaluate = False
-        self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula,
-                                                                     local_dict = self.sympy_X_symbols_dict,
+        self.formula_sympy   = sympy.parsing.sympy_parser.parse_expr(self.formula_original,
+                                                                     local_dict = self.sympy_original_to_X_symbols_dict,
                                                                      evaluate   = evaluate)
-        # Local dict : dict of input variables (sympy_X_symbols_dict) and fixed constants (pi -> 3.14.. etc)
+        # Local dict : dict of input variables (sympy_original_to_X_symbols_dict) and fixed constants (pi -> 3.14.. etc)
         self.local_dict = {}
-        self.local_dict.update(self.sympy_X_symbols_dict)
+        self.local_dict.update(self.sympy_original_to_X_symbols_dict)
         self.local_dict.update(CONST_LOCAL_DICT)
-        self.formula_sympy_eval = sympy.parsing.sympy_parser.parse_expr(self.formula,
+        self.formula_sympy_eval = sympy.parsing.sympy_parser.parse_expr(self.formula_original,
                                                                      local_dict = self.local_dict,
                                                                      evaluate   = evaluate)
         # Latex formula
@@ -417,7 +440,7 @@ class FeynmanProblem:
         X_array, y_array = self.generate_data_points(n_samples = n_samples)
         n_dim = X_array.shape[0]
         fig, ax = plt.subplots(n_dim, 1, figsize=(10, n_dim * 4))
-        fig.suptitle(self.formula)
+        fig.suptitle(self.formula_original)
         for i in range(n_dim):
             curr_ax = ax if n_dim == 1 else ax[i]
             curr_ax.plot(X_array[i], y_array, 'k.', markersize=1.)

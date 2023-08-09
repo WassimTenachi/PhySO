@@ -36,6 +36,7 @@ SAVE_UNFINISHED = bool(int(config["list_unfinished"]))
 
 N_TRIALS = fconfig.N_TRIALS
 EXCLUDED_IN_SRBENCH_EQS_FILENAMES = fconfig.EXCLUDED_IN_SRBENCH_EQS_FILENAMES
+ORIGINAL_VAR_NAMES = fconfig.ORIGINAL_VAR_NAMES
 
 # Where to save raw results of all runs
 PATH_RESULTS_SAVE         = os.path.join(RESULTS_PATH, "results_detailed.csv")
@@ -417,7 +418,7 @@ unfinished_business_jobs = []
 for i_eq in range (Feyn.N_EQS):
     print("\nProblem #%i"%(i_eq))
     # Loading a problem
-    pb = Feyn.FeynmanProblem(i_eq)
+    pb = Feyn.FeynmanProblem(i_eq, original_var_names=ORIGINAL_VAR_NAMES)
     # Considering the problem only if it is not excluded
     if pb.eq_filename not in EXCLUDED_IN_SRBENCH_EQS_FILENAMES:
         print(pb)

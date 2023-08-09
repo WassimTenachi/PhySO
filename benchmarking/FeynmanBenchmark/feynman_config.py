@@ -7,6 +7,8 @@ import physo
 N_TRIALS = 5
 # Equations that are excluded in SRBench (see section Feynman datasets of https://arxiv.org/abs/2107.14351)
 EXCLUDED_IN_SRBENCH_EQS_FILENAMES = ['I.26.2', 'I.30.5', 'II.11.17', 'test_10']
+# Using original variable names (eg. theta, sigma etc.), not x0, x1 etc.
+ORIGINAL_VAR_NAMES = True
 
 # ----- HYPERPARAMS : CONSTANTS -----
 # Since physical constants (G, c etc.) are treated as input variables taking a range of values, two dimensionless

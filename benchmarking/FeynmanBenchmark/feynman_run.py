@@ -56,6 +56,7 @@ if __name__ == '__main__':
     CONFIG             = fconfig.CONFIG
     MAX_N_EVALUATIONS  = fconfig.MAX_N_EVALUATIONS
     N_EPOCHS           = fconfig.N_EPOCHS
+    ORIGINAL_VAR_NAMES = fconfig.ORIGINAL_VAR_NAMES
 
     # Fixing seed accordingly with attempt number
     seed = N_TRIAL
@@ -87,7 +88,7 @@ if __name__ == '__main__':
                                                do_save   = True, )
 
     # Loading Feynman problem
-    pb = Feyn.FeynmanProblem(I_FEYN)
+    pb = Feyn.FeynmanProblem(I_FEYN, original_var_names=ORIGINAL_VAR_NAMES)
 
     # Generate data
     X, y = pb.generate_data_points (n_samples = N_SAMPLES)
@@ -106,7 +107,7 @@ if __name__ == '__main__':
     mpl.rcParams.update(mpl.rcParamsDefault)
     n_dim = X.shape[0]
     fig, ax = plt.subplots(n_dim, 1, figsize=(10, n_dim * 4))
-    fig.suptitle(pb.formula)
+    fig.suptitle(pb.formula_original)
     for i in range(n_dim):
         curr_ax = ax if n_dim == 1 else ax[i]
         curr_ax.plot(X[i], y, 'k.', markersize=0.1)
