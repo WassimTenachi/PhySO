@@ -85,7 +85,7 @@ def load_pareto_expressions (pareto_df, sympy_X_symbols_dict):
     # Iterating through Pareto optima expressions
     for i_expr in range (len(pareto_df)):
         # Expression str
-        expr_str = pareto_df["expression"].iloc[i_expr]
+        expr_str = str(pareto_df["expression"].iloc[i_expr]) # Force str in case only a float is present as expression
         # Free const name to value dict, replacing nans by 1
         free_const_dict = {free_consts_names[i_const]: np.nan_to_num(
                                                     pareto_df[free_consts_names[i_const]].iloc[i_expr],
