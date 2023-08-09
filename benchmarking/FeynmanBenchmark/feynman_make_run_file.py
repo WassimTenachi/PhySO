@@ -8,7 +8,7 @@ from benchmarking import utils as bu
 import feynman_config as fconfig
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
-parser = argparse.ArgumentParser (description     = "Creates a jobfile to run all Feynman problems.",
+parser = argparse.ArgumentParser (description     = "Creates a jobfile to run all Feynman problems at specified noise level.",
                                   formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-n", "--noise", default = 0.,
                     help = "Noise level.")
