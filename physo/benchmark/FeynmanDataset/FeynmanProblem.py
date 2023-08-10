@@ -517,7 +517,10 @@ class FeynmanProblem:
         # and an error can be raised).
         # This is also useful for detecting issues such as sin(theta) = 0 because theta.is_nonzero = False -> the result
         # is just an int of float
-        y = f(**mapping_var_name_to_X).astype(float)
+        y = f(**mapping_var_name_to_X)
+        # forcing float type only if result is not already a single float (can happen if expression is a constant)
+        if not isinstance(y, float):
+            y = y.astype(float)
         return y
 
     def __str__(self):
