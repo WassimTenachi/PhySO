@@ -150,7 +150,9 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
                                          library = batch.library,
                                          is_physical = True,
                                          free_const_values=torch.tensor(batch.library.free_constants_init_val).to(batch.dataset.detected_device),
-                                         candidate_wrapper=candidate_wrapper
+                                         candidate_wrapper=candidate_wrapper,
+                                         is_opti=np.array([False]),
+                                         opti_steps=np.array([0]),
                                             )
 
         print("---- Target ----")
@@ -169,9 +171,9 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
         if batch.library.n_free_const > 0:
             t0 = time.perf_counter()
             history = target_program.optimize_constants(X         = batch.dataset.X,
-                                              y_target  = batch.dataset.y_target,
-                                              args_opti = run_config["free_const_opti_args"],
-                                              )
+                                                        y_target  = batch.dataset.y_target,
+                                                        args_opti = run_config["free_const_opti_args"],
+                                                         )
             t1 = time.perf_counter()
             print("free const opti time = %f ms"%((t1-t0)*1e3))
             print("free constants found: %s"%(target_program.free_const_values))
