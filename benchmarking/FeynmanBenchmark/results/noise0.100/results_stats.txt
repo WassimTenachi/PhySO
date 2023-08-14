@@ -1,0 +1,13 @@
+
+
+Total recovery rate    = 53.448276 %
+Recovery rate 95% CI   = 44.599458 %  - 62.297094 %
+Acc. solution rate     = 64.137931 %
+Acc. solution 95% CI   = 56.130258 - 72.145604 
+Total R2 coef          = 0.894304
+R2 coef 95% CI         = 0.846422 - 0.942186 
+Frac of evals allowed  = 98.460964 %
+Frac of runs started   = 100.000000 % (-> 580)
+Frac of runs finished  = 98.965517 % (-> 574)
+
+-> Results analyis time = 4323.84 s
