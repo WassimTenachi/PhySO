@@ -52,6 +52,7 @@ if __name__ == '__main__':
     FIXED_CONSTS_UNITS = fconfig.FIXED_CONSTS_UNITS
     FREE_CONSTS_NAMES  = fconfig.FREE_CONSTS_NAMES
     FREE_CONSTS_UNITS  = fconfig.FREE_CONSTS_UNITS
+    OP_NAMES           = fconfig.OP_NAMES
     N_SAMPLES          = fconfig.N_SAMPLES
     CONFIG             = fconfig.CONFIG
     MAX_N_EVALUATIONS  = fconfig.MAX_N_EVALUATIONS
@@ -135,6 +136,8 @@ if __name__ == '__main__':
                 fixed_consts_units = FIXED_CONSTS_UNITS,
                 # Free constants names (for display purposes)
                 free_consts_names = FREE_CONSTS_NAMES,
+                # Operations allowed
+                op_names = OP_NAMES,
                 # Units of free constants
                 free_consts_units = FREE_CONSTS_UNITS,
                 # Run config

@@ -20,6 +20,9 @@ FIXED_CONSTS_UNITS  = [dimensionless_units]
 FREE_CONSTS_NAMES   = ["c1", "c2"]
 FREE_CONSTS_UNITS   = [dimensionless_units, dimensionless_units]
 
+# ----- HYPERPARAMS : OPERATORS -----
+OP_NAMES = ["mul", "add", "sub", "div", "inv", "n2", "sqrt", "neg", "exp", "log", "sin", "cos"]
+
 # ----- HYPERPARAMS : DATA -----
 # SRBench (https://arxiv.org/abs/2107.14351) uses 100k data points for Feynman (subsec A.4)
 # But they say they downsample to 10k in subsec A.5
