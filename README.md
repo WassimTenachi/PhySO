@@ -325,6 +325,11 @@ physo.physym.reward.USE_PARALLEL_EXE = True
 - The use of `parallel_mode` can be managed in the configuration of the reward which can itself be managed through a hyperparameter config file (see `config` folder) which is handy for running a benchmark on an HPC with a predetermined number of CPUs.
 - Disabling parallel mode entirely via `USE_PARALLEL_EXE=False` `USE_PARALLEL_OPTI_CONST=False` is recommended before running `physo` in a debugger.
 
+4. Efficiency curve in a realistic case
+
+![physo_parallel_efficiency](https://github.com/WassimTenachi/PhySO/assets/63928316/7c0b6a7a-edf0-480f-b80e-140643ce306c)
+Computational time optimizing free constants $\{a, b \}$ in $y = a \sin (b.x) + e^{-x}$ over 20 iterations using $10^3$ data points when running this task $10\ 000$ times in parallel with our \texttt{PhySO} algorithm on an Apple M1 CPU (a typically fast single core CPU) and an Intel Xeon W-2155 CPU (a typically high core count CPU).
+
 # Uninstalling
 Uninstalling the package.
 ```
