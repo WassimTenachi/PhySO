@@ -116,7 +116,7 @@ expression, logs = physo.SR(X, y,
 (Allowing the use of a fixed constant $1$ of dimension $L^{0}, T^{0}, M^{0}$ (ie dimensionless) and free constants $m$ of dimension $L^{0}, T^{0}, M^{1}$ and $g$ of dimension $L^{1}, T^{-2}, M^{0}$.)
 
 It should be noted that here the units vector are of size 3 (eg: `[1, 0, 0]`) as in this example the variables have units dependent on length, time and mass only.
-However, units vectors can be of any size $\leq 7$ as long as it is consistent across X, y and constants, allowing the user to express any units (dependent on length, time, mass, temperature, electric current, amount of light, or amount of matter). 
+However, units vectors can be of any size $\leq 7$ as long as it is consistent across X, y and constants, allowing the user to express any units (dependent on length, time, mass, temperature, electric current, amount of light, or amount of matter).
 In addition, dimensional analysis can be performed regardless of the order in which units are given, allowing the user to use any convention ([length, mass, time] or [mass, time, length] etc.) as long as it is consistent across X,y and constants.
 
 It should also be noted that free constants search starts around 1. by default.
@@ -195,7 +195,7 @@ for i, prog in enumerate(pareto_front_expressions):
 Returning:
 ```
    2
-m⋅v 
+m⋅v
 g = 1.000000
 m = 1.486251
 RMSE = 6.510109e+01
@@ -216,7 +216,7 @@ RMSE = 1.675142e-07
 This demo can be found in `demo/demo_quick_sr.ipynb`.
 
 ### Symbolic regression
-[Coming soon] 
+[Coming soon]
 In the meantime you can have a look at our demo folder ! :)
 
 ### Custom symbolic optimization task
@@ -238,7 +238,7 @@ Token (name = "n5"     , sympy_repr = "n5"     , arity = 1 , complexity = 1 , va
 ```
 Where:
 - `name` (str) is the name of the token (used for selecting it in the config of a run).
-- `sympy_repr` (str) is the name of the token to use when producing the sympy / latex representation. 
+- `sympy_repr` (str) is the name of the token to use when producing the sympy / latex representation.
 - `arity` (int) is the number of arguments that the function takes.
 - `complexity` (float) is the value to consider for expression complexity considerations (1 by default).
 - `var_type` (int) is the type of token, it should always be 0 when defining functions like here.
@@ -271,7 +271,7 @@ If you found the function you have added useful, don't hesitate to make a pull r
 
 The main performance bottleneck of `physo` is free constant optimization, therefore, in non-parallel execution mode, performances are almost linearly dependent on the number of free constant optimization steps and on the number of trial expressions per epoch (ie. the batch size).
 
-In addition, it should be noted that generating monitoring plots takes ~3s, therefore we suggest making monitoring plots every >10 epochs for low time / epoch cases. 
+In addition, it should be noted that generating monitoring plots takes ~3s, therefore we suggest making monitoring plots every >10 epochs for low time / epoch cases.
 
 ## Expected computational performances
 
