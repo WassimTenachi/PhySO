@@ -328,7 +328,7 @@ physo.physym.reward.USE_PARALLEL_EXE = True
 4. Efficiency curve in a realistic case
 
 <p align="center">
-<img src="images/physo_parallel_efficiency.png" width=200/>
+<img src="images/physo_parallel_efficiency.png" width=300/>
 </p>
 Computational time optimizing free constants $\{a, b \}$ in $y = a \sin (b.x) + e^{-x}$ over 20 iterations using $10^3$ data points when running this task $10\ 000$ times in parallel on an Apple M1 CPU (a typically fast single core CPU) and an Intel Xeon W-2155 CPU (a typically high core count CPU).
 
