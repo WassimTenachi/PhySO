@@ -94,8 +94,8 @@ def assess_equivalence (pareto_df, Feynman_pb, check_only_most_acc = False, verb
     # Loading rewards of Pareto fronts
     rewards = pareto_df["reward"].to_numpy()
     # Loading Pareto front expressions
-    pareto_expressions = read_logs.load_pareto_expressions (pareto_df            = pareto_df,
-                                                            sympy_X_symbols_dict = Feynman_pb.sympy_X_symbols_dict, )
+    pareto_expressions = read_logs.get_pareto_expressions_from_df (pareto_df            = pareto_df,
+                                                                   sympy_X_symbols_dict = Feynman_pb.sympy_X_symbols_dict, )
     # By default, the best expression is the last of the Pareto (most accurate/complex)
     i_Pareto_best = -1
 
@@ -208,8 +208,8 @@ def assess_metric_test (pareto_df, Feynman_pb, metric_func, i_pareto=-1):
     metric_value : float
     """
     # Loading Pareto front expressions
-    pareto_expressions = read_logs.load_pareto_expressions(pareto_df            = pareto_df,
-                                                           sympy_X_symbols_dict = Feynman_pb.sympy_X_symbols_dict, )
+    pareto_expressions = read_logs.get_pareto_expressions_from_df(pareto_df            = pareto_df,
+                                                                  sympy_X_symbols_dict = Feynman_pb.sympy_X_symbols_dict, )
     # Generate test data
     X, y = pb.generate_data_points(fconfig.N_SAMPLES_TEST)
     y_target = y
@@ -237,8 +237,8 @@ def get_symbolic_result (pareto_df, Feynman_pb, i_pareto = -1):
     """
 
     try:
-        pareto_expressions = read_logs.load_pareto_expressions(pareto_df            = pareto_df,
-                                                               sympy_X_symbols_dict = Feynman_pb.sympy_X_symbols_dict, )
+        pareto_expressions = read_logs.get_pareto_expressions_from_df(pareto_df            = pareto_df,
+                                                                      sympy_X_symbols_dict = Feynman_pb.sympy_X_symbols_dict, )
 
         best_expr = pareto_expressions[i_pareto]
         symbolic_model = str(best_expr)
