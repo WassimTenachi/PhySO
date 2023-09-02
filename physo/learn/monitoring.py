@@ -576,6 +576,7 @@ class RunVisualiser:
         df["rmse"              ] = rmse
         df["expression"        ] = np.array([prog.get_infix_str() for prog in programs ])
         df["expression_prefix" ] = np.array([prog.__str__()       for prog in programs ])
+        # -> UPDATE START_COL_FREE_CONST_PARETO_CSV = 6 IF CHANGES ARE MADE HERE
         # Exporting free const
         free_const       = np.array([prog.free_const_values.detach().cpu().numpy() for prog in programs ])
         free_const_names = [tok.__str__() for tok in self.run_logger.batch.library.free_constants_tokens]
