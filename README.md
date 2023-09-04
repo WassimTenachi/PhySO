@@ -5,6 +5,12 @@ The physical symbolic optimization ( $\Phi$-SO ) package `physo` is a symbolic r
 
 https://user-images.githubusercontent.com/63928316/225642347-a07127da-a84e-4af3-96f4-4c7fef5a673b.mp4
 
+Performances on the standard Feynman benchmark from SRBench comprising 120 expressions from the Feynman Lectures on Physics against popular SR packages:
+`physo` achieves state-of-the-art performance in the presence of noise (exceeding 0.1%) and show that it is robust even in the presence of substantial (10%) noise.
+
+<p align="center">
+<img src="images/feynman_results.gif" width=400/>
+</p>
 
 # Installation
 
