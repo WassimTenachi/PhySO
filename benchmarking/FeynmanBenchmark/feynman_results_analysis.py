@@ -6,6 +6,7 @@ import argparse
 import scipy.stats as st
 import os
 import time
+import platform
 
 # Internal imports
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
@@ -64,6 +65,13 @@ BATCH_SIZE = fconfig.CONFIG["learning_config"]["batch_size"]
 @timeout_unix.timeout(20) # Max 20s wrapper (works on unix only)
 def timed_compare_expr(Feynman_pb, trial_expr, verbose):
     return Feynman_pb.compare_expression(trial_expr=trial_expr, verbose=verbose)
+def untimed_compare_expr(Feynman_pb, trial_expr, verbose):
+    return Feynman_pb.compare_expression(trial_expr=trial_expr, verbose=verbose)
+def compare_expr(Feynman_pb, trial_expr, verbose):
+    if platform.system() == "Windows":
+        return untimed_compare_expr(Feynman_pb, trial_expr, verbose)
+    else:
+        return timed_compare_expr(Feynman_pb, trial_expr, verbose)
 
 def assess_equivalence (pareto_df, Feynman_pb, check_only_most_acc = False, verbose = False):
     """
@@ -122,9 +130,9 @@ def assess_equivalence (pareto_df, Feynman_pb, check_only_most_acc = False, verb
 
             # Equivalence check
             try:
-                is_equivalent, report = timed_compare_expr(Feynman_pb  = Feynman_pb,
-                                                           trial_expr  = trial_expr,
-                                                           verbose     = verbose)
+                is_equivalent, report = compare_expr(Feynman_pb  = Feynman_pb,
+                                                     trial_expr  = trial_expr,
+                                                     verbose     = verbose)
             except:
                 # Negative report
                 is_equivalent = False
