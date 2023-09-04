@@ -129,6 +129,8 @@ def ComputeInfixNotation (program_tokens):
 
 def IsNotebook():
     try:
+        if 'google.colab' in str(get_ipython()):
+            return True   # Google Colab
         shell = get_ipython().__class__.__name__
         if shell == 'ZMQInteractiveShell':
             return True   # Jupyter notebook or qtconsole
