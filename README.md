@@ -11,7 +11,7 @@ Performances on the standard Feynman benchmark from [SRBench]([physo/physym/toke
 
 $\Phi$-SO achieves state-of-the-art performance in the presence of noise (exceeding 0.1%) and shows robust performances even in the presence of substantial (10%) noise.
 
-![feynman_results_recov](https://github.com/WassimTenachi/PhySO/assets/63928316/9f009d45-09b7-4439-9a8c-1b2506b9b7bc)
+![feynman_results](https://github.com/WassimTenachi/PhySO/assets/63928316/bbb051a2-2737-40ca-bfbf-ed185c48aa71)
 
 # Installation
 
