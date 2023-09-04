@@ -12,6 +12,9 @@ import matplotlib.gridspec as gridspec
 from sklearn.neighbors import KernelDensity
 from IPython.display import display, clear_output
 
+# Internal imports
+from physo.physym import reward as reward_funcs
+
 # Fig params
 try:
     plt.rc('text', usetex=True)
@@ -574,9 +577,10 @@ class RunVisualiser:
         df["length"            ] = np.array([len(prog.tokens) for prog in programs])
         df["reward"            ] = reward
         df["rmse"              ] = rmse
+        df["r2"                ] = reward_funcs.SquashedNRMSE_to_R2(reward)
         df["expression"        ] = np.array([prog.get_infix_str() for prog in programs ])
         df["expression_prefix" ] = np.array([prog.__str__()       for prog in programs ])
-        # -> UPDATE START_COL_FREE_CONST_PARETO_CSV = 6 IF CHANGES ARE MADE HERE
+        # -> UPDATE START_COL_FREE_CONST_PARETO_CSV = 7 IF CHANGES ARE MADE HERE
         # Exporting free const
         free_const       = np.array([prog.free_const_values.detach().cpu().numpy() for prog in programs ])
         free_const_names = [tok.__str__() for tok in self.run_logger.batch.library.free_constants_tokens]
@@ -588,45 +592,49 @@ class RunVisualiser:
 
     def save_pareto_fig(self):
         def plot_pareto_front(run_logger,
-                              do_simplify                   = False,
+                              do_simplify                   = True,
                               show_superparent_at_beginning = True,
-                              eq_text_size                  = 12,
+                              eq_text_size                  = 18,
                               delta_xlim                    = [0, 5 ],
-                              delta_ylim                    = [0, 15],
-                              frac_delta_equ                = [0.03, 0.03],
+                              delta_ylim                    = [-0.1, 0.005],
+                              frac_delta_equ                = [0.01, -0.01],
                               figsize                       = (20, 10),
-                     ):
+                             ):
 
             pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = run_logger.get_pareto_front()
 
-            pareto_front_rmse = pareto_front_rmse
+            pareto_front_r2 = reward_funcs.SquashedNRMSE_to_R2(pareto_front_r)
+            # Fig params
+            plt.rc('text', usetex=True)
+            plt.rc('font', family='serif')
             # enables new_dummy_symbol = "\square"
             plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
-
+            #plt.rc('font', size=32)
 
             # Fig
             fig, ax = plt.subplots(1, 1, figsize=figsize)
-            ax.plot(pareto_front_complexities, pareto_front_rmse, 'r-')
-            ax.plot(pareto_front_complexities, pareto_front_rmse, 'ro')
+            ax.plot(pareto_front_complexities, pareto_front_r2, 'r-')
+            ax.plot(pareto_front_complexities, pareto_front_r2, 'ro')
 
             # Limits
             xmin = pareto_front_complexities.min() + delta_xlim[0]
             xmax = pareto_front_complexities.max() + delta_xlim[1]
-            ymin = pareto_front_rmse.min() + delta_ylim[0]
-            ymax = pareto_front_rmse.max() + delta_ylim[1]
+            ymin = pareto_front_r2.min() + delta_ylim[0]
+            ymax = pareto_front_r2.max() + delta_ylim[1]
             ax.set_xlim(xmin, xmax)
             ax.set_ylim(ymin, ymax)
+            ax.invert_yaxis()
 
             # Axes labels
             ax.set_xlabel("Expression complexity")
-            ax.set_ylabel("RMSE")
+            ax.set_ylabel("$R^2$")
 
 
             for i_prog in range (len(pareto_front_programs)):
                 prog = pareto_front_programs[i_prog]
 
                 text_pos  = [pareto_front_complexities[i_prog] + frac_delta_equ[0]*(xmax-xmin),
-                             pareto_front_rmse[i_prog]         + frac_delta_equ[1]*(ymax-ymin)]
+                             pareto_front_r2[i_prog]         + frac_delta_equ[1]*(ymax-ymin)]
                 # Getting latex expr
                 latex_str = prog.get_infix_latex(do_simplify = do_simplify)
                 # Adding "superparent =" before program to make it pretty
@@ -634,8 +642,14 @@ class RunVisualiser:
                     latex_str = prog.library.superparent.name + ' =' + latex_str
 
 
-                ax.text(text_pos[0], text_pos[1], f'${latex_str}$', size = eq_text_size)
+                ax.annotate(text = f'${latex_str}$',
+                            xy   = (text_pos[0], text_pos[1]),
+                            size = eq_text_size,
+                            ha   = "left",
+                            va   = "bottom",
+                           )
             return fig
+
         fig = plot_pareto_front(self.run_logger)
         fig.savefig(self.save_path_pareto_fig)
         plt.close(fig)

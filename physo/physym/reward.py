@@ -28,6 +28,21 @@ def SquashedNRMSE (y_target, y_pred,):
     reward = 1/(1 + NRMSE)
     return reward
 
+def SquashedNRMSE_to_R2 (reward):
+    """
+    Converts SquashedNRMSE reward to R2 score.
+    Parameters
+    ----------
+    reward : torch.tensor float
+        Reward encoding prediction vs target discrepancy in [0,1].
+    Returns
+    -------
+    R2 : torch.tensor float
+        R2 score.
+    """
+    R2 = 2/reward - (1/reward)**2
+    return R2
+
 def RewardsComputer(programs,
                     X,
                     y_target,

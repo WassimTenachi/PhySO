@@ -3,7 +3,7 @@ import pandas as pd
 import sympy
 
 # First column to contain free constants in Pareto front csv
-START_COL_FREE_CONST_PARETO_CSV = 6
+START_COL_FREE_CONST_PARETO_CSV = 7
 
 def read_pareto_csv (pareto_csv_path, sympy_X_symbols_dict = None, return_df = False):
     """
