@@ -220,7 +220,7 @@ RMSE = 1.675142e-07
 -------------
 ```
 
-This demo can be found in `demo/demo_quick_sr.ipynb`.
+This demo can be found in `demos/demos_sr/demo_quick_sr.ipynb`.
 
 ### Symbolic regression
 [Coming soon]
