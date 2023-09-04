@@ -8,8 +8,7 @@ https://user-images.githubusercontent.com/63928316/225642347-a07127da-a84e-4af3-
 Performances on the standard Feynman benchmark from SRBench comprising 120 expressions from the Feynman Lectures on Physics against popular SR packages:
 `physo` achieves state-of-the-art performance in the presence of noise (exceeding 0.1%) and show that it is robust even in the presence of substantial (10%) noise.
 
-![](https://github.com/WassimTenachi/PhySO/tree/main/images/feynman_results.gif)
-
+![feynman_results](https://github.com/WassimTenachi/PhySO/assets/63928316/1c8ef98a-f36e-4ad9-ae88-d371d0927f2c)
 
 # Installation
 
