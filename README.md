@@ -3,6 +3,7 @@
 
 The physical symbolic optimization ( $\Phi$-SO ) package `physo` is a symbolic regression package that fully leverages physical units constraints in order to infer analytical physical laws from data points, searching in the space of functional forms. For more details see: [[Tenachi et al 2023]](https://arxiv.org/abs/2303.03192).
 
+`physo` recovering the equation for a damped harmonic oscillator:
 https://user-images.githubusercontent.com/63928316/225642347-a07127da-a84e-4af3-96f4-4c7fef5a673b.mp4
 
 Performances on the standard Feynman benchmark from SRBench comprising 120 expressions from the Feynman Lectures on Physics against popular SR packages:
