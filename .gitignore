@@ -3,9 +3,9 @@ physo.egg-info/
 __pycache__
 .ipynb_checkpoints
 .idea/
-demo/**/*.log
-demo/**/*.png
-demo/**/*.csv
-demo/**/*.pdf
+demos/**/*.log
+demos/**/*.png
+demos/**/*.csv
+demos/**/*.pdf
 benchmarking/FeynmanBenchmark/FR*
 benchmarking/FeynmanBenchmark/feynman_efficiency_curves.png
