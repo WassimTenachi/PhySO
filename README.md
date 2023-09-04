@@ -5,7 +5,7 @@ The physical symbolic optimization ( $\Phi$-SO ) package `physo` is a symbolic r
 
 $\Phi$-SO recovering the equation for a damped harmonic oscillator:
 
-https://user-images.githubusercontent.com/63928316/225642347-a07127da-a84e-4af3-96f4-4c7fef5a673b.mp4
+https://github.com/WassimTenachi/PhySO/assets/63928316/655b0eea-70ba-4975-8a80-00553a6e2786
 
 Performances on the standard Feynman benchmark from [SRBench]([physo/physym/token.py](https://github.com/cavalab/srbench/tree/master)) comprising 120 expressions from the Feynman Lectures on Physics against popular SR packages.
 $\Phi$-SO achieves state-of-the-art performance in the presence of noise (exceeding 0.1%) and show that it is robust even in the presence of substantial (10%) noise.
