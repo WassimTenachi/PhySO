@@ -220,6 +220,12 @@ RMSE = 1.675142e-07
 -------------
 ```
 
+In addition, `physo.SR` can create log files which can be inspected later on.
+Pareto front expressions and their constants can be loaded into a list of sympy expressions via:
+```
+sympy_expressions = physo.read_pareto_csv("SR_curves_pareto.csv")
+```
+
 This demo can be found in `demo/demo_quick_sr.ipynb`.
 
 ### Symbolic regression
