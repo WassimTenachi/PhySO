@@ -226,7 +226,7 @@ Pareto front expressions and their constants can be loaded into a list of sympy 
 sympy_expressions = physo.read_pareto_csv("SR_curves_pareto.csv")
 ```
 
-This demo can be found in `demo/demo_quick_sr.ipynb`.
+This demo can be found in `demos/demos_sr/demo_quick_sr.ipynb`.
 
 ### Symbolic regression
 [Coming soon]
