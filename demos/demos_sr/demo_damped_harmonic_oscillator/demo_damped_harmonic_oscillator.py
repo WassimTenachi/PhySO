@@ -21,10 +21,10 @@ from physo.learn import monitoring
 from physo.task  import benchmark
 
 
-# In[2]:
-
-# Guard for spawn systems (typically MACs/Windows)
+# In[1]:
 if __name__ == '__main__':
+    
+    # In[2]:
 
 
     # Device
@@ -38,6 +38,11 @@ if __name__ == '__main__':
 
 
     torch.cuda.is_available()
+    
+    # Seed
+    seed = 42
+    np.random.seed(seed)
+    torch.manual_seed(seed)
 
 
     # ## Test case
@@ -129,7 +134,7 @@ if __name__ == '__main__':
 
 
     reward_config = {
-                     "reward_function"     : physo.physym.reward.SquashedNRMSE,
+                     "reward_function"     : physo.physym.reward.SquashedNRMSE, 
                      "zero_out_unphysical" : True,
                      "zero_out_duplicates" : False,
                      "keep_lowest_complexity_duplicate" : False,
@@ -144,7 +149,7 @@ if __name__ == '__main__':
     BATCH_SIZE = int(1e3)
     MAX_LENGTH = 35
     GET_OPTIMIZER = lambda model : torch.optim.Adam(
-                                        model.parameters(),
+                                        model.parameters(),                
                                         lr=0.0025, #0.001, #0.0050, #0.0005, #1,  #lr=0.0025
                                                     )
 
@@ -203,7 +208,7 @@ if __name__ == '__main__':
                     ("PhysicalUnitsPrior", {"prob_eps": np.finfo(np.float32).eps}), # PHYSICALITY
                     ("NestedFunctions", {"functions":["exp",], "max_nesting" : 1}),
                     ("NestedFunctions", {"functions":["log",], "max_nesting" : 1}),
-                    ("NestedTrigonometryPrior", {"max_nesting" : 1}),
+                    ("NestedTrigonometryPrior", {"max_nesting" : 1}),           
                     #("OccurrencesPrior", {"targets" : ["1",], "max" : [3,] }),
                      ]
 
@@ -228,7 +233,7 @@ if __name__ == '__main__':
     save_path_training_curves = 'demo_curves.png'
     save_path_log             = 'demo.log'
 
-    run_logger     = monitoring.RunLogger(save_path = save_path_log,
+    run_logger     = monitoring.RunLogger(save_path = save_path_log, 
                                           do_save = True)
 
     run_visualiser = monitoring.RunVisualiser (epoch_refresh_rate = 10,
@@ -269,7 +274,7 @@ if __name__ == '__main__':
 
 
     rewards, candidates = physo.fit (X, y, run_config,
-                                    stop_reward = 0.9999,
+                                    stop_reward = 0.9999, 
                                     stop_after_n_epochs = 5)
 
 
@@ -299,46 +304,46 @@ if __name__ == '__main__':
     def plot_pareto_front(run_logger,
                           do_simplify                   = True,
                           show_superparent_at_beginning = True,
-                          eq_text_size                  = 12,
+                          eq_text_size                  = 18,
                           delta_xlim                    = [0, 5 ],
-                          delta_ylim                    = [0, 15],
-                          frac_delta_equ                = [0.03, 0.03],
+                          delta_ylim                    = [-0.1, 0.005],
+                          frac_delta_equ                = [0.01, -0.01],
                           figsize                       = (20, 10),
                          ):
 
         pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = run_logger.get_pareto_front()
 
-        pareto_front_rmse = pareto_front_rmse
+        pareto_front_r2 = physo.physym.reward.SquashedNRMSE_to_R2(pareto_front_r)
         # Fig params
         plt.rc('text', usetex=True)
         plt.rc('font', family='serif')
         # enables new_dummy_symbol = "\square"
         plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
-        plt.rc('font', size=32)
 
         # Fig
         fig, ax = plt.subplots(1, 1, figsize=figsize)
-        ax.plot(pareto_front_complexities, pareto_front_rmse, 'r-')
-        ax.plot(pareto_front_complexities, pareto_front_rmse, 'ro')
+        ax.plot(pareto_front_complexities, pareto_front_r2, 'r-')
+        ax.plot(pareto_front_complexities, pareto_front_r2, 'ro')
 
         # Limits
         xmin = pareto_front_complexities.min() + delta_xlim[0]
         xmax = pareto_front_complexities.max() + delta_xlim[1]
-        ymin = pareto_front_rmse.min() + delta_ylim[0]
-        ymax = pareto_front_rmse.max() + delta_ylim[1]
+        ymin = pareto_front_r2.min() + delta_ylim[0]
+        ymax = pareto_front_r2.max() + delta_ylim[1]
         ax.set_xlim(xmin, xmax)
         ax.set_ylim(ymin, ymax)
+        ax.invert_yaxis()
 
         # Axes labels
         ax.set_xlabel("Expression complexity")
-        ax.set_ylabel("RMSE")
+        ax.set_ylabel("$R^2$")
 
 
         for i_prog in range (len(pareto_front_programs)):
             prog = pareto_front_programs[i_prog]
 
-            text_pos  = [pareto_front_complexities[i_prog] + frac_delta_equ[0]*(xmax-xmin),
-                         pareto_front_rmse[i_prog]         + frac_delta_equ[1]*(ymax-ymin)]
+            text_pos  = [pareto_front_complexities[i_prog] + frac_delta_equ[0]*(xmax-xmin), 
+                         pareto_front_r2[i_prog]         + frac_delta_equ[1]*(ymax-ymin)]
             # Getting latex expr
             latex_str = prog.get_infix_latex(do_simplify = do_simplify)
             # Adding "superparent =" before program to make it pretty
@@ -346,7 +351,13 @@ if __name__ == '__main__':
                 latex_str = prog.library.superparent.name + ' =' + latex_str
 
 
-            ax.text(text_pos[0], text_pos[1], f'${latex_str}$', size = eq_text_size)
+            ax.annotate(text = f'${latex_str}$',
+                        xy   = (text_pos[0], text_pos[1]), 
+                        size = eq_text_size,
+                        ha   = "left",
+                        va   = "bottom",
+                       )
+        return fig
 
 
     # In[21]:
@@ -374,7 +385,6 @@ if __name__ == '__main__':
 
 
     # In[ ]:
-
 
 
 
