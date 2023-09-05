@@ -20,9 +20,10 @@ import physo
 from physo.learn import monitoring
 from physo.task  import benchmark
 
-# Guard for spawn systems (typically MACs/Windows)
-if __name__ == '__main__':
+# In[2]:
 
+if __name__ == '__main__':
+    
     # Device
     DEVICE = 'cpu'
     if torch.cuda.is_available():
@@ -34,19 +35,27 @@ if __name__ == '__main__':
 
 
     torch.cuda.is_available()
+    
+    # In[4]:
+
+
+    # Seed
+    seed = 42
+    np.random.seed(seed)
+    torch.manual_seed(seed)
 
 
     # ## Test case
 
     # #### Data points
 
-    # In[4]:
+    # In[5]:
 
 
     data_size = 50
 
 
-    # In[5]:
+    # In[6]:
 
 
     # Data points
@@ -61,7 +70,7 @@ if __name__ == '__main__':
     y_array = m*g*z + m*vz**2 #+ 0.5*m*vz**2
 
 
-    # In[6]:
+    # In[7]:
 
 
     n_dim = X_array.shape[0]
@@ -76,7 +85,7 @@ if __name__ == '__main__':
 
     # #### Sending data to device
 
-    # In[7]:
+    # In[8]:
 
 
     # ------ Vectors ------
@@ -95,7 +104,7 @@ if __name__ == '__main__':
 
     # ### Library config
 
-    # In[8]:
+    # In[9]:
 
 
     args_make_tokens = {
@@ -125,7 +134,7 @@ if __name__ == '__main__':
 
     # ### Learning config
 
-    # In[9]:
+    # In[10]:
 
 
     reward_config = {
@@ -138,18 +147,18 @@ if __name__ == '__main__':
                     }
 
 
-    # In[10]:
+    # In[11]:
 
 
     BATCH_SIZE = int(1e3)
     MAX_LENGTH = 35
     GET_OPTIMIZER = lambda model : torch.optim.Adam(
-                                        model.parameters(),
+                                        model.parameters(),                
                                         lr=0.0025, #0.001, #0.0050, #0.0005, #1,  #lr=0.0025
                                                     )
 
 
-    # In[11]:
+    # In[12]:
 
 
     learning_config = {
@@ -171,7 +180,7 @@ if __name__ == '__main__':
 
     # ### Free constant optimizer config
 
-    # In[12]:
+    # In[13]:
 
 
     free_const_opti_args = {
@@ -190,7 +199,7 @@ if __name__ == '__main__':
 
     # ### Priors config
 
-    # In[13]:
+    # In[14]:
 
 
     priors_config  = [
@@ -210,7 +219,7 @@ if __name__ == '__main__':
 
     # ### Cell config
 
-    # In[14]:
+    # In[15]:
 
 
     cell_config = {
@@ -222,13 +231,13 @@ if __name__ == '__main__':
 
     # ### Logger
 
-    # In[15]:
+    # In[16]:
 
 
     save_path_training_curves = 'demo_curves.png'
     save_path_log             = 'demo.log'
 
-    run_logger     = monitoring.RunLogger(save_path = save_path_log,
+    run_logger     = monitoring.RunLogger(save_path = save_path_log, 
                                           do_save = True)
 
     run_visualiser = monitoring.RunVisualiser (epoch_refresh_rate = 5,
@@ -240,7 +249,7 @@ if __name__ == '__main__':
 
     # ### Run config
 
-    # In[16]:
+    # In[17]:
 
 
     run_config = {
@@ -257,7 +266,7 @@ if __name__ == '__main__':
 
     # ## Dummy epoch for prior tuning
 
-    # In[17]:
+    # In[18]:
 
 
     benchmark.dummy_epoch(X, y, run_config)
@@ -265,11 +274,11 @@ if __name__ == '__main__':
 
     # ## Run
 
-    # In[18]:
+    # In[ ]:
 
 
     rewards, candidates = physo.fit (X, y, run_config,
-                                    stop_reward = 0.9999,
+                                    stop_reward = 0.9999, 
                                     stop_after_n_epochs = 5)
 
 
@@ -283,7 +292,7 @@ if __name__ == '__main__':
 
     # ### Run plot
 
-    # In[19]:
+    # In[ ]:
 
 
     run_visualiser.make_visualisation()
@@ -293,52 +302,52 @@ if __name__ == '__main__':
 
     # ### Pareto Front
 
-    # In[20]:
+    # In[ ]:
 
 
     def plot_pareto_front(run_logger,
                           do_simplify                   = True,
                           show_superparent_at_beginning = True,
-                          eq_text_size                  = 12,
+                          eq_text_size                  = 18,
                           delta_xlim                    = [0, 5 ],
-                          delta_ylim                    = [0, 15],
-                          frac_delta_equ                = [0.03, 0.03],
+                          delta_ylim                    = [-0.1, 0.005],
+                          frac_delta_equ                = [0.01, -0.01],
                           figsize                       = (20, 10),
                          ):
 
         pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = run_logger.get_pareto_front()
 
-        pareto_front_rmse = pareto_front_rmse
+        pareto_front_r2 = physo.physym.reward.SquashedNRMSE_to_R2(pareto_front_r)
         # Fig params
         plt.rc('text', usetex=True)
         plt.rc('font', family='serif')
         # enables new_dummy_symbol = "\square"
         plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
-        plt.rc('font', size=32)
 
         # Fig
         fig, ax = plt.subplots(1, 1, figsize=figsize)
-        ax.plot(pareto_front_complexities, pareto_front_rmse, 'r-')
-        ax.plot(pareto_front_complexities, pareto_front_rmse, 'ro')
+        ax.plot(pareto_front_complexities, pareto_front_r2, 'r-')
+        ax.plot(pareto_front_complexities, pareto_front_r2, 'ro')
 
         # Limits
         xmin = pareto_front_complexities.min() + delta_xlim[0]
         xmax = pareto_front_complexities.max() + delta_xlim[1]
-        ymin = pareto_front_rmse.min() + delta_ylim[0]
-        ymax = pareto_front_rmse.max() + delta_ylim[1]
+        ymin = pareto_front_r2.min() + delta_ylim[0]
+        ymax = pareto_front_r2.max() + delta_ylim[1]
         ax.set_xlim(xmin, xmax)
         ax.set_ylim(ymin, ymax)
+        ax.invert_yaxis()
 
         # Axes labels
         ax.set_xlabel("Expression complexity")
-        ax.set_ylabel("RMSE")
+        ax.set_ylabel("$R^2$")
 
 
         for i_prog in range (len(pareto_front_programs)):
             prog = pareto_front_programs[i_prog]
 
-            text_pos  = [pareto_front_complexities[i_prog] + frac_delta_equ[0]*(xmax-xmin),
-                         pareto_front_rmse[i_prog]         + frac_delta_equ[1]*(ymax-ymin)]
+            text_pos  = [pareto_front_complexities[i_prog] + frac_delta_equ[0]*(xmax-xmin), 
+                         pareto_front_r2[i_prog]         + frac_delta_equ[1]*(ymax-ymin)]
             # Getting latex expr
             latex_str = prog.get_infix_latex(do_simplify = do_simplify)
             # Adding "superparent =" before program to make it pretty
@@ -346,10 +355,16 @@ if __name__ == '__main__':
                 latex_str = prog.library.superparent.name + ' =' + latex_str
 
 
-            ax.text(text_pos[0], text_pos[1], f'${latex_str}$', size = eq_text_size)
+            ax.annotate(text = f'${latex_str}$',
+                        xy   = (text_pos[0], text_pos[1]), 
+                        size = eq_text_size,
+                        ha   = "left",
+                        va   = "bottom",
+                       )
+        return fig
 
 
-    # In[21]:
+    # In[ ]:
 
 
     plot_pareto_front(run_logger)
@@ -357,13 +372,13 @@ if __name__ == '__main__':
 
     # ### Complexity - accuracy optimums
 
-    # In[22]:
+    # In[ ]:
 
 
     pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = run_logger.get_pareto_front()
 
 
-    # In[23]:
+    # In[ ]:
 
 
     for prog in pareto_front_programs:
@@ -371,6 +386,24 @@ if __name__ == '__main__':
         free_consts = prog.free_const_values.detach().cpu().numpy()
         for i in range (len(free_consts)):
             print("%s = %f"%(prog.library.free_const_names[i], free_consts[i]))
+
+
+    # In[ ]:
+
+
+
+
+
+    # In[ ]:
+
+
+
+
+
+    # In[ ]:
+
+
+
 
 
     # In[ ]:
