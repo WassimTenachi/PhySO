@@ -42,6 +42,7 @@ def SR(X, y,
        free_consts_names  = None,
        # Operations to use
        op_names = None,
+       use_protected_ops = True,
        # Stopping
        stop_reward = 1.,
        max_n_evaluations = None,
@@ -90,6 +91,9 @@ def SR(X, y,
     op_names : array_like of shape (?) of str or None (optional)
         Names of choosable symbolic operations (see physo.physym.functions for a list of available operations).
         By default, uses operations listed in physo.task.sr.default_op_names.
+    use_protected_ops : bool (optional)
+        If True, uses protected operations (e.g. division by zero is avoided). True by default.
+         (see physo.physym.functions for a list of available protected operations).
 
     stop_reward : float (optional)
         Early stops if stop_reward is reached by a program (= 1 by default), use stop_reward = (1-1e-5) when using free
@@ -227,7 +231,7 @@ def SR(X, y,
     args_make_tokens = {
                     # operations
                     "op_names"             : op_names,
-                    "use_protected_ops"    : True,
+                    "use_protected_ops"    : use_protected_ops,
                     # input variables
                     "input_var_ids"        : {X_names[i]: i          for i in range(n_dim)},
                     "input_var_units"      : {X_names[i]: X_units[i] for i in range(n_dim)},
