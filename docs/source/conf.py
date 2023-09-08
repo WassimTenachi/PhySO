@@ -6,9 +6,6 @@ project = 'PhySO'
 copyright = '2023, Wassim Tenachi'
 author = 'Wassim Tenachi'
 
-release = '1.0.0'
-version = '1.0.0'
-
 # -- General configuration
 
 extensions = [
