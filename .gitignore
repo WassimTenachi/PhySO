@@ -9,3 +9,4 @@ demos/**/*.csv
 demos/**/*.pdf
 benchmarking/FeynmanBenchmark/FR*
 benchmarking/FeynmanBenchmark/feynman_efficiency_curves.png
+docs/build/*
