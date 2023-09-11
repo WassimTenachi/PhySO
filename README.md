@@ -1,5 +1,5 @@
 
-# $\Phi$-SO : Physical Symbolic Optimization
+~~# $\Phi$-SO : Physical Symbolic Optimization
 
 The physical symbolic optimization ( $\Phi$-SO ) package `physo` is a symbolic regression package that fully leverages physical units constraints in order to infer analytical physical laws from data points, searching in the space of functional forms. For more details see: [[Tenachi et al 2023]](https://arxiv.org/abs/2303.03192).
 
@@ -344,7 +344,7 @@ physo.physym.reward.USE_PARALLEL_EXE = True
 <img src="images/physo_parallel_efficiency.png" width=400/>
 </p>
 
-Computational time optimizing free constants $\{a, b \}$ in $y = a \sin (b.x) + e^{-x}$ over 20 iterations using $10^3$ data points when running this task $10\ 000$ times in parallel on an Apple M1 CPU (a typically fast single core CPU) and an Intel Xeon W-2155 CPU (a typically high core count CPU).
+Computational time optimizing free constants {math}`\{a, b \}` in $y = a \sin (b.x) + e^{-x}$ over 20 iterations using $10^3$ data points when running this task $10\ 000$ times in parallel on an Apple M1 CPU (a typically fast single core CPU) and an Intel Xeon W-2155 CPU (a typically high core count CPU).
 
 # Uninstalling
 Uninstalling the package.
