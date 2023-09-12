@@ -1,14 +1,12 @@
 # Generating documentation
 
+Documentation can be found [here](https://physo.readthedocs.io/en/latest/).\
+It can be generated locally using the following instructions.
+
 ## Requirements
 
 ```
-pip install sphinx
-pip install sphinx-rtd-theme
-pip install --upgrade myst-parser
-pip install sphinx-math-dollar
-pip install sphinxcontrib-video
-pip install sphinx_mdinclude
+pip install -r requirements.txt
 ```
 
 ## Building documentation
