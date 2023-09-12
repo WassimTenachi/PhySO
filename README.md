@@ -1,14 +1,25 @@
 # $\Phi$-SO : Physical Symbolic Optimization
+![logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/logo.png)
 
-The physical symbolic optimization ( $\Phi$-SO ) package `physo` is a symbolic regression package that fully leverages physical units constraints in order to infer analytical physical laws from data points, searching in the space of functional forms. For more details see: [[Tenachi et al 2023]](https://arxiv.org/abs/2303.03192).
+Physical symbolic optimization ( $\Phi$-SO ) - A symbolic optimization package built for physics.
+
+[![GitHub Repo stars](https://img.shields.io/github/stars/WassimTenachi/PhySO?style=social)](https://github.com/WassimTenachi/PhySO)
+[![Documentation Status](https://readthedocs.org/projects/WassimTenachi/badge/?version=latest)](http://physo.readthedocs.io/?badge=latest)
+[![Twitter Follow](https://img.shields.io/twitter/follow/WassimTenachi?style=social)](https://twitter.com/WassimTenachi)
+[![Paper](https://img.shields.io/badge/arXiv-2305.01582-b31b1b)](https://arxiv.org/abs/2303.03192)
+
+Source code: [WassimTenachi/PhySO](https://github.com/WassimTenachi/PhySO)\
+Documentation: [physo.readthedocs.io](https://physo.readthedocs.io/en/latest/)
+
+$\Phi$-SO's symbolic regression module fully leverages physical units constraints in order to infer analytical physical laws from data points, searching in the space of functional forms. For more details see: [[Tenachi et al 2023]](https://arxiv.org/abs/2303.03192).
 
 $\Phi$-SO recovering the equation for a damped harmonic oscillator:
 
 https://github.com/WassimTenachi/PhySO/assets/63928316/655b0eea-70ba-4975-8a80-00553a6e2786
 
-Performances on the standard Feynman benchmark from [SRBench]([physo/physym/token.py](https://github.com/cavalab/srbench/tree/master)) comprising 120 expressions from the Feynman Lectures on Physics against popular SR packages.
+Performances on the standard Feynman benchmark from [SRBench](https://github.com/cavalab/srbench/tree/master)) comprising 120 expressions from the Feynman Lectures on Physics against popular SR packages.
 
-$\Phi$-SO achieves state-of-the-art performance in the presence of noise (exceeding 0.1%) and shows robust performances even in the presence of substantial (10%) noise.
+$\Phi$-SO achieves state-of-the-art performance in the presence of noise (exceeding 0.1%) and shows robust performances even in the presence of substantial (10%) noise:
 
 ![feynman_results](https://github.com/WassimTenachi/PhySO/assets/63928316/bbb051a2-2737-40ca-bfbf-ed185c48aa71)
 
@@ -18,6 +29,8 @@ The package has been tested on:
 - Linux
 - OSX (ARM & Intel)
 - Windows
+
+## Install procedure
 
 ### Virtual environment
 
@@ -35,10 +48,8 @@ conda activate PhySO
 ```
 git clone https://github.com/WassimTenachi/PhySO
 ```
-Or by direct downloading a zip of the repo:
-```
-https://github.com/WassimTenachi/PhySO/zipball/master
-```
+
+Or by direct downloading a zip of the repository: [here](https://github.com/WassimTenachi/PhySO/zipball/master)
 
 ### Dependencies
 From the repository root:
@@ -57,11 +68,9 @@ pip install -r requirements_display2.txt
 
 In addition, latex should be installed on the system.
 
-#####  Side note regarding CUDA acceleration:
+> **_NOTE:_**  `physo` supports CUDA but it should be noted that since the bottleneck of the code is free constant optimization, using CUDA (even on a very high-end GPU) does not improve performances over a CPU and can actually hinder performances.
 
-$\Phi$-SO supports CUDA but it should be noted that since the bottleneck of the code is free constant optimization, using CUDA (even on a very high-end GPU) does not improve performances over a CPU and can actually hinder performances.
-
-### Installing $\Phi$-SO
+### Installing PhySO
 
 Installing `physo` (from the repository root):
 ```
@@ -70,14 +79,14 @@ pip install -e .
 
 ### Testing install
 
-#####  Import test:
+Import test:
 ```
 python3
 >>> import physo
 ```
 This should result in `physo` being successfully imported.
 
-#####  Unit tests:
+Unit tests:
 
 Running all unit tests except parallel mode ones (from the repository root):
 ```
@@ -91,9 +100,15 @@ python -m unittest discover -p "*Test.py"
 ```
 This  should take 5-15 min depending on your system (as if you have a lot of CPU cores, it will take longer to make the efficiency curves).
 
-# Getting started
+## Uninstalling
+Uninstalling the package.
+```
+conda deactivate
+conda env remove -n PhySO
+```
 
-### Symbolic regression with default hyperparameters
+# Getting Started
+## A simple symbolic regression task
 Symbolic regression (SR) consists in the inference of a free-form symbolic analytical function $f: \mathbb{R}^n \longrightarrow \mathbb{R}$ that fits $y = f(x_0,..., x_n)$ given $(x_0,..., x_n, y)$ data.
 
 Given a dataset $(x_0,..., x_n, y)$:
@@ -225,132 +240,7 @@ Pareto front expressions and their constants can be loaded into a list of sympy 
 sympy_expressions = physo.read_pareto_csv("SR_curves_pareto.csv")
 ```
 
-This demo can be found in `demos/demos_sr/demo_quick_sr.ipynb`.
-
-### Symbolic regression
-[Coming soon]
-In the meantime you can have a look at our demo folder ! :)
-
-### Custom symbolic optimization task
-[Coming soon]
-
-### Adding custom functions
-
-1. Defining function token
-
-If you want to add a custom choosable function to `physo`, you can do so by adding you own [Token](physo/physym/token.py) to the list `OPS_UNPROTECTED` in [functions.py](physo/physym/functions.py).
-
-For example a token such as $f(x) = x^5$ can be added via:
-```
-OPS_UNPROTECTED = [
-...
-Token (name = "n5"     , sympy_repr = "n5"     , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.pow(x, 5)         ),
-...
-]
-```
-Where:
-- `name` (str) is the name of the token (used for selecting it in the config of a run).
-- `sympy_repr` (str) is the name of the token to use when producing the sympy / latex representation.
-- `arity` (int) is the number of arguments that the function takes.
-- `complexity` (float) is the value to consider for expression complexity considerations (1 by default).
-- `var_type` (int) is the type of token, it should always be 0 when defining functions like here.
-- `function` (callable) is the function, it should be written in pytorch to support auto-differentiation.
-
-More details about Token attributes can be found in the documentation of the Token object : [here](physo/physym/token.py)
-
-2. Behavior in dimensional analysis
-
-The newly added custom function should also be listed in its corresponding behavior (in the context of dimensional analysis) in the list of behaviors in [`OP_UNIT_BEHAVIORS_DICT`](physo/physym/functions.py).
-
-3. Additional information
-
-In addition, the custom function should be :
-- Listed in [`TRIGONOMETRIC_OP`]((physo/physym/functions.py)) if it is a trigonometric operation (eg. cos, sinh, arcos etc.) so it can be treated as such by priors if necessary.
-- Listed in [`INVERSE_OP_DICT`]((physo/physym/functions.py)) along with its corresponding inverse operation $f^{-1}$ if it has one (eg. arcos for cos) so they can be treated as such by priors if necessary.
-- Listed in [`OP_POWER_VALUE_DICT`]((physo/physym/functions.py)) along with its power value (float) if it is a power token (eg. 0.5 for sqrt) so it can be used in dimensional analysis.
-
-4. Protected version (optional)
-
-If your custom function has a protected version ie. a version defined everywhere on $\mathbb{R}$ (eg. using $f(x) = log(abs(x))$ instead of $f(x) = log(x)$ ) to smooth expression search and avoid undefined rewards, you should also add the protected version in to the list `OPS_PROTECTED` in [functions.py](physo/physym/functions.py) with the similar attributes but with the protected version of the function for the `function` attribute.
-
-5. Running the functions unit test (optional)
-
-After adding a new function, running the functions unit test via `python ./physo/physym/tests/functions_UnitTest.py` is highly recommended.
-
-If you found the function you have added useful, don't hesitate to make a pull request so other people can use it too !
-
-# About computational performances
-
-The main performance bottleneck of `physo` is free constant optimization, therefore, in non-parallel execution mode, performances are almost linearly dependent on the number of free constant optimization steps and on the number of trial expressions per epoch (ie. the batch size).
-
-In addition, it should be noted that generating monitoring plots takes ~3s, therefore we suggest making monitoring plots every >10 epochs for low time / epoch cases.
-
-## Expected computational performances
-
-Summary of expected performances with `physo` (in parallel mode):
-
-| Time / epoch | Batch size | # free const | free const <br>opti steps | Example                             | Device                                    |
-|--------------|------------|--------------|---------------------------|-------------------------------------|-------------------------------------------|
-| ~5s          | 10k        | 2            | 15                        | eg: demo_damped_harmonic_oscillator | CPU: Intel W-2155 10c/20t <br>RAM: 128 Go |
-| ~10s         | 10k        | 2            | 15                        | eg: demo_damped_harmonic_oscillator | CPU: Mac M1 <br>RAM: 16 Go                |
-| ~30s         | 10k        | 2            | 15                        | eg: demo_damped_harmonic_oscillator | CPU: Intel i7 4770 <br>RAM: 16 Go         |
-| ~250s        | 10k        | 2            | 15                        | eg: demo_damped_harmonic_oscillator | GPU: Nvidia GV100 <br>VRAM : 32 Go        |
-| ~1s          | 1k         | 2            | 15                        | eg: demo_mechanical_energy          | CPU: Intel W-2155 10c/20t <br>RAM: 128 Go |
-| ~6s          | 1k         | 2            | 15                        | eg: demo_mechanical_energy          | CPU: Mac M1 <br>RAM: 16 Go                |
-| ~30s         | 1k         | 2            | 15                        | eg: demo_mechanical_energy          | CPU: Intel i7 4770 <br>RAM: 16 Go         |
-| ~4s          | 1k         | 2            | 15                        | eg: demo_mechanical_energy          | GPU: Nvidia GV100 <br>VRAM : 32 Go        |
-
-Please note that using a CPU typically results in higher performances than when using a GPU.
-
-## Parallel mode
-
-1. Parallel free constant optimization
-
-Parallel constant optimization is enabled if and only if :
-- The system is compatible (checked by `physo.physym.execute.ParallelExeAvailability`).
-- `parallel_mode = True` in the reward computation configuration.
-- `physo.physym.reward.USE_PARALLEL_OPTI_CONST = True`.
-
-By default, both of these are true as parallel mode is typically faster for this task.
-However, if you are using a batch size <10k, due to communication overhead it might be worth it to disable it for this task via:
-```
-physo.physym.reward.USE_PARALLEL_OPTI_CONST = False
-```
-
-2. Parallel reward computation
-
-Parallel reward computation is enabled if and only if :
-- The system is compatible (checked by `physo.physym.execute.ParallelExeAvailability`).
-- `parallel_mode = True` in the reward computation configuration.
-- `physo.physym.reward.USE_PARALLEL_EXE = True`.
-
-By default, `physo.physym.reward.USE_PARALLEL_EXE = False`, i.e. parallelization is not used for this task due to communication overhead making it typically slower for such individually inexpensive tasks.
-However, if you are using $>10^6$ data points it tends to be faster, so we recommend enabling it by setting:
-```
-physo.physym.reward.USE_PARALLEL_EXE = True
-```
-
-3. Miscellaneous
-
-- Efficiency curves (nb. of CPUs vs individual task time) are produced by `execute_UnitTest.py` in a realistic toy case with batch size = 10k and $10^3$ data points.
-- Parallel mode is not available from jupyter notebooks on spawn multiprocessing systems (typically MACs/Windows), run .py scripts on those.
-- The use of `parallel_mode` can be managed in the configuration of the reward which can itself be managed through a hyperparameter config file (see `config` folder) which is handy for running a benchmark on an HPC with a predetermined number of CPUs.
-- Disabling parallel mode entirely via `USE_PARALLEL_EXE=False` `USE_PARALLEL_OPTI_CONST=False` is recommended before running `physo` in a debugger.
-
-4. Efficiency curve in a realistic case
-
-<p align="center">
-<img src="images/physo_parallel_efficiency.png" width=400/>
-</p>
-
-Computational time optimizing free constants $\{a, b \}$ in $y = a \sin (b.x) + e^{-x}$ over 20 iterations using $10^3$ data points when running this task $10\ 000$ times in parallel on an Apple M1 CPU (a typically fast single core CPU) and an Intel Xeon W-2155 CPU (a typically high core count CPU).
-
-# Uninstalling
-Uninstalling the package.
-```
-conda deactivate
-conda env remove -n PhySO
-```
+This demo can be found in [here](https://github.com/WassimTenachi/PhySO/blob/main/demos/demos_sr/demo_quick_sr.ipynb).
 
 # Citing this work
 
