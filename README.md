@@ -11,6 +11,8 @@ Physical symbolic optimization ( $\Phi$-SO ) - A symbolic optimization package b
 Source code: [WassimTenachi/PhySO](https://github.com/WassimTenachi/PhySO)\
 Documentation: [physo.readthedocs.io](https://physo.readthedocs.io/en/latest/)
 
+## Highlights
+
 $\Phi$-SO's symbolic regression module fully leverages physical units constraints in order to infer analytical physical laws from data points, searching in the space of functional forms. For more details see: [[Tenachi et al 2023]](https://arxiv.org/abs/2303.03192).
 
 $\Phi$-SO recovering the equation for a damped harmonic oscillator:
