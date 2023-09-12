@@ -1,6 +1,5 @@
 # $\Phi$-SO : Physical Symbolic Optimization
-![logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/logo.png)
-
+![logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/logo_dark.png)
 Physical symbolic optimization ( $\Phi$-SO ) - A symbolic optimization package built for physics.
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/WassimTenachi/PhySO?style=social)](https://github.com/WassimTenachi/PhySO)
