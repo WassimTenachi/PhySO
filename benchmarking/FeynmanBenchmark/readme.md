@@ -21,7 +21,6 @@ Analyzing a results folder:
 python feynman_results_analysis.py --path [results folder]
 ```
 
+### Results
 
-### Latest results
-
-![logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/logo.png)
+![logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/benchmarking/FeynmanBenchmark/results/feynman_results.png)
