@@ -1,0 +1,1 @@
+cat ./docs/source/doc_title.md ./docs/source/doc_logo_dark.md ./docs/source/doc_header.md ./docs/source/doc_presentation_readme.md ./docs/source/doc_installation.md ./docs/source/doc_getting_started_header.md ./docs/source/doc_getting_started_sr.md ./docs/source/doc_reference.md > README.md
