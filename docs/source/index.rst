@@ -1,15 +1,22 @@
 Welcome to PhySO's documentation!
 ===================================
 
-**PhySO** package
+.. mdinclude:: doc_logo.md
 
-.. note::
+.. mdinclude:: doc_header.md
 
-   This project is under active development.
+.. include:: doc_presentation_rtd.rst
+
 
 Contents
 --------
 
 .. toctree::
+   :maxdepth: 2
 
-   physym
+   r_installation
+   r_getting_started
+   r_sr
+   r_performances
+   r_reproducibility
+   r_reference
