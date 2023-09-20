@@ -23,7 +23,7 @@ Please note that using a CPU typically results in higher performances than when 
 
 ## Parallel mode
 
-1. Parallel free constant optimization
+### Parallel free constant optimization
 
 Parallel constant optimization is enabled if and only if :
 - The system is compatible (checked by `physo.physym.execute.ParallelExeAvailability`).
@@ -36,7 +36,7 @@ However, if you are using a batch size <10k, due to communication overhead it mi
 physo.physym.reward.USE_PARALLEL_OPTI_CONST = False
 ```
 
-2. Parallel reward computation
+### Parallel reward computation
 
 Parallel reward computation is enabled if and only if :
 - The system is compatible (checked by `physo.physym.execute.ParallelExeAvailability`).
@@ -49,14 +49,14 @@ However, if you are using $>10^6$ data points it tends to be faster, so we recom
 physo.physym.reward.USE_PARALLEL_EXE = True
 ```
 
-3. Miscellaneous
+### Miscellaneous
 
 - Efficiency curves (nb. of CPUs vs individual task time) are produced by `execute_UnitTest.py` in a realistic toy case with batch size = 10k and $10^3$ data points.
 - Parallel mode is not available from jupyter notebooks on spawn multiprocessing systems (typically MACs/Windows), run .py scripts on those.
 - The use of `parallel_mode` can be managed in the configuration of the reward which can itself be managed through a hyperparameter config file (see `config` folder) which is handy for running a benchmark on an HPC with a predetermined number of CPUs.
 - Disabling parallel mode entirely via `USE_PARALLEL_EXE=False` `USE_PARALLEL_OPTI_CONST=False` is recommended before running `physo` in a debugger.
 
-4. Efficiency curve in a realistic case
+### Efficiency curve in a realistic case
 
 ![parallel_performances](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/physo_parallel_efficiency_padded.png)
 
