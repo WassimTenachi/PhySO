@@ -69,7 +69,11 @@ pip install -r requirements_display2.txt
 
 In addition, latex should be installed on the system.
 
-> **_NOTE:_**  `physo` supports CUDA but it should be noted that since the bottleneck of the code is free constant optimization, using CUDA (even on a very high-end GPU) does not improve performances over a CPU and can actually hinder performances.
+---
+
+**NOTE** : `physo` supports CUDA but it should be noted that since the bottleneck of the code is free constant optimization, using CUDA (even on a very high-end GPU) does not improve performances over a CPU and can actually hinder performances.
+
+---
 
 ### Installing PhySO
 
