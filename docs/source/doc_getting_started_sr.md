@@ -32,7 +32,7 @@ In addition, dimensional analysis can be performed regardless of the order in wh
 
 ---
 
-**NOTE** : If you are not working on a physics problem and all your variables/constants are dimensionless, do not specify the units arguments (or specify them as `[0,0]` for all variables/constants) and `physo` will perform a dimensionless symbolic regression task.
+**NOTE** : If you are not working on a physics problem and all your variables/constants are dimensionless, do not specify any of the `xx_units` arguments (or specify them as `[0,0]` for all variables/constants) and `physo` will perform a dimensionless symbolic regression task.
 
 ---
 
