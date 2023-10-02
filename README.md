@@ -146,6 +146,12 @@ It should be noted that here the units vector are of size 3 (eg: `[1, 0, 0]`) as
 However, units vectors can be of any size $\leq 7$ as long as it is consistent across X, y and constants, allowing the user to express any units (dependent on length, time, mass, temperature, electric current, amount of light, or amount of matter).
 In addition, dimensional analysis can be performed regardless of the order in which units are given, allowing the user to use any convention ([length, mass, time] or [mass, time, length] etc.) as long as it is consistent across X,y and constants.
 
+---
+
+**NOTE** : If you are not working on a physics problem and all your variables/constants are dimensionless, do not specify the units arguments (or specify them as `[0,0]` for all variables/constants) and `physo` will perform a dimensionless symbolic regression task.
+
+---
+
 It should also be noted that free constants search starts around 1. by default.
 Therefore when using default hyperparameters, normalizing the data around an order of magnitude of 1 is strongly recommended.
 
