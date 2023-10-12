@@ -85,4 +85,3 @@ Uninstalling the package.
 conda deactivate
 conda env remove -n PhySO
 ```
-
