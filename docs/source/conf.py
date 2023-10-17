@@ -1,9 +1,11 @@
 # Configuration file for the Sphinx documentation builder.
+import datetime
+curr_year = str(datetime.date.today().year)
 
 # -- Project information
 
 project = 'PhySO'
-copyright = '2023, Wassim Tenachi'
+copyright = '%s, Wassim Tenachi'%(curr_year)
 author = 'Wassim Tenachi'
 
 # -- General configuration
@@ -56,6 +58,8 @@ source_suffix = {
 # -- Options for HTML output
 
 html_theme = 'sphinx_rtd_theme'
+html_logo = '../assets/logo_doc.png'
+
 
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
