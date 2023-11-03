@@ -221,9 +221,10 @@ def protected_exp(x1):
     return torch.where(x1 < EXP_THRESHOLD, torch.exp(x1), torch.tensor(0.0))
 
 def protected_log(x1):
-    return torch.where(torch.abs(x1) > EPSILON, torch.log(torch.abs(x1)), torch.tensor(0.))
+    return torch.where(x1 > EPSILON, torch.log(x1), -INF)
 
-protected_logabs = protected_log
+def protected_logabs(x1):
+    return torch.where(torch.abs(x1) > EPSILON, torch.log(torch.abs(x1)), -INF)
 
 def protected_sqrt(x1):
     return torch.sqrt(torch.abs(x1))
