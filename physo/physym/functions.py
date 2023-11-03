@@ -215,42 +215,55 @@ POW_THRESHOLD = 1e6
 INF = torch.inf
 
 def protected_div(x1, x2):
+    # Returns infinity with the sign of x1 if x2 is near zero
     return torch.where(torch.abs(x2) > EPSILON, torch.divide(x1, x2), torch.sign(x1) * INF)
 
 def protected_exp(x1):
-    return torch.where(x1 < EXP_THRESHOLD, torch.exp(x1), torch.tensor(0.0))
+    # Caps exponential growth to avoid overflow
+    return torch.where(x1 < EXP_THRESHOLD, torch.exp(x1), INF)
 
 def protected_log(x1):
+    # Returns negative infinity for values near zero to reflect logarithmic behavior
     return torch.where(x1 > EPSILON, torch.log(x1), -INF)
 
 def protected_logabs(x1):
+    # Handles log for absolute values, returns negative infinity for values near zero
     return torch.where(torch.abs(x1) > EPSILON, torch.log(torch.abs(x1)), -INF)
 
 def protected_sqrt(x1):
-    return torch.sqrt(torch.abs(x1))
+    # Avoids taking the square root of negative numbers
+    return torch.where(x1 > EPSILON, torch.sqrt(x1), torch.tensor(0.0))
 
 def protected_inv(x1):
+    # Returns infinity with the sign of x1 if x1 is near zero
     return torch.where(torch.abs(x1) > EPSILON, 1. / x1, torch.sign(x1) * INF)
 
 def protected_expneg(x1):
+    # Handles negative exponentials, caps at zero to avoid underflow
     return torch.where(x1 > -EXP_THRESHOLD, torch.exp(-x1), torch.tensor(0.0))
 
 def protected_n2(x1):
-    return torch.where(torch.abs(x1) < POW_THRESHOLD, torch.square(x1), torch.tensor(0.0))
+    # Caps square to avoid overflow, returns infinity
+    return torch.where(torch.abs(x1) < POW_THRESHOLD, torch.square(x1), INF)
 
 def protected_n3(x1):
-    return torch.where(torch.abs(x1) < POW_THRESHOLD, torch.pow(x1, 3), torch.tensor(0.0))
+    # Caps cube to avoid overflow, returns infinity with the sign of x1
+    return torch.where(torch.abs(x1) < POW_THRESHOLD, torch.pow(x1, 3), torch.sign(x1) * INF)
 
 def protected_n4(x1):
-    return torch.where(torch.abs(x1) < POW_THRESHOLD, torch.pow(x1, 4), torch.tensor(0.0))
+    # Caps fourth power to avoid overflow returns infinity
+    return torch.where(torch.abs(x1) < POW_THRESHOLD, torch.pow(x1, 4), INF)
 
 def protected_arcsin (x1):
+    # Handles arcsin, returns infinity with the sign of x1 for values outside the domain
     return torch.where(torch.abs(x1) < 1 - EPSILON, torch.arcsin(x1), torch.sign(x1) * INF)
 
 def protected_arccos (x1):
+    # Handles arccos, returns infinity with the sign of x1 for values outside the domain
     return torch.where(torch.abs(x1) < 1 - EPSILON, torch.arccos(x1), torch.sign(x1) * INF)
 
 def protected_torch_pow(x0, x1):
+    # Handles power function, caps at infinity to avoid overflow
     if not torch.is_tensor(x0):
        x0 = torch.ones_like(x1)*x0
     y = torch.pow(x0, x1)
