@@ -215,7 +215,7 @@ POW_THRESHOLD = 1e6
 INF = torch.inf
 
 def protected_div(x1, x2):
-    return torch.where(torch.abs(x2) > EPSILON, torch.divide(x1, x2), torch.sign(0))
+    return torch.where(torch.abs(x2) > EPSILON, torch.divide(x1, x2), torch.sign(x1) * INF)
 
 def protected_exp(x1):
     return torch.where(x1 < EXP_THRESHOLD, torch.exp(x1), torch.tensor(0.0))
@@ -229,7 +229,7 @@ def protected_sqrt(x1):
     return torch.sqrt(torch.abs(x1))
 
 def protected_inv(x1):
-    return torch.where(torch.abs(x1) > EPSILON, 1. / x1, torch.sign(0))
+    return torch.where(torch.abs(x1) > EPSILON, 1. / x1, torch.sign(x1) * INF)
 
 def protected_expneg(x1):
     return torch.where(x1 > -EXP_THRESHOLD, torch.exp(-x1), torch.tensor(0.0))
