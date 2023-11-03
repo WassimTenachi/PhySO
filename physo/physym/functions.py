@@ -216,7 +216,7 @@ INF = torch.inf
 
 def protected_div(x1, x2):
     # Returns infinity with the sign of x1 if x2 is near zero
-    return torch.where(torch.abs(x2) > EPSILON, torch.divide(x1, x2), torch.sign(x1) * INF)
+    return torch.where(torch.abs(x2) > EPSILON, torch.divide(x1, x2), torch.sign(x1) * torch.sign(x2) * INF)
 
 def protected_exp(x1):
     # Caps exponential growth to avoid overflow
@@ -263,12 +263,21 @@ def protected_arccos (x1):
     return torch.where(torch.abs(x1) < 1 - EPSILON, torch.arccos(x1), torch.sign(x1) * INF)
 
 def protected_torch_pow(x0, x1):
-    # Handles power function, caps at infinity to avoid overflow
+    # Handles power function, caps at positive/negative infinity to avoid overflow
     if not torch.is_tensor(x0):
-       x0 = torch.ones_like(x1)*x0
+        x0 = torch.ones_like(x1) * x0
+
+    # Handle negative bases with non-integer exponents
+    result_is_nan = torch.isnan(torch.pow(x0, x1))
+    x0 = torch.where(result_is_nan, torch.abs(x0), x0)
+
     y = torch.pow(x0, x1)
-    y = torch.where(y > INF, INF, y)
+    # Handle overflow
+    y = torch.where(torch.abs(y) < POW_THRESHOLD, y, torch.sign(y) * INF)
+    # Handle underflow
+    y = torch.where(torch.abs(y) > EPSILON, y, torch.tensor(0.0))
     return y
+
 
 OPS_PROTECTED = [
     # Binary operations
