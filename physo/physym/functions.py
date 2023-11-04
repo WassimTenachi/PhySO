@@ -278,7 +278,6 @@ def protected_torch_pow(x0, x1):
     y = torch.where(torch.abs(y) > EPSILON, y, torch.tensor(0.0))
     return y
 
-
 OPS_PROTECTED = [
     # Binary operations
     Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 1 , var_type = 0, function = protected_div    ),
