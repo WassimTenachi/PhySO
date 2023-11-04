@@ -211,8 +211,7 @@ OPS_UNPROTECTED = [
 # ------------- protected functions -------------
 EPSILON = 0.001
 EXP_THRESHOLD = 100
-POW_THRESHOLD = 1e6
-INF = torch.inf
+INF = 1e6
 
 def protected_div(x1, x2):
     # Returns infinity with the sign of x1 if x2 is near zero
@@ -244,15 +243,15 @@ def protected_expneg(x1):
 
 def protected_n2(x1):
     # Caps square to avoid overflow, returns infinity
-    return torch.where(torch.abs(x1) < POW_THRESHOLD, torch.square(x1), INF)
+    return torch.where(torch.abs(x1) < INF, torch.square(x1), INF)
 
 def protected_n3(x1):
     # Caps cube to avoid overflow, returns infinity with the sign of x1
-    return torch.where(torch.abs(x1) < POW_THRESHOLD, torch.pow(x1, 3), torch.sign(x1) * INF)
+    return torch.where(torch.abs(x1) < INF, torch.pow(x1, 3), torch.sign(x1) * INF)
 
 def protected_n4(x1):
     # Caps fourth power to avoid overflow returns infinity
-    return torch.where(torch.abs(x1) < POW_THRESHOLD, torch.pow(x1, 4), INF)
+    return torch.where(torch.abs(x1) < INF, torch.pow(x1, 4), INF)
 
 def protected_arcsin (x1):
     # Handles arcsin, returns infinity with the sign of x1 for values outside the domain
@@ -273,7 +272,7 @@ def protected_torch_pow(x0, x1):
 
     y = torch.pow(x0, x1)
     # Handle overflow
-    y = torch.where(torch.abs(y) < POW_THRESHOLD, y, torch.sign(y) * INF)
+    y = torch.where(torch.abs(y) < INF, y, torch.sign(y) * INF)
     # Handle underflow
     y = torch.where(torch.abs(y) > EPSILON, y, torch.tensor(0.0))
     return y
