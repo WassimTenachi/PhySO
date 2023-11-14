@@ -209,58 +209,72 @@ OPS_UNPROTECTED = [
 ]
 
 # ------------- protected functions -------------
+EPSILON = 0.001
+EXP_THRESHOLD = 100
+INF = 1e6
 
 def protected_div(x1, x2):
-    #with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
-    return torch.where(torch.abs(x2) > 0.001, torch.divide(x1, x2), 1.)
+    # Returns infinity with the sign of x1 if x2 is near zero
+    return torch.where(torch.abs(x2) > EPSILON, torch.divide(x1, x2), torch.sign(x1) * torch.sign(x2) * INF)
 
 def protected_exp(x1):
-    #with np.errstate(over='ignore'):
-    return torch.where(x1 < 100, torch.exp(x1), 0.0)
+    # Caps exponential growth to avoid overflow
+    return torch.where(x1 < EXP_THRESHOLD, torch.exp(x1), INF)
 
 def protected_log(x1):
-    #with np.errstate(divide='ignore', invalid='ignore'):
-    return torch.where(torch.abs(x1) > 0.001, torch.log(torch.abs(x1)), 0.)
+    # Returns negative infinity for values near zero to reflect logarithmic behavior
+    return torch.where(x1 > EPSILON, torch.log(x1), -INF)
 
-protected_logabs = protected_log
+def protected_logabs(x1):
+    # Handles log for absolute values, returns negative infinity for values near zero
+    return torch.where(torch.abs(x1) > EPSILON, torch.log(torch.abs(x1)), -INF)
 
 def protected_sqrt(x1):
-    return torch.sqrt(torch.abs(x1))
+    # Avoids taking the square root of negative numbers
+    return torch.where(x1 > EPSILON, torch.sqrt(x1), torch.tensor(0.0))
 
 def protected_inv(x1):
-    # with np.errstate(divide='ignore', invalid='ignore'):
-    return torch.where(torch.abs(x1) > 0.001, 1. / x1, 0.)
+    # Returns infinity with the sign of x1 if x1 is near zero
+    return torch.where(torch.abs(x1) > EPSILON, 1. / x1, torch.sign(x1) * INF)
 
 def protected_expneg(x1):
-    # with np.errstate(over='ignore'):
-    return torch.where(x1 > -100, torch.exp(-x1), 0.0)
+    # Handles negative exponentials, caps at zero to avoid underflow
+    return torch.where(x1 > -EXP_THRESHOLD, torch.exp(-x1), torch.tensor(0.0))
 
 def protected_n2(x1):
-    # with np.errstate(over='ignore'):
-    return torch.where(torch.abs(x1) < 1e6, torch.square(x1), 0.0)
+    # Caps square to avoid overflow, returns infinity
+    return torch.where(torch.abs(x1) < INF, torch.square(x1), INF)
 
 def protected_n3(x1):
-    # with np.errstate(over='ignore'):
-    return torch.where(torch.abs(x1) < 1e6, torch.pow(x1, 3), 0.0)
+    # Caps cube to avoid overflow, returns infinity with the sign of x1
+    return torch.where(torch.abs(x1) < INF, torch.pow(x1, 3), torch.sign(x1) * INF)
 
 def protected_n4(x1):
-    # with np.errstate(over='ignore'):
-    return torch.where(torch.abs(x1) < 1e6, torch.pow(x1, 4), 0.0)
+    # Caps fourth power to avoid overflow returns infinity
+    return torch.where(torch.abs(x1) < INF, torch.pow(x1, 4), INF)
 
 def protected_arcsin (x1):
-    inf = 1e6
-    return torch.where(torch.abs(x1) < 0.999, torch.arcsin(x1), torch.sign(x1)*inf)
+    # Handles arcsin, returns infinity with the sign of x1 for values outside the domain
+    return torch.where(torch.abs(x1) < 1 - EPSILON, torch.arcsin(x1), torch.sign(x1) * INF)
 
 def protected_arccos (x1):
-    inf = 1e6
-    return torch.where(torch.abs(x1) < 0.999, torch.arccos(x1), torch.sign(x1)*inf)
+    # Handles arccos, returns infinity with the sign of x1 for values outside the domain
+    return torch.where(torch.abs(x1) < 1 - EPSILON, torch.arccos(x1), torch.sign(x1) * INF)
 
 def protected_torch_pow(x0, x1):
-    inf = 1e6
+    # Handles power function, caps at positive/negative infinity to avoid overflow
     if not torch.is_tensor(x0):
-       x0 = torch.ones_like(x1)*x0
+        x0 = torch.ones_like(x1) * x0
+
+    # Handle negative bases with non-integer exponents
+    result_is_nan = torch.isnan(torch.pow(x0, x1))
+    x0 = torch.where(result_is_nan, torch.abs(x0), x0)
+
     y = torch.pow(x0, x1)
-    y = torch.where(y > inf, inf, y)
+    # Handle overflow
+    y = torch.where(torch.abs(y) < INF, y, torch.sign(y) * INF)
+    # Handle underflow
+    y = torch.where(torch.abs(y) > EPSILON, y, torch.tensor(0.0))
     return y
 
 OPS_PROTECTED = [
