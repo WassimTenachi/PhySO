@@ -1,7 +1,7 @@
 import setuptools
 import os
 
-VERSION = '1.0.0'
+VERSION = '1.1.0a'
 DESCRIPTION = 'Physical Symbolic Optimization'
 
 #REQUIRED = open("requirements_pip.txt").read().splitlines()
