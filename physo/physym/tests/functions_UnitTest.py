@@ -2,6 +2,7 @@ import time
 import unittest
 import numpy as np
 import torch as torch
+import matplotlib.pyplot as plt
 
 # Internal imports
 from physo.physym import functions as Func
@@ -512,6 +513,119 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(works_bool, True)
         works_bool = np.array_equal(equal_test, False)
         self.assertEqual(works_bool, True)
+
+
+    def test_protected_functions_plots (self):
+
+        do_plot = False
+        do_save = False
+
+        # protected_div
+        x1 = torch.linspace(-1,1, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_div(x1, 4 * x1), label="protected_div", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_div.png")
+
+        # protected_exp
+        x1 = torch.linspace(0, 110, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_exp(x1), label="protected_exp", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_exp.png")
+
+        # protected_log
+        x1 = torch.linspace(-0.01,0, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_log(x1), label="protected_log", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_log.png")
+
+        # protected_logabs
+        x1 = torch.linspace(-0.01,0, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_logabs(x1), label="protected_logabs", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_logabs.png")
+
+        # protected_sqrt
+        x1 = torch.linspace(-10,10, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_sqrt(x1), label="protected_sqrt", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_sqrt.png")
+
+        # protected_inv
+        x1 = torch.linspace(-0.001, 0.010, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_inv(x1), label="protected_inv", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_inv.png")
+
+        # protected_expneg
+        x1 = torch.linspace(-110, 0, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_expneg(x1), label="protected_expneg", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_expneg.png")
+
+        # protected_n2
+        x1 = torch.linspace(0, 2*1e6, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_n2(x1), label="protected_n2", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_n2.png")
+
+        # protected_n3
+        x1 = torch.linspace(0, 2*1e6, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_n3(x1), label="protected_n3", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_n3.png")
+
+        # protected_n4
+        x1 = torch.linspace(0, 2*1e6, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_n4(x1), label="protected_n4", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_n4.png")
+
+        # protected_arcsin
+        x1 = torch.linspace(-2, 2, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_arcsin(x1), label="protected_arcsin", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_arcsin.png")
+
+        # protected_arccos
+        x1 = torch.linspace(-2, 2, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_arccos(x1), label="protected_arccos", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_arccos.png")
+
+        # protected_torch_pow
+        x1 = torch.linspace(0, 1e6, int(1e5))
+        x2 = torch.linspace(-8, 8, int(1e5))
+        fig, ax = plt.subplots(1,1, figsize=(20,10))
+        ax.plot(x1, Func.protected_torch_pow(x1,x2), label="protected_torch_pow", color="k")
+        ax.legend()
+        if do_plot: plt.show()
+        if do_save: fig.savefig("protected_torch_pow.png")
+
+        return None
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
