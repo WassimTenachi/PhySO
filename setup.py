@@ -1,4 +1,5 @@
 import setuptools
+import os
 
 VERSION = '1.0.0'
 DESCRIPTION = 'Physical Symbolic Optimization'
@@ -12,6 +13,7 @@ DESCRIPTION = 'Physical Symbolic Optimization'
 #}
 #EXTRAS['all'] = list(set([item for group in EXTRAS.values() for item in group]))
 
+PATH_FEYNMAN_CSVs = os.path.join("benchmark", "FeynmanDataset", "*.csv")
 
 setuptools.setup(
     name             = 'physo',
@@ -21,7 +23,7 @@ setuptools.setup(
     author_email     = 'w.tenachi@gmail.com',
     license          = 'MIT',
     packages         = setuptools.find_packages(),
-    package_data     = {"physo": ["/benchmark/FeynmanDataset/*.csv"]},
+    package_data     = {"physo": [PATH_FEYNMAN_CSVs,]},
     #install_requires = REQUIRED,
     #extras_require   = EXTRAS,
 )
