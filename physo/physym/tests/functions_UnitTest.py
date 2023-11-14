@@ -622,7 +622,7 @@ class FuncTest(unittest.TestCase):
             if do_save: fig.savefig("protected_arccos.png")
 
             # protected_torch_pow
-            x1 = torch.linspace(0, 1e6, n_plot)
+            x1 = torch.linspace(-0.1*Func.INF, Func.INF, n_plot)
             x2 = torch.linspace(-8, 8, n_plot)
             fig, ax = plt.subplots(1, 1, figsize=(20, 10))
             ax.plot(x1, Func.protected_torch_pow(x1, x2), label="protected_div", color="k", linestyle="solid")
