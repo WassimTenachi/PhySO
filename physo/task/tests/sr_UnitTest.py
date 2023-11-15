@@ -66,5 +66,52 @@ class Test_SR(unittest.TestCase):
 
         return None
 
+    # Testing that SR task runs with few operators (ie. operators mentioned in default priors missing)
+    def test_prior_not_in_op_names (self):
+
+        run_logger = lambda : monitoring.RunLogger(
+                                      do_save   = True)
+        run_visualiser = lambda : monitoring.RunVisualiser (
+                                      epoch_refresh_rate = 1,
+                                      do_show   = False,
+                                      do_prints = True,
+                                      do_save   = True, )
+
+        # Seed
+        seed = 0
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+
+        # Dataset
+        z = np.random.uniform(-10, 10, 50)
+        v = np.random.uniform(-10, 10, 50)
+        X = np.stack((z, v), axis=0)
+        y = 1.234*9.807*z + 1.234*v**2
+
+        # Running SR task
+        expression, logs = physo.SR(X, y,
+                                    X_names = [ "z"       , "v"        ],
+                                    X_units = [ [1, 0, 0] , [1, -1, 0] ],
+                                    y_name  = "E",
+                                    y_units = [2, -2, 1],
+                                    free_consts_names = [ "m"       , "g"        ],
+                                    free_consts_units = [ [0, 0, 1] , [1, -2, 0] ],
+                                    op_names = ["mul", "add", "sub", "div"],
+                                    # Run config
+                                    run_config = physo.config.config0.config0,
+                                    # FOR TESTING
+                                    get_run_logger     = run_logger,
+                                    get_run_visualiser = run_visualiser,
+                                    parallel_mode = False,
+                                    epochs = 2,
+        )
+        # Inspecting pareto front expressions
+        pareto_front_complexities, pareto_front_expressions, pareto_front_r, pareto_front_rmse = logs.get_pareto_front()
+
+        # Assert that solution expression was found
+        assert pareto_front_r.max() > 0.9999, "Solution expression was not found."
+
+        return None
+
 if __name__ == '__main__':
     unittest.main()
