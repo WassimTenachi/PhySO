@@ -110,7 +110,10 @@ def ComputeInfixNotation (program_tokens):
             else:
                 res = "%s(%s)" % (token.sympy_repr, args[0])
         elif token.arity == 2:
-            res = "(%s%s%s)" % (args[0], token.sympy_repr, args[1])
+            if token.sympy_repr == "pow":
+                res = "((%s)**(%s))" % (args[0], args[1])
+            else:
+                res = "(%s%s%s)" % (args[0], token.sympy_repr, args[1])
         elif token.arity > 2 :
             args_str = ""
             for arg in args: args_str+="%s,"%arg
