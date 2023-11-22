@@ -172,7 +172,7 @@ class ExecuteProgramTest(unittest.TestCase):
                              superparent_units = [1, -2, 1], superparent_name = "y")
 
         # TEST PROGRAM
-        test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "1", "div", "n2", "v", "n2",
+        test_program_str = ["mul", "mul", "pow", "M", "pi", "n2", "c", "sub", "inv", "sqrt", "sub", "1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "1", "div", "v", "c", "pi"]
         test_program     = np.array([my_lib.lib_name_to_token[tok_str] for tok_str in test_program_str])
         # Infix output
@@ -184,12 +184,13 @@ class ExecuteProgramTest(unittest.TestCase):
         print("\nComputeInfixNotation time = %.3f ms"%((t1-t0)*1e3/N))
         infix = sympy.parsing.sympy_parser.parse_expr(infix_str)
         # Expected infix output
-        expected_str = "M*(c**2.)*(1./((1.-(v**2)/(c**2))**0.5)-cos((1.-(v/c))/pi))"
+        expected_str = "M**pi*(c**2.)*(1./((1.-(v**2)/(c**2))**0.5)-cos((1.-(v/c))/pi))"
         expected = sympy.parsing.sympy_parser.parse_expr(expected_str)
         # difference
         diff = sympy.simplify(infix - expected, rational = True)
         works_bool = diff == 0
         self.assertTrue(works_bool)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
