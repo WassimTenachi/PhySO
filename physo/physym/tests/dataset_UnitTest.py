@@ -9,7 +9,7 @@ from physo.physym.functions import data_conversion, data_conversion_inv
 
 class TestDataset(unittest.TestCase):
 
-    def test_assertions(self):
+    def test_Dataset_assertions(self):
 
         DEVICE = 'cpu'
         if torch.cuda.is_available():
@@ -74,7 +74,7 @@ class TestDataset(unittest.TestCase):
         with self.assertRaises(AssertionError):
             my_dataset = dataset.Dataset(library=my_lib, X=torch.ones((1, 100), ), y_target=torch.ones((100,)))
 
-    def test_device_detection (self):
+    def test_Dataset_device_detection (self):
 
         DEVICE = 'cpu'
         if torch.cuda.is_available():
@@ -121,6 +121,80 @@ class TestDataset(unittest.TestCase):
         detected_device = my_dataset.detected_device.type
         works_bool = (detected_device == DEVICE)
         self.assertEqual(works_bool, True)
+
+    def test_MODataset_assertions(self):
+
+        DEVICE = 'cpu'
+        if torch.cuda.is_available():
+            DEVICE = 'cuda'
+
+        # DATA
+        multi_X = []
+        multi_y_target = []
+        target_function = lambda X,c1,c2,c3 : c1*X[0] + c2*X[1] + c3
+
+        # Object 1
+        N = 128
+        x0 = data_conversion  (np.linspace(-5, 5, N)  ).to(DEVICE)
+        x1 = data_conversion  (np.linspace(-6, 6, N)  ).to(DEVICE)
+        X = torch.stack((x0, x1), axis=0)
+        y_target = target_function(X, 1, 2, 3)
+        multi_X.append(X)
+        multi_y_target.append(y_target)
+
+        # Object 2
+        N = 256
+        x0 = data_conversion  (np.linspace(-7, 7, N)  ).to(DEVICE)
+        x1 = data_conversion  (np.linspace(-8, 8, N)  ).to(DEVICE)
+        X = torch.stack((x0, x1), axis=0)
+        y_target = target_function(X, 4, 5, 6)
+        multi_X.append(X)
+        multi_y_target.append(y_target)
+
+        # Object 3
+        N = 512
+        x0 = data_conversion  (np.linspace(-9, 9, N)  ).to(DEVICE)
+        x1 = data_conversion  (np.linspace(-10, 10, N)  ).to(DEVICE)
+        X = torch.stack((x0, x1), axis=0)
+        y_target = target_function(X, 7, 8, 9)
+        multi_X.append(X)
+        multi_y_target.append(y_target)
+
+        # LIBRARY CONFIG
+        pi = data_conversion(np.pi).to(DEVICE)
+        const1 = data_conversion(1.).to(DEVICE)
+        args_make_tokens = {
+                        # operations
+                        "op_names"             : "all",  # or ["mul", "neg", "inv", "sin"]
+                        "use_protected_ops"    : False,
+                        "input_var_ids"        : {"x0" : 0         , "x1" : 1 },
+                        "input_var_units"      : {"x0" : [0, 0, 0] , "x1" : [0, 0, 0] },
+                        "constants"            : {"pi" : pi        , "const1" : const1    },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "const1" : [0, 0, 0] },
+                            }
+
+        my_lib = Lib.Library(args_make_tokens = args_make_tokens,
+                             superparent_units = [1, -2, 1], superparent_name = "y")
+
+        # ------- TEST CREATION -------
+        try:
+            my_modataset = dataset.MODataset(library = my_lib, multi_X = multi_X, multi_y_target = multi_y_target)
+        except:
+            self.fail("MODataset creation failed.")
+
+        # TEST ASSERTIONS
+        # Wrong number of objects between X and y_target
+        with self.assertRaises(AssertionError):
+            my_modataset = dataset.MODataset(library = my_lib, multi_X = multi_X, multi_y_target = multi_y_target[:-1])
+        with self.assertRaises(AssertionError):
+            my_modataset = dataset.MODataset(library = my_lib, multi_X = multi_X[:-1], multi_y_target = multi_y_target)
+        # Sending data for one object only
+        with self.assertRaises(AssertionError):
+            my_modataset = dataset.MODataset(library = my_lib, multi_X = multi_X[0], multi_y_target = multi_y_target[0])
+
+
+        return None
+
 
 
 if __name__ == '__main__':

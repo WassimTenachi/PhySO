@@ -46,10 +46,56 @@ class Dataset:
 
         # ---------------------- ATTRIBUTES ----------------------
         self.X               = X
+        self.n_dim            = n_dim
+        self.data_size       = data_size
         self.y_target        = y_target
         self.detected_device = X.device
 
     def __repr__(self):
-        s = "X        : %s \n" \
-            "y_target : %s"%(self.X.shape, self.y_target.shape)
+        s = "Dataset: X (dim=%i), y_target (dim=%i), data_size = %i" % (self.n_dim, 1, self.data_size)
         return s
+
+
+class MODataset:
+    """
+    Contains multiple datasets referring to multiple objects that should obey the same symbolic function.
+    """
+    def __init__(self, library, multi_X, multi_y_target):
+        """
+
+        Parameters
+        ----------
+        library : library.Library
+            Library of choosable tokens.
+        multi_X
+        multi_y_target
+        n_dim : int
+            Number of input variables.
+        """
+
+        # Checking that multi_X is a list or array_like
+        assert isinstance(multi_X, list) or isinstance(multi_X, np.ndarray), "X must be a list or array_like."
+        # Checking that multi_y_target is a list or array_like
+        assert isinstance(multi_y_target, list) or isinstance(multi_y_target, np.ndarray), "y_target must be a list or array_like."
+        # Checking that multi_X and multi_y_target have the same length ie same number of objects
+        assert len(multi_X) == len(multi_y_target), "X and y_target must have the same length."
+
+        # Attributes
+        self.n_objects = len(multi_X)
+        self.datasets = []
+        for i in range(self.n_objects):
+            self.datasets.append(Dataset(library, multi_X[i], multi_y_target[i]))
+
+        # Checking that all datasets have the same n_dim
+        n_dims = [dataset.n_dim for dataset in self.datasets]
+        assert len(set(n_dims)) == 1, "All datasets must have the same number of input variables."
+        self.n_dim = n_dims[0]
+        return None
+
+    def __repr__(self):
+        s = "MODataset: n_objects = %i, X(n_dim=%i), y(n_dim=1)\n" % (self.n_objects, self.n_dim)
+        for i in range(self.n_objects):
+            s += "   Object %i: %s\n" % (i, self.datasets[i].__repr__())
+        return s
+
+
