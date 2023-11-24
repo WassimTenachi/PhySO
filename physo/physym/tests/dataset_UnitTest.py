@@ -178,19 +178,19 @@ class TestDataset(unittest.TestCase):
 
         # ------- TEST CREATION -------
         try:
-            my_modataset = dataset.MODataset(library = my_lib, multi_X = multi_X, multi_y_target = multi_y_target)
+            my_modataset = dataset.MoDataset(library = my_lib, multi_X = multi_X, multi_y_target = multi_y_target)
         except:
             self.fail("MODataset creation failed.")
 
         # TEST ASSERTIONS
         # Wrong number of objects between X and y_target
         with self.assertRaises(AssertionError):
-            my_modataset = dataset.MODataset(library = my_lib, multi_X = multi_X, multi_y_target = multi_y_target[:-1])
+            my_modataset = dataset.MoDataset(library = my_lib, multi_X = multi_X, multi_y_target =multi_y_target[:-1])
         with self.assertRaises(AssertionError):
-            my_modataset = dataset.MODataset(library = my_lib, multi_X = multi_X[:-1], multi_y_target = multi_y_target)
+            my_modataset = dataset.MoDataset(library = my_lib, multi_X =multi_X[:-1], multi_y_target = multi_y_target)
         # Sending data for one object only
         with self.assertRaises(AssertionError):
-            my_modataset = dataset.MODataset(library = my_lib, multi_X = multi_X[0], multi_y_target = multi_y_target[0])
+            my_modataset = dataset.MoDataset(library = my_lib, multi_X = multi_X[0], multi_y_target = multi_y_target[0])
 
 
         return None

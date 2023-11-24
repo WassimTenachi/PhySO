@@ -56,7 +56,7 @@ class Dataset:
         return s
 
 
-class MODataset:
+class MoDataset:
     """
     Contains multiple datasets referring to multiple objects that should obey the same symbolic function.
     """
