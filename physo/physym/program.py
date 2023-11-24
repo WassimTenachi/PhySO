@@ -577,13 +577,18 @@ class VectPrograms:
     tokens : token.VectTokens of shape (batch_size, max_time_step,)
         Vectorized tokens of contained in batch (including idx in library ie. nature of tokens).
 
-    free_consts : free_const.FreeConstantsTable
+    free_consts : free_const.FreeConstantsTable or free_const.MoFreeConstantsTable if mo=True
         Free constant register.
     candidate_wrapper : callable
         Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
         a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
+    mo : bool, optional
+        If True, performs multi-object symbolic regression (MoSR) ie finding a single functional form fitting multiple
+        objects while allowing each object to have its own free parameters.
+    n_objects : int
+        Number of objects to fit if mo=True.
     """
-    def __init__(self, batch_size, max_time_step, library, candidate_wrapper=None):
+    def __init__(self, batch_size, max_time_step, library, candidate_wrapper=None, mo=False, n_objects=None):
         """
         Parameters
         ----------
@@ -596,6 +601,11 @@ class VectPrograms:
         candidate_wrapper : callable or None, optional
             Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
             a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
+        mo : bool, optional
+            If True, performs multi-object symbolic regression (MoSR) ie finding a single functional form fitting multiple
+            objects while allowing each object to have its own free parameters.
+        n_objects : int
+            Number of objects to fit if mo=True.
         """
         # Assertions
         assert isinstance(batch_size,    int) and batch_size    > 0, "batch_size    must be a >0 int."
@@ -684,7 +694,12 @@ class VectPrograms:
         self.register_ancestor (coords_dest = coords_initial_dummies)
 
         # ---------------------------- FREE CONSTANTS REGISTER ----------------------------
-        self.free_consts = free_const.FreeConstantsTable(batch_size = self.batch_size, library =self.library)
+        self.mo        = mo
+        self.n_objects = n_objects
+        if mo:
+            self.free_consts = free_const.MoFreeConstantsTable(batch_size = self.batch_size, library =self.library, n_objects=self.n_objects)
+        else:
+            self.free_consts = free_const.FreeConstantsTable(batch_size = self.batch_size, library =self.library)
 
         # ---------------------------- EXECUTION RELATED ----------------------------
         # Wrapper to apply to candidate programs when executing
@@ -2104,7 +2119,7 @@ class VectPrograms:
         tokens = self.library.lib_tokens [idx]
         return tokens
 
-    def get_prog(self, prog_idx=0, skeleton = False):
+    def get_prog(self, prog_idx=0, skeleton = False, i_object = 0):
         """
         Returns a Program object of program of idx = prog_idx in batch.
         Discards void tokens beyond program length.
@@ -2124,11 +2139,17 @@ class VectPrograms:
         is_physical              = self.is_physical         [prog_idx]
 
         # --- Free constant related ---
-        free_const_values        = self.free_consts.values  [prog_idx]                          # (n_free_const,)
+        if self.mo:
+            table = self.free_consts.tables[i_object]
+        else:
+            table = self.free_consts
+
+        free_const_values        = table.values  [prog_idx]                          # (n_free_const,)
+
         # Using an array of shape (1,) (ie. reference) in order to affect the underlying values in the
         # FreeConstantsTable object.
-        is_opti                  = self.free_consts.is_opti    [prog_idx, np.newaxis]           # (1,)
-        opti_steps               = self.free_consts.opti_steps [prog_idx, np.newaxis]           # (1,)
+        is_opti                  = table.is_opti    [prog_idx, np.newaxis]           # (1,)
+        opti_steps               = table.opti_steps [prog_idx, np.newaxis]           # (1,)
 
         lib     = self.library
         wrapper = self.candidate_wrapper
@@ -2205,7 +2226,7 @@ class VectPrograms:
         return results
 
 
-    def batch_exe_reward (self, X, y_target, reward_function, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False):
+    def batch_exe_reward (self, X, y_target, reward_function, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False, i_object=None):
         """
         Executes prog(X) for each prog in progs and gathers reward_function(y_target, prog(X)) as a result.
         NB: Parallel execution is typically slower because of communication time (even just gathering a float).
@@ -2215,6 +2236,8 @@ class VectPrograms:
             Values of the input variables of the problem with n_dim = nb of input variables.
         y_target : torch.tensor of shape (n_samples,) of float
             Values of target output.
+        i_object : int
+            Index of object (for MoSR).
         reward_function : callable
             Function that taking y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of shape (?,)
             of float) as key arguments and returning a float reward of an individual program. The function must be pickable
@@ -2236,6 +2259,7 @@ class VectPrograms:
         results = Exec.BatchExecutionReward(self,
                                             X               = X,
                                             y_target        = y_target,
+                                            i_object        = i_object,
                                             reward_function = reward_function,
                                             mask            = mask,
                                             pad_with        = pad_with,
@@ -2243,7 +2267,7 @@ class VectPrograms:
                                             parallel_mode   = parallel_mode)
         return results
 
-    def batch_optimize_constants (self, X, y_target, free_const_opti_args = None, mask = None, n_cpus = 1, parallel_mode = False):
+    def batch_optimize_constants (self, X, y_target, free_const_opti_args = None, mask = None, n_cpus = 1, parallel_mode = False, i_object=None):
         """
         Optimizes the free constants of programs.
         NB: Parallel execution is typically faster.
@@ -2253,6 +2277,8 @@ class VectPrograms:
             Values of the input variables of the problem with n_dim = nb of input variables.
         y_target : torch.tensor of shape (n_samples,) of float
             Values of target output.
+        i_object : int
+            Index of object (for MoSR).
         args_opti : dict or None, optional
             Arguments to pass to free_const.optimize_free_const. By default, free_const.DEFAULT_OPTI_ARGS
             arguments are used.
@@ -2266,6 +2292,7 @@ class VectPrograms:
         Exec.BatchFreeConstOpti(progs                = self,
                                 X                    = X,
                                 y_target             = y_target,
+                                i_object             = i_object,
                                 free_const_opti_args = free_const_opti_args,
                                 mask                 = mask,
                                 n_cpus               = n_cpus,
