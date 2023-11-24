@@ -34,6 +34,34 @@ class FreeConstantsTable:
         s = "FreeConstantsTable for %s : %s"%(self.library.free_constants_tokens, self.shape,)
         return s
 
+
+# todo multi object constant table + save option (just run save func for all ? with 1 option in single object table ?)
+
+class MoFreeConstantsTable:
+    """
+    Contains multiple free constants tables referring to multiple objects that should obey the same symbolic function.
+    """
+    def __init__(self, batch_size, library, n_objects):
+        # Library
+        self.library = library
+
+        # Shape
+        self.batch_size = batch_size
+        self.n_free_const = self.library.n_free_const  # Number of free constants
+        self.shape = (self.batch_size, self.n_free_const,)
+
+        # Number of objects ie number of free constants tables
+        self.n_objects = n_objects
+
+        # Free constants tables
+        self.tables = [FreeConstantsTable(self.batch_size, self.library) for _ in range(self.n_objects)]
+
+    def __repr__(self):
+        s = "MoFreeConstantsTable: n_objects = %i, for %s : %s\n" % (self.n_objects, self.library.free_constants_tokens, self.shape,)
+        for i in range(self.n_objects):
+            s += "Object %i : %s\n"%(i, self.tables[i].__repr__())
+        return s
+
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------ FREE CONSTANTS OPTIMIZATION -------------------------------------
 # ------------------------------------------------------------------------------------------------------

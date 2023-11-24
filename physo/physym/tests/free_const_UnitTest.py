@@ -12,6 +12,7 @@ from physo.physym import program as Prog
 from physo.physym.functions import data_conversion, data_conversion_inv
 from physo.physym import execute as Exec
 
+
 class FreeConstUtilsTest(unittest.TestCase):
 
     def test_lgbs_optimizer (self):
@@ -210,6 +211,65 @@ class FreeConstUtilsTest(unittest.TestCase):
         MSE_1 = data_conversion_inv(torch.mean((prog1(X) - y_target1) ** 2))
         works_bool = np.abs(MSE_1) < exp_tol
         self.assertEqual(works_bool, True)
+
+        return None
+
+    def test_MoFreeConstantsTable(self):
+
+        DEVICE = 'cpu'
+        if torch.cuda.is_available():
+            DEVICE = 'cuda'
+
+        # Data
+        N = 100
+        r = data_conversion(np.linspace(-10, 10, N)).to(DEVICE)
+        v = data_conversion(np.linspace(-10, 10, N)).to(DEVICE)
+        X = torch.stack((r,v), axis=0)
+
+        # consts
+        pi     = data_conversion (np.pi) .to(DEVICE)
+        const1 = data_conversion (1.)    .to(DEVICE)
+
+        # free consts
+        c0_init = 1.
+        vc_init = 1.02
+        rc_init = 1.03
+
+        # LIBRARY CONFIG
+        args_make_tokens = {
+                        # operations
+                        "op_names"             : "all",
+                        "use_protected_ops"    : True,
+                        # input variables
+                        "input_var_ids"        : {"r" : 0         , "v" : 1          },
+                        "input_var_units"      : {"r" : [1, 0, 0] , "v" : [1, -1, 0] },
+                        "input_var_complexity" : {"r" : 0.        , "v" : 1.         },
+                        # constants
+                        "constants"            : {"pi" : pi        , "const1" : const1    },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "const1" : [0, 0, 0] },
+                        "constants_complexity" : {"pi" : 1.        , "const1" : 1.        },
+                        # free constants
+                        "free_constants"            : {"c0"             , "vc"               , "rc"             },
+                        "free_constants_init_val"   : {"c0" : c0_init   , "vc"  : vc_init    , "rc" : rc_init   },
+                        "free_constants_units"      : {"c0" : [0, 0, 0] , "vc"  : [1, -1, 0] , "rc" : [1, 0, 0] },
+                        "free_constants_complexity" : {"c0" : 1.        , "vc"  : 1.         , "rc" : 1.        },
+                           }
+        my_lib = Lib.Library(args_make_tokens = args_make_tokens,
+                             superparent_units = [2, -2, 0], superparent_name = "E")
+
+        # TEST PROGRAMS
+        test_programs_idx = []
+        test_prog_str_0 = ["add", "mul", "mul", "const1", "c0" , "n2", "v", "mul", "n2", "vc", "log", "div", "n2", "r", "n2", "rc"]
+        test_prog_str_1 = ["mul", "n2" , "vc" , "cos"   , "div", "r" , "rc", "-", "-", "-", "-", "-", "-", "-", "-", "-"]
+        test_programs_str = np.array([test_prog_str_0, test_prog_str_1])
+
+        # Using terminal token placeholder that will be replaced by '-' void token in append function
+        test_programs_str = np.char.replace(test_programs_str, '-', 'r')
+
+        # Converting into idx
+        for test_program_str in test_programs_str :
+            test_programs_idx.append(np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str]))
+        test_programs_idx = np.array(test_programs_idx)
 
         return None
 
