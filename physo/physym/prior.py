@@ -801,8 +801,11 @@ def make_PriorCollection (library, programs, priors_config,):
         else:
             prior_args = {}
         # Appending individual prior
-        prior = PRIORS_DICT[name](library = library, programs = programs, **prior_args)
-        priors.append (prior)
+        try:
+            prior = PRIORS_DICT[name](library = library, programs = programs, **prior_args)
+            priors.append(prior)
+        except Exception as e:
+            warnings.warn("And error while making prior %s, this prior will be ignored. Error message:\n%s"%(name,e))
     # Setting priors in PriorCollection
     prior_collection.set_priors(priors)
     return prior_collection
