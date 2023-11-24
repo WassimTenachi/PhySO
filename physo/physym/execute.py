@@ -226,7 +226,7 @@ def task_exe(prog, X):
         res = 0.
     return res
 
-def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
+def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False, i_object=None):
     """
     Executes prog(X) for each prog in progs and returns the results.
     NB: Parallel execution is typically slower because of communication time (parallel_mode = False is recommended).
@@ -238,6 +238,8 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
         Programs in the batch.
     X : torch.tensor of shape (n_dim, n_samples,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
+    i_object : int
+        Index of object (for MoSR).
     mask : array_like of shape (progs.batch_size) of bool
         Only programs where mask is True are executed. By default, all programs are executed.
     n_cpus : int
@@ -269,7 +271,7 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
             # Computing y = prog(X) where mask is True
             if mask[i]:
                 # Getting minimum executable skeleton pickable program
-                prog = progs.get_prog(i, skeleton=True)
+                prog = progs.get_prog(i, skeleton=True, i_object=i_object)
                 result = pool.apply_async(task_exe, args=(prog, X,))
                 results.append(result)
 
@@ -286,7 +288,7 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
         for i in range (progs.batch_size):
             # Computing y = prog(X) where mask is True
             if mask[i]:
-                prog = progs.get_prog(i, skeleton=True)
+                prog = progs.get_prog(i, skeleton=True, i_object=i_object)
                 result = task_exe(prog, X)                                                 # (n_samples,)
                 results.append(result)
 
@@ -312,7 +314,7 @@ def task_exe_wrapper_reduce(prog, X, reduce_wrapper):
         res = 0.
     return res
 
-def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False):
+def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False, i_object=None):
     """
     Executes prog(X) for each prog in progs and gathers reduce_wrapper(prog(X)) as a result.
     NB: Parallel execution is typically slower because of communication time (even just gathering a float).
@@ -322,6 +324,8 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with 
         Programs in the batch.
     X : torch.tensor of shape (n_dim, n_samples,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
+    i_object : int
+        Index of object (for MoSR).
     reduce_wrapper : callable
         Function returning a single float number when applied on prog(X). The function must be pickable
         (defined explicitly at the highest level when using parallel_mode).
@@ -359,7 +363,7 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with 
             # Computing y = prog(X) where mask is True
             if mask[i]:
                 # Getting minimum executable skeleton pickable program
-                prog = progs.get_prog(i, skeleton=True)
+                prog = progs.get_prog(i, skeleton=True, i_object=i_object)
                 result = pool.apply_async(task_exe_wrapper_reduce, args=(prog, X, reduce_wrapper))
                 results.append(result)
 
@@ -376,7 +380,7 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with 
         for i in pb(range(progs.batch_size)):
             # Computing y = prog(X) where mask is True
             if mask[i]:
-                prog = progs.get_prog(i, skeleton=True)
+                prog = progs.get_prog(i, skeleton=True, i_object=i_object)
                 result = task_exe_wrapper_reduce(prog, X, reduce_wrapper)                 # float
                 results.append(result)
 
@@ -401,7 +405,7 @@ def task_exe_reward(prog, X, y_target, reward_function):
     res = float(res)
     return res
 
-def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False):
+def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False, i_object = None):
     """
     Executes prog(X) for each prog in progs and gathers reward_function(y_target, prog(X)) as a result.
     NB: Parallel execution is typically slower because of communication time (even just gathering a float).
@@ -413,6 +417,8 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_
         Values of the input variables of the problem with n_dim = nb of input variables.
     y_target : torch.tensor of shape (n_samples,) of float
         Values of target output.
+    i_object : int
+        Index of object (for MoSR).
     reward_function : callable
         Function that taking y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of shape (?,)
         of float) as key arguments and returning a float reward of an individual program. The function must be pickable
@@ -451,7 +457,7 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_
             # Computing y = prog(X) where mask is True
             if mask[i]:
                 # Getting minimum executable skeleton pickable program
-                prog = progs.get_prog(i, skeleton=True)
+                prog = progs.get_prog(i, skeleton=True, i_object=i_object)
                 result = pool.apply_async(task_exe_reward, args=(prog, X, y_target, reward_function))
                 results.append(result)
 
@@ -468,7 +474,7 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_
         for i in pb(range(progs.batch_size)):
             # Computing y = prog(X) where mask is True
             if mask[i]:
-                prog = progs.get_prog(i, skeleton=True)
+                prog = progs.get_prog(i, skeleton=True, i_object=i_object)
                 result = task_exe_reward(prog, X, y_target, reward_function)              # float
                 results.append(result)
 
@@ -493,7 +499,7 @@ def task_free_const_opti(prog, X, y_target, free_const_opti_args):
         warnings.warn("Unable to optimize free constants of prog %s -> r = 0" % (str(prog)))
     return None
 
-def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n_cpus = 1, parallel_mode = False):
+def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n_cpus = 1, parallel_mode = False, i_object = None):
     """
     Optimizes the free constants of each program in progs.
     NB: Parallel execution is typically faster.
@@ -505,6 +511,8 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
         Values of the input variables of the problem with n_dim = nb of input variables.
     y_target : torch.tensor of shape (n_samples,) of float
         Values of target output.
+    i_object : int
+        Index of object (for MoSR).
     args_opti : dict or None, optional
         Arguments to pass to free_const.optimize_free_const. By default, free_const.DEFAULT_OPTI_ARGS
         arguments are used.
@@ -535,7 +543,7 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
             # (Else we should not bother optimizing its free constants)
             if mask[i] and progs.n_free_const_occurrences[i]:
                 # Getting minimum executable skeleton pickable program
-                prog = progs.get_prog(i, skeleton=True)
+                prog = progs.get_prog(i, skeleton=True, i_object=i_object)
                 pool.apply_async(task_free_const_opti, args=(prog, X, y_target, free_const_opti_args))
         # Closing the pool of processes
         pool.close()
@@ -548,7 +556,7 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
             # (Else we should not bother optimizing its free constants)
             if mask[i] and progs.n_free_const_occurrences[i]:
                 # Getting minimum executable skeleton pickable program
-                prog = progs.get_prog(i, skeleton=True)
+                prog = progs.get_prog(i, skeleton=True, i_object=i_object)
                 task_free_const_opti(prog, X = X, y_target = y_target, free_const_opti_args = free_const_opti_args)
 
     return None
