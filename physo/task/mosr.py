@@ -1,0 +1,314 @@
+import numpy as np
+import torch
+import warnings
+
+# Internal imports
+from physo.config.config0 import config0
+import physo.learn.monitoring as monitoring
+from physo.task.fit import fit
+import physo.physym.execute as exec
+import physo
+
+# DEFAULT RUN CONFIG TO USE
+default_config = config0
+
+# DEFAULT MONITORING CONFIG TO USE
+get_default_run_logger = lambda : monitoring.RunLogger(
+                                      save_path = 'SR.log',
+                                      do_save   = True)
+get_default_run_visualiser = lambda : monitoring.RunVisualiser (
+                                           epoch_refresh_rate = 1,
+                                           save_path = 'SR_curves.png',
+                                           do_show   = False,
+                                           do_prints = True,
+                                           do_save   = True, )
+
+# DEFAULT ALLOWED OPERATIONS
+default_op_names = ["mul", "add", "sub", "div", "inv", "n2", "sqrt", "neg", "exp", "log", "sin", "cos"]
+default_stop_after_n_epochs = 5
+
+def MoSR(multi_X, multi_y,
+       # X
+       X_units = None,
+       X_names = None,
+       # y
+       y_units = None,
+       y_name  = None,
+       # Fixed constants
+       fixed_consts = None,
+       fixed_consts_units = None,
+       # Free constants
+       free_consts_units  = None,
+       free_consts_names  = None,
+       # Operations to use
+       op_names = None,
+       use_protected_ops = True,
+       # Stopping
+       stop_reward = 1.,
+       max_n_evaluations = None,
+       epochs = None,
+       # Default run config to use
+       run_config = default_config,
+       # Default run monitoring
+       get_run_logger     = get_default_run_logger,
+       get_run_visualiser = get_default_run_visualiser,
+       # MoSR specific
+       mo_reward_reduce = physo.physym.reward.DEFAULT_MO_REWARD_REDUCE,
+       # Parallel mode
+       parallel_mode = True,
+       n_cpus        = None,
+       ):
+    """
+    Runs a multi object symbolic regression task with default hyperparameters config, ie. searching for a single
+    functional form fitting multiple objects (allowing each object to have its own free constant values).
+    (Wrapper around physo.task.fit)
+
+    Parameters
+    ----------
+
+    multi_X : list or array_like of numpy.array of shape (n_dim, ?,) of float
+        List (for each object) of values of the input variables of the problem with n_dim = nb of input variables.
+    multi_y : list or array_like of numpy.array of shape (?,) of float
+        List (for each object) of Values of the target symbolic function to recover when applied on input variables
+        contained in X.
+
+    X_units : array_like of shape (n_dim, n_units) of float or None (optional)
+        Units vector for each input variables (n_units <= 7). By default, assumes dimensionless.
+    X_names : array_like of shape (n_dim,) of str or None (optional)
+        Names of input variables (for display purposes).
+
+    y_units : array_like of shape (n_units) of float or None (optional)
+        Units vector for the root variable (n_units <= 7). By default, assumes dimensionless.
+    y_name : str or None (optional)
+        Name of the root variable (for display purposes).
+
+    fixed_consts : array_like of shape (?,) of float or None (optional)
+        Values of choosable fixed constants. By default, no fixed constants are used.
+    fixed_consts_units : array_like of shape (?, n_units) of float or None (optional)
+        Units vector for each fixed constant (n_units <= 7). By default, assumes dimensionless.
+
+    free_consts_units : array_like of shape (?, n_units) of float or None (optional)
+        Units vector for each free constant (n_units <= 7). By default, assumes dimensionless.
+    free_consts_names : array_like of shape (?,) of str or None (optional)
+        Names of free constants (for display purposes).
+
+    op_names : array_like of shape (?) of str or None (optional)
+        Names of choosable symbolic operations (see physo.physym.functions for a list of available operations).
+        By default, uses operations listed in physo.task.sr.default_op_names.
+    use_protected_ops : bool (optional)
+        If True, uses protected operations (e.g. division by zero is avoided). True by default.
+         (see physo.physym.functions for a list of available protected operations).
+
+    stop_reward : float (optional)
+        Early stops if stop_reward is reached by a program (= 1 by default), use stop_reward = (1-1e-5) when using free
+        constants.
+    max_n_evaluations : int or None (optional)
+        Maximum number of unique expression evaluations allowed (for benchmarking purposes). Immediately terminates
+        the symbolic regression task if the limit is about to be reached. The parameter max_n_evaluations is distinct
+        from batch_size * n_epochs because batch_size * n_epochs sets the number of expressions generated but a lot of
+        these are not evaluated because they have inconsistent units.
+
+    epochs : int or None (optional)
+        Number of epochs to perform. By default, uses the number in the default config file.
+    run_config : dict (optional)
+        Run configuration (by default uses physo.task.sr.default_config)
+    get_run_logger : callable returning physo.learn.monitoring.RunLogger (optional)
+        Run logger (by default uses physo.task.sr.get_default_run_logger)
+    get_run_visualiser : callable returning physo.learn.monitoring.RunVisualiser (optional)
+        Run visualiser (by default uses physo.task.sr.get_default_run_visualiser)
+
+    parallel_mode : bool (optional)
+        Parallel execution if True, execution in a loop else. True by default. Overides parameter in run_config.
+    n_cpus : int or None (optional)
+        Number of CPUs to use when running in parallel mode. Uses max nb. of CPUs by default.
+        Overides parameter in run_config.
+
+    Returns
+    -------
+    best_expression, run_logger : physo.physym.program.Program, physo.learn.monitoring.RunLogger
+        Best analytical expression found and run logger.
+    """
+    # --- DEVICE ---
+    DEVICE = 'cpu'
+
+    # ------------------------------- HANDLING ARGUMENTS -------------------------------
+
+    # --- DATA (MoSR specific) ---
+    assert isinstance(multi_X, (list, np.ndarray)), "X must be a list or a numpy array."
+    assert isinstance(multi_y, (list, np.ndarray)), "y must be a list or a numpy array."
+    assert len(multi_X) == len(multi_y), "X and y must have the same length ie nb of objects."
+    n_objects = len(multi_X)
+
+    n_dims = []
+    for i in range(n_objects):
+        X = multi_X[i]
+        y = multi_y[i]
+        # --- DATA ---
+        X = np.array(X)
+        y = np.array(y)
+        # --- ASSERT FLOAT TYPE ---
+        assert X.dtype == float, "X        must contain floats."
+        assert y.dtype == float, "y_target must contain floats."
+        assert np.isnan(X).any() == False, "X should not contain any Nans"
+        assert np.isnan(y).any() == False, "y should not contain any Nans"
+        # --- ASSERT SHAPE ---
+        assert len(X.shape) == 2, "X        must have shape = (n_dim, data_size,)"
+        assert len(y.shape) == 1, "y_target must have shape = (data_size,)"
+        assert X.shape[1] == y.shape[0], "X must have shape = (n_dim, data_size,) and y_target must have " \
+                                                "shape = (data_size,) with the same data_size."
+        n_dim, data_size = X.shape
+        n_dims.append(n_dim)
+
+    # Checking that all datasets have the same n_dim
+    assert len(set(n_dims)) == 1, "All datasets must have the same number of input variables."
+    n_dim = n_dims[0]
+
+    # -- X_names --
+    # Handling input variables names
+    if X_names is None:
+        # If None use x00, x01... names
+        X_names = ["x%s"%(str(i).zfill(2)) for i in range(n_dim)]
+    X_names = np.array(X_names)
+    assert X_names.dtype.char == "U", "Input variables names should be strings."
+    assert X_names.shape == (n_dim,), "There should be one input variable name per dimension in X."
+
+    # -- X_units --
+    # Handling input variables units
+    if X_units is None:
+        warnings.warn("No units given for input variables, assuming dimensionless units.")
+        X_units = [[0,0,0] for _ in range(n_dim)]
+    X_units = np.array(X_units).astype(float)
+    assert X_units.shape[0] == n_dim, "There should be one input variable units per dimension in X."
+
+    # --- y_name ---
+    if y_name is None:
+        y_name = "y"
+    y_name = str(y_name)
+
+    # --- y_units ---
+    if y_units is None:
+        warnings.warn("No units given for root variable, assuming dimensionless units.")
+        y_units = [0,0,0]
+    y_units = np.array(y_units).astype(float)
+    assert len(y_units.shape) == 1, "y_units must be a 1D units vector"
+
+    # --- n_fixed_consts ---
+    if fixed_consts is not None:
+        n_fixed_consts = len(fixed_consts)
+    else:
+        n_fixed_consts = 0
+        fixed_consts = []
+        warnings.warn("No information about fixed constants, not using any.")
+
+    # --- fixed_consts_names ---
+    fixed_consts_names = np.array([str(c) for c in fixed_consts])
+    fixed_consts       = np.array(fixed_consts).astype(float)
+
+    # --- fixed_consts_units ---
+    if fixed_consts_units is None:
+        warnings.warn("No units given for fixed constants, assuming dimensionless units.")
+        fixed_consts_units = [[0,0,0] for _ in range(n_fixed_consts)]
+    fixed_consts_units = np.array(fixed_consts_units).astype(float)
+    assert fixed_consts_units.shape[0] == n_fixed_consts, "There should be one fixed constant units vector per fixed constant in fixed_consts_names"
+
+    # --- n_free_consts ---
+    if free_consts_names is not None:
+        n_free_consts = len(free_consts_names)
+    elif free_consts_units is not None:
+        n_free_consts = len(free_consts_units)
+    else:
+        n_free_consts = 0
+        warnings.warn("No information about free constants, not using any.")
+
+    # --- free_consts_names ---
+    if free_consts_names is None:
+        # If None use c00, c01... names
+        free_consts_names = ["c%s"%(str(i).zfill(2)) for i in range(n_free_consts)]
+    free_consts_names = np.array(free_consts_names)
+    assert free_consts_names.dtype.char == "U", "Free constants names should be strings."
+    assert free_consts_names.shape == (n_free_consts,), "There should be one free constant name per units in free_consts_units"
+
+    # --- free_consts_units ---
+    if free_consts_units is None:
+        warnings.warn("No units given for free constants, assuming dimensionless units.")
+        free_consts_units = [[0,0,0] for _ in range(n_free_consts)]
+    free_consts_units = np.array(free_consts_units).astype(float)
+    assert free_consts_units.shape[0] == n_free_consts, "There should be one free constant units vector per free constant in free_consts_names"
+
+    # --- op_names ---
+    if op_names is None:
+        op_names = default_op_names
+
+    # ------------------------------- WRAPPING -------------------------------
+
+    # Converting datasets of all objects to torch and sending to device (MoSR specific)
+    multi_X = [torch.tensor(X).to(DEVICE) for X in multi_X]
+    multi_y = [torch.tensor(y).to(DEVICE) for y in multi_y]
+    fixed_consts = torch.tensor(fixed_consts).to(DEVICE)
+
+    # Embedding wrapping
+    args_make_tokens = {
+                    # operations
+                    "op_names"             : op_names,
+                    "use_protected_ops"    : use_protected_ops,
+                    # input variables
+                    "input_var_ids"        : {X_names[i]: i          for i in range(n_dim)},
+                    "input_var_units"      : {X_names[i]: X_units[i] for i in range(n_dim)},
+                    # constants
+                    "constants"            : {fixed_consts_names[i] : fixed_consts[i]       for i in range(n_fixed_consts)},
+                    "constants_units"      : {fixed_consts_names[i] : fixed_consts_units[i] for i in range(n_fixed_consts)},
+                    # free constants
+                    "free_constants"       : {free_consts_names[i]                          for i in range(n_free_consts)},
+                    "free_constants_units" : {free_consts_names[i] : free_consts_units[i]   for i in range(n_free_consts)},
+                        }
+
+    library_config = {"args_make_tokens"  : args_make_tokens,
+                      "superparent_units" : y_units,
+                      "superparent_name"  : y_name,
+                    }
+
+    # Monitoring
+    run_logger     = get_run_logger()
+    run_visualiser = get_run_visualiser()
+    # Updating config
+    run_config.update({
+        "library_config"       : library_config,
+        "run_logger"           : run_logger,
+        "run_visualiser"       : run_visualiser,
+    })
+    # Update reward_config
+    run_config["reward_config"].update({
+        # with parallel config
+        "parallel_mode" : parallel_mode,
+        "n_cpus"        : n_cpus,
+        # with MoSR config (MoSR specific)
+        "mo"               : True,
+        "mo_reward_reduce" : mo_reward_reduce,
+        })
+    #  Updating reward config for parallel mode
+    reward_config = run_config["reward_config"]
+    run_config["learning_config"]["rewards_computer"] = physo.physym.reward.make_RewardsComputer(**reward_config)
+
+    # Number of epochs
+    if epochs is not None:
+        run_config["learning_config"]["n_epochs"] = epochs
+
+    # Show progress bar
+    exec.SHOW_PROGRESS_BAR = True
+
+    # ------------------------------- RUN -------------------------------
+
+    print("SR task started...")
+    rewards, candidates = fit (multi_X, multi_y, run_config,
+                                stop_reward         = stop_reward,
+                                stop_after_n_epochs = default_stop_after_n_epochs,
+                                max_n_evaluations   = max_n_evaluations,
+                                mo                  = True,  # MoSR specific
+                               )
+
+    # ------------------------------- RESULTS -------------------------------
+
+    pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = run_logger.get_pareto_front()
+    best_expression = pareto_front_programs[-1]
+
+    return best_expression, run_logger
