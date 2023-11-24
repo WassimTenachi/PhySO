@@ -220,7 +220,11 @@ class RunLogger:
         pareto_front_complexities = np.array(pareto_front_complexities)
         pareto_front_programs     = np.array(pareto_front_programs)
         pareto_front_r            = np.array(pareto_front_r)
-        pareto_front_rmse         = ((1/pareto_front_r)-1)*self.batch.dataset.y_target.std().detach().cpu().numpy()
+
+        if self.batch.mo:
+            pareto_front_rmse         = None
+        else:
+            pareto_front_rmse         = ((1/pareto_front_r)-1)*self.batch.dataset.y_target.std().detach().cpu().numpy()
 
         return pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse
 
@@ -348,12 +352,18 @@ class RunVisualiser:
         curr_ax.clear()
         # Cut on dim
         cut_on_dim = 0
-        x = batch.dataset.X[cut_on_dim]
+        if batch.mo:
+            X_toplot        = batch.dataset.datasets[0].X
+            y_target_toplot = batch.dataset.datasets[0].y_target
+        else:
+            X_toplot        = batch.dataset.X
+            y_target_toplot = batch.dataset.y_target
+        x = X_toplot[cut_on_dim]
         # Plot data
         x_expand = 0.
         n_plot = 100
         stack = []
-        for x_dim in batch.dataset.X:
+        for x_dim in X_toplot:
             x_dim_min = x_dim.min().detach().cpu().numpy()
             x_dim_max = x_dim.max().detach().cpu().numpy()
             x_dim_plot = torch.tensor(np.linspace(x_dim_min-x_expand, x_dim_max+x_expand, n_plot))
@@ -362,7 +372,7 @@ class RunVisualiser:
         x_plot = X_plot[cut_on_dim]
 
         # Data points
-        curr_ax.plot(x.detach().cpu().numpy(), batch.dataset.y_target.detach().cpu().numpy(), 'ko', markersize=10)
+        curr_ax.plot(x.detach().cpu().numpy(), y_target_toplot.detach().cpu().numpy(), 'ko', markersize=10)
         x_plot_cpu = x_plot.detach().cpu().numpy()
 
         # ------- Prog drawing -------
@@ -407,8 +417,8 @@ class RunVisualiser:
             print("Unable to draw one or more prog curve on monitoring plot.")
 
         # ------- Plot limits -------
-        y_min = batch.dataset.y_target.min().detach().cpu().numpy()
-        y_max = batch.dataset.y_target.max().detach().cpu().numpy()
+        y_min = y_target_toplot.min().detach().cpu().numpy()
+        y_max = y_target_toplot.max().detach().cpu().numpy()
         curr_ax.set_ylim(y_min-0.1*np.abs(y_min), y_max+0.1*np.abs(y_max))
         custom_lines = [
             Line2D([0], [0], color='k',      lw=3),
