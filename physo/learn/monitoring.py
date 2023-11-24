@@ -160,7 +160,10 @@ class RunLogger:
         df["program_prefix"] = self.batch.programs.get_programs_array()
 
         # Exporting free constants
-        free_const = self.batch.programs.free_consts.values.detach().cpu().numpy()
+        if self.batch.mo:
+            free_const = self.batch.programs.free_consts.tables[0].values.detach().cpu().numpy()
+        else:
+            free_const = self.batch.programs.free_consts.values.detach().cpu().numpy()
         for i in range(len(self.free_const_names)):
             name   = self.free_const_names[i]
             const  = free_const[:, i]

@@ -1,0 +1,125 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import torch
+# Internal code import
+import physo
+import physo.learn.monitoring as monitoring
+
+import unittest
+
+class Test_MoSR(unittest.TestCase):
+    def test_MoSR_task(self):
+
+        # run_logger = lambda : monitoring.RunLogger(
+        #                               do_save   = True)
+        # run_visualiser = lambda : monitoring.RunVisualiser (
+        #                               epoch_refresh_rate = 1,
+        #                               do_show   = False,
+        #                               do_prints = True,
+        #                               do_save   = True, )
+        save_path_training_curves = 'demo_curves.png'
+        save_path_log             = 'demo.log'
+
+        run_logger     = lambda : monitoring.RunLogger(save_path = save_path_log,
+                                                        do_save = True)
+
+        run_visualiser = lambda : monitoring.RunVisualiser (epoch_refresh_rate = 1,
+                                                   save_path = save_path_training_curves,
+                                                   do_show   = False,
+                                                   do_prints = True,
+                                                   do_save   = True, )
+
+
+        # Seed
+        seed = 0
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+
+        # Dataset
+        multi_X = []
+        multi_y = []
+
+        # Object 0
+        x0 = np.random.uniform(-10, 10, 256)
+        x1 = np.random.uniform(-10, 10, 256)
+        X = np.stack((x0, x1), axis=0)
+        y = 1.123*x0 + 1.123*x1 + 10.123
+        multi_X.append(X)
+        multi_y.append(y)
+
+        # Object 1
+        x0 = np.random.uniform(-11, 11, 500)
+        x1 = np.random.uniform(-11, 11, 500)
+        X = np.stack((x0, x1), axis=0)
+        y = 2*1.123*x0 + 1.123*x1 + 10.123
+        multi_X.append(X)
+        multi_y.append(y)
+
+        # Object 2
+        x0 = np.random.uniform(-12, 12, 256)
+        x1 = np.random.uniform(-12, 12, 256)
+        X = np.stack((x0, x1), axis=0)
+        y = 1.123*x0 + 2*1.123*x1 + 10.123
+        multi_X.append(X)
+        multi_y.append(y)
+
+        # Object 3
+        x0 = np.random.uniform(-13, 13, 256)
+        x1 = np.random.uniform(-13, 13, 256)
+        X = np.stack((x0, x1), axis=0)
+        y = 1.123*x0 + 1.123*x1 + 2*10.123
+        multi_X.append(X)
+        multi_y.append(y)
+
+
+        n_objects = len(multi_X)
+        for i in range(n_objects):
+            fig, ax = plt.subplots(1,2, figsize=(10,5))
+            ax[0].scatter(multi_X[i][0], multi_y[i])
+            ax[0].set_xlabel("x0")
+            ax[0].set_ylabel("y")
+            ax[1].scatter(multi_X[i][1], multi_y[i])
+            ax[1].set_xlabel("x1")
+            ax[1].set_ylabel("y")
+            plt.show()
+
+
+        # Running SR task
+        expression, logs = physo.MoSR(multi_X, multi_y,
+                                    # Giving names of variables (for display purposes)
+                                    X_names = [ "x0"       , "x1"        ],
+                                    # Giving units of input variables
+                                    X_units = [ [0, 0, 0] , [0, 0, 0] ],
+                                    # Giving name of root variable (for display purposes)
+                                    y_name  = "y",
+                                    # Giving units of the root variable
+                                    y_units = [0, 0, 0],
+                                    # Fixed constants
+                                    fixed_consts       = [ 1.      ],
+                                    # Units of fixed constants
+                                    fixed_consts_units = [ [0, 0, 0] ],
+                                    # Free constants names (for display purposes)
+                                    free_consts_names = [ "a"       , "b"        , "c"        ],
+                                    # Units offFree constants
+                                    free_consts_units = [ [0, 0, 0] , [0, 0, 0]  , [0, 0, 0]  ],
+                                    # Run config
+                                    run_config = physo.config.config0.config0,
+
+                                    # FOR TESTING
+                                    op_names = ["add", "sub", "mul", "div"],
+                                    get_run_logger     = run_logger,
+                                    get_run_visualiser = run_visualiser,
+                                    parallel_mode = False,
+                                    epochs = 10,
+        )
+
+        # Inspecting pareto front expressions
+        pareto_front_complexities, pareto_front_expressions, pareto_front_r, pareto_front_rmse = logs.get_pareto_front()
+
+        # Assert that solution expression was found
+        assert pareto_front_r.max() > 0.9999, "Solution expression was not found."
+
+        return None
+
+if __name__ == '__main__':
+    unittest.main()
