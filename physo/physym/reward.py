@@ -7,6 +7,7 @@ import physo.physym.execute as exec
 # During programs evaluation, should parallel execution be used ?
 USE_PARALLEL_EXE        = False  # Only worth it if n_samples > 1e6
 USE_PARALLEL_OPTI_CONST = True   # Only worth it if batch_size > 1k
+DEFAULT_MO_REWARD_REDUCE = np.mean
 
 def SquashedNRMSE (y_target, y_pred,):
     """
@@ -64,7 +65,7 @@ def RewardsComputer(programs,
         Programs contained in batch to evaluate.
     X : torch.tensor of shape (n_dim, ?,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
-    y_target : torch.tensor of shape (?,) of float
+    y : torch.tensor of shape (?,) of float
         Values of the target symbolic function on input variables contained in X_target.
     free_const_opti_args : dict or None, optional
         Arguments to pass to free_const.optimize_free_const for free constants optimization. By default,
@@ -185,6 +186,169 @@ def RewardsComputer(programs,
 
     return rewards
 
+def MoRewardsComputer(programs,
+                    multi_X,
+                    multi_y_target,
+                    free_const_opti_args = None,
+                    reward_function = SquashedNRMSE,
+                    zero_out_unphysical = False,
+                    zero_out_duplicates = False,
+                    keep_lowest_complexity_duplicate = False,
+                    parallel_mode = False,
+                    n_cpus = None,
+                    progress_bar = False,
+                    mo_reward_reduce  = DEFAULT_MO_REWARD_REDUCE,
+                    ):
+    """
+    Computes rewards of programs on X data accordingly with target y_target and reward reward_function using torch
+    for acceleration.
+    Parameters
+    ----------
+    programs : Program.VectProgram (with mo = True)
+        Programs contained in batch to evaluate.
+    multi_X : list of torch.tensor of shape (n_dim, ?,) of float (for mo=True)
+        List of values of the input variables of the problem with n_dim = nb of input variables.
+    multi_y_target : list of torch.tensor of shape (?,) of float (for mo=True)
+        List of values of the target symbolic function on input variables contained in X_target.
+    free_const_opti_args : dict or None, optional
+        Arguments to pass to free_const.optimize_free_const for free constants optimization. By default,
+        free_const.DEFAULT_OPTI_ARGS arguments are used.
+
+    reward_function : callable
+        Function that taking y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of shape (?,)
+        of float) as key arguments and returning a float reward of an individual program.
+    zero_out_unphysical : bool
+        Should unphysical programs be zeroed out ?
+    zero_out_duplicates : bool
+        Should duplicate programs (equal symbolic value when simplified) be zeroed out ?
+    keep_lowest_complexity_duplicate : bool
+        If True, when eliminating duplicates (via zero_out_duplicates = True), the least complex duplicate is kept, else
+        a random duplicate is kept.
+    mo_reward_reduce : callable, optional
+        Function to reduce the reward of each object into a single reward. Takes a list of rewards as input and returns
+        a single reward.
+    Returns
+    -------
+    rewards : numpy.array of shape (?,) of float
+        Rewards of programs.
+    """
+    n_objects = len(multi_X)
+
+    objects_rewards = []                                                                                # (n_objects, batch_size)
+
+    for i_object in range(n_objects):
+        X        = multi_X        [i_object]
+        y_target = multi_y_target [i_object]
+        # ----- SETUP -----
+
+        # mask : should program reward NOT be zeroed out ie. is program invalid ?
+        # By default all programs are considered valid
+        mask_valid = np.full(shape=programs.batch_size, fill_value=True, dtype=bool)                         # (batch_size,)
+
+        # ----- PHYSICALITY -----
+        if zero_out_unphysical:
+            # mask : is program physical
+            mask_is_physical = programs.is_physical                                                          # (batch_size,)
+            # Update mask to zero out unphysical programs
+            mask_valid = (mask_valid & mask_is_physical)                                                     # (batch_size,)
+
+        # ----- DUPLICATES -----
+        if zero_out_duplicates:
+            # Compute rewards (even if programs have non-optimized free consts) to serve as a unique numeric identifier of
+            # functional forms (programs having equivalent forms will have the same reward).
+
+            # Only use parallel mode if enabled in function param and in USE_PARALLEL_EXE flag.
+            # This way users can use flags to specifically enable or disable parallel exe and/or const opti.
+            parallel_mode_exe = parallel_mode and USE_PARALLEL_EXE
+            rewards_non_opt = programs.batch_exe_reward (X        = X,
+                                                         y_target = y_target,
+                                                         reward_function = reward_function,
+                                                         mask            = mask_valid,
+                                                         pad_with        = 0.0,
+                                                         # MoSR specific
+                                                         i_object = i_object,
+                                                         # Parallel related
+                                                         parallel_mode   = parallel_mode_exe,
+                                                         n_cpus          = n_cpus,
+                                                        )
+            # mask : is program a unique one we should keep ?
+            # By default, all programs are eliminated.
+            mask_unique_keep = np.full(shape=programs.batch_size, fill_value=False, dtype=bool)              # (batch_size,)
+            # Identifying unique programs.
+            unique_rewards, unique_idx = np.unique(rewards_non_opt, return_index=True)                       # (n_unique,), (n_unique,)
+            if keep_lowest_complexity_duplicate:
+                unique_idx_lowest_comp = []
+                # Iterating through unique rewards
+                for r in unique_rewards:
+                    # mask: does program have current unique reward ?
+                    mask_have_r = (rewards_non_opt == r)                                                     # (batch_size,)
+                    # complexities of programs having current unique reward
+                    complexities_at_r = programs.n_complexity[mask_have_r]                                   # (n_at_r,)
+                    # idx in batch of program having current unique reward of the lowest complexity
+                    idx_lowest_comp = np.arange(programs.batch_size)[mask_have_r][complexities_at_r.argmin()]
+                    unique_idx_lowest_comp.append(idx_lowest_comp)
+                # Idx of unique programs (having the lowest complexity among their duplicates)
+                unique_idx_lowest_comp = np.array(unique_idx_lowest_comp)
+                # Keeping the lowest complexity duplicate of unique programs
+                mask_unique_keep[unique_idx_lowest_comp] = True
+            else:
+                # Keeping first occurrences of unique programs (random)
+                mask_unique_keep[unique_idx] = True                                                          # (n_unique,)
+            # Update mask to zero out duplicate programs
+            mask_valid = (mask_valid & mask_unique_keep)                                                     # (batch_size,)
+
+        # ----- FREE CONST OPTIMIZATION -----
+        # If there are free constants in the library, we have to optimize.py them
+        if programs.library.n_free_const > 0:
+            # Only use parallel mode if enabled in function param and in USE_PARALLEL_OPTI_CONST flag.
+            # This way users can use flags to specifically enable or disable parallel exe and/or const opti.
+            parallel_mode_const_opti = parallel_mode and USE_PARALLEL_OPTI_CONST
+            # Opti const
+            # batch_optimize_free_const (programs, X, y_target, args_opti = free_const_opti_args, mask_valid = mask_valid)
+            programs.batch_optimize_constants(X        = X,
+                                              y_target = y_target,
+                                              free_const_opti_args = free_const_opti_args,
+                                              mask                 = mask_valid,
+                                              # MoSR specific
+                                              i_object = i_object,
+                                              # Parallel related
+                                              parallel_mode        = parallel_mode_const_opti,
+                                              n_cpus               = n_cpus)
+
+        # ----- REWARDS -----
+        # If rewards were already computed at the duplicate elimination step and there are no free constants in the library
+        # No need to recompute rewards.
+        if zero_out_duplicates and programs.library.n_free_const == 0:
+            rewards = rewards_non_opt
+        # Else we need to compute rewards
+        else:
+            # Only use parallel mode if enabled in function param and in USE_PARALLEL_EXE flag.
+            # This way users can use flags to specifically enable or disable parallel exe and/or const opti.
+            parallel_mode_exe = parallel_mode and USE_PARALLEL_EXE
+            rewards = programs.batch_exe_reward (X        = X,
+                                                 y_target = y_target,
+                                                 reward_function = reward_function,
+                                                 mask            = mask_valid,
+                                                 pad_with        = 0.0,
+                                                 # MoSR specific
+                                                 i_object = i_object,
+                                                 # Parallel related
+                                                 parallel_mode   = parallel_mode_exe,
+                                                 n_cpus          = n_cpus,
+                                                )
+
+        # Applying mask (this is redundant)
+        rewards = rewards * mask_valid.astype(float)
+        # Safety to avoid nan rewards (messes up gradients)
+        rewards = np.nan_to_num(rewards, nan=0.)
+        objects_rewards.append(rewards)
+
+    objects_rewards = np.array(objects_rewards)                                                # (n_objects, batch_size)
+    # Reducing along objects axis
+    results = mo_reward_reduce(objects_rewards, axis=0)                                        # (batch_size,)
+
+    return results
+
 
 def make_RewardsComputer(reward_function     = SquashedNRMSE,
                          zero_out_unphysical = False,
@@ -193,6 +357,9 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
                          # Parallel related
                          parallel_mode = True,
                          n_cpus        = None,
+                         # MoSR specific
+                         mo                = False,
+                         mo_reward_reduce  = DEFAULT_MO_REWARD_REDUCE,
                          ):
     """
     Helper function to make custom reward computing function.
@@ -213,12 +380,18 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
         execution in a loop else.
     n_cpus : int or None
         Number of CPUs to use when running in parallel mode. By default, uses the maximum number of CPUs available.
+    mo : bool, optional
+        If True, performs multi-object symbolic regression (MoSR) ie finding a single functional form fitting multiple
+        objects while allowing each object to have its own free parameters.
+    mo_reward_reduce : callable, optional
+        Function to reduce the reward of each object into a single reward. Takes a list of rewards as input and returns
+        a single reward.
     Returns
     -------
     rewards_computer : callable
          Custom reward computing function taking programs (program.VectPrograms), X (torch.tensor of shape (n_dim,?,)
-         of float), y_target (torch.tensor of shape (?,) of float), free_const_opti_args as key arguments and returning reward for each
-         program (array_like of float).
+         of float), y_target (torch.tensor of shape (?,) of float), free_const_opti_args as key arguments and returning
+         reward for each program (array_like of float).
     """
     # Check that parallel execution is available on this system
     recommended_config = exec.ParallelExeAvailability()
@@ -230,20 +403,38 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
         parallel_mode = False
 
     # rewards_computer
-    def rewards_computer(programs, X, y_target, free_const_opti_args):
-        R = RewardsComputer(programs = programs,
-                            X        = X,
-                            y_target = y_target,
-                            free_const_opti_args = free_const_opti_args,
-                            # Frozen args
-                            reward_function     = reward_function,
-                            zero_out_unphysical = zero_out_unphysical,
-                            zero_out_duplicates = zero_out_duplicates,
-                            keep_lowest_complexity_duplicate = keep_lowest_complexity_duplicate,
-                            # Parallel related
-                            parallel_mode = parallel_mode,
-                            n_cpus        = n_cpus,
-                            )
-        return R
+    if mo:
+        def rewards_computer(programs, X, y_target, free_const_opti_args):
+            R = MoRewardsComputer(programs = programs,
+                                  multi_X        = X,
+                                  multi_y_target = y_target,
+                                  free_const_opti_args = free_const_opti_args,
+                                  # Frozen args
+                                  reward_function     = reward_function,
+                                  zero_out_unphysical = zero_out_unphysical,
+                                  zero_out_duplicates = zero_out_duplicates,
+                                  keep_lowest_complexity_duplicate = keep_lowest_complexity_duplicate,
+                                  mo_reward_reduce    = mo_reward_reduce,
+                                  # Parallel related
+                                  parallel_mode = parallel_mode,
+                                  n_cpus        = n_cpus,
+                                  )
+            return R
+    else:
+        def rewards_computer(programs, X, y_target, free_const_opti_args):
+            R = RewardsComputer(programs = programs,
+                                X        = X,
+                                y_target = y_target,
+                                free_const_opti_args = free_const_opti_args,
+                                # Frozen args
+                                reward_function     = reward_function,
+                                zero_out_unphysical = zero_out_unphysical,
+                                zero_out_duplicates = zero_out_duplicates,
+                                keep_lowest_complexity_duplicate = keep_lowest_complexity_duplicate,
+                                # Parallel related
+                                parallel_mode = parallel_mode,
+                                n_cpus        = n_cpus,
+                                )
+            return R
 
     return rewards_computer
