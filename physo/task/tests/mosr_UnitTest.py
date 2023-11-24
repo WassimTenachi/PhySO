@@ -10,25 +10,13 @@ import unittest
 class Test_MoSR(unittest.TestCase):
     def test_MoSR_task(self):
 
-        # run_logger = lambda : monitoring.RunLogger(
-        #                               do_save   = True)
-        # run_visualiser = lambda : monitoring.RunVisualiser (
-        #                               epoch_refresh_rate = 1,
-        #                               do_show   = False,
-        #                               do_prints = True,
-        #                               do_save   = True, )
-        save_path_training_curves = 'demo_curves.png'
-        save_path_log             = 'demo.log'
-
-        run_logger     = lambda : monitoring.RunLogger(save_path = save_path_log,
-                                                        do_save = True)
-
-        run_visualiser = lambda : monitoring.RunVisualiser (epoch_refresh_rate = 1,
-                                                   save_path = save_path_training_curves,
-                                                   do_show   = False,
-                                                   do_prints = True,
-                                                   do_save   = True, )
-
+        run_logger = lambda : monitoring.RunLogger(
+                                      do_save   = False)
+        run_visualiser = lambda : monitoring.RunVisualiser (
+                                      epoch_refresh_rate = 1,
+                                      do_show   = False,
+                                      do_prints = True,
+                                      do_save   = False, )
 
         # Seed
         seed = 0
@@ -70,19 +58,6 @@ class Test_MoSR(unittest.TestCase):
         y = 1.123*x0 + 1.123*x1 + 2*10.123
         multi_X.append(X)
         multi_y.append(y)
-
-
-        n_objects = len(multi_X)
-        for i in range(n_objects):
-            fig, ax = plt.subplots(1,2, figsize=(10,5))
-            ax[0].scatter(multi_X[i][0], multi_y[i])
-            ax[0].set_xlabel("x0")
-            ax[0].set_ylabel("y")
-            ax[1].scatter(multi_X[i][1], multi_y[i])
-            ax[1].set_xlabel("x1")
-            ax[1].set_ylabel("y")
-            plt.show()
-
 
         # Running SR task
         expression, logs = physo.MoSR(multi_X, multi_y,
