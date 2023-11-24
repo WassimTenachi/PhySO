@@ -86,10 +86,15 @@ class MoDataset:
         for i in range(self.n_objects):
             self.datasets.append(Dataset(library, multi_X[i], multi_y_target[i]))
 
+        self.multi_X = multi_X
+        self.multi_y_target = multi_y_target
+
         # Checking that all datasets have the same n_dim
         n_dims = [dataset.n_dim for dataset in self.datasets]
         assert len(set(n_dims)) == 1, "All datasets must have the same number of input variables."
         self.n_dim = n_dims[0]
+
+        self.detected_device = self.datasets[0].detected_device
         return None
 
     def __repr__(self):
