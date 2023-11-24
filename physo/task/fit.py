@@ -5,15 +5,15 @@ from physo.learn import rnn
 from physo.learn import learn
 
 
-def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after_n_epochs = 1, max_n_evaluations = None):
+def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after_n_epochs = 1, max_n_evaluations = None, mo=False):
     """
     Run a symbolic regression task on (X,y) data.
     Parameters
     ----------
-    X : torch.tensor of shape (n_dim, ?,) of float
-        Values of the input variables of the problem with n_dim = nb of input variables.
-    y_target : torch.tensor of shape (?,) of float
-        Values of the target symbolic function on input variables contained in X_target.
+    X : torch.tensor of shape (n_dim, ?,) of float or list of torch.tensor of shape (n_dim, ?,) of float (for mo=True)
+        Values of the input variables of the problem with n_dim = nb of input variables or list of that for mo=True.
+    y : torch.tensor of shape (?,) of float or list of torch.tensor of shape (?,) of float (for mo=True)
+        Values of the target symbolic function on input variables contained in X_target or list of that for mo=True.
     run_config : dict
         Run configuration, see config.default_run_config.sr_run_config for an example.
     candidate_wrapper : callable or None, optional
@@ -29,6 +29,9 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after
         the symbolic regression task if the limit is about to be reached. The parameter max_n_evaluations is distinct
         from batch_size * n_epochs because batch_size * n_epochs sets the number of expressions generated but a lot of
         these are not evaluated because they have inconsistent units.
+    mo : bool, optional
+        If True, performs multi-object symbolic regression (MoSR) ie finding a single functional form fitting multiple
+        objects while allowing each object to have its own free parameters.
     Returns
     -------
     hall_of_fame_R, hall_of_fame : list of float, list of physym.program.Program
@@ -53,6 +56,7 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after
                              y_target = y,
                              candidate_wrapper = candidate_wrapper,
                              observe_units     = run_config["learning_config"]["observe_units"],
+                             mo                = mo, # MoSR specific
                              )
 
     batch = batch_reseter()
