@@ -41,6 +41,7 @@ class Batch:
                 free_const_opti_args = None,
                 candidate_wrapper    = None,
                 observe_units        = True,
+                mo                   = False,
                 ):
         """
         Parameters
@@ -51,10 +52,10 @@ class Batch:
             List of priors. List containing couples with prior name as first item in couple (see prior.PRIORS_DICT for list
             of available priors) and additional arguments (besides library and programs) to be passed to priors as second
             item of couple, leave None for priors that do not require arguments.
-        X : torch.tensor of shape (n_dim, ?,) of float
-            Values of the input variables of the problem with n_dim = nb of input variables.
-        y_target : torch.tensor of shape (?,) of float
-            Values of the target symbolic function on input variables contained in X_target.
+        X : torch.tensor of shape (n_dim, ?,) of float or list of torch.tensor of shape (n_dim, ?,) of float (for mo=True)
+            Values of the input variables of the problem with n_dim = nb of input variables or list of that for mo=True.
+        y : torch.tensor of shape (?,) of float or list of torch.tensor of shape (?,) of float (for mo=True)
+            Values of the target symbolic function on input variables contained in X_target or list of that for mo=True.
         rewards_computer : callable
             Function taking programs (program.VectPrograms), X (torch.tensor of shape (n_dim,?,) of float), y_target
             (torch.tensor of shape (?,) of float) as key arguments and returning reward for each program (array_like
@@ -72,6 +73,9 @@ class Batch:
         observe_units : bool, optional
             Should units be included in "in situ" observation vector (True) or should this information be zeroed out
             (False).
+        mo : bool, optional
+            If True, performs multi-object symbolic regression (MoSR) ie finding a single functional form fitting multiple
+            objects while allowing each object to have its own free parameters.
         """
 
         # Batch
@@ -80,32 +84,52 @@ class Batch:
         # Library
         self.library  = library.Library(**library_args)
 
+        # MoSR specific
+        self.mo = mo
+
         # Programs
         self.programs = program.VectPrograms(batch_size        = self.batch_size,
                                              max_time_step     = self.max_time_step,
                                              library           = self.library,
-                                             candidate_wrapper = candidate_wrapper)
+                                             candidate_wrapper = candidate_wrapper,
+                                             # MoSR specific
+                                             mo                = mo,
+                                             n_objects         = len(X) if mo else None,
+                                             )
         # Prior
         self.prior   = prior.make_PriorCollection(programs      = self.programs,
                                                   library       = self.library,
                                                   priors_config = priors_config,)
         # Dataset
-        self.dataset = dataset.Dataset(
-            library = self.library,
-            X = X,
-            y_target = y_target,)
+        if self.mo: # MoSR specific
+            self.dataset = dataset.MoDataset(
+                library = self.library,
+                multi_X = X,
+                multi_y_target = y_target,)
+        else:
+            self.dataset = dataset.Dataset(
+                library = self.library,
+                X = X,
+                y_target = y_target,)
 
         # Reward func
         self.rewards_computer = rewards_computer
 
         # Sending free const table to same device as dataset
-        self.programs.free_consts.values = self.programs.free_consts.values.to(self.dataset.detected_device)
+        if self.mo: # MoSR specific
+            # Sending all free const tables values to device
+            for i in range (self.programs.n_objects):
+                self.programs.free_consts.tables[i].values = self.programs.free_consts.tables[i].values.to(self.dataset.detected_device)
+        else:
+            self.programs.free_consts.values = self.programs.free_consts.values.to(self.dataset.detected_device)
 
         # Free constants optimizer args
         self.free_const_opti_args = free_const_opti_args
 
         # Observations
         self.observe_units = observe_units
+
+
 
     # ---------------------------- INTERFACE FOR SYMBOLIC REGRESSION ----------------------------
 
@@ -425,11 +449,18 @@ class Batch:
         rewards : numpy.array of shape (batch_size,) of float
             Rewards of programs.
         """
-        rewards = self.rewards_computer(programs             = self.programs,
-                                        X                    = self.dataset.X,
-                                        y_target             = self.dataset.y_target,
-                                        free_const_opti_args = self.free_const_opti_args,
-                                        )
+        if self.mo:
+            rewards = self.rewards_computer(programs             = self.programs,
+                                            X                    = self.dataset.multi_X,
+                                            y_target             = self.dataset.multi_y_target,
+                                            free_const_opti_args = self.free_const_opti_args,
+                                            )
+        else:
+            rewards = self.rewards_computer(programs             = self.programs,
+                                            X                    = self.dataset.X,
+                                            y_target             = self.dataset.y_target,
+                                            free_const_opti_args = self.free_const_opti_args,
+                                            )
         return rewards
 
 
