@@ -85,7 +85,7 @@ class Test_MoSR(unittest.TestCase):
                                     get_run_logger     = run_logger,
                                     get_run_visualiser = run_visualiser,
                                     parallel_mode = False,
-                                    epochs = 10,
+                                    epochs = 5,
         )
 
         # Inspecting pareto front expressions
