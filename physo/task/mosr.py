@@ -201,7 +201,7 @@ def MoSR(multi_X, multi_y,
         warnings.warn("No information about fixed constants, not using any.")
 
     # --- fixed_consts_names ---
-    fixed_consts_names = np.array([str(c) for c in fixed_consts])
+    fixed_consts_names = np.array([str(round(c, 4)) for c in fixed_consts])
     fixed_consts       = np.array(fixed_consts).astype(float)
 
     # --- fixed_consts_units ---
