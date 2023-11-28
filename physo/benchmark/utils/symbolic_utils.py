@@ -164,13 +164,15 @@ def round_floats(expr, round_decimal = 3):
     return ex2
 
 
-def clean_sympy_expr(expr):
+def clean_sympy_expr(expr, round_decimal = 3):
     """
     Cleans (rounds floats, simplifies) sympy expression for symbolic comparison purposes as in SRBench
     (see https://github.com/cavalab/srbench).
     Parameters
     ----------
     expr : Sympy Expression
+    round_decimal : int
+        Rounding up to this decimal.
     Returns
     -------
     expr : Sympy Expression
@@ -178,7 +180,7 @@ def clean_sympy_expr(expr):
     # Evaluates numeric constants such as sqrt(2*pi)
     expr = expr.evalf()
     # Rounding floats
-    expr = round_floats(expr)
+    expr = round_floats(expr, round_decimal=round_decimal)
     # Simplifying
     expr = sympy.simplify(expr, ratio=1)
     return expr
