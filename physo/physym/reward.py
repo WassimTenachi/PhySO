@@ -186,6 +186,7 @@ def RewardsComputer(programs,
 
     return rewards
 
+MEMORY = 0
 def MoRewardsComputer(programs,
                     multi_X,
                     multi_y_target,
@@ -198,6 +199,8 @@ def MoRewardsComputer(programs,
                     n_cpus = None,
                     progress_bar = False,
                     mo_reward_reduce  = DEFAULT_MO_REWARD_REDUCE,
+                    alternate_dataset = False,
+                    n_extreme_filter = 0,
                     ):
     """
     Computes rewards of programs on X data accordingly with target y_target and reward reward_function using torch
@@ -227,6 +230,10 @@ def MoRewardsComputer(programs,
     mo_reward_reduce : callable, optional
         Function to reduce the reward of each object into a single reward. Takes a list of rewards as input and returns
         a single reward.
+    alternate_dataset : bool, optional
+        Should the dataset be alternated between calls to this function ?
+    n_extreme_filter : int, optional
+        Number of extreme values to filter out when computing the mean of the rewards over objects dimension.
     Returns
     -------
     rewards : numpy.array of shape (?,) of float
@@ -236,7 +243,17 @@ def MoRewardsComputer(programs,
 
     objects_rewards = []                                                                                # (n_objects, batch_size)
 
-    for i_object in range(n_objects):
+    if alternate_dataset:
+        # Alternate between dataset between calls using MEMORY
+        global MEMORY
+        i_alt = MEMORY
+        MEMORY = (MEMORY + 1) % n_objects
+        i_datasets = [i_alt]
+    else:
+        i_datasets = range(n_objects)
+
+    for i_object in i_datasets:
+        print("\n\nComputing rewards for object {} / {}".format(i_object + 1, n_objects))
         X        = multi_X        [i_object]
         y_target = multi_y_target [i_object]
         # ----- SETUP -----
@@ -343,9 +360,42 @@ def MoRewardsComputer(programs,
         rewards = np.nan_to_num(rewards, nan=0.)
         objects_rewards.append(rewards)
 
+        i_best = np.argmax(rewards)
+        try:
+            print(" -> Mean reward: %f" % (np.mean(rewards)))
+            print(" -> Max reward:  %f for:\n%s"%(rewards[i_best], programs.get_infix_pretty(i_best)))
+        except:
+            print("Unable to print program.")
+
     objects_rewards = np.array(objects_rewards)                                                # (n_objects, batch_size)
+
+    # ---- FILTERING OUT EXTREME REWARDS ----
+    objects_rewards_unfiltered = objects_rewards.copy()
+    # Filtering out the n_el lowest and highest rewards
+    if n_extreme_filter > 0:
+        objects_rewards_filtered = np.array(
+            [np.sort(objects_rewards[:,i])[n_extreme_filter:-n_extreme_filter]
+             for i in range (objects_rewards.shape[1])]).transpose()                              # (n_objects - 2*n_el, batch_size)
+        non_extreme_indices = np.array(
+            [np.argsort(objects_rewards[:,i])[n_extreme_filter:-n_extreme_filter]
+             for i in range (objects_rewards.shape[1])]).transpose()                              # (n_objects - 2*n_el, batch_size)
+        objects_rewards = objects_rewards_filtered
+    else:
+        non_extreme_indices = np.array([np.arange(n_objects) for i in range(objects_rewards.shape[1])]).transpose()  # (n_objects, batch_size)
+
+
+    # ---- REDUCING REWARDS ----
     # Reducing along objects axis
-    results = mo_reward_reduce(objects_rewards, axis=0)                                        # (batch_size,)
+    results = mo_reward_reduce(objects_rewards, axis=0)                                           # (batch_size,)
+
+    # ---- PRINTING RESULTS ----
+    i_best_prog = np.argmax(results)
+    try:
+        print("\nMax reward obtained is %f for expression:\n%s."%(results[i_best_prog], programs.get_infix_pretty(i_best_prog)))
+        for i_object in i_datasets:
+            print("Reward for this expression on object %i is %f."%(i_object, objects_rewards_unfiltered[i_object, i_best_prog]))
+    except:
+        print("Unable to print program.")
 
     return results
 
@@ -360,6 +410,8 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
                          # MoSR specific
                          mo                = False,
                          mo_reward_reduce  = DEFAULT_MO_REWARD_REDUCE,
+                         alternate_dataset = False,
+                         n_extreme_filter   = 0,
                          ):
     """
     Helper function to make custom reward computing function.
@@ -386,6 +438,10 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
     mo_reward_reduce : callable, optional
         Function to reduce the reward of each object into a single reward. Takes a list of rewards as input and returns
         a single reward.
+    alternate_dataset : bool, optional
+        Should the dataset be alternated between calls to this function ?
+    n_extreme_filter : int, optional
+        Number of extreme values to filter out when computing the mean of the rewards over objects dimension.
     Returns
     -------
     rewards_computer : callable
@@ -415,6 +471,8 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
                                   zero_out_duplicates = zero_out_duplicates,
                                   keep_lowest_complexity_duplicate = keep_lowest_complexity_duplicate,
                                   mo_reward_reduce    = mo_reward_reduce,
+                                  alternate_dataset   = alternate_dataset,
+                                  n_extreme_filter     = n_extreme_filter,
                                   # Parallel related
                                   parallel_mode = parallel_mode,
                                   n_cpus        = n_cpus,
