@@ -113,7 +113,7 @@ def LBFGS_optimizer (params, f, n_steps=10, tol=1e-6, lbfgs_func_args={}):
     Parameters
     ----------
     params : torch.tensor of shape (n_free_const,)
-        Parameters to optimize.py.
+        Parameters to optimize.
     f : callable
         Function to minimize, taking params as argument.
     n_steps : int
