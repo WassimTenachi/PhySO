@@ -40,6 +40,7 @@ def MoSR(multi_X, multi_y,
        # Free constants
        free_consts_units  = None,
        free_consts_names  = None,
+       free_consts_init_val = None,
        # Operations to use
        op_names = None,
        use_protected_ops = True,
@@ -54,6 +55,8 @@ def MoSR(multi_X, multi_y,
        get_run_visualiser = get_default_run_visualiser,
        # MoSR specific
        mo_reward_reduce = physo.physym.reward.DEFAULT_MO_REWARD_REDUCE,
+       alternate_dataset = False,
+       n_extreme_filter = 0,
        # Parallel mode
        parallel_mode = True,
        n_cpus        = None,
@@ -235,6 +238,12 @@ def MoSR(multi_X, multi_y,
     free_consts_units = np.array(free_consts_units).astype(float)
     assert free_consts_units.shape[0] == n_free_consts, "There should be one free constant units vector per free constant in free_consts_names"
 
+    # --- free_constants_init_val ---
+    if free_consts_init_val is None:
+        free_consts_init_val = np.ones(n_free_consts)
+    free_consts_init_val = np.array(free_consts_init_val).astype(float)
+    assert free_consts_init_val.shape[0] == n_free_consts, "There should be one free constant initial value per free constant in free_consts_names"
+
     # --- op_names ---
     if op_names is None:
         op_names = default_op_names
@@ -260,6 +269,8 @@ def MoSR(multi_X, multi_y,
                     # free constants
                     "free_constants"       : {free_consts_names[i]                          for i in range(n_free_consts)},
                     "free_constants_units" : {free_consts_names[i] : free_consts_units[i]   for i in range(n_free_consts)},
+                    # free_constants_init_val
+                    "free_constants_init_val" : {free_consts_names[i] : free_consts_init_val[i] for i in range(n_free_consts)},
                         }
 
     library_config = {"args_make_tokens"  : args_make_tokens,
@@ -284,6 +295,8 @@ def MoSR(multi_X, multi_y,
         # with MoSR config (MoSR specific)
         "mo"               : True,
         "mo_reward_reduce" : mo_reward_reduce,
+        "alternate_dataset": alternate_dataset,
+        "n_extreme_filter"  : n_extreme_filter,
         })
     #  Updating reward config for parallel mode
     reward_config = run_config["reward_config"]
