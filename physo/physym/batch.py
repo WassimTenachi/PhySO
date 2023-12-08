@@ -74,7 +74,7 @@ class Batch:
             Should units be included in "in situ" observation vector (True) or should this information be zeroed out
             (False).
         mo : bool, optional
-            If True, performs multi-object symbolic regression (MoSR) ie finding a single functional form fitting multiple
+            If True, performs class symbolic regression (ClassSR) ie finding a single functional form fitting multiple
             objects while allowing each object to have its own free parameters.
         """
 

@@ -30,7 +30,7 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after
         from batch_size * n_epochs because batch_size * n_epochs sets the number of expressions generated but a lot of
         these are not evaluated because they have inconsistent units.
     mo : bool, optional
-        If True, performs multi-object symbolic regression (MoSR) ie finding a single functional form fitting multiple
+        If True, performs class symbolic regression (ClassSR) ie finding a single functional form fitting multiple
         objects while allowing each object to have its own free parameters.
     Returns
     -------

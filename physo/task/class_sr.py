@@ -27,40 +27,40 @@ get_default_run_visualiser = lambda : monitoring.RunVisualiser (
 default_op_names = ["mul", "add", "sub", "div", "inv", "n2", "sqrt", "neg", "exp", "log", "sin", "cos"]
 default_stop_after_n_epochs = 5
 
-def MoSR(multi_X, multi_y,
-       # X
-       X_units = None,
-       X_names = None,
-       # y
-       y_units = None,
-       y_name  = None,
-       # Fixed constants
-       fixed_consts = None,
-       fixed_consts_units = None,
-       # Free constants
-       free_consts_units  = None,
-       free_consts_names  = None,
-       free_consts_init_val = None,
-       # Operations to use
-       op_names = None,
-       use_protected_ops = True,
-       # Stopping
-       stop_reward = 1.,
-       max_n_evaluations = None,
-       epochs = None,
-       # Default run config to use
-       run_config = default_config,
-       # Default run monitoring
-       get_run_logger     = get_default_run_logger,
-       get_run_visualiser = get_default_run_visualiser,
-       # MoSR specific
-       mo_reward_reduce = physo.physym.reward.DEFAULT_MO_REWARD_REDUCE,
-       alternate_dataset = False,
-       n_extreme_filter = 0,
-       # Parallel mode
-       parallel_mode = True,
-       n_cpus        = None,
-       ):
+def ClassSR(multi_X, multi_y,
+            # X
+            X_units = None,
+            X_names = None,
+            # y
+            y_units = None,
+            y_name  = None,
+            # Fixed constants
+            fixed_consts = None,
+            fixed_consts_units = None,
+            # Free constants
+            free_consts_units  = None,
+            free_consts_names  = None,
+            free_consts_init_val = None,
+            # Operations to use
+            op_names = None,
+            use_protected_ops = True,
+            # Stopping
+            stop_reward = 1.,
+            max_n_evaluations = None,
+            epochs = None,
+            # Default run config to use
+            run_config = default_config,
+            # Default run monitoring
+            get_run_logger     = get_default_run_logger,
+            get_run_visualiser = get_default_run_visualiser,
+            # MoSR specific
+            mo_reward_reduce = physo.physym.reward.DEFAULT_MO_REWARD_REDUCE,
+            alternate_dataset = False,
+            n_extreme_filter = 0,
+            # Parallel mode
+            parallel_mode = True,
+            n_cpus        = None,
+            ):
     """
     Runs a multi object symbolic regression task with default hyperparameters config, ie. searching for a single
     functional form fitting multiple objects (allowing each object to have its own free constant values).

@@ -583,7 +583,7 @@ class VectPrograms:
         Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
         a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
     mo : bool, optional
-        If True, performs multi-object symbolic regression (MoSR) ie finding a single functional form fitting multiple
+        If True, performs class symbolic regression (ClassSR) ie finding a single functional form fitting multiple
         objects while allowing each object to have its own free parameters.
     n_objects : int
         Number of objects to fit if mo=True.
@@ -602,7 +602,7 @@ class VectPrograms:
             Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
             a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
         mo : bool, optional
-            If True, performs multi-object symbolic regression (MoSR) ie finding a single functional form fitting multiple
+            If True, performs class symbolic regression (ClassSR) ie finding a single functional form fitting multiple
             objects while allowing each object to have its own free parameters.
         n_objects : int
             Number of objects to fit if mo=True.

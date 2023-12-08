@@ -7,8 +7,8 @@ import physo.learn.monitoring as monitoring
 
 import unittest
 
-class Test_MoSR(unittest.TestCase):
-    def test_MoSR_task(self):
+class Test_ClassSR(unittest.TestCase):
+    def test_ClassSR_task(self):
 
         run_logger = lambda : monitoring.RunLogger(
                                       do_save   = False)
@@ -60,33 +60,33 @@ class Test_MoSR(unittest.TestCase):
         multi_y.append(y)
 
         # Running SR task
-        expression, logs = physo.MoSR(multi_X, multi_y,
-                                    # Giving names of variables (for display purposes)
-                                    X_names = [ "x0"       , "x1"        ],
-                                    # Giving units of input variables
-                                    X_units = [ [0, 0, 0] , [0, 0, 0] ],
-                                    # Giving name of root variable (for display purposes)
-                                    y_name  = "y",
-                                    # Giving units of the root variable
-                                    y_units = [0, 0, 0],
-                                    # Fixed constants
-                                    fixed_consts       = [ 1.      ],
-                                    # Units of fixed constants
-                                    fixed_consts_units = [ [0, 0, 0] ],
-                                    # Free constants names (for display purposes)
-                                    free_consts_names = [ "a"       , "b"        , "c"        ],
-                                    # Units offFree constants
-                                    free_consts_units = [ [0, 0, 0] , [0, 0, 0]  , [0, 0, 0]  ],
-                                    # Run config
-                                    run_config = physo.config.config0.config0,
+        expression, logs = physo.ClassSR(multi_X, multi_y,
+                                         # Giving names of variables (for display purposes)
+                                         X_names = [ "x0"       , "x1"        ],
+                                         # Giving units of input variables
+                                         X_units = [ [0, 0, 0] , [0, 0, 0] ],
+                                         # Giving name of root variable (for display purposes)
+                                         y_name  = "y",
+                                         # Giving units of the root variable
+                                         y_units = [0, 0, 0],
+                                         # Fixed constants
+                                         fixed_consts       = [ 1.      ],
+                                         # Units of fixed constants
+                                         fixed_consts_units = [ [0, 0, 0] ],
+                                         # Free constants names (for display purposes)
+                                         free_consts_names = [ "a"       , "b"        , "c"        ],
+                                         # Units offFree constants
+                                         free_consts_units = [ [0, 0, 0] , [0, 0, 0]  , [0, 0, 0]  ],
+                                         # Run config
+                                         run_config = physo.config.config0.config0,
 
-                                    # FOR TESTING
-                                    op_names = ["add", "sub", "mul", "div"],
-                                    get_run_logger     = run_logger,
-                                    get_run_visualiser = run_visualiser,
-                                    parallel_mode = False,
-                                    epochs = 5,
-        )
+                                         # FOR TESTING
+                                         op_names = ["add", "sub", "mul", "div"],
+                                         get_run_logger     = run_logger,
+                                         get_run_visualiser = run_visualiser,
+                                         parallel_mode = False,
+                                         epochs = 5,
+                                         )
 
         # Inspecting pareto front expressions
         pareto_front_complexities, pareto_front_expressions, pareto_front_r, pareto_front_rmse = logs.get_pareto_front()

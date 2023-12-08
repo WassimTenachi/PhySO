@@ -433,7 +433,7 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
     n_cpus : int or None
         Number of CPUs to use when running in parallel mode. By default, uses the maximum number of CPUs available.
     mo : bool, optional
-        If True, performs multi-object symbolic regression (MoSR) ie finding a single functional form fitting multiple
+        If True, performs class symbolic regression (ClassSR) ie finding a single functional form fitting multiple
         objects while allowing each object to have its own free parameters.
     mo_reward_reduce : callable, optional
         Function to reduce the reward of each object into a single reward. Takes a list of rewards as input and returns
