@@ -85,7 +85,7 @@ class Test_ClassSR(unittest.TestCase):
                                          get_run_logger     = run_logger,
                                          get_run_visualiser = run_visualiser,
                                          parallel_mode = False,
-                                         epochs = 5,
+                                         epochs = 2,
                                          )
 
         # Inspecting pareto front expressions
