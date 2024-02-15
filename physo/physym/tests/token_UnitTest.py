@@ -436,7 +436,7 @@ class TokenTest(unittest.TestCase):
                              power=0.5)
 
     # Test that type specific token classes are using correct type under the hood
-    def test_token_types(self):
+    def test_token_types_of_subclasses(self):
         # Creating a token of each type and testing its type
 
         my_tok = Tok.TokenInputVar(name='x0', sympy_repr='x0', complexity=0,var_id=0)
