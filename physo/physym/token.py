@@ -30,10 +30,30 @@ INVALID_DEPTH = 9999999
 # Dummy tokens, n_lengths <= pos < (n_lengths + n_dangling)
 DUMMY_TOKEN_NAME = "dummy"
 
+# --------------------- TOKEN VAR TYPES IDs ---------------------
+# Token representing a function
+VAR_TYPE_FUNC = 0
+# Token representing an input variable
+VAR_TYPE_INPUT_VAR = 1
+# Token representing a class free constant
+VAR_TYPE_CLASS_FREE_CONST = 20
+# Token representing a spe free constant
+VAR_TYPE_SPE_FREE_CONST = 21
+# Token representing a fixed constant
+VAR_TYPE_FIXED_CONST = 3
+
+# List of all var types
+VAR_TYPES = [VAR_TYPE_FUNC, VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST, VAR_TYPE_FIXED_CONST]
+
+# Old deprecated var types
+# Token representing a free constant
+VAR_TYPE_FREE_CONST_DEPRECATED = 2
+
 class Token:
     """
-        An object representing a unique mathematical symbol (non_positional & semi_positional), except idx (which
+        An object representing a unique mathematical symbol (non_positional & semi_positional infos), except idx (which
         represents the token's idx in the library and is not encoded here).
+        Using only one class for all token types so they can be vectorized regardless of their type in VectTokens.
         Attributes :
         ----------
         See token.Token.__init__ for full description of parameters.
@@ -97,34 +117,38 @@ class Token:
 
         arity : int
             Number of argument of token (eg. 2 for addition, 1 for sinus, 0 for input variables or constants).
-            - This token represents a function or a fixed const  (ie. var_type = 0 )      <=> arity >= 0
-            - This token represents input_var or free const      (ie. var_type = 1 or 2 ) <=> arity = 0
+            - This token represents a function (ie. var_type = VAR_TYPE_FUNC)  <=> arity >= 0
+            - This token represents input_var or class free const or spe free const or a fixed const (ie. var_type = VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST, VAR_TYPE_FIXED_CONST) <=> arity = 0
         complexity : float
             Complexity of token.
         var_type : int
-            - If this token represents a function    : var_type = 0 (eg. add, mul, cos, exp).
-            - If this token represents an input_var  : var_type = 1 (input variable, eg. x0, x1).
-            - If this token represents a free const  : var_type = 2 (free constant,  eg. c0, c1).
-            - If this token represents a fixed const : var_type = 3 (eg. pi, 1)
+            - If this token represents a function          : var_type = VAR_TYPE_FUNC  (eg. add, mul, cos, exp).
+            - If this token represents an input_var        : var_type = VAR_TYPE_INPUT_VAR  (input variable, eg. x0, x1).
+            - If this token represents a class free const  : var_type = VAR_TYPE_CLASS_FREE_CONST (free constant,  eg. c0, c1).
+            - If this token represents a spe free const    : var_type = VAR_TYPE_SPE_FREE_CONST (free constant,  eg. k0, k1).
+            - If this token represents a fixed const       : var_type = VAR_TYPE_FIXED_CONST  (eg. pi, 1)
+            Distinction between class free const and spe free const is important in Class SR context only: class free
+            const are shared between all realizations of a single program whereas spe free const are specific to each
+            dataset.
         function : callable or None
-            - This token represents a function (ie. var_type = 0 ) <=> this represents the function associated with the
-            token. Function of arity = n must be callable using n arguments, each argument consisting in a numpy array
+            - This token represents a function (ie. var_type = VAR_TYPE_FUNC ) <=> this represents the function associated with the
+            token. Function of arity = n must be callable using n arguments, each argument consisting in eg. an array
             of floats of shape (int,) or a single float number.
-            - This token represents an input_var, a free const or a fixed const (ie. var_type = 1, 2 or 3) <=>
-            function = None
+            - This token represents an input_var or a constant (ie. var_type = VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST or VAR_TYPE_FIXED_CONST) <=> function = None
         init_val : float or np.NAN
-            - This token represents a function, a fixed const or an input variable (ie. var_type = 0, 1 or 3)
+            - This token represents a function, a fixed const or an input variable (ie. var_type = VAR_TYPE_FUNC, VAR_TYPE_FIXED_CONST or VAR_TYPE_INPUT_VAR)
             <=> init_val = np.NAN
-            - This token represents a free const (ie. var_type = 2 )  <=>  init_val = non NaN float
+            - This token represents a free const (ie. var_type = VAR_TYPE_CLASS_FREE_CONST or VAR_TYPE_SPE_FREE_CONST )  <=>  init_val = non NaN float
         var_id : int or None
-            - This token represents an input_var or a free constant (ie. var_type = 1 or 2) <=> var_id is an integer
-            representing the id of the input_var in the dataset or the id of the free const in the free const array.
-            - This token represents a function or a fixed constant (ie. var_type = 0 or 3) <=> var_id = None.
+            - This token represents an input_var or a free constant (ie. var_type = VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST or VAR_TYPE_SPE_FREE_CONST) <=> var_id is an
+            integer representing the id of the input_var in the dataset or the id of the free const in the free const
+            array.
+            - This token represents a function or a fixed constant (ie. var_type = VAR_TYPE_FUNC or VAR_TYPE_FIXED_CONST) <=> var_id = None.
             (converted to INVALID_VAR_ID in __init__)
         fixed_const : float or np.NAN
-            - This token represents a fixed constant (ie. var_type = 3) <=> fixed_const = non NaN float
-            - This token represents a function, an input_var or a free const (ie. var_type = 0, 1 or 2 )
-            <=>  fixed_const = non NaN float
+            - This token represents a fixed constant (ie. var_type = VAR_TYPE_FIXED_CONST) <=> fixed_const = non NaN float
+            - This token represents a function, an input_var or a free const (ie. var_type = VAR_TYPE_FUNC, VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST or VAR_TYPE_SPE_FREE_CONST )
+            <=>  fixed_const = NaN float
 
         behavior_id : int
             Id encoding behavior of token in the context of dimensional analysis (see functions for details).
@@ -162,45 +186,64 @@ class Token:
         # ---- Assertions ----
         assert isinstance(arity,      int),   "arity must be an int, %s is not an int" % (str(arity))
         assert isinstance(float(complexity), float), "complexity must be castable to float"
-        assert isinstance(int(var_type), int) and int(var_type) <= 3, "var_type must be castable to a 0 <= int <= 3"
+        assert isinstance(int(var_type), int) and int(var_type) in VAR_TYPES, "var_type must be castable as an int in %s" % (str(VAR_TYPES))
         assert isinstance(float(fixed_const), float), "fixed_const must be castable to a float"
 
         # Token representing input_var (eg. x0, x1 etc.)
-        if var_type == 1:
-            assert function is None,        'Token representing input_var (var_type = 1) must have function = None'
-            assert arity == 0,              'Token representing input_var (var_type = 1) must have arity = 0'
-            assert isinstance(var_id, int), 'Token representing input_var (var_type = 1) must have an int var_id'
-            assert np.isnan(init_val),      'Token representing input_var (var_type = 1) must have init_val = NaN'
+        if var_type == VAR_TYPE_INPUT_VAR:
+            assert function is None,        'Token representing input_var (var_type = %i) must have function = None'   %(VAR_TYPE_INPUT_VAR)
+            assert arity == 0,              'Token representing input_var (var_type = %i) must have arity = 0'         %(VAR_TYPE_INPUT_VAR)
+            assert isinstance(var_id, int), 'Token representing input_var (var_type = %i) must have an int var_id'     %(VAR_TYPE_INPUT_VAR)
+            assert np.isnan(init_val),      'Token representing input_var (var_type = %i) must have init_val = NaN'    %(VAR_TYPE_INPUT_VAR)
             assert np.isnan(float(fixed_const)), \
-                                            'Token representing input_var (var_type = 1) must have a nan fixed_const'
+                                            'Token representing input_var (var_type = %i) must have a nan fixed_const' %(VAR_TYPE_INPUT_VAR)
+
         # Token representing function (eg. add, mul, exp, etc.)
-        elif var_type == 0:
-            assert callable(function), 'Token representing function (var_type = 0) must have callable function'
-            assert arity >= 0,         'Token representing function (var_type = 0) must have arity >= 0'
-            assert var_id is None,     'Token representing function (var_type = 0) must have var_id = None'
-            assert np.isnan(init_val), 'Token representing function (var_type = 0) must have init_val = NaN'
+        elif var_type == VAR_TYPE_FUNC:
+            assert callable(function), 'Token representing function (var_type = %i) must have callable function'  %(VAR_TYPE_FUNC)
+            assert arity >= 0,         'Token representing function (var_type = %i) must have arity >= 0'         %(VAR_TYPE_FUNC)
+            assert var_id is None,     'Token representing function (var_type = %i) must have var_id = None'      %(VAR_TYPE_FUNC)
+            assert np.isnan(init_val), 'Token representing function (var_type = %i) must have init_val = NaN'     %(VAR_TYPE_FUNC)
             assert np.isnan(float(fixed_const)), \
-                                       'Token representing function (var_type = 0) must have a nan fixed_const'
-        # Token representing free constant (eg. c0, c1 etc.)
-        elif var_type == 2:
-            assert function is None,        'Token representing free const (var_type = 2) must have function = None'
-            assert arity == 0,              'Token representing free const (var_type = 2) must have arity == 0'
-            assert isinstance(var_id, int), 'Token representing free const (var_type = 2) must have an int var_id'
+                                       'Token representing function (var_type = %i) must have a nan fixed_const'  %(VAR_TYPE_FUNC)
+
+        # DEPRECATED: old way of representing free constant (eg. c0, c1 etc.)
+        elif var_type == VAR_TYPE_FREE_CONST_DEPRECATED:
+            raise NotImplementedError('Plain free const representation (var_type = %i) is deprecated. Use class free const (var_type = %i) or spe free const (var_type = %i) instead.'%(VAR_TYPE_FREE_CONST_DEPRECATED, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST))
+
+        # Token representing class free constant (eg. c0, c1 etc.) (where each constant value is the same across all datasets in Class SR context)
+        elif var_type == VAR_TYPE_CLASS_FREE_CONST:
+            assert function is None,        'Token representing class free const (var_type = %i) must have function = None'          %(VAR_TYPE_CLASS_FREE_CONST)
+            assert arity == 0,              'Token representing class free const (var_type = %i) must have arity == 0'               %(VAR_TYPE_CLASS_FREE_CONST)
+            assert isinstance(var_id, int), 'Token representing class free const (var_type = %i) must have an int var_id'            %(VAR_TYPE_CLASS_FREE_CONST)
             assert isinstance(init_val, float) and not np.isnan(init_val), \
-                                            'Token representing free const (var_type = 2) must have a non-nan float init_val'
+                                            'Token representing class free const (var_type = %i) must have a non-nan float init_val' %(VAR_TYPE_CLASS_FREE_CONST)
             assert np.isnan(float(fixed_const)), \
-                                            'Token representing free const (var_type = 2) must have a nan fixed_const'
+                                            'Token representing class free const (var_type = %i) must have a nan fixed_const'        %(VAR_TYPE_CLASS_FREE_CONST)
+
+        # Token representing (dataset specific) spe free constant (eg. k0, k1 etc.) (where each constant has a different across each datasets in Class SR context)
+        elif var_type == VAR_TYPE_SPE_FREE_CONST:
+            assert function is None,        'Token representing spe free const (var_type = %i) must have function = None'            %(VAR_TYPE_SPE_FREE_CONST)
+            assert arity == 0,              'Token representing spe free const (var_type = %i) must have arity == 0'                 %(VAR_TYPE_SPE_FREE_CONST)
+            assert isinstance(var_id, int), 'Token representing spe free const (var_type = %i) must have an int var_id'              %(VAR_TYPE_SPE_FREE_CONST)
+            assert isinstance(init_val, float) and not np.isnan(init_val), \
+                                            'Token representing spe free const (var_type = %i) must have a non-nan float init_val'   %(VAR_TYPE_SPE_FREE_CONST)
+            assert np.isnan(float(fixed_const)), \
+                                            'Token representing spe free const (var_type = %i) must have a nan fixed_const'          %(VAR_TYPE_SPE_FREE_CONST)
 
         # Token representing a fixed constant (eg. 1, pi etc.)
-        elif var_type == 3:
-            assert function is None,   'Token representing fixed const (var_type = 3) must have function = None'
-            assert arity == 0,         'Token representing fixed const (var_type = 3) must have arity == 0'
-            assert var_id is None,     'Token representing fixed const (var_type = 3) must have var_id = None'
-            assert np.isnan(init_val), 'Token representing fixed const (var_type = 3) must have init_val = NaN'
+        elif var_type == VAR_TYPE_FIXED_CONST:
+            assert function is None,   'Token representing fixed const (var_type = %i) must have function = None'        %(VAR_TYPE_FIXED_CONST)
+            assert arity == 0,         'Token representing fixed const (var_type = %i) must have arity == 0'             %(VAR_TYPE_FIXED_CONST)
+            assert var_id is None,     'Token representing fixed const (var_type = %i) must have var_id = None'          %(VAR_TYPE_FIXED_CONST)
+            assert np.isnan(init_val), 'Token representing fixed const (var_type = %i) must have init_val = NaN'         %(VAR_TYPE_FIXED_CONST)
             assert not np.isnan(float(fixed_const)), \
-                                       'Token representing fixed const (var_type = 3) must have a non-nan fixed_const'
+                                       'Token representing fixed const (var_type = %i) must have a non-nan fixed_const'  %(VAR_TYPE_FIXED_CONST)
             # not checking isinstance(fixed_const, float) as fixed_const can be a torch.tensor(float) or a float
             # ie. "float-like"
+
+        else:
+            raise ValueError("Unknown var_type %s" % (str(var_type)))
 
         # ---- Attribution ----
         self.arity       = arity                                   # int
@@ -211,7 +254,7 @@ class Token:
         # Free const specific
         self.init_val = init_val                                   # float
         # Input variable / free const specific
-        if self.var_type == 1 or self.var_type == 2:
+        if self.var_type == VAR_TYPE_INPUT_VAR or self.var_type == VAR_TYPE_CLASS_FREE_CONST or self.var_type == VAR_TYPE_SPE_FREE_CONST:
             self.var_id = var_id                                   # int
         else:
             self.var_id = INVALID_VAR_ID                           # int
@@ -258,16 +301,32 @@ class Token:
         else:
             # must be a numpy.array to support operations
             self.phy_units = np.array(phy_units)                   # (UNITS_VECTOR_SIZE,) of float
+    @property
+    def is_function(self):
+        return self.var_type == VAR_TYPE_FUNC
+    @property
+    def is_input_var(self):
+        return self.var_type == VAR_TYPE_INPUT_VAR
+    @property
+    def is_class_free_const(self):
+        return self.var_type == VAR_TYPE_CLASS_FREE_CONST
+    @property
+    def is_spe_free_const(self):
+        return self.var_type == VAR_TYPE_SPE_FREE_CONST
+    @property
+    def is_fixed_const(self):
+        return self.var_type == VAR_TYPE_FIXED_CONST
+
 
     def __call__(self, *args):
         # Assert number of args vs arity
         assert len(args) == self.arity, '%i arguments were passed to token %s during call but token has arity = %i' \
             % (len(args), self.name, self.arity,)
 
-        if self.var_type == 0:
+        if self.var_type == VAR_TYPE_FUNC:
             return self.function(*args)
 
-        elif self.var_type == 3:
+        elif self.var_type == VAR_TYPE_FIXED_CONST:
             return self.fixed_const
 
         # Raise error for input_var and free const tokens
@@ -275,7 +334,6 @@ class Token:
         else:
             raise AssertionError("Token %s does not represent a function or a fixed constant (var_type=%s), it can not "
                                  "be called."% (self.name, str(self.var_type)))
-
 
     def __repr__(self):
         return self.name
@@ -300,7 +358,7 @@ class VectTokens:
     complexity                :  float
     var_type                  :  int
     ( function                :  callable or None  )
-    ( init_val                  :  float           )
+    ( init_val                :  float             )
     var_id                    :  int
     ( fixed_const             : float              )
     behavior_id               :  int
