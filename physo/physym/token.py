@@ -31,8 +31,8 @@ INVALID_DEPTH = 9999999
 DUMMY_TOKEN_NAME = "dummy"
 
 # --------------------- TOKEN VAR TYPES IDs ---------------------
-# Token representing a function
-VAR_TYPE_FUNC = 0
+# Token representing an operation / function
+VAR_TYPE_OP = 0
 # Token representing an input variable
 VAR_TYPE_INPUT_VAR = 1
 # Token representing a class free constant
@@ -43,12 +43,13 @@ VAR_TYPE_SPE_FREE_CONST = 21
 VAR_TYPE_FIXED_CONST = 3
 
 # List of all var types
-VAR_TYPES = [VAR_TYPE_FUNC, VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST, VAR_TYPE_FIXED_CONST]
+VAR_TYPES = [VAR_TYPE_OP, VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST, VAR_TYPE_FIXED_CONST]
 
 # Old deprecated var types
 # Token representing a free constant
 VAR_TYPE_FREE_CONST_DEPRECATED = 2
 
+# --------------------- Token class ---------------------
 class Token:
     """
         An object representing a unique mathematical symbol (non_positional & semi_positional infos), except idx (which
@@ -100,7 +101,6 @@ class Token:
                  # ---- Physical units : power ----
                  is_power                  = False,
                  power                     = np.NAN,
-
                  # ---- Physical units : units (semi_positional) ----
                  is_constraining_phy_units = False,
                  phy_units                 = None,
@@ -117,12 +117,13 @@ class Token:
 
         arity : int
             Number of argument of token (eg. 2 for addition, 1 for sinus, 0 for input variables or constants).
-            - This token represents a function (ie. var_type = VAR_TYPE_FUNC)  <=> arity >= 0
-            - This token represents input_var or class free const or spe free const or a fixed const (ie. var_type = VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST, VAR_TYPE_FIXED_CONST) <=> arity = 0
+            - This token represents a function (ie. var_type = VAR_TYPE_OP)  <=> arity >= 0
+            - This token represents input_var or class free const or spe free const or a fixed const
+            (ie. var_type = VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST, VAR_TYPE_FIXED_CONST) <=> arity = 0
         complexity : float
             Complexity of token.
         var_type : int
-            - If this token represents a function          : var_type = VAR_TYPE_FUNC  (eg. add, mul, cos, exp).
+            - If this token represents a function          : var_type = VAR_TYPE_OP  (eg. add, mul, cos, exp).
             - If this token represents an input_var        : var_type = VAR_TYPE_INPUT_VAR  (input variable, eg. x0, x1).
             - If this token represents a class free const  : var_type = VAR_TYPE_CLASS_FREE_CONST (free constant,  eg. c0, c1).
             - If this token represents a spe free const    : var_type = VAR_TYPE_SPE_FREE_CONST (free constant,  eg. k0, k1).
@@ -131,23 +132,24 @@ class Token:
             const are shared between all realizations of a single program whereas spe free const are specific to each
             dataset.
         function : callable or None
-            - This token represents a function (ie. var_type = VAR_TYPE_FUNC ) <=> this represents the function associated with the
+            - This token represents a function (ie. var_type = VAR_TYPE_OP ) <=> this represents the function associated with the
             token. Function of arity = n must be callable using n arguments, each argument consisting in eg. an array
             of floats of shape (int,) or a single float number.
-            - This token represents an input_var or a constant (ie. var_type = VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST or VAR_TYPE_FIXED_CONST) <=> function = None
+            - This token represents an input_var or a constant (ie. var_type = VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST,
+            VAR_TYPE_SPE_FREE_CONST or VAR_TYPE_FIXED_CONST) <=> function = None
         init_val : float or np.NAN
-            - This token represents a function, a fixed const or an input variable (ie. var_type = VAR_TYPE_FUNC, VAR_TYPE_FIXED_CONST or VAR_TYPE_INPUT_VAR)
+            - This token represents a function, a fixed const or an input variable (ie. var_type = VAR_TYPE_OP, VAR_TYPE_FIXED_CONST or VAR_TYPE_INPUT_VAR)
             <=> init_val = np.NAN
             - This token represents a free const (ie. var_type = VAR_TYPE_CLASS_FREE_CONST or VAR_TYPE_SPE_FREE_CONST )  <=>  init_val = non NaN float
         var_id : int or None
             - This token represents an input_var or a free constant (ie. var_type = VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST or VAR_TYPE_SPE_FREE_CONST) <=> var_id is an
             integer representing the id of the input_var in the dataset or the id of the free const in the free const
             array.
-            - This token represents a function or a fixed constant (ie. var_type = VAR_TYPE_FUNC or VAR_TYPE_FIXED_CONST) <=> var_id = None.
+            - This token represents a function or a fixed constant (ie. var_type = VAR_TYPE_OP or VAR_TYPE_FIXED_CONST) <=> var_id = None.
             (converted to INVALID_VAR_ID in __init__)
         fixed_const : float or np.NAN
             - This token represents a fixed constant (ie. var_type = VAR_TYPE_FIXED_CONST) <=> fixed_const = non NaN float
-            - This token represents a function, an input_var or a free const (ie. var_type = VAR_TYPE_FUNC, VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST or VAR_TYPE_SPE_FREE_CONST )
+            - This token represents a function, an input_var or a free const (ie. var_type = VAR_TYPE_OP, VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST or VAR_TYPE_SPE_FREE_CONST )
             <=>  fixed_const = NaN float
 
         behavior_id : int
@@ -199,13 +201,13 @@ class Token:
                                             'Token representing input_var (var_type = %i) must have a nan fixed_const' %(VAR_TYPE_INPUT_VAR)
 
         # Token representing function (eg. add, mul, exp, etc.)
-        elif var_type == VAR_TYPE_FUNC:
-            assert callable(function), 'Token representing function (var_type = %i) must have callable function'  %(VAR_TYPE_FUNC)
-            assert arity >= 0,         'Token representing function (var_type = %i) must have arity >= 0'         %(VAR_TYPE_FUNC)
-            assert var_id is None,     'Token representing function (var_type = %i) must have var_id = None'      %(VAR_TYPE_FUNC)
-            assert np.isnan(init_val), 'Token representing function (var_type = %i) must have init_val = NaN'     %(VAR_TYPE_FUNC)
+        elif var_type == VAR_TYPE_OP:
+            assert callable(function), 'Token representing function (var_type = %i) must have callable function'  %(VAR_TYPE_OP)
+            assert arity >= 0,         'Token representing function (var_type = %i) must have arity >= 0'         %(VAR_TYPE_OP)
+            assert var_id is None,     'Token representing function (var_type = %i) must have var_id = None'      %(VAR_TYPE_OP)
+            assert np.isnan(init_val), 'Token representing function (var_type = %i) must have init_val = NaN'     %(VAR_TYPE_OP)
             assert np.isnan(float(fixed_const)), \
-                                       'Token representing function (var_type = %i) must have a nan fixed_const'  %(VAR_TYPE_FUNC)
+                                       'Token representing function (var_type = %i) must have a nan fixed_const'  %(VAR_TYPE_OP)
 
         # DEPRECATED: old way of representing free constant (eg. c0, c1 etc.)
         elif var_type == VAR_TYPE_FREE_CONST_DEPRECATED:
@@ -303,7 +305,7 @@ class Token:
             self.phy_units = np.array(phy_units)                   # (UNITS_VECTOR_SIZE,) of float
     @property
     def is_function(self):
-        return self.var_type == VAR_TYPE_FUNC
+        return self.var_type == VAR_TYPE_OP
     @property
     def is_input_var(self):
         return self.var_type == VAR_TYPE_INPUT_VAR
@@ -323,7 +325,7 @@ class Token:
         assert len(args) == self.arity, '%i arguments were passed to token %s during call but token has arity = %i' \
             % (len(args), self.name, self.arity,)
 
-        if self.var_type == VAR_TYPE_FUNC:
+        if self.var_type == VAR_TYPE_OP:
             return self.function(*args)
 
         elif self.var_type == VAR_TYPE_FIXED_CONST:
@@ -338,6 +340,312 @@ class Token:
     def __repr__(self):
         return self.name
 
+# --------------------- Type specific Token classes ---------------------
+
+class TokenOp (Token):
+    """
+    An object inheriting from Token representing an operation / function (see Token documentation for details).
+    """
+    def __init__(self,
+                 # ---- Token representation ----
+                 name,
+                 sympy_repr,
+                 # ---- Token main properties ----
+                 arity,
+                 complexity  = DEFAULT_COMPLEXITY,
+                 # Function specific
+                 function = None,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = None,
+                 # ---- Physical units : power ----
+                 is_power                  = False,
+                 power                     = np.NAN,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = False,
+                 phy_units                 = None,
+                 ):
+        """
+        See Token.__init__ documentation for details.
+        """
+
+        # These properties should always have these values for this type of token (operation / function).
+        var_type    = VAR_TYPE_OP
+        init_val    = np.NAN
+        var_id      = None
+        fixed_const = np.NAN
+
+        # Passing arguments parametrizing this type of token to parent object and filling in the rest.
+        super().__init__(
+                 # ---- Token representation ----
+                 name       = name,
+                 sympy_repr = sympy_repr,
+                 # ---- Token main properties ----
+                 arity       = arity,
+                 complexity  = complexity,
+                 var_type    = var_type,
+                 # Function specific
+                 function = function,
+                 # Free constant specific
+                 init_val = init_val,
+                 # Input variable / free constant specific
+                 var_id   = var_id,
+                 # Fixed constant specific
+                 fixed_const = fixed_const,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = behavior_id,
+                 # ---- Physical units : power ----
+                 is_power                  = is_power,
+                 power                     = power,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = is_constraining_phy_units,
+                 phy_units                 = phy_units,
+        )
+
+class TokenInputVar (Token):
+    """
+    An object inheriting from Token representing an input variable (see Token documentation for details).
+    """
+    def __init__(self,
+                 # ---- Token representation ----
+                 name,
+                 sympy_repr,
+                 # ---- Token main properties ----
+                 complexity  = DEFAULT_COMPLEXITY,
+                 # Input variable / free constant specific
+                 var_id   = None,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = None,
+                 # ---- Physical units : power ----
+                 is_power                  = False,
+                 power                     = np.NAN,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = False,
+                 phy_units                 = None,
+                 ):
+        """
+        See Token.__init__ documentation for details.
+        """
+
+        # These properties should always have these values for this type of token (input_var).
+        arity       = 0
+        var_type    = VAR_TYPE_INPUT_VAR
+        function    = None
+        init_val    = np.NAN
+        fixed_const = np.NAN
+
+        # Passing arguments parametrizing this type of token to parent object and filling in the rest.
+        super().__init__(
+                 # ---- Token representation ----
+                 name       = name,
+                 sympy_repr = sympy_repr,
+                 # ---- Token main properties ----
+                 arity       = arity,
+                 complexity  = complexity,
+                 var_type    = var_type,
+                 # Function specific
+                 function = function,
+                 # Free constant specific
+                 init_val = init_val,
+                 # Input variable / free constant specific
+                 var_id   = var_id,
+                 # Fixed constant specific
+                 fixed_const = fixed_const,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = behavior_id,
+                 # ---- Physical units : power ----
+                 is_power                  = is_power,
+                 power                     = power,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = is_constraining_phy_units,
+                 phy_units                 = phy_units,
+        )
+
+class TokenClassFreeConst (Token):
+    """
+    An object inheriting from Token representing a class free constant (see Token documentation for details).
+    Distinction between class free const and spe free const is important in Class SR context only: class free
+    const are shared between all realizations of a single program whereas spe free const are specific to each
+    dataset.
+    """
+    def __init__(self,
+                 # ---- Token representation ----
+                 name,
+                 sympy_repr,
+                 # ---- Token main properties ----
+                 complexity  = DEFAULT_COMPLEXITY,
+                 # Free constant specific
+                 init_val = np.NAN,
+                 # Input variable / free constant specific
+                 var_id   = None,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = None,
+                 # ---- Physical units : power ----
+                 is_power                  = False,
+                 power                     = np.NAN,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = False,
+                 phy_units                 = None,
+                 ):
+        """
+        See Token.__init__ documentation for details.
+        """
+
+        # These properties should always have these values for this type of token (class_free_const).
+        arity       = 0
+        var_type    = VAR_TYPE_CLASS_FREE_CONST
+        function    = None
+        fixed_const = np.NAN
+
+        # Passing arguments parametrizing this type of token to parent object and filling in the rest.
+        super().__init__(
+                 # ---- Token representation ----
+                 name       = name,
+                 sympy_repr = sympy_repr,
+                 # ---- Token main properties ----
+                 arity       = arity,
+                 complexity  = complexity,
+                 var_type    = var_type,
+                 # Function specific
+                 function = function,
+                 # Free constant specific
+                 init_val = init_val,
+                 # Input variable / free constant specific
+                 var_id   = var_id,
+                 # Fixed constant specific
+                 fixed_const = fixed_const,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = behavior_id,
+                 # ---- Physical units : power ----
+                 is_power                  = is_power,
+                 power                     = power,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = is_constraining_phy_units,
+                 phy_units                 = phy_units,
+        )
+
+class TokenSpeFreeConst (Token):
+    """
+    An object inheriting from Token representing a spe free constant (see Token documentation for details).
+    Distinction between class free const and spe free const is important in Class SR context only: class free
+    const are shared between all realizations of a single program whereas spe free const are specific to each
+    dataset.
+    """
+    def __init__(self,
+                 # ---- Token representation ----
+                 name,
+                 sympy_repr,
+                 # ---- Token main properties ----
+                 complexity  = DEFAULT_COMPLEXITY,
+                 # Free constant specific
+                 init_val = np.NAN,
+                 # Input variable / free constant specific
+                 var_id   = None,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = None,
+                 # ---- Physical units : power ----
+                 is_power                  = False,
+                 power                     = np.NAN,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = False,
+                 phy_units                 = None,
+                 ):
+        """
+        See Token.__init__ documentation for details.
+        """
+
+        # These properties should always have these values for this type of token (spe_free_const).
+        arity       = 0
+        var_type    = VAR_TYPE_SPE_FREE_CONST
+        function    = None
+        fixed_const = np.NAN
+
+        # Passing arguments parametrizing this type of token to parent object and filling in the rest.
+        super().__init__(
+                 # ---- Token representation ----
+                 name       = name,
+                 sympy_repr = sympy_repr,
+                 # ---- Token main properties ----
+                 arity       = arity,
+                 complexity  = complexity,
+                 var_type    = var_type,
+                 # Function specific
+                 function = function,
+                 # Free constant specific
+                 init_val = init_val,
+                 # Input variable / free constant specific
+                 var_id   = var_id,
+                 # Fixed constant specific
+                 fixed_const = fixed_const,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = behavior_id,
+                 # ---- Physical units : power ----
+                 is_power                  = is_power,
+                 power                     = power,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = is_constraining_phy_units,
+                 phy_units                 = phy_units,
+        )
+
+class TokenFixedConst (Token):
+    """
+    An object inheriting from Token representing a fixed constant (see Token documentation for details).
+    """
+    def __init__(self,
+                 # ---- Token representation ----
+                 name,
+                 sympy_repr,
+                 # ---- Token main properties ----
+                 complexity  = DEFAULT_COMPLEXITY,
+                 # Fixed constant specific
+                 fixed_const = np.NAN,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = None,
+                 # ---- Physical units : power ----
+                 is_power                  = False,
+                 power                     = np.NAN,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = False,
+                 phy_units                 = None,
+                 ):
+        """
+        See Token.__init__ documentation for details.
+        """
+
+        # These properties should always have these values for this type of token (fixed_const).
+        arity       = 0
+        var_type    = VAR_TYPE_FIXED_CONST
+        function    = None
+        init_val    = np.NAN
+        var_id      = None
+
+        # Passing arguments parametrizing this type of token to parent object and filling in the rest.
+        super().__init__(
+                 # ---- Token representation ----
+                 name       = name,
+                 sympy_repr = sympy_repr,
+                 # ---- Token main properties ----
+                 arity       = arity,
+                 complexity  = complexity,
+                 var_type    = var_type,
+                 # Function specific
+                 function = function,
+                 # Free constant specific
+                 init_val = init_val,
+                 # Input variable / free constant specific
+                 var_id   = var_id,
+                 # Fixed constant specific
+                 fixed_const = fixed_const,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = behavior_id,
+                 # ---- Physical units : power ----
+                 is_power                  = is_power,
+                 power                     = power,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = is_constraining_phy_units,
+                 phy_units                 = phy_units,
+        )
+
+# --------------------- Vectorized tokens ---------------------
 
 class VectTokens:
     """
@@ -530,3 +838,4 @@ class VectTokens:
         self.n_siblings         = np.full(shape=self.shape,  fill_value=self.default_n_siblings , dtype=int)
         self.n_children         = np.full(shape=self.shape,  fill_value=self.default_n_children , dtype=int)
         self.n_ancestors        = np.full(shape=self.shape,  fill_value=self.default_n_ancestors, dtype=int)
+
