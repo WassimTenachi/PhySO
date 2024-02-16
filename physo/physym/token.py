@@ -128,8 +128,8 @@ class Token:
             - If this token represents a class free const  : var_type = VAR_TYPE_CLASS_FREE_CONST (free constant,  eg. c0, c1).
             - If this token represents a spe free const    : var_type = VAR_TYPE_SPE_FREE_CONST (free constant,  eg. k0, k1).
             - If this token represents a fixed const       : var_type = VAR_TYPE_FIXED_CONST  (eg. pi, 1)
-            Distinction between class free const and spe free const is important in Class SR context only: class free
-            const are shared between all realizations of a single program whereas spe free const are specific to each
+            Distinction between class free const and spe free const is important in Class SR context only: class free const
+            values are shared between all realizations of a single program whereas spe free const values are specific to each
             dataset.
         function : callable or None
             - This token represents a function (ie. var_type = VAR_TYPE_OP ) <=> this represents the function associated with the
@@ -463,8 +463,8 @@ class TokenInputVar (Token):
 class TokenClassFreeConst (Token):
     """
     An object inheriting from Token representing a class free constant (see Token documentation for details).
-    Distinction between class free const and spe free const is important in Class SR context only: class free
-    const are shared between all realizations of a single program whereas spe free const are specific to each
+    Distinction between class free const and spe free const is important in Class SR context only: class free const
+    values are shared between all realizations of a single program whereas spe free const values are specific to each
     dataset.
     """
     def __init__(self,
@@ -527,7 +527,7 @@ class TokenSpeFreeConst (Token):
     """
     An object inheriting from Token representing a spe free constant (see Token documentation for details).
     Distinction between class free const and spe free const is important in Class SR context only: class free
-    const are shared between all realizations of a single program whereas spe free const are specific to each
+    const values are shared between all realizations of a single program whereas spe free const values are specific to each
     dataset.
     """
     def __init__(self,
