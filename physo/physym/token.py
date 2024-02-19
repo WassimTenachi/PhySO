@@ -213,7 +213,7 @@ class Token:
         elif var_type == VAR_TYPE_FREE_CONST_DEPRECATED:
             raise NotImplementedError('Plain free const representation (var_type = %i) is deprecated. Use class free const (var_type = %i) or spe free const (var_type = %i) instead.'%(VAR_TYPE_FREE_CONST_DEPRECATED, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST))
 
-        # Token representing class free constant (eg. c0, c1 etc.) (where each constant value is the same across all datasets in Class SR context)
+        # Token representing class free constant (eg. c0, c1 etc.) (where each constant value is the same across all datasets/realizations in Class SR context)
         elif var_type == VAR_TYPE_CLASS_FREE_CONST:
             assert function is None,        'Token representing class free const (var_type = %i) must have function = None'          %(VAR_TYPE_CLASS_FREE_CONST)
             assert arity == 0,              'Token representing class free const (var_type = %i) must have arity == 0'               %(VAR_TYPE_CLASS_FREE_CONST)
@@ -223,7 +223,7 @@ class Token:
             assert np.isnan(float(fixed_const)), \
                                             'Token representing class free const (var_type = %i) must have a nan fixed_const'        %(VAR_TYPE_CLASS_FREE_CONST)
 
-        # Token representing (dataset specific) spe free constant (eg. k0, k1 etc.) (where each constant has a different across each datasets in Class SR context)
+        # Token representing (realization specific) spe free constant (eg. k0, k1 etc.) (where each constant has a different value across each dataset/realization in Class SR context)
         elif var_type == VAR_TYPE_SPE_FREE_CONST:
             assert function is None,        'Token representing spe free const (var_type = %i) must have function = None'            %(VAR_TYPE_SPE_FREE_CONST)
             assert arity == 0,              'Token representing spe free const (var_type = %i) must have arity == 0'                 %(VAR_TYPE_SPE_FREE_CONST)
