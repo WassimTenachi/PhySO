@@ -206,10 +206,11 @@ class FuncTest(unittest.TestCase):
 
         if make_plots:
             # protected_div
-            x1 = torch.linspace(-1, 1, n_plot)
+            x1 = torch.ones(n_plot)
+            x2 = torch.linspace(-0.1, 0.1, n_plot)
             fig, ax = plt.subplots(1, 1, figsize=(20, 10))
-            ax.plot(x1, Func.protected_div(x1, 4 * x1), label="protected_div", color="k", linestyle="solid")
-            ax.plot(x1, Func.protected_div(x1, -4 * x1), label="protected_div (neg num)", color="r", linestyle="dotted")
+            ax.plot(x2, Func.protected_div(x1, x2)     , label="protected_div", color="k", linestyle="solid")
+            ax.plot(x2, Func.protected_div(x1, -1 * x2), label="protected_div (neg num)", color="r", linestyle="dotted")
             ax.legend()
             if do_show: plt.show()
             if do_save: fig.savefig("protected_div.png")

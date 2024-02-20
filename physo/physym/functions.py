@@ -209,18 +209,21 @@ OPS_UNPROTECTED = [
 ]
 
 # ------------- protected functions -------------
+EPSILON = 0.001
+EXP_THRESHOLD = 100
+INF = 1e6
 
 def protected_div(x1, x2):
     #with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
-    return torch.where(torch.abs(x2) > 0.001, torch.divide(x1, x2), 1.)
+    return torch.where(torch.abs(x2) > EPSILON, torch.divide(x1, x2), 1.)
 
 def protected_exp(x1):
     #with np.errstate(over='ignore'):
-    return torch.where(x1 < 100, torch.exp(x1), 0.0)
+    return torch.where(x1 < EXP_THRESHOLD, torch.exp(x1), 0.0)
 
 def protected_log(x1):
     #with np.errstate(divide='ignore', invalid='ignore'):
-    return torch.where(torch.abs(x1) > 0.001, torch.log(torch.abs(x1)), 0.)
+    return torch.where(torch.abs(x1) > EPSILON, torch.log(torch.abs(x1)), 0.)
 
 protected_logabs = protected_log
 
@@ -229,38 +232,35 @@ def protected_sqrt(x1):
 
 def protected_inv(x1):
     # with np.errstate(divide='ignore', invalid='ignore'):
-    return torch.where(torch.abs(x1) > 0.001, 1. / x1, 0.)
+    return torch.where(torch.abs(x1) > EPSILON, 1. / x1, 0.)
 
 def protected_expneg(x1):
     # with np.errstate(over='ignore'):
-    return torch.where(x1 > -100, torch.exp(-x1), 0.0)
+    return torch.where(x1 > -EXP_THRESHOLD, torch.exp(-x1), 0.0)
 
 def protected_n2(x1):
     # with np.errstate(over='ignore'):
-    return torch.where(torch.abs(x1) < 1e6, torch.square(x1), 0.0)
+    return torch.where(torch.abs(x1) < INF, torch.square(x1), 0.0)
 
 def protected_n3(x1):
     # with np.errstate(over='ignore'):
-    return torch.where(torch.abs(x1) < 1e6, torch.pow(x1, 3), 0.0)
+    return torch.where(torch.abs(x1) < INF, torch.pow(x1, 3), 0.0)
 
 def protected_n4(x1):
     # with np.errstate(over='ignore'):
-    return torch.where(torch.abs(x1) < 1e6, torch.pow(x1, 4), 0.0)
+    return torch.where(torch.abs(x1) < INF, torch.pow(x1, 4), 0.0)
 
 def protected_arcsin (x1):
-    inf = 1e6
-    return torch.where(torch.abs(x1) < 0.999, torch.arcsin(x1), torch.sign(x1)*inf)
+    return torch.where(torch.abs(x1) < 1.-EPSILON, torch.arcsin(x1), torch.sign(x1)*INF)
 
 def protected_arccos (x1):
-    inf = 1e6
-    return torch.where(torch.abs(x1) < 0.999, torch.arccos(x1), torch.sign(x1)*inf)
+    return torch.where(torch.abs(x1) < 1.-EPSILON, torch.arccos(x1), torch.sign(x1)*INF)
 
 def protected_torch_pow(x0, x1):
-    inf = 1e6
     if not torch.is_tensor(x0):
        x0 = torch.ones_like(x1)*x0
     y = torch.pow(x0, x1)
-    y = torch.where(y > inf, inf, y)
+    y = torch.where(y > INF, INF, y)
     return y
 
 OPS_PROTECTED = [
