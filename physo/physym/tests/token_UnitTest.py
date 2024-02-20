@@ -268,6 +268,97 @@ class TokenTest(unittest.TestCase):
                            var_id=0,
                            init_val=1.)
 
+    def test_token_spe_free_constant_creation_exceptions_init_val_related(self):
+        # Test exception: init_val is supposed to be a non-nan
+        with self.assertRaises(AssertionError):
+            c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=Tok.VAR_TYPE_SPE_FREE_CONST,
+                           function=None,
+                           var_id=0,
+                           init_val=np.nan)
+        # Same test with type specific class
+        with self.assertRaises(AssertionError):
+            c0 = Tok.TokenSpeFreeConst(name='c0', sympy_repr='c0', complexity=0,
+                           var_id=0,
+                           init_val=np.nan)
+
+        # Test exception: init_val is supposed to be a non-nan (multi realization)
+        with self.assertRaises(AssertionError):
+            c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=Tok.VAR_TYPE_SPE_FREE_CONST,
+                           function=None,
+                           var_id=0,
+                           init_val=[np.nan,2.,3.])
+        # Same test with type specific class
+        with self.assertRaises(AssertionError):
+            c0 = Tok.TokenSpeFreeConst(name='c0', sympy_repr='c0', complexity=0,
+                           var_id=0,
+                           init_val=[np.nan,2.,3.])
+
+        # Test exception: init_val is supposed to be a float or a 1D array of floats
+        with self.assertRaises(AssertionError):
+            c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=Tok.VAR_TYPE_SPE_FREE_CONST,
+                           function=None,
+                           var_id=0,
+                           init_val=np.ones((2,2)))
+        # Same test with type specific class
+        with self.assertRaises(AssertionError):
+            c0 = Tok.TokenSpeFreeConst(name='c0', sympy_repr='c0', complexity=0,
+                           var_id=0,
+                           init_val=np.ones((2,2)))
+
+    def test_token_spe_free_constant_init_val_related (self):
+            n_realizations = 10
+            aa = 2.1
+            aa_expected = np.array([aa])
+            bb = np.random.rand(n_realizations,)
+            bb_expected = bb
+
+
+            # Test creation (single float init_val)
+            try:
+                c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=Tok.VAR_TYPE_SPE_FREE_CONST,
+                               function = None,
+                               var_id   = 0,
+                               init_val = aa)
+            except:
+                self.fail("Token creation failed")
+            bool_works = np.array_equal(c0.init_val, aa_expected)
+            self.assertEqual(bool_works, True)
+            # Same test with type specific class
+            try:
+                c0 = Tok.TokenSpeFreeConst(name='c0', sympy_repr='c0', complexity=0,
+                                           var_id=0,
+                                           init_val=aa,)
+            except:
+                self.fail("Token creation failed")
+            bool_works = np.array_equal(c0.init_val, aa_expected)
+            self.assertEqual(bool_works, True)
+
+
+            # Test creation (multi realization init_val)
+            try:
+                c0 = Tok.Token(name='c0', sympy_repr='c0', arity=0, complexity=0, var_type=Tok.VAR_TYPE_SPE_FREE_CONST,
+                               function = None,
+                               var_id   = 0,
+                               init_val = bb,
+                             )
+            except:
+                self.fail("Token creation failed")
+            bool_works = np.array_equal(c0.init_val, bb_expected)
+            self.assertEqual(bool_works, True)
+            # Same test with type specific class
+            try:
+                c0 = Tok.TokenSpeFreeConst(name='c0', sympy_repr='c0', complexity=0,
+                                           var_id=0,
+                                           init_val=bb,)
+            except:
+                self.fail("Token creation failed")
+            bool_works = np.array_equal(c0.init_val, bb_expected)
+            self.assertEqual(bool_works, True)
+
+
+            return None
+
+
     # ----------------------------- Token call ------------------------------
 
     # Test token call method (all types of tokens)

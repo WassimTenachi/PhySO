@@ -65,7 +65,7 @@ class Token:
         complexity                :  float
         var_type                  :  int
         function                  :  callable or None
-        init_val                  :  float
+        init_val                  :  float or array_like of floats (for multiple realizations)
         var_id                    :  int
         fixed_const               :  float-like
         behavior_id               :  int
@@ -137,10 +137,11 @@ class Token:
             of floats of shape (int,) or a single float number.
             - This token represents an input_var or a constant (ie. var_type = VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST,
             VAR_TYPE_SPE_FREE_CONST or VAR_TYPE_FIXED_CONST) <=> function = None
-        init_val : float or np.NAN
+        init_val : float or array_like of floats or np.NAN
             - This token represents a function, a fixed const or an input variable (ie. var_type = VAR_TYPE_OP, VAR_TYPE_FIXED_CONST or VAR_TYPE_INPUT_VAR)
             <=> init_val = np.NAN
-            - This token represents a free const (ie. var_type = VAR_TYPE_CLASS_FREE_CONST or VAR_TYPE_SPE_FREE_CONST )  <=>  init_val = non NaN float
+            - This token represents a class free const (ie. var_type = VAR_TYPE_CLASS_FREE_CONST) <=>  init_val = non NaN float
+            - This token represents a spe free const (ie. var_type = VAR_TYPE_SPE_FREE_CONST) <=>  init_val = non NaN float or array_like of floats (for multiple realizations)
         var_id : int or None
             - This token represents an input_var or a free constant (ie. var_type = VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST or VAR_TYPE_SPE_FREE_CONST) <=> var_id is an
             integer representing the id of the input_var in the dataset or the id of the free const in the free const
@@ -225,13 +226,21 @@ class Token:
 
         # Token representing (realization specific) spe free constant (eg. k0, k1 etc.) (where each constant has a different value across each dataset/realization in Class SR context)
         elif var_type == VAR_TYPE_SPE_FREE_CONST:
-            assert function is None,        'Token representing spe free const (var_type = %i) must have function = None'            %(VAR_TYPE_SPE_FREE_CONST)
-            assert arity == 0,              'Token representing spe free const (var_type = %i) must have arity == 0'                 %(VAR_TYPE_SPE_FREE_CONST)
-            assert isinstance(var_id, int), 'Token representing spe free const (var_type = %i) must have an int var_id'              %(VAR_TYPE_SPE_FREE_CONST)
-            assert isinstance(init_val, float) and not np.isnan(init_val), \
-                                            'Token representing spe free const (var_type = %i) must have a non-nan float init_val'   %(VAR_TYPE_SPE_FREE_CONST)
+            assert function is None,        'Token representing spe free const (var_type = %i) must have function = None'             %(VAR_TYPE_SPE_FREE_CONST)
+            assert arity == 0,              'Token representing spe free const (var_type = %i) must have arity == 0'                  %(VAR_TYPE_SPE_FREE_CONST)
+            assert isinstance(var_id, int), 'Token representing spe free const (var_type = %i) must have an int var_id'               %(VAR_TYPE_SPE_FREE_CONST)
             assert np.isnan(float(fixed_const)), \
-                                            'Token representing spe free const (var_type = %i) must have a nan fixed_const'          %(VAR_TYPE_SPE_FREE_CONST)
+                                            'Token representing spe free const (var_type = %i) must have a nan fixed_const'           %(VAR_TYPE_SPE_FREE_CONST)
+            # Checking that init_val is a float or an array_like of floats
+            init_val = np.array(init_val)
+            assert init_val.dtype == float,           'Token representing spe free const (var_type = %i) must have init_val containing float(s)' %(VAR_TYPE_SPE_FREE_CONST)
+            assert np.isnan(init_val).any() == False, 'Token representing spe free const (var_type = %i) must have init_val containing no NaNs'  %(VAR_TYPE_SPE_FREE_CONST)
+            # Single float case
+            if init_val.shape == ():
+                init_val = np.array([init_val])
+            # Multiple realizations case
+            else:
+                assert len(init_val.shape) == 1, 'Token representing spe free const (var_type = %i) must have a single float init_val or 1D array of floats' %(VAR_TYPE_SPE_FREE_CONST)
 
         # Token representing a fixed constant (eg. 1, pi etc.)
         elif var_type == VAR_TYPE_FIXED_CONST:
@@ -254,7 +263,7 @@ class Token:
         # Function specific
         self.function    = function                                # object (callable or None)
         # Free const specific
-        self.init_val = init_val                                   # float
+        self.init_val = init_val                                   # float or array_like of floats
         # Input variable / free const specific
         if self.var_type == VAR_TYPE_INPUT_VAR or self.var_type == VAR_TYPE_CLASS_FREE_CONST or self.var_type == VAR_TYPE_SPE_FREE_CONST:
             self.var_id = var_id                                   # int
@@ -665,10 +674,10 @@ class VectTokens:
     arity                     :  int
     complexity                :  float
     var_type                  :  int
-    ( function                :  callable or None  )
-    ( init_val                :  float             )
+    ( function                :  callable or None               )
+    ( init_val                :  float or array_like of floats  )
     var_id                    :  int
-    ( fixed_const             : float              )
+    ( fixed_const             : float                           )
     behavior_id               :  int
     is_power                  :  bool
     power                     :  float
@@ -754,8 +763,8 @@ class VectTokens:
         self.arity        = np.full(shape=self.shape, fill_value=self.default_arity        , dtype=int)
         self.complexity   = np.full(shape=self.shape, fill_value=self.default_complexity   , dtype=float)
         self.var_type     = np.full(shape=self.shape, fill_value=self.default_var_type     , dtype=int)
-        # ( function                :  callable or None )
-        # ( init_val                :  float            )
+        # ( function                :  callable or None              )
+        # ( init_val                :  float or array_like of floats )
         self.var_id       = np.full(shape=self.shape, fill_value=self.default_var_id       , dtype=int)
         # ( fixed_const                :  float         )
 
