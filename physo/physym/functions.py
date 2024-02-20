@@ -4,7 +4,7 @@ import torch as torch
 
 # Internal imports
 from physo.physym import token as Tok
-from physo.physym.token import Token
+from physo.physym.token import TokenOp, TokenInputVar, TokenFixedConst, TokenClassFreeConst, TokenSpeFreeConst
 
 # ------------------------------------------------------------------------------------------------------
 # ------------------------------------------ UTILS MANAGEMENT ------------------------------------------
@@ -175,134 +175,114 @@ def torch_pow(x0, x1):
 
 OPS_UNPROTECTED = [
     #  Binary operations
-    Token (name = "add"    , sympy_repr = "+"      , arity = 2 , complexity = 1 , var_type = 0, function = torch.add        ),
-    Token (name = "sub"    , sympy_repr = "-"      , arity = 2 , complexity = 1 , var_type = 0, function = torch.subtract   ),
-    Token (name = "mul"    , sympy_repr = "*"      , arity = 2 , complexity = 1 , var_type = 0, function = torch.multiply   ),
-    Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 1 , var_type = 0, function = torch.divide     ),
+    TokenOp (name = "add"    , sympy_repr = "+"      , arity = 2 , complexity = 1 , function = torch.add        ),
+    TokenOp (name = "sub"    , sympy_repr = "-"      , arity = 2 , complexity = 1 , function = torch.subtract   ),
+    TokenOp (name = "mul"    , sympy_repr = "*"      , arity = 2 , complexity = 1 , function = torch.multiply   ),
+    TokenOp (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 1 , function = torch.divide     ),
     # Unary operations
-    Token (name = "sin"    , sympy_repr = "sin"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.sin        ),
-    Token (name = "cos"    , sympy_repr = "cos"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.cos        ),
-    Token (name = "tan"    , sympy_repr = "tan"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.tan        ),
-    Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.exp        ),
-    Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.log        ),
-    Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.sqrt       ),
-    Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 1 , var_type = 0, function = torch.square     ),
-    Token (name = "neg"    , sympy_repr = "-"      , arity = 1 , complexity = 1 , var_type = 0, function = torch.negative   ),
-    Token (name = "abs"    , sympy_repr = "abs"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.abs        ),
-    Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 1 , var_type = 0, function = torch.reciprocal ),
-    Token (name = "tanh"   , sympy_repr = "tanh"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.tanh       ),
-    Token (name = "sinh"   , sympy_repr = "sinh"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.sinh       ),
-    Token (name = "cosh"   , sympy_repr = "cosh"   , arity = 1 , complexity = 1 , var_type = 0, function = torch.cosh       ),
-    Token (name = "arctan" , sympy_repr = "arctan" , arity = 1 , complexity = 1 , var_type = 0, function = torch.arctan     ),
-    Token (name = "arccos" , sympy_repr = "arccos" , arity = 1 , complexity = 1 , var_type = 0, function = torch.arccos     ),
-    Token (name = "arcsin" , sympy_repr = "arcsin" , arity = 1 , complexity = 1 , var_type = 0, function = torch.arcsin     ),
-    Token (name = "erf"    , sympy_repr = "erf"    , arity = 1 , complexity = 1 , var_type = 0, function = torch.erf        ),
+    TokenOp (name = "sin"    , sympy_repr = "sin"    , arity = 1 , complexity = 1 , function = torch.sin        ),
+    TokenOp (name = "cos"    , sympy_repr = "cos"    , arity = 1 , complexity = 1 , function = torch.cos        ),
+    TokenOp (name = "tan"    , sympy_repr = "tan"    , arity = 1 , complexity = 1 , function = torch.tan        ),
+    TokenOp (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 1 , function = torch.exp        ),
+    TokenOp (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 1 , function = torch.log        ),
+    TokenOp (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 1 , function = torch.sqrt       ),
+    TokenOp (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 1 , function = torch.square     ),
+    TokenOp (name = "neg"    , sympy_repr = "-"      , arity = 1 , complexity = 1 , function = torch.negative   ),
+    TokenOp (name = "abs"    , sympy_repr = "abs"    , arity = 1 , complexity = 1 , function = torch.abs        ),
+    TokenOp (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 1 , function = torch.reciprocal ),
+    TokenOp (name = "tanh"   , sympy_repr = "tanh"   , arity = 1 , complexity = 1 , function = torch.tanh       ),
+    TokenOp (name = "sinh"   , sympy_repr = "sinh"   , arity = 1 , complexity = 1 , function = torch.sinh       ),
+    TokenOp (name = "cosh"   , sympy_repr = "cosh"   , arity = 1 , complexity = 1 , function = torch.cosh       ),
+    TokenOp (name = "arctan" , sympy_repr = "arctan" , arity = 1 , complexity = 1 , function = torch.arctan     ),
+    TokenOp (name = "arccos" , sympy_repr = "arccos" , arity = 1 , complexity = 1 , function = torch.arccos     ),
+    TokenOp (name = "arcsin" , sympy_repr = "arcsin" , arity = 1 , complexity = 1 , function = torch.arcsin     ),
+    TokenOp (name = "erf"    , sympy_repr = "erf"    , arity = 1 , complexity = 1 , function = torch.erf        ),
 
     # Custom unary operations
-    Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.log(torch.abs(x)) ),
-    Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.exp(-x)           ),
-    Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.pow(x, 3)         ),
-    Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 1 , var_type = 0, function = lambda x :torch.pow(x, 4)         ),
+    TokenOp (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 1 , function = lambda x :torch.log(torch.abs(x)) ),
+    TokenOp (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 1 , function = lambda x :torch.exp(-x)           ),
+    TokenOp (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 1 , function = lambda x :torch.pow(x, 3)         ),
+    TokenOp (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 1 , function = lambda x :torch.pow(x, 4)         ),
 
     # Custom binary operations
-    Token (name = "pow"     , sympy_repr = "pow"   , arity = 2 , complexity = 1 , var_type = 0, function = torch_pow                         ),
+    TokenOp (name = "pow"     , sympy_repr = "pow"   , arity = 2 , complexity = 1 , function = torch_pow                         ),
 ]
 
 # ------------- protected functions -------------
-EPSILON = 0.001
-INF = 1e6
-EXP_THRESHOLD = float(torch.log(torch.tensor([INF])))
 
 def protected_div(x1, x2):
-    # Returns infinity with the sign of (x1/x2) if x2 is near zero
-    return torch.where(torch.abs(x2) > EPSILON, torch.divide(x1, x2), torch.sign(x1) * torch.sign(x2) * INF)
+    #with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+    return torch.where(torch.abs(x2) > 0.001, torch.divide(x1, x2), 1.)
 
 def protected_exp(x1):
-    # Caps exponential growth to avoid overflow
-    return torch.where(x1 < EXP_THRESHOLD, torch.exp(x1), INF)
+    #with np.errstate(over='ignore'):
+    return torch.where(x1 < 100, torch.exp(x1), 0.0)
 
 def protected_log(x1):
-    # Returns negative infinity for values near zero to reflect logarithmic behavior
-    return torch.where(x1 > EPSILON, torch.log(x1), -INF)
+    #with np.errstate(divide='ignore', invalid='ignore'):
+    return torch.where(torch.abs(x1) > 0.001, torch.log(torch.abs(x1)), 0.)
 
-def protected_logabs(x1):
-    # Handles log for absolute values, returns negative infinity for values near zero
-    return torch.where(torch.abs(x1) > EPSILON, torch.log(torch.abs(x1)), -INF)
+protected_logabs = protected_log
 
 def protected_sqrt(x1):
-    # Avoids taking the square root of negative numbers
-    return torch.where(x1 > EPSILON, torch.sqrt(x1), 0.)
+    return torch.sqrt(torch.abs(x1))
 
 def protected_inv(x1):
-    # Returns infinity with the sign of x1 if x1 is near zero
-    return torch.where(torch.abs(x1) > EPSILON, 1. / x1, torch.sign(x1) * INF)
+    # with np.errstate(divide='ignore', invalid='ignore'):
+    return torch.where(torch.abs(x1) > 0.001, 1. / x1, 0.)
 
 def protected_expneg(x1):
-    # Caps exponential growth in negative values to avoid overflow
-    return torch.where(x1 > -EXP_THRESHOLD, torch.exp(-x1), INF)
+    # with np.errstate(over='ignore'):
+    return torch.where(x1 > -100, torch.exp(-x1), 0.0)
 
 def protected_n2(x1):
-    npow = 2
-    sign = 1 if int(npow)%2 == 0 else torch.sign(x1) # Takes the sign of x1 if power is odd
-    # Caps square to avoid overflow, returns infinity
-    return torch.where(torch.abs(x1) < INF, torch.pow(x1, npow), sign * INF)
+    # with np.errstate(over='ignore'):
+    return torch.where(torch.abs(x1) < 1e6, torch.square(x1), 0.0)
 
 def protected_n3(x1):
-    npow = 3
-    sign = 1 if int(npow)%2 == 0 else torch.sign(x1) # Takes the sign of x1 if power is odd
-    # Caps square to avoid overflow, returns infinity
-    return torch.where(torch.abs(x1) < INF, torch.pow(x1, npow), sign * INF)
+    # with np.errstate(over='ignore'):
+    return torch.where(torch.abs(x1) < 1e6, torch.pow(x1, 3), 0.0)
 
 def protected_n4(x1):
-    npow = 4
-    sign = 1 if int(npow)%2 == 0 else torch.sign(x1) # Takes the sign of x1 if power is odd
-    # Caps square to avoid overflow, returns infinity
-    return torch.where(torch.abs(x1) < INF, torch.pow(x1, npow), sign * INF)
+    # with np.errstate(over='ignore'):
+    return torch.where(torch.abs(x1) < 1e6, torch.pow(x1, 4), 0.0)
 
 def protected_arcsin (x1):
-    # Handles arcsin, returns infinity with the sign of x1 for values outside the domain
-    return torch.where(torch.abs(x1) < 1 - EPSILON, torch.arcsin(x1), torch.sign(x1) * INF)
+    inf = 1e6
+    return torch.where(torch.abs(x1) < 0.999, torch.arcsin(x1), torch.sign(x1)*inf)
 
 def protected_arccos (x1):
-    # Handles arccos, returns infinity with the sign of x1 for values outside the domain
-    return torch.where(torch.abs(x1) < 1 - EPSILON, torch.arccos(x1), torch.sign(x1) * INF)
+    inf = 1e6
+    return torch.where(torch.abs(x1) < 0.999, torch.arccos(x1), torch.sign(x1)*inf)
 
 def protected_torch_pow(x0, x1):
-    # Handles power function, caps at positive/negative infinity to avoid overflow
+    inf = 1e6
     if not torch.is_tensor(x0):
-        x0 = torch.ones_like(x1) * x0
-
-    # Handle negative bases with non-integer exponents
-    result_is_nan = torch.isnan(torch.pow(x0, x1))
-    x0 = torch.where(result_is_nan, torch.abs(x0), x0)
-
+       x0 = torch.ones_like(x1)*x0
     y = torch.pow(x0, x1)
-    # Handle overflow
-    y = torch.where(torch.abs(y) < INF, y, torch.sign(y) * INF)
-    # Handle underflow
-    y = torch.where(torch.abs(y) > EPSILON, y, 0.)
+    y = torch.where(y > inf, inf, y)
     return y
 
 OPS_PROTECTED = [
     # Binary operations
-    Token (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 1 , var_type = 0, function = protected_div    ),
+    TokenOp (name = "div"    , sympy_repr = "/"      , arity = 2 , complexity = 1 , function = protected_div    ),
     # Unary operations
-    Token (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 1 , var_type = 0, function = protected_exp    ),
-    Token (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 1 , var_type = 0, function = protected_log    ),
-    Token (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 1 , var_type = 0, function = protected_sqrt   ),
-    Token (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_n2     ),
-    Token (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_inv    ),
-    Token (name = "arccos" , sympy_repr = "arccos" , arity = 1 , complexity = 1 , var_type = 0, function = protected_arccos ),
-    Token (name = "arcsin" , sympy_repr = "arcsin" , arity = 1 , complexity = 1 , var_type = 0, function = protected_arcsin ),
+    TokenOp (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 1 , function = protected_exp    ),
+    TokenOp (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 1 , function = protected_log    ),
+    TokenOp (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 1 , function = protected_sqrt   ),
+    TokenOp (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 1 , function = protected_n2     ),
+    TokenOp (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 1 , function = protected_inv    ),
+    TokenOp (name = "arccos" , sympy_repr = "arccos" , arity = 1 , complexity = 1 , function = protected_arccos ),
+    TokenOp (name = "arcsin" , sympy_repr = "arcsin" , arity = 1 , complexity = 1 , function = protected_arcsin ),
 
     # Custom unary operations
-    Token (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 1 , var_type = 0, function = protected_logabs ),
-    Token (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 1 , var_type = 0, function = protected_expneg ),
-    Token (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_n3     ),
-    Token (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 1 , var_type = 0, function = protected_n4     ),
+    TokenOp (name = "logabs" , sympy_repr = "logabs" , arity = 1 , complexity = 1 , function = protected_logabs ),
+    TokenOp (name = "expneg" , sympy_repr = "expneg" , arity = 1 , complexity = 1 , function = protected_expneg ),
+    TokenOp (name = "n3"     , sympy_repr = "n3"     , arity = 1 , complexity = 1 , function = protected_n3     ),
+    TokenOp (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 1 , function = protected_n4     ),
 
     # Custom binary operations
-    Token (name = "pow"     , sympy_repr = "pow"   , arity = 2 , complexity = 1 , var_type = 0, function = protected_torch_pow   ),
+    TokenOp (name = "pow"     , sympy_repr = "pow"   , arity = 2 , complexity = 1 , function = protected_torch_pow   ),
 
 ]
 
@@ -374,7 +354,7 @@ def retrieve_init_val (init_val_dict, curr_name):
     (init_val_dict).
     Parameters
     ----------
-    init_val_dict : dict of {str : float} or None
+    init_val_dict : dict of {str : float or array_like of floats} or None
         If dictionary is None, returns token.DEFAULT_FREE_CONST_INIT_VAL.
     curr_name : str
         If curr_name is not in units_dict keys, returns token.DEFAULT_FREE_CONST_INIT_VAL.
@@ -389,9 +369,15 @@ def retrieve_init_val (init_val_dict, curr_name):
             curr_init_val = init_val_dict[curr_name]
         except KeyError:
             warnings.warn(
-                "Initial value of token %s not found in initial value dictionary %s, using complexity = %f" %
+                "Initial value of token %s not found in initial value dictionary %s, using initial value = %f" %
                 (curr_name, init_val_dict, curr_init_val))
-    curr_init_val = float(curr_init_val)
+    # Conversion to float(s) if necessary (more flexible in case user passes eg. int, as Token class will need float(s))
+    # Single float case
+    if np.array(curr_init_val).shape == ():
+        curr_init_val = float(curr_init_val)
+    # Multiple floats case
+    else:
+        curr_init_val = np.array(curr_init_val).astype(float)
     return curr_init_val
 
 
@@ -450,24 +436,36 @@ def make_tokens(
                 constants            = None,
                 constants_units      = None,
                 constants_complexity = None,
-                # free constants
+                # free constants / class free constants (can be used interchangeably)
                 free_constants            = None,
                 free_constants_init_val   = None,
                 free_constants_units      = None,
                 free_constants_complexity = None,
+                class_free_constants            = None,
+                class_free_constants_init_val   = None,
+                class_free_constants_units      = None,
+                class_free_constants_complexity = None,
+                # spe free constants
+                spe_free_constants            = None,
+                spe_free_constants_init_val   = None,
+                spe_free_constants_units      = None,
+                spe_free_constants_complexity = None,
+
                 ):
     """
         Makes a list of tokens for a run based on a list of operation names, input variables ids and constants values.
         Parameters
         ----------
-        -------- operations --------
+
+        -------- Operations (eg. add, mul, cos, exp) --------
         op_names : list of str or str, optional
             List of names of operations that will be used for a run (eg. ["mul", "add", "neg", "inv", "sin"]), or "all"
             to use all available tokens. By default, op_names = "all".
         use_protected_ops : bool, optional
             If True safe functions defined in functions.OPS_PROTECTED_DICT in place when available (eg. sqrt(abs(x))
             instead of sqrt(x)). False by default.
-        -------- input variables --------
+
+        -------- Input variables (eg. x0, x1) --------
         input_var_ids : dict of { str : int } or None, optional
             Dictionary containing input variables names as keys (eg. 'x', 'v', 't') and corresponding input variables
             ids in dataset (eg. 0, 1, 2). None if no input variables to create. None by default.
@@ -478,7 +476,8 @@ def make_tokens(
         input_var_complexity : dict of { str : float } or None, optional
             Dictionary containing input variables names as keys (eg. 'x', 'v', 't') and corresponding complexities
             (eg. 0., 1., 0.). If None, complexity = token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
-        -------- constants --------
+
+        -------- Fixed constants (eg. pi, 1) --------
         constants : dict of { str : float } or None, optional
             Dictionary containing constant names as keys (eg. 'pi', 'c', 'M') and corresponding float values
             (eg. np.pi, 3e8, 1e6). None if no constants to create. None by default.
@@ -489,21 +488,47 @@ def make_tokens(
         constants_complexity : dict of { str : float } or None, optional
             Dictionary containing constants names as keys (eg. 'pi', 'c', 'M') and corresponding complexities
             (eg. 0., 0., 1.). If None, complexity = token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
-        -------- free constants --------
-        free_constants : set of { str } or None, optional
+
+        -------- Free constants / Class free constants (eg. c0, c1, c2) --------
+        free_constants or class_free_constants : set of { str } or None, optional
             Set containing free constant names (eg. 'c0', 'c1', 'c2'). None if no free constants to create.
             None by default.
-        free_constants_init_val : dict of { str : float } or None, optional
+        free_constants_init_val or class_free_constants_init_val : dict of { str : float } or None, optional
             Dictionary containing free constants names as keys (eg. 'c0', 'c1', 'c2') and corresponding float initial
             values to use during optimization process (eg. 1., 1., 1.). None will result in the usage of
             token.DEFAULT_FREE_CONST_INIT_VAL as initial values. None by default.
-        free_constants_units : dict of { str : array_like of float } or None, optional
+        free_constants_units or class_free_constants_units : dict of { str : array_like of float } or None, optional
             Dictionary containing free constants names as keys (eg. 'c0', 'c1', 'c2') and corresponding physical units
             (eg. [0, 0, 0], [1, -1, 0], [0, 0, 1]). With c0 representing a dimensionless number, c1 a velocity and c2 a
             mass assuming a convention such as [m, s, kg,...]). None if not using physical units. None by default.
-        free_constants_complexity : dict of { str : float } or None, optional
+        free_constants_complexity or class_free_constants_complexity : dict of { str : float } or None, optional
             Dictionary containing free constants names as keys (eg. 'c0', 'c1', 'c2') and corresponding complexities
             (eg. 1., 1., 1.). If None, complexity = token.DEFAULT_COMPLEXITY will be encoded to tokens. None by default.
+
+        -------- Spe free constants (eg. k0, k1, k2) --------
+        spe_free_constants : set of { str } or None, optional
+            Set containing realization specific free constant names (eg. 'k0', 'k1', 'k2'). None if no free constants to
+            create. None by default.
+        spe_free_constants_init_val : dict of { str : float } or dict of { str : array_like of shape (n_realizations,) of floats } or None, optional
+            Dictionary containing realization specific free constants names as keys (eg. 'k0', 'k1', 'k2') and
+            corresponding float initial values to use during optimization process (eg. 1., 1., 1.). Realization
+            specific initial values can be used by providing a vector of shape (n_realizations,) for each constant
+            in lieu of a single float per constant. None will result in the usage of token.DEFAULT_FREE_CONST_INIT_VAL
+            as initial values. None by default.
+        spe_free_constants_units : dict of { str : array_like of float } or None, optional
+            Dictionary containing realization specific free constants names as keys (eg. 'k0', 'k1', 'k2') and
+            corresponding physical units (eg. [0, 0, 0], [1, -1, 0], [0, 0, 1]). With k0 representing a dimensionless
+            number, k1 a velocity and k2 a mass assuming a convention such as [m, s, kg,...]). None if not using
+            physical units. None by default.
+        spe_free_constants_complexity : dict of { str : float } or None, optional
+            Dictionary containing realization specific free constants names as keys (eg. 'k0', 'k1', 'k2') and
+            corresponding complexities (eg. 1., 1., 1.). If None, complexity = token.DEFAULT_COMPLEXITY will be encoded
+            to tokens. None by default.
+
+        Distinction between class free const and spe free const is important in Class SR context only: class free const
+        values are shared between all realizations of a single program whereas spe free const values are specific to each
+        dataset.
+
         Returns
         -------
         list of token.Token
@@ -553,11 +578,10 @@ def make_tokens(
             # ------------- Complexity -------------
             complexity = retrieve_complexity (complexity_dict=input_var_complexity, curr_name=var_name)
             # ------------- Token creation -------------
-            tokens_input_var.append(Token(name         = var_name,
+            tokens_input_var.append(TokenInputVar(
+                                          name         = var_name,
                                           sympy_repr   = var_name,
-                                          arity        = 0,
                                           complexity   = complexity,
-                                          var_type     = 1,
                                           # Input variable specific
                                           var_id       = var_id,
                                           # ---- Physical units : units ----
@@ -577,35 +601,78 @@ def make_tokens(
             # Very important to put const as a default arg of lambda function
             # https://stackoverflow.com/questions/19837486/lambda-in-a-loop
             # or use def MakeConstFunc(x): return lambda: x
-            tokens_constants.append(Token(name         = const_name,
+            tokens_constants.append(TokenFixedConst(
+                                          name         = const_name,
                                           sympy_repr   = const_name,
-                                          arity        = 0,
                                           complexity   = complexity,
-                                          var_type     = 3,
                                           # Fixed const specific
                                           fixed_const  = const_val,
                                           # ---- Physical units : units ----
                                           is_constraining_phy_units = is_constraining_phy_units,
                                           phy_units                 = phy_units,))
 
-    # -------------------------------- Handling free constants --------------------------------
-    tokens_free_constants = []
-    if free_constants is not None:
-        free_constants_sorted = list(sorted(free_constants))  # (enumerating on sorted list rather than set)
+    # --------------------- Handling class free constants / free constants args ---------------------
+    # Concatenating both args as they refer to the same type of free constants and can be used interchangeably
+
+    # Replacing None by empty sets/dicts
+    free_constants            = free_constants            if free_constants            is not None else set()
+    free_constants_init_val   = free_constants_init_val   if free_constants_init_val   is not None else {}
+    free_constants_units      = free_constants_units      if free_constants_units      is not None else {}
+    free_constants_complexity = free_constants_complexity if free_constants_complexity is not None else {}
+    class_free_constants            = class_free_constants            if class_free_constants            is not None else set()
+    class_free_constants_init_val   = class_free_constants_init_val   if class_free_constants_init_val   is not None else {}
+    class_free_constants_units      = class_free_constants_units      if class_free_constants_units      is not None else {}
+    class_free_constants_complexity = class_free_constants_complexity if class_free_constants_complexity is not None else {}
+
+    # Concatenating
+    class_free_constants            .update( free_constants            )
+    class_free_constants_init_val   .update( free_constants_init_val   )
+    class_free_constants_units      .update( free_constants_units      )
+    class_free_constants_complexity .update( free_constants_complexity )
+
+    # -------------------------------- Handling class free constants --------------------------------
+
+    tokens_class_free_constants = []
+    if class_free_constants is not None:
+        class_free_constants_sorted = list(sorted(class_free_constants))  # (enumerating on sorted list rather than set)
         # Iterating through free constants
-        for i, free_const_name in enumerate(free_constants_sorted):
+        for i, free_const_name in enumerate(class_free_constants_sorted):
             # ------------- Initial value -------------
-            init_val = retrieve_init_val(init_val_dict=free_constants_init_val, curr_name=free_const_name)
+            init_val = retrieve_init_val(init_val_dict=class_free_constants_init_val, curr_name=free_const_name)
             # ------------- Units -------------
-            is_constraining_phy_units, phy_units = retrieve_units (units_dict=free_constants_units, curr_name=free_const_name)
+            is_constraining_phy_units, phy_units = retrieve_units (units_dict=class_free_constants_units, curr_name=free_const_name)
             # ------------- Complexity -------------
-            complexity = retrieve_complexity (complexity_dict=free_constants_complexity, curr_name=free_const_name)
+            complexity = retrieve_complexity (complexity_dict=class_free_constants_complexity, curr_name=free_const_name)
             # ------------- Token creation -------------
-            tokens_free_constants.append(Token(name         = free_const_name,
+            tokens_class_free_constants.append(TokenClassFreeConst(
+                                               name         = free_const_name,
                                                sympy_repr   = free_const_name,
-                                               arity        = 0,
                                                complexity   = complexity,
-                                               var_type     = 2,
+                                               # Free constant specific
+                                               var_id       = i,
+                                               init_val     = init_val,
+                                               # ---- Physical units : units ----
+                                               is_constraining_phy_units = is_constraining_phy_units,
+                                               phy_units                 = phy_units,))
+
+    # -------------------------------- Handling spe free constants --------------------------------
+
+    tokens_spe_free_constants = []
+    if spe_free_constants is not None:
+        spe_free_constants_sorted = list(sorted(spe_free_constants))  # (enumerating on sorted list rather than set)
+        # Iterating through free constants
+        for i, free_const_name in enumerate(spe_free_constants_sorted):
+            # ------------- Initial value -------------
+            init_val = retrieve_init_val(init_val_dict=spe_free_constants_init_val, curr_name=free_const_name)
+            # ------------- Units -------------
+            is_constraining_phy_units, phy_units = retrieve_units (units_dict=spe_free_constants_units, curr_name=free_const_name)
+            # ------------- Complexity -------------
+            complexity = retrieve_complexity (complexity_dict=spe_free_constants_complexity, curr_name=free_const_name)
+            # ------------- Token creation -------------
+            tokens_spe_free_constants.append(TokenSpeFreeConst(
+                                               name         = free_const_name,
+                                               sympy_repr   = free_const_name,
+                                               complexity   = complexity,
                                                # Free constant specific
                                                var_id       = i,
                                                init_val     = init_val,
@@ -614,5 +681,5 @@ def make_tokens(
                                                phy_units                 = phy_units,))
 
     # -------------------------------- Result --------------------------------
-    return np.array(tokens_ops + tokens_constants + tokens_free_constants + tokens_input_var)
+    return np.array(tokens_ops + tokens_constants + tokens_class_free_constants + tokens_spe_free_constants + tokens_input_var)
 
