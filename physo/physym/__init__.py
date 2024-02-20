@@ -1,5 +1,6 @@
 from . import token
 from . import functions
+from . import tokenize
 from . import library
 from . import program
 from . import execute

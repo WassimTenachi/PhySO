@@ -4,6 +4,7 @@ import numpy as np
 # Internal imports
 from physo.physym import functions as Func
 from physo.physym import token as Tok
+from physo.physym import tokenize as tokenize
 
 class Library:
     """
@@ -56,7 +57,7 @@ class Library:
         append_custom_tokens
             Adding list of custom Tokens to library.
         append_tokens_from_names
-            Creates tokens by passing arguments to functions.make_tokens and adding them to library.
+            Creates tokens by passing arguments to tokenize.make_tokens and adding them to library.
 
         Examples
         --------
@@ -86,7 +87,7 @@ class Library:
         Parameters
         ----------
         args_make_tokens : dict or None
-            If not None, arguments are passed to functions.make_tokens and tokens are added to the library.
+            If not None, arguments are passed to tokenize.make_tokens and tokens are added to the library.
         custom_tokens : list of token.Token or None
             If not None, the tokens are added to the library.
         superparent_units : array_like of float
@@ -225,7 +226,7 @@ class Library:
         if args_make_tokens is None:
             created_tokens = []
         else:
-            created_tokens = Func.make_tokens(**args_make_tokens).tolist()
+            created_tokens = tokenize.make_tokens(**args_make_tokens).tolist()
         self.choosable_tokens += created_tokens
         self.reset_library()
 
