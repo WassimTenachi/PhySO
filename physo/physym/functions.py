@@ -210,20 +210,22 @@ OPS_UNPROTECTED = [
 
 # ------------- protected functions -------------
 EPSILON = 0.001
-EXP_THRESHOLD = 100
+EXP_THRESHOLD = 80.
 INF = 1e6
 
 def protected_div(x1, x2):
     #with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
     return torch.where(torch.abs(x2) > EPSILON, torch.divide(x1, x2), 1.)
 
+exp_plateau = np.exp(EXP_THRESHOLD)
 def protected_exp(x1):
     #with np.errstate(over='ignore'):
-    return torch.where(x1 < EXP_THRESHOLD, torch.exp(x1), 0.0)
+    return torch.where(x1 <= EXP_THRESHOLD, torch.exp(x1), exp_plateau)
 
+log_plateau = np.log(np.abs(EPSILON))
 def protected_log(x1):
     #with np.errstate(divide='ignore', invalid='ignore'):
-    return torch.where(torch.abs(x1) > EPSILON, torch.log(torch.abs(x1)), 0.)
+    return torch.where(torch.abs(x1) >= EPSILON, torch.log(torch.abs(x1)), log_plateau)
 
 protected_logabs = protected_log
 
@@ -234,27 +236,31 @@ def protected_inv(x1):
     # with np.errstate(divide='ignore', invalid='ignore'):
     return torch.where(torch.abs(x1) > EPSILON, 1. / x1, 0.)
 
+expneg_plateau = np.exp(--EXP_THRESHOLD)
 def protected_expneg(x1):
     # with np.errstate(over='ignore'):
-    return torch.where(x1 > -EXP_THRESHOLD, torch.exp(-x1), 0.0)
+    return torch.where(x1 >= -EXP_THRESHOLD, torch.exp(-x1), expneg_plateau)
 
+n2_plateau = np.square(INF)
 def protected_n2(x1):
     # with np.errstate(over='ignore'):
-    return torch.where(torch.abs(x1) < INF, torch.square(x1), 0.0)
+    return torch.where(torch.abs(x1) <= INF, torch.square(x1), n2_plateau)
 
+n3_plateau = np.power(INF, 3)
 def protected_n3(x1):
     # with np.errstate(over='ignore'):
-    return torch.where(torch.abs(x1) < INF, torch.pow(x1, 3), 0.0)
+    return torch.where(torch.abs(x1) <= INF, torch.pow(x1, 3), torch.sign(x1)*n3_plateau)
 
+n4_plateau = np.power(INF, 4)
 def protected_n4(x1):
     # with np.errstate(over='ignore'):
-    return torch.where(torch.abs(x1) < INF, torch.pow(x1, 4), 0.0)
+    return torch.where(torch.abs(x1) <= INF, torch.pow(x1, 4), n4_plateau)
 
 def protected_arcsin (x1):
-    return torch.where(torch.abs(x1) < 1.-EPSILON, torch.arcsin(x1), torch.sign(x1)*INF)
+    return torch.where(torch.abs(x1) < (1.-EPSILON), torch.arcsin(x1), torch.sign(x1)*INF)
 
 def protected_arccos (x1):
-    return torch.where(torch.abs(x1) < 1.-EPSILON, torch.arccos(x1), torch.sign(x1)*INF)
+    return torch.where(torch.abs(x1) < (1.-EPSILON), torch.arccos(x1), torch.sign(x1)*INF)
 
 def protected_torch_pow(x0, x1):
     if not torch.is_tensor(x0):
