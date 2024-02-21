@@ -41,9 +41,11 @@ VAR_TYPE_CLASS_FREE_CONST = 20
 VAR_TYPE_SPE_FREE_CONST = 21
 # Token representing a fixed constant
 VAR_TYPE_FIXED_CONST = 3
+# Special token
+VAR_TYPE_SPECIAL = -1
 
 # List of all var types
-VAR_TYPES = [VAR_TYPE_OP, VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST, VAR_TYPE_FIXED_CONST]
+VAR_TYPES = [VAR_TYPE_OP, VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST, VAR_TYPE_SPE_FREE_CONST, VAR_TYPE_FIXED_CONST, VAR_TYPE_SPECIAL]
 
 # Old deprecated var types
 # Token representing a free constant
@@ -128,6 +130,7 @@ class Token:
             - If this token represents a class free const  : var_type = VAR_TYPE_CLASS_FREE_CONST (free constant,  eg. c0, c1).
             - If this token represents a spe free const    : var_type = VAR_TYPE_SPE_FREE_CONST (free constant,  eg. k0, k1).
             - If this token represents a fixed const       : var_type = VAR_TYPE_FIXED_CONST  (eg. pi, 1)
+            - If this token represents a special token      : var_type = VAR_TYPE_SPECIAL  (eg. placeholder, superparent etc.). Same behavior as VAR_TYPE_OP.
             Distinction between class free const and spe free const is important in Class SR context only: class free const
             values are shared between all realizations of a single program whereas spe free const values are specific to each
             dataset.
@@ -253,6 +256,15 @@ class Token:
             # not checking isinstance(fixed_const, float) as fixed_const can be a torch.tensor(float) or a float
             # ie. "float-like"
 
+        # Token representing a special token (eg. placeholder, superparent etc.)
+        elif var_type == VAR_TYPE_SPECIAL:
+            assert callable(function), 'Token representing special token (var_type = %i) must have callable function'  %(VAR_TYPE_SPECIAL)
+            assert arity >= 0,         'Token representing special token (var_type = %i) must have arity >= 0'         %(VAR_TYPE_SPECIAL)
+            assert var_id is None,     'Token representing special token (var_type = %i) must have var_id = None'      %(VAR_TYPE_SPECIAL)
+            assert np.isnan(init_val), 'Token representing special token (var_type = %i) must have init_val = NaN'     %(VAR_TYPE_SPECIAL)
+            assert np.isnan(float(fixed_const)), \
+                                       'Token representing special token (var_type = %i) must have a nan fixed_const'  %(VAR_TYPE_SPECIAL)
+
         else:
             raise ValueError("Unknown var_type %s" % (str(var_type)))
 
@@ -328,13 +340,17 @@ class Token:
     def is_fixed_const(self):
         return self.var_type == VAR_TYPE_FIXED_CONST
 
+    @property
+    def is_special(self):
+        return self.var_type == VAR_TYPE_SPECIAL
+
 
     def __call__(self, *args):
         # Assert number of args vs arity
         assert len(args) == self.arity, '%i arguments were passed to token %s during call but token has arity = %i' \
             % (len(args), self.name, self.arity,)
 
-        if self.var_type == VAR_TYPE_OP:
+        if self.var_type == VAR_TYPE_OP or self.var_type == VAR_TYPE_SPECIAL:
             return self.function(*args)
 
         elif self.var_type == VAR_TYPE_FIXED_CONST:
@@ -626,6 +642,67 @@ class TokenFixedConst (Token):
         function    = None
         init_val    = np.NAN
         var_id      = None
+
+        # Passing arguments parametrizing this type of token to parent object and filling in the rest.
+        super().__init__(
+                 # ---- Token representation ----
+                 name       = name,
+                 sympy_repr = sympy_repr,
+                 # ---- Token main properties ----
+                 arity       = arity,
+                 complexity  = complexity,
+                 var_type    = var_type,
+                 # Function specific
+                 function = function,
+                 # Free constant specific
+                 init_val = init_val,
+                 # Input variable / free constant specific
+                 var_id   = var_id,
+                 # Fixed constant specific
+                 fixed_const = fixed_const,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = behavior_id,
+                 # ---- Physical units : power ----
+                 is_power                  = is_power,
+                 power                     = power,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = is_constraining_phy_units,
+                 phy_units                 = phy_units,
+        )
+
+class TokenSpecial (Token):
+    """
+    An object inheriting from Token representing a special token (eg. placeholders, superparents etc.).
+    Same behavior as TokenOp.
+    (see Token documentation for details).
+    """
+    def __init__(self,
+                 # ---- Token representation ----
+                 name,
+                 sympy_repr,
+                 # ---- Token main properties ----
+                 arity,
+                 complexity  = DEFAULT_COMPLEXITY,
+                 # Function specific
+                 function = None,
+                 # ---- Physical units : behavior id ----
+                 behavior_id               = None,
+                 # ---- Physical units : power ----
+                 is_power                  = False,
+                 power                     = np.NAN,
+                 # ---- Physical units : units (semi_positional) ----
+                 is_constraining_phy_units = False,
+                 phy_units                 = None,
+                 ):
+        """
+        See Token.__init__ documentation for details.
+        """
+
+        # These properties should always have these values for this type of token (special).
+        var_type    = VAR_TYPE_SPECIAL
+        init_val    = np.NAN
+        var_id      = None
+        fixed_const = np.NAN
 
         # Passing arguments parametrizing this type of token to parent object and filling in the rest.
         super().__init__(
