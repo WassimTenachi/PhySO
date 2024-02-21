@@ -2,7 +2,6 @@ import warnings as warnings
 import numpy as np
 
 # Internal imports
-from physo.physym import functions as Func
 from physo.physym import token as Tok
 from physo.physym import tokenize as tokenize
 
@@ -56,14 +55,13 @@ class Library:
             Resets token properties vectors based on current library of tokens list (lib_tokens).
         append_custom_tokens
             Adding list of custom Tokens to library.
-        append_tokens_from_names
+        append_from_tokenize
             Creates tokens by passing arguments to tokenize.make_tokens and adding them to library.
 
         Examples
         --------
-        add = Tok.Token(name='add', sympy_repr='add', arity=2, complexity=0, var_type=0,
-                        function=np.add,
-                        var_id=None)
+        add = Tok.TokenOp (name = "add", sympy_repr = "+", arity = 2, function = torch.add)
+
         args_make_tokens = {
             # operations
             "op_names"             : ["mul", "neg", "inv", "sin"],
@@ -103,17 +101,16 @@ class Library:
             superparent_units_dict = None  # will result in y_units = None => token.units = vector of np.NAN
         else:
             superparent_units_dict = {superparent_name: superparent_units}
-        y_is_constraining_phy_units, y_units = Func.retrieve_units(superparent_units_dict, superparent_name)
+        y_is_constraining_phy_units, y_units = tokenize.retrieve_units(superparent_units_dict, superparent_name)
         # Function
         def superparent_func():
             raise ValueError("Superparent is a placeholder, it should never be called")
         # Token
-        self.superparent = Tok.Token(
+        self.superparent = Tok.TokenSpecial(
             name                      = superparent_name,
             sympy_repr                = superparent_name,
             arity                     = 0,
             complexity                = 0.,
-            var_type                  = 0,
             function                  = superparent_func,
             is_constraining_phy_units = y_is_constraining_phy_units,
             phy_units                 = y_units,
@@ -124,12 +121,11 @@ class Library:
         def dummy_func():
             raise ValueError("Dummy is a placeholder, it should never be called")
         # Token
-        self.dummy = Tok.Token(
+        self.dummy = Tok.TokenSpecial(
             name                      = Tok.DUMMY_TOKEN_NAME,
             sympy_repr                = Tok.DUMMY_TOKEN_NAME,
             arity                     = 0,
             complexity                = 0.,
-            var_type                  = 0,
             function                  = dummy_func,
         )
 
@@ -138,12 +134,11 @@ class Library:
         def invalid_func():
             raise ValueError("Invalid is a placeholder, it should never be called")
         # Token
-        self.invalid = Tok.Token(
+        self.invalid = Tok.TokenSpecial(
             name                      = Tok.INVALID_TOKEN_NAME,
             sympy_repr                = Tok.INVALID_TOKEN_NAME,
             arity                     = 0,
             complexity                = 0.,
-            var_type                  = 0,
             function                  = invalid_func,
         )
 
@@ -152,25 +147,45 @@ class Library:
 
         # ------------------------------ LIB OF TOKENS ------------------------------
         self.choosable_tokens = []
-        self.append_tokens_from_names(args_make_tokens = args_make_tokens)
-        self.append_custom_tokens(custom_tokens = custom_tokens)
+        self.append_from_tokenize (args_make_tokens = args_make_tokens)
+        self.append_custom_tokens (custom_tokens    = custom_tokens)
 
         # ------------------------------ INPUT VAR ------------------------------
         # Number of input variables
-        self.n_input_var        = (self.var_type == 1).sum()
+        self.n_input_var        = (self.var_type == Tok.VAR_TYPE_INPUT_VAR).sum()
         # Ids of input variables available
-        self.input_var_ids      = self.var_id[self.var_type == 1]   # (n_input_var,) of int
+        self.input_var_ids      = self.var_id[self.var_type == Tok.VAR_TYPE_INPUT_VAR]   # (n_input_var,) of int
+
+        # ------------------------------ CLASS FREE CONSTANTS ------------------------------
+
+        # Number of free constants
+        self.n_class_free_const = (self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST).sum()
+        # Free constants tokens
+        self.class_free_constants_tokens = self.lib_tokens[self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                               # (n_class_free_const,) of token.Token
+        # Ids of free constants available
+        self.class_free_constants_ids = self.var_id[self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                                      # (n_class_free_const,) of int
+        # Initial values of free constants
+        self.class_free_constants_init_val = np.array([token.init_val for token in self.lib_tokens if token.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST])  # (n_class_free_const,) of float
+
+        # ------------------------------ SPE FREE CONSTANTS ------------------------------
+
+        # Number of free constants
+        self.n_spe_free_const = (self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST).sum()
+        # Free constants tokens
+        self.spe_free_constants_tokens = self.lib_tokens[self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of token.Token
+        # Ids of free constants available
+        self.spe_free_constants_ids = self.var_id[self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                                     # (n_spe_free_const,) of int
+        # Initial values of free constants
+        # May contain mixed shapes (as user can provide a single float or an array_like of floats depending on the
+        # token), using object dtype
+        self.spe_free_constants_init_val = np.array([token.init_val for token in self.lib_tokens if token.var_type == Tok.VAR_TYPE_SPE_FREE_CONST], dtype=object)  # (n_spe_free_const,) of array_like of floats
 
         # ------------------------------ FREE CONSTANTS ------------------------------
-        # Number of free constants
-        self.n_free_const = (self.var_type == 2).sum()
-        # Free constants tokens
-        self.free_constants_tokens = self.lib_tokens[self.var_type == 2]                                           # (n_free_const,) of token.Token
-        # Ids of free constants available
-        self.free_constants_ids = self.var_id[self.var_type == 2]                                                  # (n_free_const,) of int
-        # Initial values of free constants
-        self.free_constants_init_val = np.array([token.init_val for token in self.lib_tokens])[self.var_type == 2] # (n_free_const,) of float
 
+        self.n_free_const = self.n_class_free_const + self.n_spe_free_const
+        self.free_constants_tokens = np.concatenate([self.class_free_constants_tokens, self.spe_free_constants_tokens])
+
+        return None
 
     def reset_library(self):
         self.lib_tokens = np.array(self.choosable_tokens + self.placeholders)
@@ -221,7 +236,7 @@ class Library:
         self.choosable_tokens += custom_tokens
         self.reset_library()
 
-    def append_tokens_from_names(self, args_make_tokens = None):
+    def append_from_tokenize(self, args_make_tokens = None):
         # ----- Handling created tokens -----
         if args_make_tokens is None:
             created_tokens = []
