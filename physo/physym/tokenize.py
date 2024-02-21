@@ -356,6 +356,7 @@ def make_tokens(
         # Iterating through free constants
         for i, free_const_name in enumerate(spe_free_constants_sorted):
             # ------------- Initial value -------------
+            # NB: Checking init_val shapes consistency is the responsibility of FreeConstantsTable
             init_val = retrieve_init_val(init_val_dict=spe_free_constants_init_val, curr_name=free_const_name)
             # ------------- Units -------------
             is_constraining_phy_units, phy_units = retrieve_units (units_dict=spe_free_constants_units, curr_name=free_const_name)
