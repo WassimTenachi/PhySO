@@ -161,9 +161,11 @@ class Library:
         # Number of free constants
         self.n_class_free_const = (self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST).sum()
         # Free constants tokens
-        self.class_free_constants_tokens = self.lib_tokens[self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                               # (n_class_free_const,) of token.Token
+        self.class_free_constants_tokens   = self.lib_tokens[self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of token.Token
+        # Free constants names
+        self.class_free_constants_names    = self.lib_name  [self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of str
         # Ids of free constants available
-        self.class_free_constants_ids = self.var_id[self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                                      # (n_class_free_const,) of int
+        self.class_free_constants_ids      = self.var_id    [self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of int
         # Initial values of free constants
         self.class_free_constants_init_val = np.array([token.init_val for token in self.lib_tokens if token.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST])  # (n_class_free_const,) of float
 
@@ -172,9 +174,11 @@ class Library:
         # Number of free constants
         self.n_spe_free_const = (self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST).sum()
         # Free constants tokens
-        self.spe_free_constants_tokens = self.lib_tokens[self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of token.Token
+        self.spe_free_constants_tokens   = self.lib_tokens[self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of token.Token
+        # Free constants names
+        self.spe_free_constants_names    = self.lib_name  [self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of str
         # Ids of free constants available
-        self.spe_free_constants_ids = self.var_id[self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                                     # (n_spe_free_const,) of int
+        self.spe_free_constants_ids      = self.var_id    [self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of int
         # Initial values of free constants
         # May contain mixed shapes (as user can provide a single float or an array_like of floats depending on the
         # token), using object dtype
