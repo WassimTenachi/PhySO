@@ -183,12 +183,36 @@ class Library:
         # May contain mixed shapes (as user can provide a single float or an array_like of floats depending on the
         # token), using object dtype
         self.spe_free_constants_init_val = np.array([token.init_val for token in self.lib_tokens if token.var_type == Tok.VAR_TYPE_SPE_FREE_CONST], dtype=object)  # (n_spe_free_const,) of array_like of floats
+        # -> (n_spe_free_const, n_realizations,) of float after check_and_pad_spe_free_const_init_val
 
         # ------------------------------ FREE CONSTANTS ------------------------------
 
         self.n_free_const = self.n_class_free_const + self.n_spe_free_const
         self.free_constants_tokens = np.concatenate([self.class_free_constants_tokens, self.spe_free_constants_tokens])
 
+        return None
+
+    def check_and_pad_spe_free_const_init_val (self, n_realizations):
+        """
+        Asserts that the sizes of free constants init values for each realization are consistent with the number of
+        realizations (n_realizations) and makes the necessary padding to ensure a shape of (n_realizations,) (for
+        single float initial values).
+        Parameters
+        ----------
+        n_realizations : int
+            Number of realizations.
+        """
+        padded_init_val = []
+        for i in range (self.n_spe_free_const):
+            init_val = self.spe_free_constants_init_val[i]
+            # Padding single float initial values to shape (n_realizations,)
+            if init_val.shape == (1,):
+                init_val = np.full(shape=(n_realizations,), fill_value=init_val[0])
+            # Asserting that the size of the init values is consistent with the number of realizations
+            assert init_val.shape == (n_realizations,),"Realization specific free const %s has inconsistent init values shape %s with n_realizations %s" %(self.spe_free_constants_names[i], init_val.shape, n_realizations)
+            padded_init_val.append(init_val)
+
+        self.spe_free_constants_init_val = np.array(padded_init_val) # (n_spe_free_const, n_realizations,) of float
         return None
 
     def reset_library(self):

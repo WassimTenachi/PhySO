@@ -53,9 +53,11 @@ class LibraryTest(unittest.TestCase):
         n_tokens_via_custom = len(custom_tokens)
         # Initial values
         a,b,c = 1.,10.,1.
-        aa, bb, cc = [1.,2.,3.], [10.,20.,30.] , 1.
+        n_realizations = 5
+        aa, bb, cc = [1.,2.,3.,4.,5.], [10.,20.,30.,40.,50.] , 1.
         expected_class_init_vals = np.array([a, b, c,])
         expected_spe_init_vals   = np.array([np.array(aa), np.array(bb), np.array([cc]),], dtype=object)
+        expected_spe_init_vals_after_pad = np.array([aa, bb, np.full((n_realizations,), cc)])
         # -------- Test args_make_tokens --------
         args_make_tokens = {
                 # operations
@@ -105,6 +107,9 @@ class LibraryTest(unittest.TestCase):
         bool_works = np.array_equal(my_lib.class_free_constants_init_val, expected_class_init_vals)
         self.assertEqual(bool_works, True)
         bool_works = np.array([np.array_equal(a,b) for i, (a,b) in enumerate(zip(my_lib.spe_free_constants_init_val, expected_spe_init_vals))]).all()
+        self.assertEqual(bool_works, True)
+        my_lib.check_and_pad_spe_free_const_init_val(n_realizations=n_realizations)
+        bool_works = np.array_equal(my_lib.spe_free_constants_init_val, expected_spe_init_vals_after_pad)
         self.assertEqual(bool_works, True)
 
         # -------- Test custom_tokens only --------
@@ -259,6 +264,82 @@ class LibraryTest(unittest.TestCase):
         with self.assertWarns(Warning):
             my_lib = Lib.Library(custom_tokens=[x0, x1, add], args_make_tokens=args_make_tokens,
                                  superparent_units=None, superparent_name="v")
+
+    def test_spe_free_const_init_val_consistency_check(self):
+        # Initial values
+        a,b,c = 1.,10.,1.
+        n_realizations = 5
+        def get_args_make_tokens (aa, bb, cc):
+            args_make_tokens = {
+                # operations
+                "op_names"             : ["mul", "neg", "inv", "sin"],
+                "use_protected_ops"    : False,
+                # input variables
+                "input_var_ids"        : {"x" : 0         , "v" : 1          , "t" : 2,        },
+                "input_var_units"      : {"x" : [1, 0, 0] , "v" : [1, -1, 0] , "t" : [0, 1, 0] },
+                "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
+                # constants
+                "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       },
+                "constants_units"      : {"pi" : [0, 0, 0] , "c" : [1, -1, 0], "M" : [0, 0, 1] },
+                "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        },
+                # free constants
+                "free_constants"            : {"c0"             , "c1"               , "c2"             },
+                "free_constants_init_val"   : {"c0" : a         , "c1"  : b          , "c2" : c         },
+                "free_constants_units"      : {"c0" : [0, 0, 0] , "c1"  : [1, -1, 0] , "c2" : [0, 0, 1] },
+                "free_constants_complexity" : {"c0" : 0.        , "c1"  : 0.         , "c2" : 1.        },
+                # free constants
+                "spe_free_constants"            : {"k0"              , "k1"                   , "k2"             },
+                "spe_free_constants_init_val"   : {"k0" : aa         , "k1"  : bb             , "k2" : cc        },
+                "spe_free_constants_units"      : {"k0" : [0, 0, 0]  , "k1"  : [1, -1, 0]     , "k2" : [0, 0, 1] },
+                "spe_free_constants_complexity" : {"k0" : 0.         , "k1"  : 0.             , "k2" : 1.        },
+                       }
+            return args_make_tokens
+
+        # Test that everything works fine in the nominal case
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                # Raises some warnings due to some units provided (this is ok)
+                my_lib = Lib.Library(args_make_tokens = get_args_make_tokens([1.,2.,3.,4.,5.], [10.,20.,30.,40.,50.] , 1.))
+        except:
+            self.fail("Library creation failed.")
+        try:
+            my_lib.check_and_pad_spe_free_const_init_val(n_realizations=n_realizations)
+        except:
+            self.fail("Library check_and_pad_spe_free_const_init_val failed.")
+        bool_works = np.array_equal(my_lib.spe_free_constants_init_val, np.array([[1.,2.,3.,4.,5.], [10.,20.,30.,40.,50.] , np.full((n_realizations,), 1.)]))
+        self.assertEqual(bool_works, True)
+
+        # Test that everything works fine in the nominal case
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                # Raises some warnings due to some units provided (this is ok)
+                my_lib = Lib.Library(args_make_tokens = get_args_make_tokens(1., 1. , 1.))
+        except:
+            self.fail("Library creation failed.")
+        try:
+            my_lib.check_and_pad_spe_free_const_init_val(n_realizations=n_realizations)
+        except:
+            self.fail("Library check_and_pad_spe_free_const_init_val failed.")
+        bool_works = np.array_equal(my_lib.spe_free_constants_init_val, np.array([np.full((n_realizations,), 1.), np.full((n_realizations,), 1.) , np.full((n_realizations,), 1.)]))
+        self.assertEqual(bool_works, True)
+
+        # Inconsistent number of realizations
+        with self.assertRaises(AssertionError):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                my_lib = Lib.Library(args_make_tokens = get_args_make_tokens([1.,2.,3.,4.,5.], [10.,20.,30.,40.,50.] , 1.))
+            my_lib.check_and_pad_spe_free_const_init_val(n_realizations=2)
+
+        # Inconsistent shapes of initial values
+        with self.assertRaises(AssertionError):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                my_lib = Lib.Library(args_make_tokens = get_args_make_tokens([1.,2.,3.,4.,5.], [10.,20.,30.,] , 1.))
+            my_lib.check_and_pad_spe_free_const_init_val(n_realizations=5)
+
+        return None
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
