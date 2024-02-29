@@ -310,6 +310,10 @@ class Library:
     def free_const_names(self):
         return np.array([tok.__str__() for tok in self.free_constants_tokens])
 
+    @property
+    def spe_free_constants_init_val_sizes(self):
+        return np.array([c.shape[0] for c in self.spe_free_constants_init_val])
+
     def __repr__(self):
         return str(self.lib_tokens)
 
