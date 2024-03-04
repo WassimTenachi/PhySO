@@ -212,6 +212,11 @@ class Library:
             assert init_val.shape == (n_realizations,),"Realization specific free const %s has inconsistent init values shape %s with n_realizations %s" %(self.spe_free_constants_names[i], init_val.shape, n_realizations)
             padded_init_val.append(init_val)
 
+        # Making an empty array of shape (n_spe_free_const, n_realizations,) in case there are no spe free constants
+        # to ensure consistency
+        if self.n_spe_free_const == 0:
+            padded_init_val = np.empty(shape=(self.n_spe_free_const, n_realizations,))
+
         self.spe_free_constants_init_val = np.array(padded_init_val) # (n_spe_free_const, n_realizations,) of float
         return None
 
