@@ -2096,12 +2096,14 @@ class VectPrograms:
     @property
     def n_free_const_occurrences(self):
         """
-        Number of occurrences of free const in programs
+        Number of occurrences of free const in programs.
+        This is to know if we should bother running the optimization process.
         Returns
         -------
         occurrences : numpy.array of shape (batch_size,) of int
         """
-        return (self.tokens.var_type == 2).sum(axis=1) # (batch_size,) of int
+        is_free_const = ((self.tokens.var_type == Tok.VAR_TYPE_SPE_FREE_CONST) | (self.tokens.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST)) # (batch_size, max_time_step) of bool
+        return is_free_const.sum(axis=1)                                                                                                  # (batch_size,) of int
 
     def get_token(self, coords):
         """
