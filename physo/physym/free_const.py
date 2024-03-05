@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import pandas as pd
 
 # ------------------------------------------------------------------------------------------------------
 # ---------------------------------------- FREE CONSTANTS TABLE ----------------------------------------
@@ -196,8 +197,8 @@ def MSE_loss (func, params, y_target):
     ----------
     func : callable
         Function which's constants should be optimized taking params as argument.
-    params : torch.tensor of shape (n_free_const,)
-        Free constants to optimize.py.
+    params : list of torch.tensor
+        Free constants to optimize.
     y_target : torch.tensor of shape (?,)
         Target output of function.
     Returns
@@ -219,7 +220,7 @@ LOSSES = {
 
 DEFAULT_LBFGS_OPTI_ARGS = {
     'n_steps' : 30,
-    'tol'     : 1e-6,
+    'tol'     : 1e-10, # Most of SR search time will be spent on incorrect programs, so we can afford a very low tolerance
     'lbfgs_func_args' : {
         'max_iter'       : 4,
         'line_search_fn' : "strong_wolfe",
@@ -232,8 +233,8 @@ def LBFGS_optimizer (params, f, n_steps=10, tol=1e-6, lbfgs_func_args={}):
     See: https://pytorch.org/docs/stable/generated/torch.optim.LBFGS.html
     Parameters
     ----------
-    params : torch.tensor of shape (n_free_const,)
-        Parameters to optimize.py.
+    params : list of torch.tensor
+        Free constants to optimize.
     f : callable
         Function to minimize, taking params as argument.
     n_steps : int
@@ -247,9 +248,16 @@ def LBFGS_optimizer (params, f, n_steps=10, tol=1e-6, lbfgs_func_args={}):
     history : numpy.array of shape (?,)
         Loss history (? <= n_steps).
     """
-    params.requires_grad = True
 
-    lbfgs = torch.optim.LBFGS([params], **lbfgs_func_args)
+    if type(params) == list:
+        for p in params:
+            p.requires_grad = True
+        params_topass = params
+    else:
+        params.requires_grad = True
+        params_topass = [params,]
+
+    lbfgs = torch.optim.LBFGS(params_topass, **lbfgs_func_args)
 
     def closure():
         lbfgs.zero_grad()
@@ -298,8 +306,8 @@ def optimize_free_const (func,
     ----------
     func : callable
         Function which's constants should be optimized taking params as argument.
-    params : torch.tensor of shape (n_free_const,)
-        Free constants to optimize.py.
+    params : list of torch.tensor
+        Free constants to optimize.
     y_target : torch.tensor of shape (?,)
         Target output of function.
     """
