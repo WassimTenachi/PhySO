@@ -9,6 +9,7 @@ from physo.physym import prior
 from physo.physym import dataset
 from physo.physym import reward
 from physo.physym import execute
+from physo.physym import vect_programs as VProg
 
 # Embedding output in SR interface
 INTERFACE_UNITS_AVAILABLE   = 1.
@@ -56,7 +57,7 @@ class Batch:
         y_target : torch.tensor of shape (?,) of float
             Values of the target symbolic function on input variables contained in X_target.
         rewards_computer : callable
-            Function taking programs (program.VectPrograms), X (torch.tensor of shape (n_dim,?,) of float), y_target
+            Function taking programs (vect_programs.VectPrograms), X (torch.tensor of shape (n_dim,?,) of float), y_target
             (torch.tensor of shape (?,) of float) as key arguments and returning reward for each program (array_like
             of float).
         batch_size : int

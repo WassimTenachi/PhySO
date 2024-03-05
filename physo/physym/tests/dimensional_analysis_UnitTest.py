@@ -5,7 +5,7 @@ import numpy as np
 from physo.physym import program as Prog
 from physo.physym import library as Lib
 from physo.physym import dimensional_analysis as phy
-
+from physo.physym import vect_programs as VProg
 
 def hard_test_case():
     # LIBRARY CONFIG
@@ -118,7 +118,7 @@ class DimensionalAnalysisTest(unittest.TestCase):
         batch_size = 3
         test_programs_idx = np.tile(test_program_idx, reps=(batch_size, 1))
 
-        my_programs = Prog.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
         my_programs.set_programs(test_programs_idx)
 
         # ------------------- TEST BOTTOM-UP -------------------
@@ -154,7 +154,7 @@ class DimensionalAnalysisTest(unittest.TestCase):
         try:
             batch_size_large = int(1e3)
             test_programs_idx_large = np.tile(test_program_idx, reps=(batch_size_large, 1)).transpose()
-            my_programs = Prog.VectPrograms(batch_size=batch_size_large, max_time_step=test_program_length, library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size=batch_size_large, max_time_step=test_program_length, library=my_lib)
             t0 = time.perf_counter()
             for i, idx in enumerate(test_programs_idx_large):
                 # Computing units requirements
@@ -169,7 +169,7 @@ class DimensionalAnalysisTest(unittest.TestCase):
             self.fail("Unable to run assign_required_units_at_step")
 
         # ------------------- TEST AT STEP: assign_required_units_at_step -------------------
-        my_programs = Prog.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
 
         observed_phy_units           = []
         observed_is_constraining     = []
@@ -207,7 +207,7 @@ class DimensionalAnalysisTest(unittest.TestCase):
         observed_tokens_cases_record_w_step = observed_tokens_cases_record .copy()
 
         # ------------------- TEST AT STEP: assign_required_units_at_step from scratch -------------------
-        my_programs = Prog.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
         my_programs.set_programs(test_programs_idx.transpose())
 
         phy.assign_required_units_at_step(my_programs, from_scratch=True)
@@ -223,7 +223,7 @@ class DimensionalAnalysisTest(unittest.TestCase):
         self.assertEqual(bool_works, True)
 
         # ------------------- TEST AT COORDS: assign_required_units -------------------
-        my_programs = Prog.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
 
         observed_phy_units           = []
         observed_is_constraining     = []

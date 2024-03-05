@@ -8,7 +8,7 @@ import platform
 
 # Internal imports
 from physo.physym import library as Lib
-from physo.physym import program as Prog
+from physo.physym import vect_programs as VProg
 
 
 def make_lib():
@@ -69,7 +69,7 @@ class DisplayTest(unittest.TestCase):
         test_program_idx = test_program_idx[np.newaxis, :]
 
         # BATCH
-        my_programs = Prog.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
         my_programs.set_programs(test_program_idx)
 
         # TEST get_pretty
@@ -140,7 +140,7 @@ class DisplayTest(unittest.TestCase):
             test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
             test_program_length = len(test_program_str)
             test_program_idx = test_program_idx[np.newaxis, :]
-            my_programs_wo_dummies = Prog.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
+            my_programs_wo_dummies = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
             my_programs_wo_dummies.set_programs(test_program_idx)
 
             # TEST PROGRAM W DUMMIES
@@ -149,7 +149,7 @@ class DisplayTest(unittest.TestCase):
             test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
             test_program_length = len(test_program_str) + 1
             test_program_idx = test_program_idx[np.newaxis, :]
-            my_programs_w_dummies = Prog.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
+            my_programs_w_dummies = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
             my_programs_w_dummies.set_programs(test_program_idx)
 
             # TEST

@@ -22,7 +22,7 @@ def assign_required_units_at_step (programs, step = None, from_scratch = False):
     void tokens.
     Parameters
     ----------
-    programs : program.VectPrograms
+    programs : vect_programs.VectPrograms
         Programs on which physical units requirements should be computed.
     step : int or None (optional)
         Step of programs for which units requirement should be computed.
@@ -72,7 +72,7 @@ def assign_required_units(programs, coords,):
 
     Parameters
     ----------
-    programs : program.VectPrograms
+    programs : vect_programs.VectPrograms
         Programs on which physical units requirements should be computed.
     coords : numpy.array of shape (2, ?) of int
         Coords of tokens in programs for which physical units requirements should be computed and assigned, 0-th array
@@ -549,7 +549,7 @@ def assign_units_bottom_up (programs, coords_start, coords_end):
     for multiple subtrees.
     Parameters
     ----------
-    programs : program.VectPrograms
+    programs : vect_programs.VectPrograms
         Programs on which bottom up units assignment should be performed.
     coords_start : numpy.array of shape (2, ?) of int
         Coords of starts of subtrees, 0th array in batch dim and 1th array in time dim.

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import physo.physym.reward
 from physo.physym import execute as Exec
 from physo.physym import library as Lib
-from physo.physym import program as Prog
+from physo.physym import vect_programs as VProg
 
 # List of number of CPUs to test based on the total nb of CPUs (if 8 cores returns [8, 1, 2 4,])
 def get_ncpus(max_ncpus):
@@ -68,7 +68,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
         #
         # # BATCH
-        # my_programs = Prog.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        # my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
         # my_programs.set_programs(test_program_idx)
         #
         # # TEST DATA
@@ -178,7 +178,7 @@ class ExecuteProgramTest(unittest.TestCase):
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
         # BATCH
-        my_programs = Prog.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
         my_programs.set_programs(test_program_idx)
 
         # TEST DATA
@@ -302,7 +302,7 @@ class ExecuteProgramTest(unittest.TestCase):
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
         # BATCH
-        my_programs = Prog.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
         my_programs.set_programs(test_program_idx)
 
         # TEST DATA
@@ -430,7 +430,7 @@ class ExecuteProgramTest(unittest.TestCase):
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
         # BATCH
-        my_programs = Prog.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
         my_programs.set_programs(test_program_idx)
 
         # TEST DATA
@@ -462,7 +462,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # Function to run the hyper-task once with a given config
         def run (parallel=True, n_cpus=1):
             # reset before each run, so it is not easier (early stop) to optimize free const next time
-            my_programs = Prog.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
             my_programs.set_programs(test_program_idx)
             # Run tasks
             t0 = time.perf_counter()

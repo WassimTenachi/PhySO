@@ -246,7 +246,7 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
     information to pass which would not work in fork mode but would work in spawn mode ?).
     Parameters
     ----------
-    progs : program.VectPrograms
+    progs : vect_programs.VectPrograms
         Programs in the batch.
     X : torch.tensor of shape (n_dim, n_samples,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
@@ -330,7 +330,7 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with 
     NB: Parallel execution is typically slower because of communication time (even just gathering a float).
     Parameters
     ----------
-    progs : program.VectPrograms
+    progs : vect_programs.VectPrograms
         Programs in the batch.
     X : torch.tensor of shape (n_dim, n_samples,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
@@ -419,7 +419,7 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_
     NB: Parallel execution is typically slower because of communication time (even just gathering a float).
     Parameters
     ----------
-    progs : program.VectPrograms
+    progs : vect_programs.VectPrograms
         Programs in the batch.
     X : torch.tensor of shape (n_dim, n_samples,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
@@ -511,7 +511,7 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
     NB: Parallel execution is typically faster.
     Parameters
     ----------
-    progs : program.VectPrograms
+    progs : vect_programs.VectPrograms
         Programs in the batch.
     X : torch.tensor of shape (n_dim, n_samples,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.

@@ -21,7 +21,7 @@ class Prior (ABC):
         ----------
         library : library.Library
             Library of choosable tokens.
-        programs : program.VectPrograms
+        programs : vect_programs.VectPrograms
             Programs in the batch.
         """
         self.lib       = library
@@ -61,7 +61,7 @@ class UniformArityPrior (Prior):
         Parameters
         ----------
         library : library.Library
-        programs : program.VectPrograms
+        programs : vect_programs.VectPrograms
         """
         Prior.__init__(self, library, programs)
         # Number of tokens per arity
@@ -95,7 +95,7 @@ class HardLengthPrior (Prior):
         Parameters
         ----------
         library : library.Library
-        programs : program.VectPrograms
+        programs : vect_programs.VectPrograms
         min_length : float
             Minimum length that programs are allowed to have.
         max_length : float
@@ -155,7 +155,7 @@ class SoftLengthPrior (Prior):
         Parameters
         ----------
         library : library.Library
-        programs : program.VectPrograms
+        programs : vect_programs.VectPrograms
         length_loc : float
             Desired length of programs.
         scale : float
@@ -216,7 +216,7 @@ class RelationshipConstraintPrior (Prior):
         Parameters
         ----------
         library : library.Library
-        programs : program.VectPrograms
+        programs : vect_programs.VectPrograms
         effectors : list of str
             List of effector tokens' name.
         relationship : str
@@ -385,7 +385,7 @@ class NoUselessInversePrior(Prior):
         Parameters
         ----------
         library : library.Library
-        programs : program.VectPrograms
+        programs : vect_programs.VectPrograms
         """
         Prior.__init__(self, library, programs)
 
@@ -439,7 +439,7 @@ class NestedFunctions (Prior):
         Parameters
         ----------
         library : library.Library
-        programs : program.VectPrograms
+        programs : vect_programs.VectPrograms
         functions : list of str
             List of tokens' names which's nesting will be forbidden.
         max_nesting : int
@@ -533,7 +533,7 @@ class NestedTrigonometryPrior(Prior):
         Parameters
         ----------
         library : library.Library
-        programs : program.VectPrograms
+        programs : vect_programs.VectPrograms
         max_nesting : int
             Max level of nesting allowed. By default = 1, no nesting allowed.
         """
@@ -589,7 +589,7 @@ class OccurrencesPrior (Prior):
         Parameters
         ----------
         library : library.Library
-        programs : program.VectPrograms
+        programs : vect_programs.VectPrograms
         targets : list of str
             List of tokens' names which's number of occurrences should be constrained.
         max : list of int
@@ -646,7 +646,7 @@ class PhysicalUnitsPrior(Prior):
         Parameters
         ----------
         library : library.Library
-        programs : program.VectPrograms
+        programs : vect_programs.VectPrograms
         prob_eps : float
             Value to return for the prior inplace of zeros (useful for avoiding sampling problems)
         """
@@ -763,7 +763,7 @@ def make_PriorCollection (library, programs, priors_config,):
     ----------
     library : library.Library
         Library of choosable tokens.
-    programs : program.VectPrograms
+    programs : vect_programs.VectPrograms
         Programs in the batch.
     priors_config : list of couples (str : dict)
         List of priors. List containing couples with prior name as first item in couple (see prior.PRIORS_DICT for list
@@ -821,7 +821,7 @@ class PriorCollection:
         ----------
         library : library.Library
             Library of choosable tokens.
-        programs : program.VectPrograms
+        programs : vect_programs.VectPrograms
             Programs in the batch.
         """
         self.priors    = []
