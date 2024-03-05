@@ -7,11 +7,13 @@ import torch.multiprocessing as mp
 from tqdm import tqdm
 SHOW_PROGRESS_BAR = False
 
+from physo.physym import token as Tok
+
 # ------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------ SINGLE EXECUTION ------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------------
 
-def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
+def ExecuteProgram (input_var_data, program_tokens, class_free_consts_vals=None, spe_free_consts_vals=None):
     """
     Executes a symbolic function program.
     Parameters
@@ -20,10 +22,14 @@ def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
         Values of the input variables of the problem with n_dim = nb of input variables.
     program_tokens : list of token.Token
         Symbolic function program in reverse Polish notation order.
-    free_const_values : torch.tensor of shape (n_free_const,) of float or None
-        Current values of free constants with for program made of program_tokens n_free_const = nb of choosable free
-        constants (library.n_free_constants). free_const_values must be given if program_tokens contains one or more
-         free const tokens.
+    class_free_consts_vals : torch.tensor of shape (n_class_free_const,) or of shape (n_class_free_const, ?) of float or None
+        Values of class free constants to use for program execution. Works with either a single value for each constant
+        (shape (n_class_free_const,)) or a value for each constant and each data point (shape (n_class_free_const, ?)).
+        class_free_consts_vals must be given if program_tokens contains one or more class free constants.
+    spe_free_consts_vals : torch.tensor of shape (n_spe_free_const,) or of shape (n_spe_free_const, ?) of float or None
+        Values of spe free constants to use for program execution. Works with either a single value for each constant
+        (shape (n_spe_free_const,)) or a value for each constant and each data point (shape (n_spe_free_const, ?)).
+        spe_free_consts_vals must be given if program_tokens contains one or more spe free constants.
     Returns
     -------
     y : torch.tensor of shape (?,) of float
@@ -46,22 +52,28 @@ def ExecuteProgram (input_var_data, program_tokens, free_const_values=None):
         # Terminal token
         if token.arity == 0:
             # Function type token
-            if token.var_type == 0:
+            if token.var_type == Tok.VAR_TYPE_OP:
                 #curr_stack.append(token.function())
-                raise ValueError("Function of arity = 0 encountered. Use var_type = 3 for fixed constants.")
+                raise ValueError("Function of arity = 0 encountered. Use var_type = %i for fixed constants."%(Tok.VAR_TYPE_FIXED_CONST))
             # Input variable (eg. x0, x1 etc.)
-            elif token.var_type == 1:
+            elif token.var_type == Tok.VAR_TYPE_INPUT_VAR:
                 curr_stack.append(input_var_data[token.var_id])
-            # Free constant variable (eg. c0, c1 etc.)
-            elif token.var_type == 2:
-                if free_const_values is not None:
-                    # curr_stack.append(torch.abs(free_const_values[token.var_id])) # Making free const positive values only #abs_free_const
-                    curr_stack.append(free_const_values[token.var_id])
+            # Class free constant variable (eg. c0, c1 etc.)
+            elif token.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST:
+                if class_free_consts_vals is not None:
+                    curr_stack.append(class_free_consts_vals[token.var_id])
                 else:
-                    raise ValueError("Free constant encountered in program evaluation but free constant values were "
-                                     "not given.")
+                    raise ValueError("Class free constant encountered in program evaluation but class free constant values "
+                                     "were not given.")
+            # Spe free constant variable (eg. k0, k1 etc.)
+            elif token.var_type == Tok.VAR_TYPE_SPE_FREE_CONST:
+                if spe_free_consts_vals is not None:
+                    curr_stack.append(spe_free_consts_vals[token.var_id])
+                else:
+                    raise ValueError("Spe free constant encountered in program evaluation but spe free constant values "
+                                     "were not given.")
             # Fixed constant (eg. pi, 1 etc.)
-            elif token.var_type == 3:
+            elif token.var_type == Tok.VAR_TYPE_FIXED_CONST:
                 curr_stack.append(token.fixed_const)
             else:
                 raise NotImplementedError("Token of unknown var_type encountered in ExecuteProgram.")
