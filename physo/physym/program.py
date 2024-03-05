@@ -619,12 +619,15 @@ class VectPrograms:
         Vectorized tokens of contained in batch (including idx in library ie. nature of tokens).
 
     free_consts : free_const.FreeConstantsTable
-        Free constant register.
+        Free constants register.
     candidate_wrapper : callable
         Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
         a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
+    n_realizations : int
+        Number of realizations for each program, ie. number of datasets each program has to fit.
+        Dataset specific free constants will have different values different for each realization.
     """
-    def __init__(self, batch_size, max_time_step, library, candidate_wrapper=None):
+    def __init__(self, batch_size, max_time_step, library, candidate_wrapper=None, n_realizations=1):
         """
         Parameters
         ----------
@@ -637,6 +640,9 @@ class VectPrograms:
         candidate_wrapper : callable or None, optional
             Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
             a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
+        n_realizations : int
+            Number of realizations for each program, ie. number of datasets each program has to fit.
+            Dataset specific free constants will have different values different for each realization.
         """
         # Assertions
         assert isinstance(batch_size,    int) and batch_size    > 0, "batch_size    must be a >0 int."
@@ -725,7 +731,8 @@ class VectPrograms:
         self.register_ancestor (coords_dest = coords_initial_dummies)
 
         # ---------------------------- FREE CONSTANTS REGISTER ----------------------------
-        self.free_consts = free_const.FreeConstantsTable(batch_size = self.batch_size, library =self.library)
+        self.n_realizations = n_realizations
+        self.free_consts    = free_const.FreeConstantsTable(batch_size = self.batch_size, library = self.library, n_realizations = self.n_realizations)
 
         # ---------------------------- EXECUTION RELATED ----------------------------
         # Wrapper to apply to candidate programs when executing
@@ -2167,11 +2174,8 @@ class VectPrograms:
         is_physical              = self.is_physical         [prog_idx]
 
         # --- Free constant related ---
-        free_const_values        = self.free_consts.values  [prog_idx]                          # (n_free_const,)
-        # Using an array of shape (1,) (ie. reference) in order to affect the underlying values in the
-        # FreeConstantsTable object.
-        is_opti                  = self.free_consts.is_opti    [prog_idx, np.newaxis]           # (1,)
-        opti_steps               = self.free_consts.opti_steps [prog_idx, np.newaxis]           # (1,)
+        # Getting sub-table of free constants for this program
+        table = self.free_consts.get_const_of_prog(prog_idx = prog_idx)  # (1, n_class_free_const,), (1, n_spe_free_const, n_realizations,)
 
         lib     = self.library
         wrapper = self.candidate_wrapper
@@ -2184,13 +2188,10 @@ class VectPrograms:
         prog = Program(tokens            = tokens,
                        library           = lib,
                        is_physical       = is_physical,
-
-                       # Free constant related
-                       free_const_values = free_const_values,
-                       is_opti           = is_opti,
-                       opti_steps        = opti_steps,
-
                        candidate_wrapper = wrapper,
+                       # Free constant related
+                       free_consts       = table,
+                       n_realizations    = self.free_consts.n_realizations,
                        )
         return prog
 
