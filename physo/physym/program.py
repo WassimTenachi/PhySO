@@ -188,17 +188,18 @@ class Program:
         Library of tokens that could appear in Program.
     is_physical : bool or None
         Is program physical (units-wize) ?
-    free_const_values : array_like of float or None
-        Values of free constants for each constant in the library.
-    is_opti : numpy.array of shape (1,) of bool or None
-        Is set of free constant optimized ? Use is_opti[0] to access the value.
-    opti_steps : numpy.array of shape (1,) of int or None
-        Number of iterations necessary to optimize the set of free constants. Use opti_steps[0] to access the value.
+    free_consts : free_const.FreeConstantsTable
+        Free constants register for this program (having batch_size = 1).
+        Ie. shape = (1, n_class_free_const,), (1, n_spe_free_const, n_realizations,)
     candidate_wrapper : callable
         Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
         a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
+    n_realizations : int
+        Number of realizations for this program, ie. number of datasets this program has to fit.
+        Dataset specific free constants will have different values different for each realization.
+        If free_consts is given, n_realizations is taken from it and this argument is ignored.
     """
-    def __init__(self, tokens, library, is_physical = None, free_const_values = None, is_opti = None, opti_steps = None, candidate_wrapper = None):
+    def __init__(self, tokens, library, free_consts = None, is_physical = None, candidate_wrapper = None, n_realizations=1):
         """
         Parameters
         ----------
@@ -218,78 +219,118 @@ class Program:
         self.candidate_wrapper = candidate_wrapper
 
         # ----- free const related -----
-        # Values
-        self.free_const_values = free_const_values                                                  # (?,)
-        # Using an array of shape (1,) (ie. reference) in order to affect the underlying values in the
-        # FreeConstantsTable object.
-        self.is_opti           = is_opti                                                            # (1,)
-        self.opti_steps        = opti_steps                                                         # (1,)
+        # If no free constants table is given, let's create one and warn the user
+        if free_consts is None:
+            warnings.warn("No free constants table was given when initializing prog %s, a default one will be created with initial values."%(str(self)))
+            free_consts = free_const.FreeConstantsTable(batch_size = 1, library = library, n_realizations = n_realizations)
 
-    def execute_wo_wrapper(self, X):
+        self.free_consts    = free_consts             # (1, n_class_free_const,), (1, n_spe_free_const, n_realizations,)
+        # Taking n_realizations from free_consts so if free_consts is given, n_realizations is taken from it.
+        self.n_realizations = free_consts.n_realizations
+
+    def execute_wo_wrapper(self, X, i_realization = 0, n_samples_per_dataset = None):
         """
         Executes program on X.
         Parameters
         ----------
         X : torch.tensor of shape (n_dim, ?,) of float
-            Values of the input variables of the problem with n_dim = nb of input variables.
+            Values of the input variables of the problem with n_dim = nb of input variables, ? = number of samples.
+        i_realization : int, optional
+            Index of realization to use for dataset specific free constants (0 by default).
+        n_samples_per_dataset : array_like of shape (n_realizations,) of int or None, optional
+            Overrides i_realization if given. If given assumes that X contains multiple datasets with samples of each
+            dataset following each other and each portion of X corresponding to a dataset should be treated with its
+            corresponding dataset specific free constants values. n_samples_per_dataset is the number of samples for
+            each dataset. Eg. [90, 100, 110] for 3 datasets, this will assume that the first 90 samples of X are for
+            the first dataset, the next 100 for the second and the last 110 for the third.
         Returns
         -------
         y : torch.tensor of shape (?,) of float
             Result of computation.
         """
-        y = Exec.ExecuteProgram(input_var_data     = X,
-                                 free_const_values = self.free_const_values,
-                                 program_tokens    = self.tokens)
+        if n_samples_per_dataset is not None:
+            class_const_flatten, spe_const_flatten = self.free_consts.flatten_like_data(n_samples_per_dataset=n_samples_per_dataset)
+            # class_const_flatten                                                       # (1, n_class_free_const, ?)
+            # spe_const_flatten                                                         # (1, n_spe_free_const,   ?)
+            class_vals = class_const_flatten [0]                                        # (n_class_free_const, ?)
+            spe_vals   = spe_const_flatten   [0]                                        # (n_spe_free_const,   ?)
+        else:
+            # self.free_consts.class_values                                             # (1, n_class_free_const,)
+            # self.free_consts.spe_values                                               # (1, n_spe_free_const, n_realizations,)
+            class_vals = self.free_consts.class_values[0]                               # (n_class_free_const,)
+            spe_vals   = self.free_consts.spe_values  [0,:,i_realization]               # (n_spe_free_const,)
+
+        y = Exec.ExecuteProgram(input_var_data         = X,
+                                program_tokens         = self.tokens,
+                                class_free_consts_vals = class_vals,
+                                spe_free_consts_vals   = spe_vals,
+                                )
         return y
 
-    def execute(self, X):
+    def execute(self, X, i_realization = 0, n_samples_per_dataset = None):
         """
         Executes program on X.
         Parameters
         ----------
         X : torch.tensor of shape (n_dim, ?,) of float
-            Values of the input variables of the problem with n_dim = nb of input variables.
+            Values of the input variables of the problem with n_dim = nb of input variables, ? = number of samples.
+        i_realization : int, optional
+            Index of realization to use for dataset specific free constants (0 by default).
+        n_samples_per_dataset : array_like of shape (n_realizations,) of int or None, optional
+            Overrides i_realization if given. If given assumes that X contains multiple datasets with samples of each
+            dataset following each other and each portion of X corresponding to a dataset should be treated with its
+            corresponding dataset specific free constants values. n_samples_per_dataset is the number of samples for
+            each dataset. Eg. [90, 100, 110] for 3 datasets, this will assume that the first 90 samples of X are for
+            the first dataset, the next 100 for the second and the last 110 for the third.
         Returns
         -------
         y : torch.tensor of shape (?,) of float
             Result of computation.
         """
-        y = self.candidate_wrapper(lambda X: self.execute_wo_wrapper(X), X)
+        y = self.candidate_wrapper(lambda X: self.execute_wo_wrapper(X=X, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset), X)
         return y
 
-    def optimize_constants(self, X, y_target, args_opti = None):
+    def optimize_constants(self, X, y_target, i_realization = 0, n_samples_per_dataset = None, args_opti = None):
         """
         Optimizes free constants of program.
         Parameters
         ----------
         X : torch.tensor of shape (n_dim, ?,) of float
-            Values of the input variables of the problem with n_dim = nb of input variables.
+            Values of the input variables of the problem with n_dim = nb of input variables, ? = number of samples.
         y_target : torch.tensor of shape (?,) of float
-            Values of target output.
+            Values of target output, ? = number of samples.
+        i_realization : int, optional
+            Index of realization to use for dataset specific free constants (0 by default).
+        n_samples_per_dataset : array_like of shape (n_realizations,) of int or None, optional
+            Overrides i_realization if given. If given assumes that X/y_target contain multiple datasets with samples of
+            each dataset following each other and each portion of X/y_target corresponding to a dataset should be treated
+            with their corresponding dataset specific free constants values. n_samples_per_dataset is the number of
+            samples for each dataset. Eg. [90, 100, 110] for 3 datasets, this will assume that the first 90 samples of X
+            are for the first dataset, the next 100 for the second and the last 110 for the third.
         args_opti : dict or None, optional
             Arguments to pass to free_const.optimize_free_const. By default, free_const.DEFAULT_OPTI_ARGS
             arguments are used.
         """
         if args_opti is None:
             args_opti = free_const.DEFAULT_OPTI_ARGS
-        func_params = lambda params: self.__call__(X)
+        func_params = lambda params: self.__call__(X, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset)
 
-        history = free_const.optimize_free_const (     func     = func_params,
-                                                       params   = self.free_const_values,
-                                                       y_target = y_target,
-                                                       **args_opti)
+        history = free_const.optimize_free_const (  func     = func_params,
+                                                    params   = [self.free_consts.class_values, self.free_consts.spe_values],
+                                                    y_target = y_target,
+                                                    **args_opti)
 
         # Logging optimization process
-        self.is_opti    [0] = True
-        self.opti_steps [0] = len(history)  # Number of iterations it took to optimize the constants
+        self.free_consts.is_opti    [0] = True
+        self.free_consts.opti_steps [0] = len(history)  # Number of iterations it took to optimize the constants
 
         return history
 
-    def __call__(self, X):
+    def __call__(self, X, i_realization = 0, n_samples_per_dataset=None):
         """
-        Executes program on X.
+        Executes program on X. See Program.execute for details.
         """
-        return self.execute(X=X)
+        return self.execute(X = X, i_realization = i_realization, n_samples_per_dataset = n_samples_per_dataset)
 
     def __getitem__(self, key):
         """
