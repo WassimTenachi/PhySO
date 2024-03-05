@@ -329,7 +329,7 @@ class ProgramTest(unittest.TestCase):
             return y
 
         y_ideals_flatten = trial_func (multi_X_flatten, ideal_spe_params_flatten, ideal_class_params_flatten) # (n_all_samples,)
-        multi_y_ideals   = unflatten_multi_data(y_ideals_flatten)                                         # (n_datasets,) of (n_samples depends on dataset,)
+        multi_y_ideals   = unflatten_multi_data(y_ideals_flatten)                                         # (n_realizations,) of (n_samples depends on dataset,)
 
 
         # params[0]*torch.exp(-params[1]*X[0])*torch.cos(class_params[0]*X[0]+params[2]) + class_params[1]*X[1]
@@ -563,7 +563,7 @@ class ProgramTest(unittest.TestCase):
             return y
 
         y_ideals_flatten = trial_func (multi_X_flatten, ideal_spe_params_flatten, ideal_class_params_flatten) # (n_all_samples,)
-        multi_y_ideals   = unflatten_multi_data(y_ideals_flatten)                                         # (n_datasets,) of (n_samples depends on dataset,)
+        multi_y_ideals   = unflatten_multi_data(y_ideals_flatten)                                         # (n_realizations,) of (n_samples depends on dataset,)
 
 
         # params[0]*torch.exp(-params[1]*X[0])*torch.cos(class_params[0]*X[0]+params[2]) + class_params[1]*X[1]
