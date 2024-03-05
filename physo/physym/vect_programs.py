@@ -1640,8 +1640,9 @@ class VectPrograms:
         wrapper = self.candidate_wrapper
 
         if skeleton:
-            lib         = None
-            is_physical = None
+            # Library contains placeholder functions which can not be pickled for parallel execution
+            lib           = None
+            table.library = None
 
         # Export
         prog = Prog.Program(tokens            = tokens,
