@@ -53,7 +53,7 @@ class VectProgramsTest(unittest.TestCase):
         my_lib = make_lib()
         # BATCH
         try:
-            my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib, n_realizations=1)
         except:
             self.fail("VectPrograms creation failed.")
 
@@ -63,17 +63,17 @@ class VectProgramsTest(unittest.TestCase):
         my_lib = make_lib()
         # BATCH
         with self.assertRaises(AssertionError, ):
-            my_programs = VProg.VectPrograms(batch_size='1000', max_time_step=32, library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size='1000', max_time_step=32, library=my_lib, n_realizations=1)
         with self.assertRaises(AssertionError, ):
-            my_programs = VProg.VectPrograms(batch_size=1000.0, max_time_step=32, library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size=1000.0, max_time_step=32, library=my_lib, n_realizations=1)
         with self.assertRaises(AssertionError, ):
-            my_programs = VProg.VectPrograms(batch_size=-1, max_time_step=32, library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size=-1, max_time_step=32, library=my_lib, n_realizations=1)
         with self.assertRaises(AssertionError, ):
-            my_programs = VProg.VectPrograms(batch_size=1000, max_time_step='32', library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size=1000, max_time_step='32', library=my_lib, n_realizations=1)
         with self.assertRaises(AssertionError, ):
-            my_programs = VProg.VectPrograms(batch_size=1000, max_time_step=32.0, library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size=1000, max_time_step=32.0, library=my_lib, n_realizations=1)
         with self.assertRaises(AssertionError, ):
-            my_programs = VProg.VectPrograms(batch_size=1000, max_time_step=-1, library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size=1000, max_time_step=-1, library=my_lib, n_realizations=1)
 
     # ------------------------------------------------------------------------------------------------------------------
     # ----------------------------------------------- APPEND ASSERTIONS ------------------------------------------------
@@ -86,7 +86,7 @@ class VectProgramsTest(unittest.TestCase):
         max_time_step = 5
         my_lib = make_lib()
         # BATCH
-        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib, n_realizations=1)
         # APPEND
         # Exceeding time step by appending terminal tokens to raise this error
         terminal_token_idx = my_lib.n_choices - 1
@@ -103,7 +103,7 @@ class VectProgramsTest(unittest.TestCase):
         max_time_step = 32
         my_lib = make_lib()
         # BATCH
-        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib, n_realizations=1)
         # APPEND
         next_tokens_idx = np.random.randint(low=0, high=my_lib.n_choices, size=batch_size)
         with self.assertRaises(AssertionError, ):
@@ -116,7 +116,7 @@ class VectProgramsTest(unittest.TestCase):
         max_time_step = 32
         my_lib = make_lib()
         # BATCH
-        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib, n_realizations=1)
         # APPEND
         next_tokens_idx = np.random.randint(low=0, high=my_lib.n_choices, size=batch_size + 99)
         with self.assertRaises(AssertionError, ):
@@ -129,7 +129,7 @@ class VectProgramsTest(unittest.TestCase):
         max_time_step = 32
         my_lib = make_lib()
         # BATCH
-        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib, n_realizations=1)
         # APPEND
         next_tokens_idx = np.random.randint(low=-1, high=my_lib.n_choices, size=batch_size)
         with self.assertRaises(AssertionError):
@@ -148,7 +148,7 @@ class VectProgramsTest(unittest.TestCase):
         # Not enough space for dummies with unsafe number of steps
         with self.assertRaises(IndexError):
             # BATCH
-            my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib, n_realizations=1)
             # ADDING NEW TOKENS
             for step in range(1, my_programs.safe_max_time_step*4):
                 next_tokens_idx = np.random.randint(low=0, high=my_lib.n_choices, size=batch_size)
@@ -156,7 +156,7 @@ class VectProgramsTest(unittest.TestCase):
         # Enough space for dummies with safe number of steps
         try:
             # BATCH
-            my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib, n_realizations=1)
             # ADDING NEW TOKENS
             for step in range(1, my_programs.safe_max_time_step):
                 next_tokens_idx = np.random.randint(low=0, high=my_lib.n_choices, size=batch_size)
@@ -200,7 +200,7 @@ class VectProgramsTest(unittest.TestCase):
         test_program_idx = test_program_idx[np.newaxis, :]
 
         # BATCH
-        my_programs = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_program_idx)
         #for i in range (test_program_length):
         #    batch.append(test_program_idx[:, i])
@@ -242,7 +242,7 @@ class VectProgramsTest(unittest.TestCase):
         test_program_idx = test_program_idx[np.newaxis, :]
 
         # BATCH
-        my_programs = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_program_idx)
 
         # CURSOR
@@ -320,7 +320,7 @@ class VectProgramsTest(unittest.TestCase):
         test_programs_idx = np.array(test_programs_idx)
 
         # Initializing programs
-        my_programs = VProg.VectPrograms(batch_size=test_programs_idx.shape[0], max_time_step=test_programs_idx.shape[1], library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_programs_idx.shape[0], max_time_step=test_programs_idx.shape[1], library=my_lib, n_realizations=1)
 
         # Appending tokens
         for i in range (test_programs_idx.shape[1]):
@@ -366,7 +366,7 @@ class VectProgramsTest(unittest.TestCase):
         test_program_idx = test_program_idx[np.newaxis, :]
 
         # BATCH
-        my_programs = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_program_idx)
 
         # ----- TEST GET PARENT IDX -----
