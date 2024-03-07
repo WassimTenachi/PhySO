@@ -231,14 +231,23 @@ def ParallelExeAvailability(verbose=False):
 # ------------------------------------------------------------------------------------------------------------------
 
 # Utils pickable function (non nested definition) executing a program (for parallelization purposes)
-def task_exe(prog, X):
+def task_exe(prog, X, i_realization, n_samples_per_dataset):
     try:
-        res = prog(X)
+        res = prog(X=X, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset)
     except:
         res = 0.
     return res
 
-def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
+def BatchExecution (progs, X,
+                    # Realization related
+                    i_realization         = 0,
+                    n_samples_per_dataset = None,
+                    # Mask
+                    mask     = None,
+                    pad_with = np.NaN,
+                    # Parallel mode related
+                    n_cpus        = 1,
+                    parallel_mode = False):
     """
     Executes prog(X) for each prog in progs and returns the results.
     NB: Parallel execution is typically slower because of communication time (parallel_mode = False is recommended).
@@ -250,11 +259,21 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
         Programs in the batch.
     X : torch.tensor of shape (n_dim, n_samples,) of float
         Values of the input variables of the problem with n_dim = nb of input variables.
-    mask : array_like of shape (progs.batch_size) of bool
+    i_realization : int, optional
+        Index of realization to use for dataset specific free constants (0 by default).
+    n_samples_per_dataset : array_like of shape (n_realizations,) of int or None, optional
+        Overrides i_realization if given. If given assumes that X contains multiple datasets with samples of each
+        dataset following each other and each portion of X corresponding to a dataset should be treated with its
+        corresponding dataset specific free constants values. n_samples_per_dataset is the number of samples for
+        each dataset. Eg. [90, 100, 110] for 3 datasets, this will assume that the first 90 samples of X are for
+        the first dataset, the next 100 for the second and the last 110 for the third.
+    mask : array_like of shape (progs.batch_size) of bool, optional
         Only programs where mask is True are executed. By default, all programs are executed.
-    n_cpus : int
+    pad_with : float, optional
+        Value to pad with where mask is False. (Default = nan).
+    n_cpus : int, optional
         Number of CPUs to use when running in parallel mode.
-    parallel_mode : bool
+    parallel_mode : bool, optional
         Parallel execution if True, execution in a loop else.
     Returns
     -------
@@ -281,8 +300,8 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
             # Computing y = prog(X) where mask is True
             if mask[i]:
                 # Getting minimum executable skeleton pickable program
-                prog = progs.get_prog(i, skeleton=True)
-                result = pool.apply_async(task_exe, args=(prog, X,))
+                prog = progs.get_prog(prog_idx=i, skeleton=True)
+                result = pool.apply_async(task_exe, args=(prog, X, i_realization, n_samples_per_dataset))
                 results.append(result)
 
         # Waiting for all tasks to complete and collecting the results
@@ -298,24 +317,24 @@ def BatchExecution (progs, X, mask = None, n_cpus = 1, parallel_mode = False):
         for i in range (progs.batch_size):
             # Computing y = prog(X) where mask is True
             if mask[i]:
-                prog = progs.get_prog(i, skeleton=True)
-                result = task_exe(prog, X)                                                 # (n_samples,)
+                prog = progs.get_prog(prog_idx=i, skeleton=True)
+                result = task_exe(prog, X, i_realization, n_samples_per_dataset)           # (n_samples,)
                 results.append(result)
 
     # ----- Results -----
     # Stacking results
     results = torch.stack(results)                                                         # (?, n_samples)
     # Batch of evaluation results
-    y_batch = torch.full((progs.batch_size, n_samples), torch.nan, dtype=results.dtype)    # (batch_size, n_samples)
+    y_batch = torch.full((progs.batch_size, n_samples), pad_with, dtype=results.dtype)     # (batch_size, n_samples)
     # Updating y_batch with results
     y_batch[mask] = results                                                                # (?, n_samples)
 
     return y_batch
 
 # Utils pickable function (non nested definition) executing a program (for parallelization purposes)
-def task_exe_wrapper_reduce(prog, X, reduce_wrapper):
+def task_exe_wrapper_reduce(prog, X, reduce_wrapper, i_realization, n_samples_per_dataset):
     try:
-        y_pred = prog(X)
+        y_pred = prog(X=X, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset)
         res = reduce_wrapper(y_pred)
         # Kills gradients ! Necessary to minimize communications so it won't crash on some systems. (BatchExecution doc for
         # details on this issue)
@@ -324,7 +343,17 @@ def task_exe_wrapper_reduce(prog, X, reduce_wrapper):
         res = 0.
     return res
 
-def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False):
+def BatchExecutionReduceGather (progs, X, reduce_wrapper,
+                                # Realization related
+                                i_realization         = 0,
+                                n_samples_per_dataset = None,
+                                # Mask
+                                mask     = None,
+                                pad_with = np.NaN,
+                                # Parallel mode related
+                                n_cpus        = 1,
+                                parallel_mode = False
+                                ):
     """
     Executes prog(X) for each prog in progs and gathers reduce_wrapper(prog(X)) as a result.
     NB: Parallel execution is typically slower because of communication time (even just gathering a float).
@@ -337,9 +366,17 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with 
     reduce_wrapper : callable
         Function returning a single float number when applied on prog(X). The function must be pickable
         (defined explicitly at the highest level when using parallel_mode).
+    i_realization : int, optional
+        Index of realization to use for dataset specific free constants (0 by default).
+    n_samples_per_dataset : array_like of shape (n_realizations,) of int or None, optional
+        Overrides i_realization if given. If given assumes that X contains multiple datasets with samples of each
+        dataset following each other and each portion of X corresponding to a dataset should be treated with its
+        corresponding dataset specific free constants values. n_samples_per_dataset is the number of samples for
+        each dataset. Eg. [90, 100, 110] for 3 datasets, this will assume that the first 90 samples of X are for
+        the first dataset, the next 100 for the second and the last 110 for the third.
     mask : array_like of shape (progs.batch_size) of bool
         Only programs where mask is True are executed. By default, all programs are executed.
-    pad_with : float
+    pad_with : float, optional
         Value to pad with where mask is False. (Default = nan).
     n_cpus : int
         Number of CPUs to use when running in parallel mode.
@@ -372,7 +409,7 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with 
             if mask[i]:
                 # Getting minimum executable skeleton pickable program
                 prog = progs.get_prog(i, skeleton=True)
-                result = pool.apply_async(task_exe_wrapper_reduce, args=(prog, X, reduce_wrapper))
+                result = pool.apply_async(task_exe_wrapper_reduce, args=(prog, X, reduce_wrapper, i_realization, n_samples_per_dataset))
                 results.append(result)
 
         # Waiting for all tasks to complete and collecting the results
@@ -389,7 +426,7 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with 
             # Computing y = prog(X) where mask is True
             if mask[i]:
                 prog = progs.get_prog(i, skeleton=True)
-                result = task_exe_wrapper_reduce(prog, X, reduce_wrapper)                 # float
+                result = task_exe_wrapper_reduce(prog, X, reduce_wrapper, i_realization, n_samples_per_dataset) # float
                 results.append(result)
 
     # ----- Results -----
@@ -405,17 +442,27 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper, mask = None, pad_with 
 
 
 # Utils pickable function (non nested definition) executing a program (for parallelization purposes)
-def task_exe_reward(prog, X, y_target, reward_function):
-    y_pred = prog(X)
-    res = reward_function(y_target, y_pred)
+def task_exe_reward(prog, X, y_target, reward_function, y_weights, i_realization, n_samples_per_dataset):
+    y_pred = prog(X=X, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset)
+    res = reward_function(y_target=y_target, y_pred=y_pred, y_weights=y_weights)
     # Kills gradients ! Necessary to minimize communications so it won't crash on some systems. (BatchExecution doc for
     # details on this issue)
     res = float(res)
     return res
 
-def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False):
+def BatchExecutionReward (progs, X, y_target, reward_function, y_weights = 1.,
+                          # Realization related
+                          i_realization         = 0,
+                          n_samples_per_dataset = None,
+                          # Mask
+                          mask     = None,
+                          pad_with = np.NaN,
+                          # Parallel mode related
+                          n_cpus        = 1,
+                          parallel_mode = False
+                          ):
     """
-    Executes prog(X) for each prog in progs and gathers reward_function(y_target, prog(X)) as a result.
+    Executes prog(X) for each prog in progs and gathers reward_function(y_target, prog(X), y_weights) as a result.
     NB: Parallel execution is typically slower because of communication time (even just gathering a float).
     Parameters
     ----------
@@ -426,9 +473,20 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_
     y_target : torch.tensor of shape (n_samples,) of float
         Values of target output.
     reward_function : callable
-        Function that taking y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of shape (?,)
-        of float) as key arguments and returning a float reward of an individual program. The function must be pickable
-        (defined explicitly at the highest level when using parallel_mode).
+        Function that taking y_target (torch.tensor of shape (?,) of float), y_pred (torch.tensor of shape (?,)
+        of float) and y_weights (torch.tensor of shape (?,) of float) as key arguments and returning a float reward of
+        an individual program. The function must be pickable (defined explicitly at the highest level when using
+        parallel_mode).
+    y_weights : torch.tensor of shape (?,) of float, optional
+        Weights for each data point.
+    i_realization : int, optional
+        Index of realization to use for dataset specific free constants (0 by default).
+    n_samples_per_dataset : array_like of shape (n_realizations,) of int or None, optional
+        Overrides i_realization if given. If given assumes that X contains multiple datasets with samples of each
+        dataset following each other and each portion of X corresponding to a dataset should be treated with its
+        corresponding dataset specific free constants values. n_samples_per_dataset is the number of samples for
+        each dataset. Eg. [90, 100, 110] for 3 datasets, this will assume that the first 90 samples of X are for
+        the first dataset, the next 100 for the second and the last 110 for the third.
     mask : array_like of shape (progs.batch_size) of bool
         Only programs where mask is True are executed. By default, all programs are executed.
     pad_with : float
@@ -464,7 +522,7 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_
             if mask[i]:
                 # Getting minimum executable skeleton pickable program
                 prog = progs.get_prog(i, skeleton=True)
-                result = pool.apply_async(task_exe_reward, args=(prog, X, y_target, reward_function))
+                result = pool.apply_async(task_exe_reward, args=(prog, X, y_target, reward_function, y_weights, i_realization, n_samples_per_dataset))
                 results.append(result)
 
         # Waiting for all tasks to complete and collecting the results
@@ -481,7 +539,7 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_
             # Computing y = prog(X) where mask is True
             if mask[i]:
                 prog = progs.get_prog(i, skeleton=True)
-                result = task_exe_reward(prog, X, y_target, reward_function)              # float
+                result = task_exe_reward(prog, X, y_target, reward_function, y_weights, i_realization, n_samples_per_dataset) # float
                 results.append(result)
 
     # ----- Results -----
@@ -497,15 +555,24 @@ def BatchExecutionReward (progs, X, y_target, reward_function, mask = None, pad_
 
 
 # Utils pickable function (non nested definition) optimizing the free consts of a program (for parallelization purposes)
-def task_free_const_opti(prog, X, y_target, free_const_opti_args):
+def task_free_const_opti(prog, X, y_target, free_const_opti_args, y_weights, i_realization, n_samples_per_dataset):
     try:
-        history = prog.optimize_constants(X=X, y_target=y_target, args_opti=free_const_opti_args)
+        history = prog.optimize_constants(X=X, y_target=y_target, args_opti=free_const_opti_args, y_weights=y_weights, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset)
     except:
         # Safety
         warnings.warn("Unable to optimize free constants of prog %s -> r = 0" % (str(prog)))
     return None
 
-def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n_cpus = 1, parallel_mode = False):
+def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, y_weights = 1.,
+                        # Realization related
+                        i_realization         = 0,
+                        n_samples_per_dataset = None,
+                        # Mask
+                        mask     = None,
+                        # Parallel mode related
+                        n_cpus        = 1,
+                        parallel_mode = False
+                        ):
     """
     Optimizes the free constants of each program in progs.
     NB: Parallel execution is typically faster.
@@ -517,9 +584,19 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
         Values of the input variables of the problem with n_dim = nb of input variables.
     y_target : torch.tensor of shape (n_samples,) of float
         Values of target output.
-    args_opti : dict or None, optional
+    free_const_opti_args : dict or None, optional
         Arguments to pass to free_const.optimize_free_const. By default, free_const.DEFAULT_OPTI_ARGS
         arguments are used.
+    y_weights : torch.tensor of shape (?,) of float, optional
+        Weights for each data point.
+    i_realization : int, optional
+        Index of realization to use for dataset specific free constants (0 by default).
+    n_samples_per_dataset : array_like of shape (n_realizations,) of int or None, optional
+        Overrides i_realization if given. If given assumes that X contains multiple datasets with samples of each
+        dataset following each other and each portion of X corresponding to a dataset should be treated with its
+        corresponding dataset specific free constants values. n_samples_per_dataset is the number of samples for
+        each dataset. Eg. [90, 100, 110] for 3 datasets, this will assume that the first 90 samples of X are for
+        the first dataset, the next 100 for the second and the last 110 for the third.
     mask : array_like of shape (progs.batch_size) of bool
         Only programs' constants where mask is True are optimized. By default, all programs' constants are opitmized.
     n_cpus : int
@@ -548,7 +625,7 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
             if mask[i] and progs.n_free_const_occurrences[i]:
                 # Getting minimum executable skeleton pickable program
                 prog = progs.get_prog(i, skeleton=True)
-                pool.apply_async(task_free_const_opti, args=(prog, X, y_target, free_const_opti_args))
+                pool.apply_async(task_free_const_opti, args=(prog, X, y_target, free_const_opti_args, y_weights, i_realization, n_samples_per_dataset))
         # Closing the pool of processes
         pool.close()
         pool.join()
@@ -561,6 +638,6 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, mask = None, n
             if mask[i] and progs.n_free_const_occurrences[i]:
                 # Getting minimum executable skeleton pickable program
                 prog = progs.get_prog(i, skeleton=True)
-                task_free_const_opti(prog, X = X, y_target = y_target, free_const_opti_args = free_const_opti_args)
+                task_free_const_opti(prog, X = X, y_target = y_target, free_const_opti_args = free_const_opti_args, y_weights=y_weights, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset)
 
     return None
