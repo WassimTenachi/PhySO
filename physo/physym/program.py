@@ -287,7 +287,7 @@ class Program:
         y = self.candidate_wrapper(lambda X: self.execute_wo_wrapper(X=X, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset), X)
         return y
 
-    def optimize_constants(self, X, y_target, i_realization = 0, n_samples_per_dataset = None, args_opti = None):
+    def optimize_constants(self, X, y_target, y_weights = 1., i_realization = 0, n_samples_per_dataset = None, args_opti = None):
         """
         Optimizes free constants of program.
         Parameters
@@ -296,6 +296,8 @@ class Program:
             Values of the input variables of the problem with n_dim = nb of input variables, ? = number of samples.
         y_target : torch.tensor of shape (?,) of float
             Values of target output, ? = number of samples.
+        y_weights : torch.tensor of shape (?,) of float, optional
+            Weights for each data point.
         i_realization : int, optional
             Index of realization to use for dataset specific free constants (0 by default).
         n_samples_per_dataset : array_like of shape (n_realizations,) of int or None, optional
@@ -312,9 +314,10 @@ class Program:
             args_opti = free_const.DEFAULT_OPTI_ARGS
         func_params = lambda params: self.__call__(X, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset)
 
-        history = free_const.optimize_free_const (  func     = func_params,
-                                                    params   = [self.free_consts.class_values, self.free_consts.spe_values],
-                                                    y_target = y_target,
+        history = free_const.optimize_free_const (  func      = func_params,
+                                                    params    = [self.free_consts.class_values, self.free_consts.spe_values],
+                                                    y_target  = y_target,
+                                                    y_weights = y_weights,
                                                     **args_opti)
 
         # Logging optimization process

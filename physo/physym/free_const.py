@@ -190,7 +190,7 @@ class FreeConstantsTable:
 # ------------ Loss to use for free constant optimization ------------
 
 
-def MSE_loss (func, params, y_target):
+def MSE_loss (func, params, y_target, y_weights = 1.):
     """
     Loss for free constant optimization.
     Parameters
@@ -201,12 +201,15 @@ def MSE_loss (func, params, y_target):
         Free constants to optimize.
     y_target : torch.tensor of shape (?,)
         Target output of function.
+    y_weights : torch.tensor of shape (?,) of float, optional
+        Weights for each data point. By default, no weights are used.
     Returns
     -------
     loss : float
         Value of error to be minimized.
     """
-    loss = torch.mean((func(params) - y_target)**2)
+    err = y_weights * (func(params) - y_target)**2
+    loss = torch.mean(err)
     return loss
 
 
@@ -297,6 +300,7 @@ DEFAULT_OPTI_ARGS = {
 def optimize_free_const (func,
                          params,
                          y_target,
+                         y_weights   = 1.,
                          loss        = "MSE",
                          method      = "LBFGS",
                          method_args = None):
@@ -310,6 +314,8 @@ def optimize_free_const (func,
         Free constants to optimize.
     y_target : torch.tensor of shape (?,)
         Target output of function.
+    y_weights : torch.tensor of shape (?,) of float, optional
+        Weights for each data point. By default, no weights are used.
     """
 
     # Getting loss
@@ -335,7 +341,7 @@ def optimize_free_const (func,
         optimizer_args = method_args
 
     # Loss wrapper : loss_params
-    loss_params = lambda params : loss(func = func, params = params, y_target = y_target)
+    loss_params = lambda params : loss(func = func, params = params, y_target = y_target, y_weights = y_weights)
 
     # Running optimizer
     history = optimizer (params = params, f = loss_params, **optimizer_args)

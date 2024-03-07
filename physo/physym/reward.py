@@ -8,7 +8,7 @@ import physo.physym.execute as exec
 USE_PARALLEL_EXE        = False  # Only worth it if n_samples > 1e6
 USE_PARALLEL_OPTI_CONST = True   # Only worth it if batch_size > 1k
 
-def SquashedNRMSE (y_target, y_pred,):
+def SquashedNRMSE (y_target, y_pred, y_weights = 1.):
     """
     Squashed NRMSE reward.
     Parameters
@@ -17,13 +17,17 @@ def SquashedNRMSE (y_target, y_pred,):
         Target output data.
     y_pred   : torch.tensor of shape (?,) of float
         Predicted data.
+    y_weights : torch.tensor of shape (?,) of float, optional
+        Weights for each data point. By default, no weights are used.
     Returns
     -------
     reward : torch.tensor float
         Reward encoding prediction vs target discrepancy in [0,1].
     """
     sigma_targ = y_target.std()
-    RMSE = torch.sqrt(torch.mean((y_pred-y_target)**2))
+    # Computing error with weights
+    err = y_weights*(y_target - y_pred)**2 # (?,)
+    RMSE = torch.sqrt(torch.mean(err))
     NRMSE = (1/sigma_targ)*RMSE
     reward = 1/(1 + NRMSE)
     return reward
