@@ -26,7 +26,7 @@ Please note that using a CPU typically results in higher performances than when 
 ### Parallel free constant optimization
 
 Parallel constant optimization is enabled if and only if :
-- The system is compatible (checked by `physo.physym.execute.ParallelExeAvailability`).
+- The system is compatible (checked by `physo.physym.batch_execute.ParallelExeAvailability`).
 - `parallel_mode = True` in the reward computation configuration.
 - `physo.physym.reward.USE_PARALLEL_OPTI_CONST = True`.
 
@@ -39,7 +39,7 @@ physo.physym.reward.USE_PARALLEL_OPTI_CONST = False
 ### Parallel reward computation
 
 Parallel reward computation is enabled if and only if :
-- The system is compatible (checked by `physo.physym.execute.ParallelExeAvailability`).
+- The system is compatible (checked by `physo.physym.batch_execute.ParallelExeAvailability`).
 - `parallel_mode = True` in the reward computation configuration.
 - `physo.physym.reward.USE_PARALLEL_EXE = True`.
 

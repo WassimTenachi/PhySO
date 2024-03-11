@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 # Internal imports
 import physo.physym.reward
-from physo.physym import execute as Exec
+from physo.physym import batch_execute as BExec
 from physo.physym import library as Lib
 from physo.physym import vect_programs as VProg
 
@@ -90,7 +90,7 @@ class ExecuteProgramTest(unittest.TestCase):
         def run (parallel=True, n_cpus=1):
             # Run tasks
             t0 = time.perf_counter()
-            results = Exec.BatchExecution(progs         = my_programs,
+            results = BExec.BatchExecution(progs         = my_programs,
                                           X             = X,
                                           mask          = mask,
                                           parallel_mode = parallel,
@@ -106,7 +106,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
             return task_time
 
-        is_parallel_exe_available = Exec.ParallelExeAvailability(verbose=True)
+        is_parallel_exe_available = BExec.ParallelExeAvailability(verbose=True)
 
         # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 
@@ -284,7 +284,7 @@ class ExecuteProgramTest(unittest.TestCase):
         def run (parallel=True, n_cpus=1):
             # Run tasks
             t0 = time.perf_counter()
-            results = Exec.BatchExecution(progs                 = my_programs,
+            results = BExec.BatchExecution(progs                 = my_programs,
                                           X                     = multi_X_flatten,
                                           n_samples_per_dataset = n_samples_per_dataset, # Realization related
                                           mask                  = mask,
@@ -315,7 +315,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
             return task_time
 
-        is_parallel_exe_available = Exec.ParallelExeAvailability(verbose=True)
+        is_parallel_exe_available = BExec.ParallelExeAvailability(verbose=True)
 
         # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 
@@ -420,7 +420,7 @@ class ExecuteProgramTest(unittest.TestCase):
         def run (parallel=True, n_cpus=1):
             # Run tasks
             t0 = time.perf_counter()
-            results = Exec.BatchExecutionReduceGather(progs=my_programs,
+            results = BExec.BatchExecutionReduceGather(progs=my_programs,
                                                       X = X,
                                                       reduce_wrapper= TEST_REDUCE_WRAPPER,
                                                       mask = mask,
@@ -443,7 +443,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
             return task_time
 
-        is_parallel_exe_available = Exec.ParallelExeAvailability(verbose=True)
+        is_parallel_exe_available = BExec.ParallelExeAvailability(verbose=True)
 
         # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 
@@ -633,7 +633,7 @@ class ExecuteProgramTest(unittest.TestCase):
         def run (parallel=True, n_cpus=1):
             # Run tasks
             t0 = time.perf_counter()
-            results = Exec.BatchExecutionReduceGather(progs=my_programs,
+            results = BExec.BatchExecutionReduceGather(progs=my_programs,
                                                       X = multi_X_flatten,
                                                       reduce_wrapper= TEST_REDUCE_WRAPPER,
                                                       n_samples_per_dataset = n_samples_per_dataset, # Realization related
@@ -657,7 +657,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
             return task_time
 
-        is_parallel_exe_available = Exec.ParallelExeAvailability(verbose=True)
+        is_parallel_exe_available = BExec.ParallelExeAvailability(verbose=True)
 
         # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 
@@ -772,7 +772,7 @@ class ExecuteProgramTest(unittest.TestCase):
         def run (parallel=True, n_cpus=1):
             # Run tasks
             t0 = time.perf_counter()
-            results = Exec.BatchExecutionReward (progs=my_programs,
+            results = BExec.BatchExecutionReward (progs=my_programs,
                                                  X = X,
                                                  y_target = y_target,
                                                  reward_function = physo.physym.reward.SquashedNRMSE,
@@ -797,7 +797,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
             return task_time
 
-        is_parallel_exe_available = Exec.ParallelExeAvailability(verbose=True)
+        is_parallel_exe_available = BExec.ParallelExeAvailability(verbose=True)
 
         # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 
@@ -989,7 +989,7 @@ class ExecuteProgramTest(unittest.TestCase):
         def run (parallel=True, n_cpus=1):
             # Run tasks
             t0 = time.perf_counter()
-            results = Exec.BatchExecutionReward (progs     = my_programs,
+            results = BExec.BatchExecutionReward (progs     = my_programs,
                                                  X         = multi_X_flatten,
                                                  y_target  = y_ideals_flatten,
                                                  y_weights = y_weights_flatten,
@@ -1016,7 +1016,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
             return task_time
 
-        is_parallel_exe_available = Exec.ParallelExeAvailability(verbose=True)
+        is_parallel_exe_available = BExec.ParallelExeAvailability(verbose=True)
 
         # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 
@@ -1144,7 +1144,7 @@ class ExecuteProgramTest(unittest.TestCase):
             my_programs.set_programs(test_program_idx)
             # Run tasks
             t0 = time.perf_counter()
-            Exec.BatchFreeConstOpti(progs = my_programs,
+            BExec.BatchFreeConstOpti(progs = my_programs,
                                     X = X,
                                     y_target = y_target,
                                     free_const_opti_args = free_const_opti_args,
@@ -1171,7 +1171,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
             return task_time
 
-        is_parallel_exe_available = Exec.ParallelExeAvailability(verbose=True)
+        is_parallel_exe_available = BExec.ParallelExeAvailability(verbose=True)
 
         # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 
@@ -1372,7 +1372,7 @@ class ExecuteProgramTest(unittest.TestCase):
             my_programs.set_programs(test_program_idx)
             # Run tasks
             t0 = time.perf_counter()
-            Exec.BatchFreeConstOpti(progs = my_programs,
+            BExec.BatchFreeConstOpti(progs = my_programs,
                                     X = multi_X_flatten,
                                     y_target = y_ideals_flatten,
                                     free_const_opti_args = free_const_opti_args,
@@ -1405,7 +1405,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
             return task_time
 
-        is_parallel_exe_available = Exec.ParallelExeAvailability(verbose=True)
+        is_parallel_exe_available = BExec.ParallelExeAvailability(verbose=True)
 
         # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 
@@ -1606,7 +1606,7 @@ class ExecuteProgramTest(unittest.TestCase):
             my_programs.set_programs(test_program_idx)
             # Run tasks
             t0 = time.perf_counter()
-            Exec.BatchFreeConstOpti(progs = my_programs,
+            BExec.BatchFreeConstOpti(progs = my_programs,
                                     X = multi_X_flatten,
                                     y_target = y_ideals_flatten,
                                     free_const_opti_args = free_const_opti_args,
@@ -1646,7 +1646,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
             return task_time
 
-        is_parallel_exe_available = Exec.ParallelExeAvailability(verbose=True)
+        is_parallel_exe_available = BExec.ParallelExeAvailability(verbose=True)
 
         # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 

@@ -18,10 +18,10 @@ except:
 
 # Internal imports
 from physo.physym import token as Tok
-from physo.physym import execute as Exec
 from physo.physym import dimensional_analysis as phy
 from physo.physym import free_const
 from physo.physym import program as Prog
+from physo.physym import batch_execute as BExec
 
 class VectPrograms:
     """
@@ -1698,7 +1698,7 @@ class VectPrograms:
             Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
             (where mask is False).
         """
-        results = Exec.BatchExecutionReduceGather(self,
+        results = BExec.BatchExecutionReduceGather(progs           = self,
                                                   X               = X,
                                                   reduce_wrapper  = reduce_wrapper,
                                                   mask            = mask,
@@ -1737,7 +1737,7 @@ class VectPrograms:
             Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
             (where mask is False).
         """
-        results = Exec.BatchExecutionReward(self,
+        results = BExec.BatchExecutionReward(progs           = self,
                                             X               = X,
                                             y_target        = y_target,
                                             reward_function = reward_function,
@@ -1767,7 +1767,7 @@ class VectPrograms:
         parallel_mode : bool
             Parallel execution if True, execution in a loop else.
         """
-        Exec.BatchFreeConstOpti(progs                = self,
+        BExec.BatchFreeConstOpti(progs                = self,
                                 X                    = X,
                                 y_target             = y_target,
                                 free_const_opti_args = free_const_opti_args,

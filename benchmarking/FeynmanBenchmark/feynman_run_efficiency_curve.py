@@ -6,9 +6,8 @@ import matplotlib.pyplot as plt
 
 # Internal imports
 import physo.physym.reward
-from physo.physym import execute as Exec
+from physo.physym import batch_execute as BExec
 from physo.physym import library as Lib
-from physo.physym import program as Prog
 from physo.physym import vect_programs as VProg
 
 # Local imports
@@ -109,7 +108,7 @@ if __name__ == '__main__':
         my_programs.set_programs(test_program_idx)
         # Run tasks
         t0 = time.perf_counter()
-        Exec.BatchFreeConstOpti(progs = my_programs,
+        BExec.BatchFreeConstOpti(progs = my_programs,
                                 X = X,
                                 y_target = y_target,
                                 free_const_opti_args = free_const_opti_args,
@@ -128,7 +127,7 @@ if __name__ == '__main__':
         task_time = (t1 - t0) * 1e3 / mask.sum()
         return task_time
 
-    is_parallel_exe_available = Exec.ParallelExeAvailability(verbose=True)
+    is_parallel_exe_available = BExec.ParallelExeAvailability(verbose=True)
 
     # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 

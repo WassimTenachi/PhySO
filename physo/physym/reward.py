@@ -2,7 +2,7 @@ import warnings
 
 import numpy as np
 import torch as torch
-import physo.physym.execute as exec
+import physo.physym.batch_execute as bexec
 
 # During programs evaluation, should parallel execution be used ?
 USE_PARALLEL_EXE        = False  # Only worth it if n_samples > 1e6
@@ -213,7 +213,7 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
         If True, when eliminating duplicates (via zero_out_duplicates = True), the least complex duplicate is kept, else
         a random duplicate is kept.
     parallel_mode : bool
-        Tries to use parallel execution if True (availability will be checked by execute.ParallelExeAvailability),
+        Tries to use parallel execution if True (availability will be checked by batch_execute.ParallelExeAvailability),
         execution in a loop else.
     n_cpus : int or None
         Number of CPUs to use when running in parallel mode. By default, uses the maximum number of CPUs available.
@@ -225,11 +225,11 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
          program (array_like of float).
     """
     # Check that parallel execution is available on this system
-    recommended_config = exec.ParallelExeAvailability()
+    recommended_config = bexec.ParallelExeAvailability()
     is_parallel_mode_available_on_system = recommended_config["parallel_mode"]
     # If not available and parallel_mode was still instructed warn and disable
     if not is_parallel_mode_available_on_system and parallel_mode:
-        exec.ParallelExeAvailability(verbose=True) # prints explanation
+        bexec.ParallelExeAvailability(verbose=True) # prints explanation
         warnings.warn("Parallel mode is not available on this system, switching to non parallel mode.")
         parallel_mode = False
 
