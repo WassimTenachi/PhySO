@@ -1332,7 +1332,7 @@ class ExecuteProgramTest(unittest.TestCase):
                              superparent_units = [0, 0, 0], superparent_name = "y")
 
         # TEST PROGRAM
-        batch_size = 500
+        batch_size = 256 # 32 tasks per CPU with 8 CPUs
         test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
         test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
@@ -1409,7 +1409,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
         # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 
-        print("\nParallelized free constant optimization test (dho2d scenario):")
+        print("\nParallelized free constant optimization test (mdho2d scenario):")
 
         max_ncpus = mp.cpu_count()
         print("Total nb. of CPUs: ", max_ncpus)
@@ -1436,7 +1436,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # Plot
         fig,ax = plt.subplots(1,1)
         enabled = physo.physym.reward.USE_PARALLEL_OPTI_CONST
-        fig.suptitle("Efficiency curve: free const. opti. (dho2d scenario)\n Using parallelization in physo run : %s"%(str(enabled)))
+        fig.suptitle("Efficiency curve: free const. opti. (mdho2d scenario)\n Using parallelization in physo run : %s"%(str(enabled)))
         ax.plot(ncpus_list, times, 'k--')
         ax.plot(ncpus_list, times, 'ko')
         ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
@@ -1566,7 +1566,7 @@ class ExecuteProgramTest(unittest.TestCase):
                              superparent_units = [0, 0, 0], superparent_name = "y")
 
         # TEST PROGRAM
-        batch_size = 500
+        batch_size = 256 # 32 tasks per CPU with 8 CPUs
         test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
         test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
@@ -1650,7 +1650,7 @@ class ExecuteProgramTest(unittest.TestCase):
 
         # EFFICIENCY CURVE (NUMBER OF CPUS VS TASK TIME)
 
-        print("\nParallelized free constant optimization test (wdho2d scenario):")
+        print("\nParallelized free constant optimization test (wmdho2d scenario):")
 
         max_ncpus = mp.cpu_count()
         print("Total nb. of CPUs: ", max_ncpus)
@@ -1677,7 +1677,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # Plot
         fig,ax = plt.subplots(1,1)
         enabled = physo.physym.reward.USE_PARALLEL_OPTI_CONST
-        fig.suptitle("Efficiency curve: free const. opti. (wdho2d scenario)\n Using parallelization in physo run : %s"%(str(enabled)))
+        fig.suptitle("Efficiency curve: free const. opti. (wmdho2d scenario)\n Using parallelization in physo run : %s"%(str(enabled)))
         ax.plot(ncpus_list, times, 'k--')
         ax.plot(ncpus_list, times, 'ko')
         ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
