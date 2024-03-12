@@ -118,7 +118,7 @@ class DimensionalAnalysisTest(unittest.TestCase):
         batch_size = 3
         test_programs_idx = np.tile(test_program_idx, reps=(batch_size, 1))
 
-        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_programs_idx)
 
         # ------------------- TEST BOTTOM-UP -------------------
@@ -154,7 +154,7 @@ class DimensionalAnalysisTest(unittest.TestCase):
         try:
             batch_size_large = int(1e3)
             test_programs_idx_large = np.tile(test_program_idx, reps=(batch_size_large, 1)).transpose()
-            my_programs = VProg.VectPrograms(batch_size=batch_size_large, max_time_step=test_program_length, library=my_lib)
+            my_programs = VProg.VectPrograms(batch_size=batch_size_large, max_time_step=test_program_length, library=my_lib, n_realizations=1)
             t0 = time.perf_counter()
             for i, idx in enumerate(test_programs_idx_large):
                 # Computing units requirements
@@ -169,7 +169,7 @@ class DimensionalAnalysisTest(unittest.TestCase):
             self.fail("Unable to run assign_required_units_at_step")
 
         # ------------------- TEST AT STEP: assign_required_units_at_step -------------------
-        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib, n_realizations=1)
 
         observed_phy_units           = []
         observed_is_constraining     = []
@@ -207,7 +207,7 @@ class DimensionalAnalysisTest(unittest.TestCase):
         observed_tokens_cases_record_w_step = observed_tokens_cases_record .copy()
 
         # ------------------- TEST AT STEP: assign_required_units_at_step from scratch -------------------
-        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_programs_idx.transpose())
 
         phy.assign_required_units_at_step(my_programs, from_scratch=True)
@@ -223,7 +223,7 @@ class DimensionalAnalysisTest(unittest.TestCase):
         self.assertEqual(bool_works, True)
 
         # ------------------- TEST AT COORDS: assign_required_units -------------------
-        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib, n_realizations=1)
 
         observed_phy_units           = []
         observed_is_constraining     = []
