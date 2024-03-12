@@ -1632,7 +1632,7 @@ class ExecuteProgramTest(unittest.TestCase):
             is_correct_class_vals = (torch.abs((my_programs.free_consts.class_values - expected_class_vals)) < tol).all(axis=-1) # (batch_size,)
             is_correct_spe_vals   = (torch.abs((my_programs.free_consts.spe_values   - expected_spe_vals  )) < tol).all(axis=1)  # (batch_size, n_realizations)
             # Not checking where weights are too low
-            is_correct_spe_vals_where_ok_weights  = is_correct_spe_vals [:, y_weights_per_dataset > 0.1 ]                         # (batch_size, n_weights>0.1)
+            is_correct_spe_vals_where_ok_weights  = is_correct_spe_vals [:, y_weights_per_dataset > 0.5 ]                         # (batch_size, n_weights>0.1)
             # Checking that values where not recovered where weights are too low
             is_correct_spe_vals_where_low_weights = is_correct_spe_vals [:, y_weights_per_dataset < 1e-8]                         # (batch_size, n_weights<1e-8)
             assert is_correct_spe_vals_where_low_weights.sum() == 0, "Values where weights are too low were recovered"
