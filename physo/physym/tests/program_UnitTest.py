@@ -851,7 +851,7 @@ class ProgramTest(unittest.TestCase):
                                               args_opti             = free_const_opti_args,
                                             )
         t1 = time.perf_counter()
-        print("\nprog.optimize_constants time (flattened mdho2d scenario) = %.3f ms"%((t1-t0)*1e3/N))
+        print("\nprog.optimize_constants time (flattened wmdho2d scenario) = %.3f ms"%((t1-t0)*1e3/N))
 
         # --------------------------- TESTS ---------------------------
 
@@ -917,7 +917,7 @@ class ProgramTest(unittest.TestCase):
         #                                          i_realization = i,
         #                                          )
         # t1 = time.perf_counter()
-        # print("\nprog.optimize_constants time (one-by-one mdho2d scenario) = %.3f ms"%((t1-t0)*1e3/N))
+        # print("\nprog.optimize_constants time (one-by-one wmdho2d scenario) = %.3f ms"%((t1-t0)*1e3/N))
         #
         # # Execution for results
         # y_computed_flatten = prog.execute(X = multi_X_flatten, n_samples_per_dataset = n_samples_per_dataset,)
