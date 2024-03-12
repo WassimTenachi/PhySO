@@ -388,7 +388,7 @@ class ProgramTest(unittest.TestCase):
                                               n_samples_per_dataset = n_samples_per_dataset,
                                               )
         t1 = time.perf_counter()
-        print("\nprog.execute time (flattened class SR) = %.3f ms"%((t1-t0)*1e3/N))
+        print("\nprog.execute time (flattened mdho2d scenario) = %.3f ms"%((t1-t0)*1e3/N))
         #multi_y_computed = unflatten_multi_data(y_computed_flatten)
         works_bool = (y_computed_flatten == y_ideals_flatten).all()
         self.assertTrue(works_bool)
@@ -403,7 +403,7 @@ class ProgramTest(unittest.TestCase):
                                           )
                 multi_y_computed.append(y_computed)
         t1 = time.perf_counter()
-        print("\nprog.execute time (one-by-one class SR) = %.3f ms"%((t1-t0)*1e3/N))
+        print("\nprog.execute time (one-by-one mdho2d scenario) = %.3f ms"%((t1-t0)*1e3/N))
 
         for i in range(n_realizations):
             works_bool = (multi_y_computed[i] == multi_y_ideals[i]).all()
@@ -623,7 +623,7 @@ class ProgramTest(unittest.TestCase):
                                               n_samples_per_dataset = n_samples_per_dataset,
                                             )
         t1 = time.perf_counter()
-        print("\nprog.optimize_constants time (flattened class SR) = %.3f ms"%((t1-t0)*1e3/N))
+        print("\nprog.optimize_constants time (flattened mdho2d scenario) = %.3f ms"%((t1-t0)*1e3/N))
 
         # Execution for results
         y_computed_flatten = prog.execute(X = multi_X_flatten, n_samples_per_dataset = n_samples_per_dataset,)
@@ -662,7 +662,7 @@ class ProgramTest(unittest.TestCase):
         #                                          i_realization = i,
         #                                          )
         # t1 = time.perf_counter()
-        # print("\nprog.optimize_constants time (one-by-one class SR) = %.3f ms"%((t1-t0)*1e3/N))
+        # print("\nprog.optimize_constants time (one-by-one mdho2d scenario) = %.3f ms"%((t1-t0)*1e3/N))
         #
         # # Execution for results
         # y_computed_flatten = prog.execute(X = multi_X_flatten, n_samples_per_dataset = n_samples_per_dataset,)
@@ -851,7 +851,7 @@ class ProgramTest(unittest.TestCase):
                                               args_opti             = free_const_opti_args,
                                             )
         t1 = time.perf_counter()
-        print("\nprog.optimize_constants time (flattened class SR) = %.3f ms"%((t1-t0)*1e3/N))
+        print("\nprog.optimize_constants time (flattened mdho2d scenario) = %.3f ms"%((t1-t0)*1e3/N))
 
         # --------------------------- TESTS ---------------------------
 
@@ -917,7 +917,7 @@ class ProgramTest(unittest.TestCase):
         #                                          i_realization = i,
         #                                          )
         # t1 = time.perf_counter()
-        # print("\nprog.optimize_constants time (one-by-one class SR) = %.3f ms"%((t1-t0)*1e3/N))
+        # print("\nprog.optimize_constants time (one-by-one mdho2d scenario) = %.3f ms"%((t1-t0)*1e3/N))
         #
         # # Execution for results
         # y_computed_flatten = prog.execute(X = multi_X_flatten, n_samples_per_dataset = n_samples_per_dataset,)
