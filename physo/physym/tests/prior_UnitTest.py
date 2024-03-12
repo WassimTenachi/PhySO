@@ -31,7 +31,7 @@ class PriorTest(unittest.TestCase):
                            }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
-        my_programs = VProg.VectPrograms(batch_size=1, max_time_step=8, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=1, max_time_step=8, library=my_lib, n_realizations=1)
         # Creation
         try:
             my_prior = Prior.UniformArityPrior (library = my_lib, programs = my_programs)
@@ -114,7 +114,7 @@ class PriorTest(unittest.TestCase):
                 test_case[i,j] = my_lib.lib_name_to_idx[tok_str]
 
         # VectPrograms
-        my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib, n_realizations=1)
 
         # ------- TEST CREATION -------
         try:
@@ -224,7 +224,7 @@ class PriorTest(unittest.TestCase):
                 test_case[i,j] = my_lib.lib_name_to_idx[tok_str]
 
         # VectPrograms
-        my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib, n_realizations=1)
 
         # ------- TEST CREATION -------
         try:
@@ -289,7 +289,7 @@ class PriorTest(unittest.TestCase):
                            }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
-        my_programs = VProg.VectPrograms(batch_size=4, max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=4, max_time_step=10, library=my_lib, n_realizations=1)
 
         # -------------------- CREATION --------------------
         try:
@@ -398,7 +398,7 @@ class PriorTest(unittest.TestCase):
             prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
-        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_progs)
 
         # Test Case --------
@@ -438,7 +438,7 @@ class PriorTest(unittest.TestCase):
             prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
-        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_progs)
 
         # Test Case --------
@@ -479,7 +479,7 @@ class PriorTest(unittest.TestCase):
             prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
-        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_progs)
 
         # Test Case --------
@@ -524,7 +524,7 @@ class PriorTest(unittest.TestCase):
             prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
-        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_progs)
 
         # Test Case --------
@@ -580,7 +580,7 @@ class PriorTest(unittest.TestCase):
                            }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
-        my_programs = VProg.VectPrograms(batch_size=4, max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=4, max_time_step=10, library=my_lib, n_realizations=1)
 
         # -------------------- CREATION --------------------
         try:
@@ -606,7 +606,7 @@ class PriorTest(unittest.TestCase):
             prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
-        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_progs)
 
         # Test Case --------
@@ -655,7 +655,7 @@ class PriorTest(unittest.TestCase):
                             }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
-        my_programs = VProg.VectPrograms(batch_size=4, max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=4, max_time_step=10, library=my_lib, n_realizations=1)
 
         # -------------------- CREATION --------------------
         try:
@@ -710,7 +710,7 @@ class PriorTest(unittest.TestCase):
             prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
-        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_progs)
 
         # Test Case --------
@@ -754,7 +754,7 @@ class PriorTest(unittest.TestCase):
             prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
-        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_progs)
 
         # Test Case --------
@@ -801,7 +801,7 @@ class PriorTest(unittest.TestCase):
                             }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
-        my_programs = VProg.VectPrograms(batch_size=4, max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=4, max_time_step=10, library=my_lib, n_realizations=1)
 
         # -------------------- CREATION --------------------
         try:
@@ -834,7 +834,7 @@ class PriorTest(unittest.TestCase):
             prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
-        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_progs)
 
         # Test Case --------
@@ -877,7 +877,7 @@ class PriorTest(unittest.TestCase):
             prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
-        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_progs)
 
         # Test Case --------
@@ -924,7 +924,7 @@ class PriorTest(unittest.TestCase):
                             }
         my_lib = Lib.Library(args_make_tokens = args_make_tokens,
                              superparent_units = [1, -2, 1], superparent_name = "y")
-        my_programs = VProg.VectPrograms(batch_size=4, max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=4, max_time_step=10, library=my_lib, n_realizations=1)
 
         # -------------------- CREATION --------------------
         try:
@@ -983,7 +983,7 @@ class PriorTest(unittest.TestCase):
             prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
-        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_progs)
 
         # Test Case --------
@@ -1088,7 +1088,7 @@ class PriorTest(unittest.TestCase):
         # ------------------------- TEST & EXPECTED VS OBSERVED -------------------------
 
         # Initializing programs & prior
-        my_programs = VProg.VectPrograms(batch_size=test_programs_idx.shape[0], max_time_step=test_programs_idx.shape[1], library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=test_programs_idx.shape[0], max_time_step=test_programs_idx.shape[1], library=my_lib, n_realizations=1)
         my_prior    = Prior.PhysicalUnitsPrior(library=my_lib, programs=my_programs, )
 
         # Appending tokens
@@ -1177,7 +1177,7 @@ class PriorTest(unittest.TestCase):
                 test_case[i,j] = my_lib.lib_name_to_idx[tok_str]
 
         # VectPrograms
-        my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib, n_realizations=1)
 
         # ------- TEST ASSERTIONS -------
         # Assert wrong prior name
