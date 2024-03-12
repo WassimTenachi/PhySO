@@ -436,7 +436,7 @@ def task_free_const_opti(prog, X, y_target, free_const_opti_args, y_weights, i_r
         warnings.warn("Unable to optimize free constants of prog %s -> r = 0" % (str(prog)))
     return None
 
-def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args, y_weights = 1.,
+def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args=None, y_weights = 1.,
                         # Realization related
                         i_realization         = 0,
                         n_samples_per_dataset = None,
