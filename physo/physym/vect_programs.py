@@ -1673,7 +1673,17 @@ class VectPrograms:
     # ------------------------------------------------ UTILS : EXECUTION -----------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
 
-    def batch_exe_reduce_gather (self, X, reduce_wrapper, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False):
+    def batch_exe_reduce_gather (self, X, reduce_wrapper,
+                                # Realization related
+                                i_realization         = 0,
+                                n_samples_per_dataset = None,
+                                # Mask
+                                mask     = None,
+                                pad_with = np.NaN,
+                                # Parallel mode related
+                                n_cpus        = 1,
+                                parallel_mode = False
+                                ):
         """
         Executes prog(X) for each prog in progs and gathers reduce_wrapper(prog(X)) as a result.
         NB: Parallel execution is typically slower because of communication time (even just gathering a float).
@@ -1684,9 +1694,17 @@ class VectPrograms:
         reduce_wrapper : callable
             Function returning a single float number when applied on prog(X). The function must be pickable
             (defined explicitly at the highest level when using parallel_mode).
+        i_realization : int, optional
+            Index of realization to use for dataset specific free constants (0 by default).
+        n_samples_per_dataset : array_like of shape (n_realizations,) of int or None, optional
+            Overrides i_realization if given. If given assumes that X contains multiple datasets with samples of each
+            dataset following each other and each portion of X corresponding to a dataset should be treated with its
+            corresponding dataset specific free constants values. n_samples_per_dataset is the number of samples for
+            each dataset. Eg. [90, 100, 110] for 3 datasets, this will assume that the first 90 samples of X are for
+            the first dataset, the next 100 for the second and the last 110 for the third.
         mask : array_like of shape (progs.batch_size) of bool
             Only programs where mask is True are executed. By default, all programs are executed.
-        pad_with : float
+        pad_with : float, optional
             Value to pad with where mask is False. (Default = nan).
         n_cpus : int
             Number of CPUs to use when running in parallel mode.
@@ -1698,20 +1716,33 @@ class VectPrograms:
             Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
             (where mask is False).
         """
-        results = BExec.BatchExecutionReduceGather(progs           = self,
-                                                  X               = X,
-                                                  reduce_wrapper  = reduce_wrapper,
-                                                  mask            = mask,
-                                                  pad_with        = pad_with,
-                                                  n_cpus          = n_cpus,
-                                                  parallel_mode   = parallel_mode
+        results = BExec.BatchExecutionReduceGather(progs=self, X=X, reduce_wrapper=reduce_wrapper,
+                                                    # Realization related
+                                                    i_realization         = i_realization,
+                                                    n_samples_per_dataset = n_samples_per_dataset,
+                                                    # Mask
+                                                    mask     = mask,
+                                                    pad_with = pad_with,
+                                                    # Parallel mode related
+                                                    n_cpus        = n_cpus,
+                                                    parallel_mode = parallel_mode
                                                   )
         return results
 
 
-    def batch_exe_reward (self, X, y_target, reward_function, mask = None, pad_with = np.NaN, n_cpus = 1, parallel_mode = False):
+    def batch_exe_reward (self, X, y_target, reward_function, y_weights = 1.,
+                                # Realization related
+                                i_realization         = 0,
+                                n_samples_per_dataset = None,
+                                # Mask
+                                mask     = None,
+                                pad_with = np.NaN,
+                                # Parallel mode related
+                                n_cpus        = 1,
+                                parallel_mode = False
+                        ):
         """
-        Executes prog(X) for each prog in progs and gathers reward_function(y_target, prog(X)) as a result.
+        Executes prog(X) for each prog in progs and gathers reward_function(y_target, prog(X), y_weights) as a result.
         NB: Parallel execution is typically slower because of communication time (even just gathering a float).
         Parameters
         ----------
@@ -1720,9 +1751,20 @@ class VectPrograms:
         y_target : torch.tensor of shape (n_samples,) of float
             Values of target output.
         reward_function : callable
-            Function that taking y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of shape (?,)
-            of float) as key arguments and returning a float reward of an individual program. The function must be pickable
-            (defined explicitly at the highest level when using parallel_mode).
+            Function that taking y_target (torch.tensor of shape (?,) of float), y_pred (torch.tensor of shape (?,)
+            of float) and y_weights (torch.tensor of shape (?,) of float) as key arguments and returning a float reward of
+            an individual program. The function must be pickable (defined explicitly at the highest level when using
+            parallel_mode).
+        y_weights : torch.tensor of shape (?,) of float, optional
+            Weights for each data point.
+        i_realization : int, optional
+            Index of realization to use for dataset specific free constants (0 by default).
+        n_samples_per_dataset : array_like of shape (n_realizations,) of int or None, optional
+            Overrides i_realization if given. If given assumes that X contains multiple datasets with samples of each
+            dataset following each other and each portion of X corresponding to a dataset should be treated with its
+            corresponding dataset specific free constants values. n_samples_per_dataset is the number of samples for
+            each dataset. Eg. [90, 100, 110] for 3 datasets, this will assume that the first 90 samples of X are for
+            the first dataset, the next 100 for the second and the last 110 for the third.
         mask : array_like of shape (progs.batch_size) of bool
             Only programs where mask is True are executed. By default, all programs are executed.
         pad_with : float
@@ -1737,19 +1779,31 @@ class VectPrograms:
             Returns reduce_wrapper(prog(X)) for each program in progs. Returns NaNs for programs that are not executed
             (where mask is False).
         """
-        results = BExec.BatchExecutionReward(progs           = self,
-                                            X               = X,
-                                            y_target        = y_target,
-                                            reward_function = reward_function,
-                                            mask            = mask,
-                                            pad_with        = pad_with,
-                                            n_cpus          = n_cpus,
-                                            parallel_mode   = parallel_mode)
+        results = BExec.BatchExecutionReward(progs=self, X=X, y_target=y_target, reward_function=reward_function, y_weights = y_weights,
+                                             # Realization related
+                                             i_realization         = i_realization,
+                                             n_samples_per_dataset = n_samples_per_dataset,
+                                             # Mask
+                                             mask     = mask,
+                                             pad_with = pad_with,
+                                             # Parallel mode related
+                                             n_cpus        = n_cpus,
+                                             parallel_mode = parallel_mode
+                                             )
         return results
 
-    def batch_optimize_constants (self, X, y_target, free_const_opti_args = None, mask = None, n_cpus = 1, parallel_mode = False):
+    def batch_optimize_constants (self, X, y_target, free_const_opti_args=None, y_weights = 1.,
+                                # Realization related
+                                i_realization         = 0,
+                                n_samples_per_dataset = None,
+                                # Mask
+                                mask     = None,
+                                # Parallel mode related
+                                n_cpus        = 1,
+                                parallel_mode = False
+                                  ):
         """
-        Optimizes the free constants of programs.
+        Optimizes the free constants of each program in progs.
         NB: Parallel execution is typically faster.
         Parameters
         ----------
@@ -1757,9 +1811,19 @@ class VectPrograms:
             Values of the input variables of the problem with n_dim = nb of input variables.
         y_target : torch.tensor of shape (n_samples,) of float
             Values of target output.
-        args_opti : dict or None, optional
+        free_const_opti_args : dict or None, optional
             Arguments to pass to free_const.optimize_free_const. By default, free_const.DEFAULT_OPTI_ARGS
             arguments are used.
+        y_weights : torch.tensor of shape (?,) of float, optional
+            Weights for each data point.
+        i_realization : int, optional
+            Index of realization to use for dataset specific free constants (0 by default).
+        n_samples_per_dataset : array_like of shape (n_realizations,) of int or None, optional
+            Overrides i_realization if given. If given assumes that X contains multiple datasets with samples of each
+            dataset following each other and each portion of X corresponding to a dataset should be treated with its
+            corresponding dataset specific free constants values. n_samples_per_dataset is the number of samples for
+            each dataset. Eg. [90, 100, 110] for 3 datasets, this will assume that the first 90 samples of X are for
+            the first dataset, the next 100 for the second and the last 110 for the third.
         mask : array_like of shape (progs.batch_size) of bool
             Only programs' constants where mask is True are optimized. By default, all programs' constants are opitmized.
         n_cpus : int
@@ -1767,13 +1831,15 @@ class VectPrograms:
         parallel_mode : bool
             Parallel execution if True, execution in a loop else.
         """
-        BExec.BatchFreeConstOpti(progs                = self,
-                                X                    = X,
-                                y_target             = y_target,
-                                free_const_opti_args = free_const_opti_args,
-                                mask                 = mask,
-                                n_cpus               = n_cpus,
-                                parallel_mode        = parallel_mode,
+        BExec.BatchFreeConstOpti(progs=self, X=X, y_target=y_target, free_const_opti_args=free_const_opti_args, y_weights=y_weights,
+                                 # Realization related
+                                 i_realization         = i_realization,
+                                 n_samples_per_dataset = n_samples_per_dataset,
+                                 # Mask
+                                 mask     = mask,
+                                 # Parallel mode related
+                                 n_cpus        = n_cpus,
+                                 parallel_mode = parallel_mode
                                 )
         return None
     # ------------------------------------------------------------------------------------------------------------------
