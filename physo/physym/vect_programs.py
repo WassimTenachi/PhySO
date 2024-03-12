@@ -86,7 +86,7 @@ class VectPrograms:
         Number of realizations for each program, ie. number of datasets each program has to fit.
         Dataset specific free constants will have different values different for each realization.
     """
-    def __init__(self, batch_size, max_time_step, library, candidate_wrapper=None, n_realizations=1):
+    def __init__(self, batch_size, max_time_step, library, candidate_wrapper=None, n_realizations=None):
         """
         Parameters
         ----------
@@ -99,9 +99,10 @@ class VectPrograms:
         candidate_wrapper : callable or None, optional
             Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
             a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
-        n_realizations : int
+        n_realizations : int or None, optional
             Number of realizations for each program, ie. number of datasets each program has to fit.
             Dataset specific free constants will have different values different for each realization.
+            Uses 1 by default (if None).
         """
         # Assertions
         assert isinstance(batch_size,    int) and batch_size    > 0, "batch_size    must be a >0 int."
@@ -190,6 +191,9 @@ class VectPrograms:
         self.register_ancestor (coords_dest = coords_initial_dummies)
 
         # ---------------------------- FREE CONSTANTS REGISTER ----------------------------
+        if n_realizations is None:
+            n_realizations = 1
+            warnings.warn("n_realizations was not specified when initializing VectPrograms, using n_realizations = 1 by default.")
         self.n_realizations = n_realizations
         self.free_consts    = free_const.FreeConstantsTable(batch_size = self.batch_size, library = self.library, n_realizations = self.n_realizations)
 
