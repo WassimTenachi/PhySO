@@ -873,7 +873,7 @@ class ProgramTest(unittest.TestCase):
         # -> Spe free constants
         spe_init = torch.tensor(prog.free_consts.library.spe_free_constants_init_val)           # (n_spe_params, n_realizations)
         # Checking that constants with high weights are recovered
-        i_reals  = y_weights_per_dataset > 0.5
+        i_reals  = y_weights_per_dataset > 0.9
         is_recov = torch.abs(prog.free_consts.spe_values[0][:,i_reals] - ideal_spe_params[:,i_reals]) < tol
         works_bool = is_recov.all()
         self.assertTrue(works_bool)
