@@ -5,6 +5,8 @@ import numpy as np
 import time as time
 import warnings
 import torch
+import pickle
+import os
 
 # Internal imports
 from physo.physym import library as Lib
@@ -13,6 +15,11 @@ from physo.physym import dimensional_analysis as phy
 from physo.physym.functions import data_conversion, data_conversion_inv
 import physo.physym.free_const as free_const
 from physo.physym import vect_programs as VProg
+
+# Seed fix
+seed = 42
+np.random.seed(seed)
+torch.manual_seed(seed)
 
 def make_lib():
     # LIBRARY CONFIG
@@ -104,6 +111,154 @@ class ProgramTest(unittest.TestCase):
         except:
             self.fail("Program creation failed.")
 
+    def test_pickability(self):
+
+        DEVICE = 'cpu'
+        if torch.cuda.is_available():
+            DEVICE = 'cuda'
+
+        # -------------------------------------- Making fake datasets --------------------------------------
+
+        multi_X = []
+        for n_samples in [90, 100, 110]:
+            x1 = np.linspace(0, 10, n_samples)
+            x2 = np.linspace(0, 1 , n_samples)
+            X = np.stack((x1,x2),axis=0)
+            X = torch.tensor(X).to(DEVICE)
+            multi_X.append(X)
+        multi_X = multi_X*10                         # (n_realizations,) of (n_dim, [n_samples depends on dataset],)
+
+        n_samples_per_dataset = np.array([X.shape[1] for X in multi_X])
+        n_all_samples = n_samples_per_dataset.sum()
+        n_realizations = len(multi_X)
+        def flatten_multi_data (multi_data,):
+            """
+            Flattens multiple datasets into a single one for vectorized evaluation.
+            Parameters
+            ----------
+            multi_data : list of length (n_realizations,) of torch.tensor of shape (..., [n_samples depends on dataset],)
+                List of datasets to be flattened.
+            Returns
+            -------
+            torch.tensor of shape (..., n_all_samples)
+                Flattened data (n_all_samples = sum([n_samples depends on dataset])).
+            """
+            flattened_data = torch.cat(multi_data, axis=-1) # (..., n_all_samples)
+            return flattened_data
+
+        def unflatten_multi_data (flattened_data):
+            """
+            Unflattens a single data into multiple ones.
+            Parameters
+            ----------
+            flattened_data : torch.tensor of shape (..., n_all_samples)
+                Flattened data (n_all_samples = sum([n_samples depends on dataset])).
+            Returns
+            -------
+            list of len (n_realizations,) of torch.tensor of shape (..., [n_samples depends on dataset],)
+                Unflattened data.
+            """
+            return torch.split(flattened_data, n_samples_per_dataset.tolist(), dim=-1) # (n_realizations,) of (..., [n_samples depends on dataset],)
+
+        # y_weights_per_dataset = np.array([0, 0.001, 1.0]*10) # Shows weights work
+        y_weights_per_dataset = torch.tensor(np.array([1., 1., 1.]*10))
+        multi_y_weights = [torch.full(size=(n_samples_per_dataset[i],), fill_value=y_weights_per_dataset[i]) for i in range (n_realizations)]
+        y_weights_flatten = flatten_multi_data(multi_y_weights)
+
+        multi_X_flatten = flatten_multi_data(multi_X)  # (n_dim, n_all_samples)
+
+        # Making fake ideal parameters
+        # n_spe_params   = 3
+        # n_class_params = 2
+        random_shift       = (np.random.rand(n_realizations,3)-0.5)*0.8
+        ideal_spe_params   = torch.tensor(np.array([1.123, 0.345, 0.116]) + random_shift) # (n_realizations, n_spe_params,)
+        ideal_class_params = torch.tensor(np.array([1.389, 1.005]))                       # (n_class_params, )
+
+        ideal_spe_params_flatten = torch.cat(
+            [torch.tile(ideal_spe_params[i], (n_samples_per_dataset[i],1)).transpose(0,1) for i in range (n_realizations)], # (n_realizations,) of (n_spe_params, [n_samples depends on dataset],)
+            axis = 1
+        ) # (n_spe_params, n_all_samples)
+
+        ideal_class_params_flatten = torch.tile(ideal_class_params, (n_all_samples,1)).transpose(0,1) # (n_class_params, n_all_samples)
+
+        def trial_func (X, params, class_params):
+            y = params[0]*torch.exp(-params[1]*X[0])*torch.cos(class_params[0]*X[0]+params[2]) + class_params[1]*X[1]
+            return y
+
+        y_ideals_flatten = trial_func (multi_X_flatten, ideal_spe_params_flatten, ideal_class_params_flatten) # (n_all_samples,)
+        multi_y_ideals   = unflatten_multi_data(y_ideals_flatten)                                         # (n_realizations,) of (n_samples depends on dataset,)
+
+
+        # params[0]*torch.exp(-params[1]*X[0])*torch.cos(class_params[0]*X[0]+params[2]) + class_params[1]*X[1]
+        # k0 * exp(-k1 * t) * cos(c0 * t + k2) + c1 * l
+        # "add", "mul", "mul", "k0", "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l"
+
+        k0_init = [9,10,11]*10 # np.full(n_realizations, 1.)
+        # consts
+        pi     = data_conversion (np.pi) .to(DEVICE)
+        const1 = data_conversion (1.)    .to(DEVICE)
+
+        # LIBRARY CONFIG
+        args_make_tokens = {
+                        # operations
+                        "op_names"             : "all",
+                        "use_protected_ops"    : True,
+                        # input variables
+                        "input_var_ids"        : {"t" : 0         , "l" : 1          },
+                        "input_var_units"      : {"t" : [1, 0, 0] , "l" : [0, 1, 0]  },
+                        "input_var_complexity" : {"t" : 0.        , "l" : 1.         },
+                        # constants
+                        "constants"            : {"pi" : pi        , "const1" : const1    },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "const1" : [0, 0, 0] },
+                        "constants_complexity" : {"pi" : 1.        , "const1" : 1.        },
+                        # free constants
+                        "class_free_constants"            : {"c0"              , "c1"               },
+                        "class_free_constants_init_val"   : {"c0" : 21.        , "c1"  : 22.         },
+                        "class_free_constants_units"      : {"c0" : [-1, 0, 0] , "c1"  : [0, -1, 0] },
+                        "class_free_constants_complexity" : {"c0" : 1.         , "c1"  : 1.         },
+                        # free constants
+                        "spe_free_constants"            : {"k0"              , "k1"               , "k2"               },
+                        "spe_free_constants_init_val"   : {"k0" : k0_init    , "k1"  : 2.         , "k2"  : 3.         },
+                        "spe_free_constants_units"      : {"k0" : [0, 0, 0]  , "k1"  : [-1, 0, 0] , "k2"  : [0, 0, 0]  },
+                        "spe_free_constants_complexity" : {"k0" : 1.         , "k1"  : 1.         , "k2"  : 1.         },
+                           }
+        my_lib = Lib.Library(args_make_tokens = args_make_tokens,
+                             superparent_units = [0, 0, 0], superparent_name = "y")
+
+        # TEST PROGRAMS
+        test_programs_idx = []
+        test_prog_str_0 = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
+        test_tokens_0 = [my_lib.lib_name_to_token[name] for name in test_prog_str_0]
+
+        free_const_table = free_const.FreeConstantsTable(batch_size=1, library=my_lib, n_realizations=n_realizations)
+        free_const_table.class_values[0] = ideal_class_params
+        free_const_table.spe_values  [0] = ideal_spe_params.transpose(0,1) # (n_spe_params, n_realizations)
+
+        prog = Prog.Program(tokens=test_tokens_0, library=my_lib, free_consts=free_const_table, n_realizations=n_realizations)
+
+        # Test pickability
+        try:
+            pickle.dumps(prog)
+        except:
+            self.fail("Program pickability failed.")
+
+        # Test save
+        fpath = "test_prog.pkl"
+        try:
+            prog.save(fpath)
+            os.remove(fpath)
+        except:
+            self.fail("Program save failed.")
+
+        # Test pickle load
+        try:
+            prog.save(fpath)
+            prog_loaded = Prog.load_program(fpath)
+            os.remove(fpath)
+        except:
+            self.fail("Program pickle load failed.")
+
+        return None
 
     # Test program execution on a complicated function (no free consts)
     def test_execution (self):

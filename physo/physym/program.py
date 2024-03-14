@@ -2,6 +2,7 @@ import warnings as warnings
 import numpy as np
 import copy as copy  # for Cursor
 import sympy as sympy
+import pickle
 
 # For tree image (optional)
 import matplotlib.pyplot as plt
@@ -25,6 +26,15 @@ from physo.physym import free_const
 # Pickable default identity wrapper
 def DEFAULT_WRAPPER (func, X):
         return func(X)
+
+# Load pickled program
+def load_program(fpath):
+    """
+    Loads program from pickle file.
+    """
+    with open(fpath, 'rb') as f:
+        prog = pickle.load(f)
+    return prog
 
 class Cursor:
     """
@@ -325,6 +335,14 @@ class Program:
         self.free_consts.opti_steps [0] = len(history)  # Number of iterations it took to optimize the constants
 
         return history
+
+    def save(self, fpath):
+        """
+        Saves program as a pickle file.
+        """
+        with open(fpath, 'wb') as f:
+            pickle.dump(self, f)
+        return None
 
     def make_skeleton (self):
         """
