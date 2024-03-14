@@ -340,6 +340,9 @@ class Program:
         """
         Saves program as a pickle file.
         """
+        # Detach const data
+        self.free_consts.detach()
+        # Save
         with open(fpath, 'wb') as f:
             pickle.dump(self, f)
         return None

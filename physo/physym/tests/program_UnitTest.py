@@ -246,16 +246,18 @@ class ProgramTest(unittest.TestCase):
         fpath = "test_prog.pkl"
         try:
             prog.save(fpath)
-            os.remove(fpath)
+            os.remove(fpath) if os.path.exists(fpath) else None
         except:
+            os.remove(fpath) if os.path.exists(fpath) else None
             self.fail("Program save failed.")
 
         # Test pickle load
         try:
             prog.save(fpath)
             prog_loaded = Prog.load_program(fpath)
-            os.remove(fpath)
+            os.remove(fpath) if os.path.exists(fpath) else None
         except:
+            os.remove(fpath) if os.path.exists(fpath) else None
             self.fail("Program pickle load failed.")
 
         return None
