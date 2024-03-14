@@ -5,6 +5,14 @@ import numpy as np
 from physo.physym import token as Tok
 from physo.physym import tokenize as tokenize
 
+# Defining these function at upper level to make library pickable
+def SUPERPARENT_FUNC():
+    raise ValueError("Superparent is a placeholder, it should never be called")
+def INVALID_FUNC():
+    raise ValueError("Invalid is a placeholder, it should never be called")
+def DUMMY_FUNC():
+    raise ValueError("Dummy is a placeholder, it should never be called")
+
 class Library:
     """
         Object containing choosable tokens and their properties for a task of symbolic computation
@@ -102,44 +110,36 @@ class Library:
         else:
             superparent_units_dict = {superparent_name: superparent_units}
         y_is_constraining_phy_units, y_units = tokenize.retrieve_units(superparent_units_dict, superparent_name)
-        # Function
-        def superparent_func():
-            raise ValueError("Superparent is a placeholder, it should never be called")
-        # Token
+
+        # ------------------------------ SUPERPARENT ------------------------------
         self.superparent = Tok.TokenSpecial(
             name                      = superparent_name,
             sympy_repr                = superparent_name,
             arity                     = 0,
             complexity                = 0.,
-            function                  = superparent_func,
+            function                  = SUPERPARENT_FUNC,
             is_constraining_phy_units = y_is_constraining_phy_units,
             phy_units                 = y_units,
         )
 
         # ------------------------------ DUMMY ------------------------------
-        # Function
-        def dummy_func():
-            raise ValueError("Dummy is a placeholder, it should never be called")
         # Token
         self.dummy = Tok.TokenSpecial(
             name                      = Tok.DUMMY_TOKEN_NAME,
             sympy_repr                = Tok.DUMMY_TOKEN_NAME,
             arity                     = 0,
             complexity                = 0.,
-            function                  = dummy_func,
+            function                  = DUMMY_FUNC,
         )
 
         # ------------------------------ INVALID ------------------------------
-        # Function
-        def invalid_func():
-            raise ValueError("Invalid is a placeholder, it should never be called")
         # Token
         self.invalid = Tok.TokenSpecial(
             name                      = Tok.INVALID_TOKEN_NAME,
             sympy_repr                = Tok.INVALID_TOKEN_NAME,
             arity                     = 0,
             complexity                = 0.,
-            function                  = invalid_func,
+            function                  = INVALID_FUNC,
         )
 
         # ------------------------------ PLACEHOLDERS ------------------------------
