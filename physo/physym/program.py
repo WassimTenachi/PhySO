@@ -326,6 +326,15 @@ class Program:
 
         return history
 
+    def make_skeleton (self):
+        """
+        Strips program to its bare minimum light pickable version for eg. parallel execution purposes.
+        """
+        # Exporting without library so it is lighter to pickle
+        self.library             = None
+        self.free_consts.library = None
+        return None
+
     def __call__(self, X, i_realization = 0, n_samples_per_dataset=None):
         """
         Executes program on X. See Program.execute for details.

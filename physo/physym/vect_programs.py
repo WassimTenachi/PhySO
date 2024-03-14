@@ -1643,11 +1643,6 @@ class VectPrograms:
         lib     = self.library
         wrapper = self.candidate_wrapper
 
-        if skeleton:
-            # Library contains placeholder functions which can not be pickled for parallel execution
-            lib           = None
-            table.library = None
-
         # Export
         prog = Prog.Program(tokens            = tokens,
                             library           = lib,
@@ -1657,6 +1652,10 @@ class VectPrograms:
                             free_consts       = table,
                             n_realizations    = self.free_consts.n_realizations,
                        )
+
+        if skeleton:
+            prog.make_skeleton()
+
         return prog
 
 
