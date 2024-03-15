@@ -16,11 +16,6 @@ from physo.physym.functions import data_conversion, data_conversion_inv
 import physo.physym.free_const as free_const
 from physo.physym import vect_programs as VProg
 
-# Seed fix
-seed = 42
-np.random.seed(seed)
-torch.manual_seed(seed)
-
 def make_lib():
     # LIBRARY CONFIG
     args_make_tokens = {
