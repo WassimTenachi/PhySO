@@ -153,7 +153,7 @@ class ProgramTest(unittest.TestCase):
             list of len (n_realizations,) of torch.tensor of shape (..., [n_samples depends on dataset],)
                 Unflattened data.
             """
-            return torch.split(flattened_data, n_samples_per_dataset.tolist(), dim=-1) # (n_realizations,) of (..., [n_samples depends on dataset],)
+            return list(torch.split(flattened_data, n_samples_per_dataset.tolist(), dim=-1)) # (n_realizations,) of (..., [n_samples depends on dataset],)
 
         # y_weights_per_dataset = np.array([0, 0.001, 1.0]*10) # Shows weights work
         y_weights_per_dataset = torch.tensor(np.array([1., 1., 1.]*10))
@@ -453,7 +453,7 @@ class ProgramTest(unittest.TestCase):
             list of len (n_realizations,) of torch.tensor of shape (..., [n_samples depends on dataset],)
                 Unflattened data.
             """
-            return torch.split(flattened_data, n_samples_per_dataset.tolist(), dim=-1) # (n_realizations,) of (..., [n_samples depends on dataset],)
+            return list(torch.split(flattened_data, n_samples_per_dataset.tolist(), dim=-1)) # (n_realizations,) of (..., [n_samples depends on dataset],)
 
         # y_weights_per_dataset = np.array([0, 0.001, 1.0]*10) # Shows weights work
         y_weights_per_dataset = torch.tensor(np.array([1., 1., 1.]*10))
@@ -687,7 +687,7 @@ class ProgramTest(unittest.TestCase):
             list of len (n_realizations,) of torch.tensor of shape (..., [n_samples depends on dataset],)
                 Unflattened data.
             """
-            return torch.split(flattened_data, n_samples_per_dataset.tolist(), dim=-1) # (n_realizations,) of (..., [n_samples depends on dataset],)
+            return list(torch.split(flattened_data, n_samples_per_dataset.tolist(), dim=-1)) # (n_realizations,) of (..., [n_samples depends on dataset],)
 
         # y_weights_per_dataset = np.array([0, 0.001, 1.0]*10) # Shows weights work
         y_weights_per_dataset = torch.tensor(np.array([1., 1., 1.]*10))
@@ -900,7 +900,7 @@ class ProgramTest(unittest.TestCase):
             list of len (n_realizations,) of torch.tensor of shape (..., [n_samples depends on dataset],)
                 Unflattened data.
             """
-            return torch.split(flattened_data, n_samples_per_dataset.tolist(), dim=-1) # (n_realizations,) of (..., [n_samples depends on dataset],)
+            return list(torch.split(flattened_data, n_samples_per_dataset.tolist(), dim=-1)) # (n_realizations,) of (..., [n_samples depends on dataset],)
 
         y_weights_per_dataset = np.array([0, 0.001, 1.0]*10) # Shows weights work
         # y_weights_per_dataset = torch.tensor(np.array([1., 1., 1.]*10))
