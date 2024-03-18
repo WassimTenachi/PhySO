@@ -645,7 +645,6 @@ class FreeConstantsTableTest(unittest.TestCase):
 
         # TEST PROGRAMS
         test_programs_idx = []
-        # todo: confirm that these are correct
         test_prog_str_0 = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
         test_prog_str_1 = ["mul", "n2" , "c0" , "cos" , "div", "t"  , "c1" , "-" , "-",   "-",   "-",   "-",  "-", "-",  "-",   "-", "-",  "-", ]
         test_programs_str = np.array([test_prog_str_0, test_prog_str_1]*128)
