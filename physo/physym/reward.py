@@ -5,7 +5,7 @@ import torch as torch
 import physo.physym.batch_execute as bexec
 
 # During programs evaluation, should parallel execution be used ?
-USE_PARALLEL_EXE        = False  # Only worth it if n_samples > 1e6
+USE_PARALLEL_EXE        = False  # Only worth it if n_all_samples > 1e6
 USE_PARALLEL_OPTI_CONST = True   # Only worth it if batch_size > 1k
 
 def SquashedNRMSE (y_target, y_pred, y_weights = 1.):
@@ -26,8 +26,8 @@ def SquashedNRMSE (y_target, y_pred, y_weights = 1.):
     """
     sigma_targ = y_target.std()
     # Computing error with weights
-    err = y_weights*(y_target - y_pred)**2 # (?,)
-    RMSE = torch.sqrt(torch.mean(err))
+    err   = y_weights*(y_target - y_pred)**2 # (?,)
+    RMSE  = torch.sqrt(torch.mean(err))
     NRMSE = (1/sigma_targ)*RMSE
     reward = 1/(1 + NRMSE)
     return reward
