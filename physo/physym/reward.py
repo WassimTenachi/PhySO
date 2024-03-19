@@ -50,6 +50,7 @@ def SquashedNRMSE_to_R2 (reward):
 def RewardsComputer(programs,
                     X,
                     y_target,
+                    y_weights = 1.,
                     free_const_opti_args = None,
                     reward_function = SquashedNRMSE,
                     zero_out_unphysical = False,
@@ -70,13 +71,16 @@ def RewardsComputer(programs,
         Values of the input variables of the problem with n_dim = nb of input variables.
     y_target : torch.tensor of shape (?,) of float
         Values of the target symbolic function on input variables contained in X_target.
+    y_weights : torch.tensor of shape (?,) of float, optional
+        Weights for each data point.
     free_const_opti_args : dict or None, optional
         Arguments to pass to free_const.optimize_free_const for free constants optimization. By default,
         free_const.DEFAULT_OPTI_ARGS arguments are used.
 
     reward_function : callable
-        Function that taking y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of shape (?,)
-        of float) as key arguments and returning a float reward of an individual program.
+        Function that taking y_target (torch.tensor of shape (?,) of float), y_pred (torch.tensor of shape (?,)
+        of float) and  optionally  y_weights (torch.tensor of shape (?,) of float, optional) as key arguments and
+        returning a float reward of an individual program.
     zero_out_unphysical : bool
         Should unphysical programs be zeroed out ?
     zero_out_duplicates : bool
@@ -111,8 +115,9 @@ def RewardsComputer(programs,
         # Only use parallel mode if enabled in function param and in USE_PARALLEL_EXE flag.
         # This way users can use flags to specifically enable or disable parallel exe and/or const opti.
         parallel_mode_exe = parallel_mode and USE_PARALLEL_EXE
-        rewards_non_opt = programs.batch_exe_reward (X        = X,
-                                                     y_target = y_target,
+        rewards_non_opt = programs.batch_exe_reward (X         = X,
+                                                     y_target  = y_target,
+                                                     y_weights = y_weights,
                                                      reward_function = reward_function,
                                                      mask            = mask_valid,
                                                      pad_with        = 0.0,
@@ -157,6 +162,7 @@ def RewardsComputer(programs,
         programs.batch_optimize_constants(X        = X,
                                           y_target = y_target,
                                           free_const_opti_args = free_const_opti_args,
+                                          y_weights            = y_weights,
                                           mask                 = mask_valid,
                                           # Parallel related
                                           parallel_mode        = parallel_mode_const_opti,
@@ -172,8 +178,9 @@ def RewardsComputer(programs,
         # Only use parallel mode if enabled in function param and in USE_PARALLEL_EXE flag.
         # This way users can use flags to specifically enable or disable parallel exe and/or const opti.
         parallel_mode_exe = parallel_mode and USE_PARALLEL_EXE
-        rewards = programs.batch_exe_reward (X        = X,
-                                             y_target = y_target,
+        rewards = programs.batch_exe_reward (X         = X,
+                                             y_target  = y_target,
+                                             y_weights = y_weights,
                                              reward_function = reward_function,
                                              mask            = mask_valid,
                                              pad_with        = 0.0,
@@ -203,8 +210,9 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
     Parameters
     ----------
     reward_function : callable
-        Reward function to use that takes y_target (torch.tensor of shape (?,) of float) and y_pred (torch.tensor of
-        shape (?,) of float) as key arguments and returns a float reward of an individual program.
+        Function that taking y_target (torch.tensor of shape (?,) of float), y_pred (torch.tensor of shape (?,)
+        of float) and  optionally  y_weights (torch.tensor of shape (?,) of float, optional) as key arguments and
+        returning a float reward of an individual program.
     zero_out_unphysical : bool
         Should unphysical programs be zeroed out ?
     zero_out_duplicates : bool
@@ -221,8 +229,8 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
     -------
     rewards_computer : callable
          Custom reward computing function taking programs (vect_programs.VectPrograms), X (torch.tensor of shape (n_dim,?,)
-         of float), y_target (torch.tensor of shape (?,) of float), free_const_opti_args as key arguments and returning
-         reward for each program (array_like of float).
+         of float), y_target (torch.tensor of shape (?,) of float), y_weights (torch.tensor of shape (?,) of float) and
+         free_const_opti_args as key arguments and returning reward for each program (array_like of float).
     """
     # Check that parallel execution is available on this system
     recommended_config = bexec.ParallelExeAvailability()
@@ -234,10 +242,11 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
         parallel_mode = False
 
     # rewards_computer
-    def rewards_computer(programs, X, y_target, free_const_opti_args):
-        R = RewardsComputer(programs = programs,
-                            X        = X,
-                            y_target = y_target,
+    def rewards_computer(programs, X, y_target, y_weights, free_const_opti_args):
+        R = RewardsComputer(programs  = programs,
+                            X         = X,
+                            y_target  = y_target,
+                            y_weights = y_weights,
                             free_const_opti_args = free_const_opti_args,
                             # Frozen args
                             reward_function     = reward_function,
