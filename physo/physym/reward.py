@@ -74,7 +74,7 @@ def RewardsComputer(programs,
     y_weights : torch.tensor of shape (?,) of float, optional
         Weights for each data point.
     free_const_opti_args : dict or None, optional
-        Arguments to pass to free_const.optimize_free_const for free constants optimization. By default,
+        Arguments to pass to free_const.optimize_free_const for free constant optimization. By default,
         free_const.DEFAULT_OPTI_ARGS arguments are used.
 
     reward_function : callable
