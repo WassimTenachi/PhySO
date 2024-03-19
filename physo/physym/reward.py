@@ -147,7 +147,7 @@ def RewardsComputer(programs,
         mask_valid = (mask_valid & mask_unique_keep)                                                     # (batch_size,)
 
     # ----- FREE CONST OPTIMIZATION -----
-    # If there are free constants in the library, we have to optimize.py them
+    # If there are free constants in the library, we have to optimize them
     if programs.library.n_free_const > 0:
         # Only use parallel mode if enabled in function param and in USE_PARALLEL_OPTI_CONST flag.
         # This way users can use flags to specifically enable or disable parallel exe and/or const opti.
