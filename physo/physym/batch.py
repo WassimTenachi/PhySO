@@ -1,14 +1,10 @@
 import numpy as np
-import torch
 
 # Internal imports
 from physo.physym import token
-from physo.physym import program
 from physo.physym import library
 from physo.physym import prior
 from physo.physym import dataset
-from physo.physym import reward
-from physo.physym import execute
 from physo.physym import vect_programs as VProg
 
 # Embedding output in SR interface
@@ -34,11 +30,12 @@ class Batch:
     def __init__(self,
                 library_args,
                 priors_config,
-                X,
-                y_target,
+                multi_X,
+                multi_y,
                 rewards_computer,
                 batch_size,
                 max_time_step,
+                multi_y_weights      = 1.,
                 free_const_opti_args = None,
                 candidate_wrapper    = None,
                 observe_units        = True,
@@ -52,14 +49,23 @@ class Batch:
             List of priors. List containing couples with prior name as first item in couple (see prior.PRIORS_DICT for list
             of available priors) and additional arguments (besides library and programs) to be passed to priors as second
             item of couple, leave None for priors that do not require arguments.
-        X : torch.tensor of shape (n_dim, ?,) of float
-            Values of the input variables of the problem with n_dim = nb of input variables.
-        y_target : torch.tensor of shape (?,) of float
-            Values of the target symbolic function on input variables contained in X_target.
+        multi_X : list of len (n_realizations,) of torch.tensor of shape (n_dim, ?,) of float
+            List of X (one per realization). With X being values of the input variables of the problem with n_dim = nb
+            of input variables.
+        multi_y :  list of len (n_realizations,) of torch.tensor of shape (?,) of float
+            List of y (one per realization). With y being values of the target symbolic function on input variables
+            contained in X.
+        multi_y_weights :  list of len (n_realizations,) of torch.tensor of shape (?,) of float
+                           or array_like of (n_realizations,) of float
+                           or float, optional
+            List of y_weights (one per realization). With y_weights being weights to apply to y data.
+            Or list of weights one per entire realization.
+            Or single float to apply to all (for default value = 1.).
+            Weights for each data point. By default, no weights are used.
         rewards_computer : callable
-            Function taking programs (vect_programs.VectPrograms), X (torch.tensor of shape (n_dim,?,) of float), y_target
-            (torch.tensor of shape (?,) of float) as key arguments and returning reward for each program (array_like
-            of float).
+             Custom reward computing function taking programs (vect_programs.VectPrograms), X (torch.tensor of shape (n_dim,?,)
+             of float), y_target (torch.tensor of shape (?,) of float), y_weights (torch.tensor of shape (?,) of float) and
+             free_const_opti_args as key arguments and returning reward for each program (array_like of float).
         batch_size : int
             Number of programs in batch.
         max_time_step : int
@@ -81,26 +87,32 @@ class Batch:
         # Library
         self.library  = library.Library(**library_args)
 
+        # Dataset (detects device and n_realizations)
+        self.dataset = dataset.Dataset(
+            library         = self.library,
+            multi_X         = multi_X,
+            multi_y         = multi_y,
+            multi_y_weights = multi_y_weights,
+        )
+
         # Programs
-        self.programs = program.VectPrograms(batch_size        = self.batch_size,
+        self.programs = VProg.VectPrograms(  batch_size        = self.batch_size,
                                              max_time_step     = self.max_time_step,
                                              library           = self.library,
-                                             candidate_wrapper = candidate_wrapper)
+                                             candidate_wrapper = candidate_wrapper,
+                                             n_realizations    = self.dataset.detected_n_realizations,
+                                             )
+
+        # Sending free const table to same device as dataset
+        self.programs.free_consts.to(self.dataset.detected_device)
+
         # Prior
         self.prior   = prior.make_PriorCollection(programs      = self.programs,
                                                   library       = self.library,
                                                   priors_config = priors_config,)
-        # Dataset
-        self.dataset = dataset.Dataset(
-            library = self.library,
-            X = X,
-            y_target = y_target,)
 
         # Reward func
         self.rewards_computer = rewards_computer
-
-        # Sending free const table to same device as dataset
-        self.programs.free_consts.values = self.programs.free_consts.values.to(self.dataset.detected_device)
 
         # Free constants optimizer args
         self.free_const_opti_args = free_const_opti_args
@@ -427,10 +439,11 @@ class Batch:
             Rewards of programs.
         """
         rewards = self.rewards_computer(programs             = self.programs,
-                                        X                    = self.dataset.X,
-                                        y_target             = self.dataset.y_target,
+                                        X                    = self.dataset.multi_X_flatten,
+                                        y_target             = self.dataset.multi_y_flatten,
+                                        y_weights            = self.dataset.multi_y_weights_flatten,
                                         free_const_opti_args = self.free_const_opti_args,
-                                        )
+                                            )
         return rewards
 
 
