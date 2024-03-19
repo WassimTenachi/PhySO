@@ -220,9 +220,9 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
     Returns
     -------
     rewards_computer : callable
-         Custom reward computing function taking programs (program.VectPrograms), X (torch.tensor of shape (n_dim,?,)
-         of float), y_target (torch.tensor of shape (?,) of float), free_const_opti_args as key arguments and returning reward for each
-         program (array_like of float).
+         Custom reward computing function taking programs (vect_programs.VectPrograms), X (torch.tensor of shape (n_dim,?,)
+         of float), y_target (torch.tensor of shape (?,) of float), free_const_opti_args as key arguments and returning
+         reward for each program (array_like of float).
     """
     # Check that parallel execution is available on this system
     recommended_config = bexec.ParallelExeAvailability()
