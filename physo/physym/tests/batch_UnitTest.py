@@ -5,11 +5,8 @@ import torch
 
 # Internal imports
 from physo.physym import batch
-from physo.physym import program
 from physo.physym.functions import data_conversion
-from physo.physym import library
 from physo.physym import reward
-from physo.physym import prior
 
 class BatchTest(unittest.TestCase):
 
@@ -61,13 +58,16 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 30
 
+        multi_X = [X,]
+        multi_y = [y,]
+
         my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
                                max_time_step    = max_time_step,
                                rewards_computer = reward.make_RewardsComputer (reward_function = reward.SquashedNRMSE),
-                               X        = X,
-                               y_target = y,
+                               multi_X = multi_X,
+                               multi_y = multi_y,
                                )
         return None
 
@@ -121,13 +121,16 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 10
 
+        multi_X = [X,]
+        multi_y = [y_target,]
+
         my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
                                max_time_step    = max_time_step,
                                rewards_computer = reward.make_RewardsComputer (reward_function = reward.SquashedNRMSE),
-                               X        = X,
-                               y_target = y_target,
+                               multi_X = multi_X,
+                               multi_y = multi_y,
                                )
 
         # --- DUMMY EPOCH ---
@@ -198,6 +201,9 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 10
 
+        multi_X = [X,]
+        multi_y = [y_target,]
+
         my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
@@ -205,8 +211,8 @@ class BatchTest(unittest.TestCase):
                                rewards_computer = reward.make_RewardsComputer (reward_function = reward.SquashedNRMSE,
                                                                                zero_out_unphysical = True,
                                                                                zero_out_duplicates = True),
-                               X        = X,
-                               y_target = y_target,
+                               multi_X = multi_X,
+                               multi_y = multi_y,
                                )
 
         # --- DUMMY EPOCH ---
@@ -299,6 +305,9 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 10
 
+        multi_X = [X,]
+        multi_y = [y_target,]
+
         my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
@@ -306,8 +315,8 @@ class BatchTest(unittest.TestCase):
                                rewards_computer = reward.make_RewardsComputer (reward_function     = reward.SquashedNRMSE,
                                                                                zero_out_unphysical = True),
                                free_const_opti_args = free_const_opti_args,
-                               X        = X,
-                               y_target = y_target,
+                               multi_X = multi_X,
+                               multi_y = multi_y,
                                )
 
         # --- DUMMY EPOCH ---
@@ -398,6 +407,9 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 10
 
+        multi_X = [X,]
+        multi_y = [y_target,]
+
         my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
@@ -406,8 +418,8 @@ class BatchTest(unittest.TestCase):
                                                                                zero_out_unphysical = True,
                                                                                zero_out_duplicates = True,),
                                free_const_opti_args = free_const_opti_args,
-                               X        = X,
-                               y_target = y_target,
+                               multi_X = multi_X,
+                               multi_y = multi_y,
                                )
 
         # --- DUMMY EPOCH ---
@@ -500,6 +512,9 @@ class BatchTest(unittest.TestCase):
         batch_size    = 1000
         max_time_step = 10
 
+        multi_X = [X,]
+        multi_y = [y_target,]
+
         my_batch = batch.Batch(library_args     = library_args,
                                priors_config    = priors_config,
                                batch_size       = batch_size,
@@ -509,8 +524,8 @@ class BatchTest(unittest.TestCase):
                                                                                zero_out_duplicates = True,
                                                                                keep_lowest_complexity_duplicate = True),
                                free_const_opti_args = free_const_opti_args,
-                               X        = X,
-                               y_target = y_target,
+                               multi_X = multi_X,
+                               multi_y = multi_y,
                                )
 
         # --- DUMMY EPOCH ---
