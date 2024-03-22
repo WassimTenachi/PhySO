@@ -389,6 +389,10 @@ class FreeConstantsTableTest(unittest.TestCase):
 
     def test_optimization_process (self):
 
+        seed = 42
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+
         DEVICE = 'cpu'
         if torch.cuda.is_available():
             DEVICE = 'cuda'
@@ -534,6 +538,10 @@ class FreeConstantsTableTest(unittest.TestCase):
         return None
 
     def test_optimization_process_with_spe_free_consts (self):
+
+        seed = 42
+        np.random.seed(seed)
+        torch.manual_seed(seed)
 
         DEVICE = 'cpu'
         if torch.cuda.is_available():

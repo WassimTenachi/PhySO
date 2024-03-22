@@ -1077,6 +1077,10 @@ class ExecuteProgramTest(unittest.TestCase):
     # Test parallelized execution of free constant optimization
     def test_C_ParallelizedExeFreeConstants (self):
 
+        seed = 42
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+
         # Testing everything on CPU. If user has CUDA and wants to use CPU parallel mode, it is their responsibility to
         # send the dataset to the proper device.
         DEVICE = 'cpu'
@@ -1230,6 +1234,10 @@ class ExecuteProgramTest(unittest.TestCase):
 
     # Test parallelized execution of free constant optimization
     def test_C_ParallelizedExeFreeConstants_with_spe_consts (self):
+
+        seed = 42
+        np.random.seed(seed)
+        torch.manual_seed(seed)
 
         # Testing everything on CPU. If user has CUDA and wants to use CPU parallel mode, it is their responsibility to
         # send the dataset to the proper device.

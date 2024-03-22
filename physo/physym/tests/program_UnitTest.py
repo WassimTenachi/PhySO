@@ -579,6 +579,10 @@ class ProgramTest(unittest.TestCase):
     # Test program const optimization (normal SR scenario)
     def test_optimize (self):
 
+        seed = 42
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+
         ideal_class_params = torch.tensor([1.389, 1.005]) # (n_class_params, )
 
         # Synthetic data
@@ -641,6 +645,10 @@ class ProgramTest(unittest.TestCase):
 
     # Test program const optimization in Class SR scenario
     def test_optimize_with_spe_free_consts (self):
+
+        seed = 42
+        np.random.seed(seed)
+        torch.manual_seed(seed)
 
         DEVICE = 'cpu'
         if torch.cuda.is_available():
@@ -854,6 +862,10 @@ class ProgramTest(unittest.TestCase):
 
     # Test program const optimization in Class SR scenario
     def test_optimize_with_spe_free_consts_with_weights (self):
+
+        seed = 42
+        np.random.seed(seed)
+        torch.manual_seed(seed)
 
         DEVICE = 'cpu'
         if torch.cuda.is_available():
