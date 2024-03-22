@@ -329,7 +329,6 @@ class Program:
                                                     y_target  = y_target,
                                                     y_weights = y_weights,
                                                     **args_opti)
-
         # Logging optimization process
         self.free_consts.is_opti    [0] = True
         self.free_consts.opti_steps [0] = len(history)  # Number of iterations it took to optimize the constants

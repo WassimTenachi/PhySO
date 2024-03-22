@@ -280,8 +280,8 @@ class FreeConstantsTableTest(unittest.TestCase):
         ideal_k2 = np.add.outer(np.arange(batch_size) + 0.5, 0.01*np.arange(n_realizations))  # (batch_size, n_realizations,)
         ideal_spe_values = np.stack([ideal_k0, ideal_k1, ideal_k2], axis=1) # (batch_size, n_spe_free_consts, n_realizations)
         ideal_spe_values = torch.tensor(ideal_spe_values)
-        new_is_opti    = np.arange(batch_size) % 2 == 0 # (batch_size,)
-        new_opti_steps = np.arange(batch_size) + 1000   # (batch_size,)
+        new_is_opti    = torch.arange(batch_size) % 2 == 0 # (batch_size,)
+        new_opti_steps = torch.arange(batch_size) + 1000   # (batch_size,)
 
         for i_prog in range (batch_size):
 
@@ -349,8 +349,8 @@ class FreeConstantsTableTest(unittest.TestCase):
         # Saving original table
         original_class_values = table.class_values.clone()
         original_spe_values   = table.spe_values  .clone()
-        original_is_opti      = table.is_opti     .copy()
-        original_opti_steps   = table.opti_steps  .copy()
+        original_is_opti      = table.is_opti     .clone()
+        original_opti_steps   = table.opti_steps  .clone()
 
         # fake ideal constants (let's make them different for each prog in batch and for each realization)
         new_c0 = np.arange(batch_size)+0.1     # (batch_size,)
@@ -362,8 +362,8 @@ class FreeConstantsTableTest(unittest.TestCase):
         new_k2 = np.add.outer(np.arange(batch_size) + 0.5, 0.01*np.arange(n_realizations))  # (batch_size, n_realizations,)
         new_spe_values = np.stack([new_k0, new_k1, new_k2], axis=1) # (batch_size, n_spe_free_consts, n_realizations)
         new_spe_values = torch.tensor(new_spe_values)
-        new_is_opti    = np.arange(batch_size) % 2 == 0 # (batch_size,)
-        new_opti_steps = np.arange(batch_size) + 1000   # (batch_size,)
+        new_is_opti    = torch.arange(batch_size) % 2 == 0 # (batch_size,)
+        new_opti_steps = torch.arange(batch_size) + 1000   # (batch_size,)
 
         for i_prog in range (batch_size):
 

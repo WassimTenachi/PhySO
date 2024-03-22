@@ -20,9 +20,9 @@ class FreeConstantsTable:
         Number of realizations for each program, ie. number of datasets each program has to fit.
         Dataset specific free constants will have different values different for each realization.
 
-    is_opti : numpy.array of shape (batch_size,) of bool
+    is_opti : torch.tensor of shape (batch_size,) of bool
         Is set of free constants optimized.
-    opti_steps : numpy.array of shape (batch_size,) of int
+    opti_steps : torch.tensor of shape (batch_size,) of int
         Number of iterations necessary to optimize free constant.
     class_values : torch.tensor of shape (batch_size, n_class_free_const,)
         Free constants values for each program.
@@ -48,10 +48,12 @@ class FreeConstantsTable:
         self.batch_size   = batch_size
 
         # Optimization logs
+        # Using torch tensors for is_opti and opti_steps as it is the only way to have FreeConstantsTable be able to
+        # modify its own is_opti and opti_steps attributes in multiprocessing.
         # mask : Is set of free constants optimized
-        self.is_opti    = np.full(shape=self.batch_size, fill_value=False, dtype=bool)    # (batch_size,) of bool
+        self.is_opti    = torch.full(size=(self.batch_size,), fill_value=False, dtype=bool)    # (batch_size,) of bool
         # Number of iterations necessary to optimize free constant
-        self.opti_steps = np.full(shape=self.batch_size, fill_value=False, dtype=int )    # (batch_size,) of int
+        self.opti_steps = torch.full(size=(self.batch_size,), fill_value=False, dtype=int )    # (batch_size,) of int
 
         # Class free constants
         self.n_class_free_const = self.library.n_class_free_const  # Number of class free constants
@@ -94,8 +96,8 @@ class FreeConstantsTable:
         """
         self.class_values = self.class_values.clone().detach()
         self.spe_values   = self.spe_values  .clone().detach()
-        self.is_opti      = self.is_opti     .copy()
-        self.opti_steps   = self.opti_steps  .copy()
+        self.is_opti      = self.is_opti     .clone().detach()
+        self.opti_steps   = self.opti_steps  .clone().detach()
         return None
 
     def to (self, device):
@@ -104,6 +106,8 @@ class FreeConstantsTable:
         """
         self.class_values = self.class_values.to(device)
         self.spe_values   = self.spe_values  .to(device)
+        self.is_opti      = self.is_opti     .to(device)
+        self.opti_steps   = self.opti_steps  .to(device)
         return None
 
     def get_const_of_prog (self, prog_idx):
@@ -111,6 +115,7 @@ class FreeConstantsTable:
         Return a FreeConstantsTable object with values for a single program (batch_size=1).
         """
         res = FreeConstantsTable (batch_size=1, library=self.library, n_realizations=self.n_realizations)
+        # Returning arrays of (1,...) to have a reference to the original arrays
         res.class_values = self.class_values[prog_idx:prog_idx+1,:]             # (1, n_class_free_const,)
         res.spe_values   = self.spe_values  [prog_idx:prog_idx+1,:,:]           # (1, n_spe_free_const, n_realizations,)
         res.is_opti      = self.is_opti     [prog_idx:prog_idx+1]               # (1,) of bool
