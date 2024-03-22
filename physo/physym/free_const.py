@@ -351,7 +351,4 @@ def optimize_free_const (func,
     # Running optimizer
     history = optimizer (params = params, f = loss_params, **optimizer_args)
 
-    # # Making free const positive values only #abs_free_const
-    # params = torch.abs(params)
-
     return history
