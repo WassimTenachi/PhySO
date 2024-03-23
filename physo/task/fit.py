@@ -5,15 +5,24 @@ from physo.learn import rnn
 from physo.learn import learn
 
 
-def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after_n_epochs = 1, max_n_evaluations = None):
+def fit(multi_X, multi_y, run_config, multi_y_weights = 1., candidate_wrapper = None, stop_reward = 1., stop_after_n_epochs = 1, max_n_evaluations = None):
     """
     Run a symbolic regression task on (X,y) data.
     Parameters
     ----------
-    X : torch.tensor of shape (n_dim, ?,) of float
-        Values of the input variables of the problem with n_dim = nb of input variables.
-    y_target : torch.tensor of shape (?,) of float
-        Values of the target symbolic function on input variables contained in X_target.
+    multi_X : list of len (n_realizations,) of torch.tensor of shape (n_dim, ?,) of float
+            List of X (one per realization). With X being values of the input variables of the problem with n_dim = nb
+            of input variables.
+    multi_y : list of len (n_realizations,) of torch.tensor of shape (?,) of float
+        List of y (one per realization). With y being values of the target symbolic function on input variables
+        contained in X.
+    multi_y_weights : list of len (n_realizations,) of torch.tensor of shape (?,) of float
+                       or array_like of (n_realizations,) of float
+                       or float, optional
+        List of y_weights (one per realization). With y_weights being weights to apply to y data.
+        Or list of weights one per entire realization.
+        Or single float to apply to all (for default value = 1.).
+        Weights for each data point. By default, no weights are used.
     run_config : dict
         Run configuration, see config.default_run_config.sr_run_config for an example.
     candidate_wrapper : callable or None, optional
@@ -49,8 +58,9 @@ def fit(X, y, run_config, candidate_wrapper = None, stop_reward = 1., stop_after
                              max_time_step         = run_config["learning_config"]["max_time_step"],
                              rewards_computer      = run_config["learning_config"]["rewards_computer"],
                              free_const_opti_args  = run_config["free_const_opti_args"],
-                             X        = X,
-                             y_target = y,
+                             multi_X         = multi_X,
+                             multi_y         = multi_y,
+                             multi_y_weights = multi_y_weights,
                              candidate_wrapper = candidate_wrapper,
                              observe_units     = run_config["learning_config"]["observe_units"],
                              )
