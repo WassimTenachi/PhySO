@@ -50,12 +50,12 @@ class Batch:
             of available priors) and additional arguments (besides library and programs) to be passed to priors as second
             item of couple, leave None for priors that do not require arguments.
         multi_X : list of len (n_realizations,) of torch.tensor of shape (n_dim, ?,) of float
-            List of X (one per realization). With X being values of the input variables of the problem with n_dim = nb
-            of input variables.
-        multi_y :  list of len (n_realizations,) of torch.tensor of shape (?,) of float
+                List of X (one per realization). With X being values of the input variables of the problem with n_dim = nb
+                of input variables.
+        multi_y : list of len (n_realizations,) of torch.tensor of shape (?,) of float
             List of y (one per realization). With y being values of the target symbolic function on input variables
             contained in X.
-        multi_y_weights :  list of len (n_realizations,) of torch.tensor of shape (?,) of float
+        multi_y_weights : list of len (n_realizations,) of torch.tensor of shape (?,) of float
                            or array_like of (n_realizations,) of float
                            or float, optional
             List of y_weights (one per realization). With y_weights being weights to apply to y data.
