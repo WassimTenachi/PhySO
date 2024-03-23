@@ -63,9 +63,10 @@ class Batch:
             Or single float to apply to all (for default value = 1.).
             Weights for each data point. By default, no weights are used.
         rewards_computer : callable
-             Custom reward computing function taking programs (vect_programs.VectPrograms), X (torch.tensor of shape (n_dim,?,)
-             of float), y_target (torch.tensor of shape (?,) of float), y_weights (torch.tensor of shape (?,) of float) and
-             free_const_opti_args as key arguments and returning reward for each program (array_like of float).
+            Custom reward computing function taking programs (vect_programs.VectPrograms), X (torch.tensor of shape (n_dim,?,)
+            of float), y_target (torch.tensor of shape (?,) of float), y_weights (torch.tensor of shape (?,) of float),
+            n_samples_per_dataset (array_like of shape (n_realizations,) of int) and free_const_opti_args as key arguments
+            and returning reward for each program (array_like of float).
         batch_size : int
             Number of programs in batch.
         max_time_step : int
@@ -438,11 +439,12 @@ class Batch:
         rewards : numpy.array of shape (batch_size,) of float
             Rewards of programs.
         """
-        rewards = self.rewards_computer(programs             = self.programs,
-                                        X                    = self.dataset.multi_X_flatten,
-                                        y_target             = self.dataset.multi_y_flatten,
-                                        y_weights            = self.dataset.multi_y_weights_flatten,
-                                        free_const_opti_args = self.free_const_opti_args,
+        rewards = self.rewards_computer(programs              = self.programs,
+                                        X                     = self.dataset.multi_X_flatten,
+                                        y_target              = self.dataset.multi_y_flatten,
+                                        y_weights             = self.dataset.multi_y_weights_flatten,
+                                        n_samples_per_dataset = self.dataset.n_samples_per_dataset,
+                                        free_const_opti_args  = self.free_const_opti_args,
                                             )
         return rewards
 

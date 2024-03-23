@@ -50,6 +50,7 @@ def SquashedNRMSE_to_R2 (reward):
 def RewardsComputer(programs,
                     X,
                     y_target,
+                    n_samples_per_dataset,
                     y_weights = 1.,
                     free_const_opti_args = None,
                     reward_function = SquashedNRMSE,
@@ -71,6 +72,12 @@ def RewardsComputer(programs,
         Values of the input variables of the problem with n_dim = nb of input variables.
     y_target : torch.tensor of shape (?,) of float
         Values of the target symbolic function on input variables contained in X_target.
+    n_samples_per_dataset : array_like of shape (n_realizations,) of int
+        We assume that X contains multiple datasets with samples of each ataset following each other and each portion
+        of X corresponding to a dataset should be treated with its corresponding dataset specific free constants values.
+        n_samples_per_dataset is the number of samples for each dataset. Eg. [90, 100, 110] for 3 datasets, this will
+        assume that the first 90 samples of X are for the first dataset, the next 100 for the second and the last 110
+        for the third.
     y_weights : torch.tensor of shape (?,) of float, optional
         Weights for each data point.
     free_const_opti_args : dict or None, optional
@@ -118,7 +125,8 @@ def RewardsComputer(programs,
         rewards_non_opt = programs.batch_exe_reward (X         = X,
                                                      y_target  = y_target,
                                                      y_weights = y_weights,
-                                                     reward_function = reward_function,
+                                                     reward_function       = reward_function,
+                                                     n_samples_per_dataset = n_samples_per_dataset,
                                                      mask            = mask_valid,
                                                      pad_with        = 0.0,
                                                      # Parallel related
@@ -161,12 +169,13 @@ def RewardsComputer(programs,
         # batch_optimize_free_const (programs, X, y_target, args_opti = free_const_opti_args, mask_valid = mask_valid)
         programs.batch_optimize_constants(X        = X,
                                           y_target = y_target,
-                                          free_const_opti_args = free_const_opti_args,
-                                          y_weights            = y_weights,
-                                          mask                 = mask_valid,
+                                          free_const_opti_args  = free_const_opti_args,
+                                          y_weights             = y_weights,
+                                          mask                  = mask_valid,
+                                          n_samples_per_dataset = n_samples_per_dataset,
                                           # Parallel related
-                                          parallel_mode        = parallel_mode_const_opti,
-                                          n_cpus               = n_cpus)
+                                          parallel_mode         = parallel_mode_const_opti,
+                                          n_cpus                = n_cpus)
 
     # ----- REWARDS -----
     # If rewards were already computed at the duplicate elimination step and there are no free constants in the library
@@ -181,7 +190,8 @@ def RewardsComputer(programs,
         rewards = programs.batch_exe_reward (X         = X,
                                              y_target  = y_target,
                                              y_weights = y_weights,
-                                             reward_function = reward_function,
+                                             reward_function       = reward_function,
+                                             n_samples_per_dataset = n_samples_per_dataset,
                                              mask            = mask_valid,
                                              pad_with        = 0.0,
                                              # Parallel related
@@ -229,8 +239,9 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
     -------
     rewards_computer : callable
          Custom reward computing function taking programs (vect_programs.VectPrograms), X (torch.tensor of shape (n_dim,?,)
-         of float), y_target (torch.tensor of shape (?,) of float), y_weights (torch.tensor of shape (?,) of float) and
-         free_const_opti_args as key arguments and returning reward for each program (array_like of float).
+         of float), y_target (torch.tensor of shape (?,) of float), y_weights (torch.tensor of shape (?,) of float),
+         n_samples_per_dataset (array_like of shape (n_realizations,) of int) and free_const_opti_args as key arguments
+         and returning reward for each program (array_like of float).
     """
     # Check that parallel execution is available on this system
     recommended_config = bexec.ParallelExeAvailability()
@@ -242,12 +253,13 @@ def make_RewardsComputer(reward_function     = SquashedNRMSE,
         parallel_mode = False
 
     # rewards_computer
-    def rewards_computer(programs, X, y_target, y_weights, free_const_opti_args):
+    def rewards_computer(programs, X, y_target, y_weights, n_samples_per_dataset, free_const_opti_args):
         R = RewardsComputer(programs  = programs,
                             X         = X,
                             y_target  = y_target,
                             y_weights = y_weights,
-                            free_const_opti_args = free_const_opti_args,
+                            n_samples_per_dataset = n_samples_per_dataset,
+                            free_const_opti_args  = free_const_opti_args,
                             # Frozen args
                             reward_function     = reward_function,
                             zero_out_unphysical = zero_out_unphysical,
