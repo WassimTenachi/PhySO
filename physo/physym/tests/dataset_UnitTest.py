@@ -48,7 +48,7 @@ class TestDataset(unittest.TestCase):
                              superparent_units = [1, -2, 1], superparent_name = "y")
 
         def make_dataset_for_regular_SR(library, X, y, y_weights=1.):
-            my_dataset = dataset.Dataset(library=library, multi_X=[X,], multi_y=[y,], multi_y_weights=[y_weights,])
+            my_dataset = dataset.Dataset(multi_X=[X, ], multi_y=[y, ], multi_y_weights=[y_weights, ], library=library)
             return my_dataset
 
         # ------- TEST CREATION -------
@@ -198,7 +198,7 @@ class TestDataset(unittest.TestCase):
 
         # ------- TEST CREATION -------
         try:
-            my_dataset = dataset.Dataset(library = my_lib, multi_X = multi_X, multi_y = multi_y_target)
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, library=my_lib)
         except:
             self.fail("Dataset creation failed.")
 
@@ -206,67 +206,64 @@ class TestDataset(unittest.TestCase):
 
         # Wrong number of realizations between X and y_target
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(library = my_lib, multi_X = multi_X, multi_y =multi_y_target[:-1])
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target[:-1], library=my_lib)
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(library = my_lib, multi_X =multi_X[:-1], multi_y = multi_y_target)
+            my_dataset = dataset.Dataset(multi_X=multi_X[:-1], multi_y=multi_y_target, library=my_lib)
 
         # Sending data for one realization only / sending tensor type
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(library = my_lib, multi_X = multi_X[0], multi_y = multi_y_target[0])
+            my_dataset = dataset.Dataset(multi_X=multi_X[0], multi_y=multi_y_target[0], library=my_lib)
 
         # Test number of realizations
-        my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target)
+        my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, library=my_lib)
         self.assertEqual(my_dataset.n_realizations, n_realizations)
 
         # Test conversion to torch, when already torch tensors
-        my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target)
+        my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, library=my_lib)
         for i in range (n_realizations):
             self.assertTrue(torch.is_tensor(my_dataset.multi_X[i]))
             self.assertTrue(torch.is_tensor(my_dataset.multi_y[i]))
 
         # Test conversion to torch, when numpy arrays
-        my_dataset = dataset.Dataset(library=my_lib, multi_X=[X.cpu().numpy() for X in multi_X],
-                                                     multi_y=[y.cpu().numpy() for y in multi_y_target],
-                                     )
+        my_dataset = dataset.Dataset(multi_X=[X.cpu().numpy() for X in multi_X],
+                                     multi_y=[y.cpu().numpy() for y in multi_y_target], library=my_lib)
         for i in range (n_realizations):
             self.assertTrue(torch.is_tensor(my_dataset.multi_X[i]))
             self.assertTrue(torch.is_tensor(my_dataset.multi_y[i]))
 
         # Wrong type
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=[X.cpu().numpy().astype(int) for X in multi_X],
-                                                         multi_y=multi_y_target,
-                                         )
+            my_dataset = dataset.Dataset(multi_X=[X.cpu().numpy().astype(int) for X in multi_X], multi_y=multi_y_target,
+                                         library=my_lib)
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X,
-                                                         multi_y=[y.cpu().numpy().astype(int) for y in multi_y_target],
-                                         )
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=[y.cpu().numpy().astype(int) for y in multi_y_target],
+                                         library=my_lib)
         # Containing NaNs
         wrong_multi_X = [X.cpu().numpy().copy() for X in multi_X]
         wrong_multi_X [0][0, 0] = float(np.NAN)
         wrong_multi_y = [y.cpu().numpy().copy() for y in multi_y_target]
         wrong_multi_y [0][0] = float(np.NAN)
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=wrong_multi_X, multi_y=multi_y_target,)
+            my_dataset = dataset.Dataset(multi_X=wrong_multi_X, multi_y=multi_y_target, library=my_lib)
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X      , multi_y=wrong_multi_y,)
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=wrong_multi_y, library=my_lib)
 
         # Containing inconsistent n_dim
         wrong_multi_X = [X.cpu().numpy().copy() for X in multi_X]
         wrong_multi_X [0] = wrong_multi_X[0][:-1,:] # removing one dim in realization 0
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=wrong_multi_X, multi_y=multi_y_target,)
+            my_dataset = dataset.Dataset(multi_X=wrong_multi_X, multi_y=multi_y_target, library=my_lib)
 
         # Containing too low dimension given library
         wrong_multi_X = [X.cpu().numpy().copy() for X in multi_X]
         wrong_multi_X = [np.stack([wrong_multi_X[i][0,:]]*1) for i in range(n_realizations)] # 1D per realization
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=wrong_multi_X, multi_y=multi_y_target,)
+            my_dataset = dataset.Dataset(multi_X=wrong_multi_X, multi_y=multi_y_target, library=my_lib)
 
         # ------ Test weights as one single float ------
         # Creating dataset
         try:
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=2.0)
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=2.0, library=my_lib)
         except:
             self.fail("Dataset creation failed.")
         # Tensor type and content
@@ -276,9 +273,10 @@ class TestDataset(unittest.TestCase):
             self.assertTrue((y_weights == expected).all())
         # NAN assertion
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=np.NAN)
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=np.NAN,
+                                         library=my_lib)
         # Wrong type -> Converts to float in this case
-        my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=int(2))
+        my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=int(2), library=my_lib)
         for i, y_weights in enumerate(my_dataset.multi_y_weights):
             self.assertTrue(torch.is_tensor(y_weights))
             expected = torch.full_like(multi_y_target[i], fill_value=2.0)
@@ -287,7 +285,8 @@ class TestDataset(unittest.TestCase):
         # ------ Test weights as (n_realizations,) of floats ------
         # Creating dataset
         try:
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=y_weights_per_dataset)
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=y_weights_per_dataset,
+                                         library=my_lib)
         except:
             self.fail("Dataset creation failed.")
         # Tensor type and content
@@ -301,13 +300,16 @@ class TestDataset(unittest.TestCase):
         with self.assertRaises(AssertionError):
             wrong_y_weights_per_dataset = y_weights_per_dataset.copy()
             wrong_y_weights_per_dataset[0] = np.NAN
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=wrong_y_weights_per_dataset)
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target,
+                                         multi_y_weights=wrong_y_weights_per_dataset, library=my_lib)
         # Wrong (n_realizations,) length
         with self.assertRaises(AssertionError):
             wrong_y_weights_per_dataset = y_weights_per_dataset.copy()[:-1]
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=wrong_y_weights_per_dataset)
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target,
+                                         multi_y_weights=wrong_y_weights_per_dataset, library=my_lib)
         # Wrong type -> Converts to float in this case
-        my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=y_weights_per_dataset.astype(int))
+        my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target,
+                                     multi_y_weights=y_weights_per_dataset.astype(int), library=my_lib)
         for i, y_weights in enumerate(my_dataset.multi_y_weights):
             self.assertTrue(torch.is_tensor(y_weights))
             expected = torch.full_like(multi_y_target[i], fill_value=float(int(y_weights_per_dataset[i])))
@@ -316,7 +318,8 @@ class TestDataset(unittest.TestCase):
         # ------ Test weights as (n_realizations,) of ([n_samples depends on dataset]) ------
         # Creating dataset
         try:
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=multi_y_weights)
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=multi_y_weights,
+                                         library=my_lib)
         except:
             self.fail("Dataset creation failed.")
         # Tensor type and content
@@ -330,30 +333,36 @@ class TestDataset(unittest.TestCase):
         with self.assertRaises(AssertionError):
             wrong_multi_y_weights = [y.cpu().numpy().copy() for y in multi_y_weights]
             wrong_multi_y_weights[0][0] = float(np.NAN)
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=wrong_multi_y_weights)
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=wrong_multi_y_weights,
+                                         library=my_lib)
         # Wrong (n_realizations,) length
         with self.assertRaises(AssertionError):
             wrong_multi_y_weights = [y.cpu().numpy().copy() for y in multi_y_weights]
             wrong_multi_y_weights = wrong_multi_y_weights[:-1]
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=wrong_multi_y_weights)
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=wrong_multi_y_weights,
+                                         library=my_lib)
         # Inconsistent n_samples
         with self.assertRaises(AssertionError):
             wrong_multi_y_weights = [y.cpu().numpy().copy() for y in multi_y_weights]
             wrong_multi_y_weights[0] = wrong_multi_y_weights[0][:-1]
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=wrong_multi_y_weights)
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=wrong_multi_y_weights,
+                                         library=my_lib)
         # Conversion to torch
-        my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=[y.cpu().numpy() for y in multi_y_weights])
+        my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target,
+                                     multi_y_weights=[y.cpu().numpy() for y in multi_y_weights], library=my_lib)
         for i, y_weights in enumerate(my_dataset.multi_y_weights):
             self.assertTrue(torch.is_tensor(y_weights))
             expected = multi_y_weights[i]
             self.assertTrue((y_weights == expected).all())
         # Wrong type
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=[y.cpu().numpy().astype(int) for y in multi_y_weights])
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target,
+                                         multi_y_weights=[y.cpu().numpy().astype(int) for y in multi_y_weights],
+                                         library=my_lib)
 
         # ----- Flattened values -----
-        my_dataset = dataset.Dataset(library=my_lib, multi_X=multi_X, multi_y=multi_y_target,
-                                     multi_y_weights=multi_y_weights)
+        my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=multi_y_weights,
+                                     library=my_lib)
         self.assertTrue(torch.is_tensor(my_dataset.multi_X_flatten))
         self.assertTrue(torch.is_tensor(my_dataset.multi_y_flatten))
         self.assertTrue(torch.is_tensor(my_dataset.multi_y_weights_flatten))

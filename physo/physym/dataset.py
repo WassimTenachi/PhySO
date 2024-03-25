@@ -145,13 +145,12 @@ def inspect_multi_y_weights (multi_y_weights, multi_y):
 class Dataset:
     """
     Contains a dataset and runs assertions.
+    Converts to torch if necessary.
     """
-    def __init__(self, library, multi_X, multi_y, multi_y_weights=1.):
+    def __init__(self, multi_X, multi_y, multi_y_weights=1., library=None):
         """
         Parameters
         ----------
-        library : library.Library
-            Library of choosable tokens.
         multi_X : list of len (n_realizations,) of torch.tensor of shape (n_dim, ?,) of float
             List of X (one per realization). With X being values of the input variables of the problem with n_dim = nb
             of input variables.
@@ -164,6 +163,9 @@ class Dataset:
             List of y_weights (one per realization). With y_weights being weights to apply to y data.
             Or list of weights one per entire realization.
             Or single float to apply to all (for default value = 1.).
+        library : library.Library or None, optional
+            Library of choosable tokens. This is used for assertions, some assertions are not performed if library is
+            None.
         """
         self.library = library
 
@@ -193,12 +195,13 @@ class Dataset:
         assert (list_of_n_dim == list_of_n_dim[0]).all(), "Each X in multi_X must have the same first dimension (n_dim) ie. all realizations must have the same number of input variables."
         n_dim = list_of_n_dim[0]
         # Checking that all tokens in the library have id < n_dim
-        # Is id var_id wrong : mask.
-        # Ie. var_type is that of input var AND id >= n_dim
-        mask_wrong_id = np.logical_and(library.var_type == 1, library.var_id >= n_dim)
-        assert mask_wrong_id.sum() == 0, "Can not access input variable data X by X[var_id] of tokens :" \
-                                         "\n %s\n as they have out of range var_id >= X.shape[0] = n_dim = %i," \
-                                         " var_id :\n %s" % (library.lib_name[mask_wrong_id], n_dim, library.var_id [mask_wrong_id])
+        if self.library is not None:
+            # Is id var_id wrong : mask.
+            # Ie. var_type is that of input var AND id >= n_dim
+            mask_wrong_id = np.logical_and(library.var_type == 1, library.var_id >= n_dim)
+            assert mask_wrong_id.sum() == 0, "Can not access input variable data X by X[var_id] of tokens :" \
+                                             "\n %s\n as they have out of range var_id >= X.shape[0] = n_dim = %i," \
+                                             " var_id :\n %s" % (library.lib_name[mask_wrong_id], n_dim, library.var_id [mask_wrong_id])
         # Saving the number of input variables
         self.n_dim = n_dim
 

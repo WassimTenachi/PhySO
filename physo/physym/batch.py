@@ -89,12 +89,10 @@ class Batch:
         self.library  = library.Library(**library_args)
 
         # Dataset (detects device and n_realizations)
-        self.dataset = dataset.Dataset(
-            library         = self.library,
-            multi_X         = multi_X,
-            multi_y         = multi_y,
-            multi_y_weights = multi_y_weights,
-        )
+        self.dataset = dataset.Dataset(multi_X         = multi_X,
+                                       multi_y         = multi_y,
+                                       multi_y_weights = multi_y_weights,
+                                       library         = self.library)
 
         # Programs
         self.programs = VProg.VectPrograms(  batch_size        = self.batch_size,
