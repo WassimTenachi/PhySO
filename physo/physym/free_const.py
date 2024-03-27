@@ -98,7 +98,7 @@ class FreeConstantsTable:
         self.spe_values   = self.spe_values  .clone().detach()
         self.is_opti      = self.is_opti     .clone().detach()
         self.opti_steps   = self.opti_steps  .clone().detach()
-        return None
+        return self
 
     def to (self, device):
         """
@@ -108,7 +108,14 @@ class FreeConstantsTable:
         self.spe_values   = self.spe_values  .to(device)
         self.is_opti      = self.is_opti     .to(device)
         self.opti_steps   = self.opti_steps  .to(device)
-        return None
+        return self
+
+    def cpu (self):
+        """
+        Send all values to cpu.
+        """
+        self.to("cpu")
+        return self
 
     def get_const_of_prog (self, prog_idx):
         """
