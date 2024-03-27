@@ -57,7 +57,7 @@ free_const_opti_args = {
             'loss'   : "MSE",
             'method' : 'LBFGS',
             'method_args': {
-                        'n_steps' : 70,
+                        'n_steps' : 60,
                         'tol'     : 1e-8,
                         'lbfgs_func_args' : {
                             'max_iter'       : 4,
