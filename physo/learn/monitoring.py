@@ -80,18 +80,18 @@ class RunLogger:
         self.keep    = keep
         self.notkept = notkept
         best_prog_idx_epoch  = rewards.argmax()
-        self.best_prog_epoch = batch.programs.get_prog(best_prog_idx_epoch)
-        self.programs_epoch  = batch.programs.get_programs_array()
+        self.best_prog_epoch = batch.programs.get_prog(best_prog_idx_epoch, detach=True)
+        self.programs_epoch  = batch.programs.get_programs_array(detach=True)
 
 
         if epoch == 0:
             self.free_const_names            = [tok.__str__() for tok in self.batch.library.free_constants_tokens]
             self.overall_max_R_history       = [rewards.max()]
-            self.hall_of_fame                = [batch.programs.get_prog(best_prog_idx_epoch)]
+            self.hall_of_fame                = [batch.programs.get_prog(best_prog_idx_epoch, detach=True)]
         if epoch> 0:
             if rewards.max() > np.max(self.overall_max_R_history):
                 self.overall_max_R_history.append(rewards.max())
-                self.hall_of_fame.append(batch.programs.get_prog(best_prog_idx_epoch))
+                self.hall_of_fame.append(batch.programs.get_prog(best_prog_idx_epoch, detach=True))
             else:
                 self.overall_max_R_history.append(self.overall_max_R_history[-1])
 
@@ -147,7 +147,7 @@ class RunLogger:
         # Current batch log
         is_elite = np.full(self.batch.batch_size, False)
         is_elite[self.keep] = True
-        programs_str = np.array([prog.get_infix_str() for prog in self.batch.programs.get_programs_array()])
+        programs_str = np.array([prog.get_infix_str() for prog in self.batch.programs.get_programs_array(detach=True)])
 
         df = pd.DataFrame()
         df["epoch"]          = np.full(self.batch.batch_size, self.epoch)
@@ -157,7 +157,7 @@ class RunLogger:
         df["is_physical"]    = self.batch.programs.is_physical
         df["is_elite"]       = is_elite
         df["program"]        = programs_str
-        df["program_prefix"] = self.batch.programs.get_programs_array()
+        df["program_prefix"] = self.batch.programs.get_programs_array(detach=True)
 
         # Exporting free constants
         free_const = self.batch.programs.free_consts.values.detach().cpu().numpy()
@@ -193,7 +193,7 @@ class RunLogger:
                 max_r_at_c = curr_rewards[arg_have_c_and_max]
                 # If reward > currently max reward for this complexity or empty, replace
                 if self.pareto_rewards[i] <= max_r_at_c or np.isnan(self.pareto_rewards[i]):
-                    self.pareto_programs [i] = curr_batch.programs.get_prog(arg_have_c_and_max[0])
+                    self.pareto_programs [i] = curr_batch.programs.get_prog(arg_have_c_and_max[0], detach=True)
                     self.pareto_rewards  [i] = max_r_at_c
 
     def get_pareto_front(self,):
