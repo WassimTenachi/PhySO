@@ -213,7 +213,8 @@ class RunLogger:
         pareto_front_complexities = np.array(pareto_front_complexities)
         pareto_front_programs     = np.array(pareto_front_programs)
         pareto_front_r            = np.array(pareto_front_r)
-        pareto_front_rmse         = ((1/pareto_front_r)-1)*self.batch.dataset.y_target.std().detach().cpu().numpy()
+
+        pareto_front_rmse         = ((1/pareto_front_r)-1)*self.batch.dataset.multi_y_flatten.std().detach().cpu().numpy()
 
         return pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse
 
@@ -341,12 +342,14 @@ class RunVisualiser:
         curr_ax.clear()
         # Cut on dim
         cut_on_dim = 0
-        x = batch.dataset.X[cut_on_dim]
+        X_toplot        = batch.dataset.multi_X[0]
+        y_target_toplot = batch.dataset.multi_y[0]
+        x = X_toplot[cut_on_dim]
         # Plot data
         x_expand = 0.
         n_plot = 100
         stack = []
-        for x_dim in batch.dataset.X:
+        for x_dim in X_toplot:
             x_dim_min = x_dim.min().detach().cpu().numpy()
             x_dim_max = x_dim.max().detach().cpu().numpy()
             x_dim_plot = torch.tensor(np.linspace(x_dim_min-x_expand, x_dim_max+x_expand, n_plot))
@@ -355,7 +358,7 @@ class RunVisualiser:
         x_plot = X_plot[cut_on_dim]
 
         # Data points
-        curr_ax.plot(x.detach().cpu().numpy(), batch.dataset.y_target.detach().cpu().numpy(), 'ko', markersize=10)
+        curr_ax.plot(x.detach().cpu().numpy(), y_target_toplot.detach().cpu().numpy(), 'ko', markersize=10)
         x_plot_cpu = x_plot.detach().cpu().numpy()
 
         # ------- Prog drawing -------
