@@ -112,9 +112,9 @@ class RunLogger:
         self.best_prog_epoch_str_prefix_history    .append( self.best_prog_epoch .__str__() )
         self.overall_best_prog_str_prefix_history  .append( self.best_prog       .__str__() )
 
-        # Logging free const as str of a list
-        self.best_prog_epoch_free_const_history   .append( self.best_prog_epoch.free_const_values.detach().cpu().numpy().__str__() )
-        self.overall_best_prog_free_const_history .append( self.best_prog      .free_const_values.detach().cpu().numpy().__str__())
+        # Logging free const as df
+        self.best_prog_epoch_free_const_history   .append( self.best_prog_epoch.free_consts.cpu().detach().df() )
+        self.overall_best_prog_free_const_history .append( self.best_prog      .free_consts.cpu().detach().df() )
 
         self.best_prog_complexity_history .append(batch.programs.tokens.complexity[best_prog_idx_epoch].sum())
         self.mean_complexity_history      .append(batch.programs.tokens.complexity.sum(axis=1).mean())
@@ -137,7 +137,7 @@ class RunLogger:
 
         columns = ['epoch', 'reward', 'complexity', 'length', 'is_physical', 'is_elite', 'program', "program_prefix"]
         # Columns for free const names
-        columns += self.free_const_names
+        columns += self.batch.programs.free_consts.df().columns.to_list()
 
         # Initial df
         if self.epoch == 0:
@@ -160,11 +160,7 @@ class RunLogger:
         df["program_prefix"] = self.batch.programs.get_programs_array(detach=True)
 
         # Exporting free constants
-        free_const = self.batch.programs.free_consts.values.detach().cpu().numpy()
-        for i in range(len(self.free_const_names)):
-            name   = self.free_const_names[i]
-            const  = free_const[:, i]
-            df[name] = const
+        df = pd.concat([df, self.batch.programs.free_consts.df()], axis=1)
 
         # Saving current df
         df.to_csv(self.save_path, mode='a', index=False, header=False)
@@ -555,12 +551,15 @@ class RunVisualiser:
         # Programs
         df["best_prog_of_epoch"] = np.array(self.run_logger.best_prog_epoch_str_history)
         df["overall_best_prog"]  = np.array(self.run_logger.overall_best_prog_str_history)
-        # Programs (prefix)
+        # Getting free consts dfs
+        best_prog_epoch_free_const_history_df   = pd.concat(self.run_logger.best_prog_epoch_free_const_history   , ignore_index=True)
+        overall_best_prog_free_const_history_df = pd.concat(self.run_logger.overall_best_prog_free_const_history , ignore_index=True)
+        # Best of epoch
         df["best_prog_of_epoch_prefix"] = np.array(self.run_logger.best_prog_epoch_str_prefix_history)
+        df = pd.concat([df, best_prog_epoch_free_const_history_df], axis=1)
+        # Overall best
         df["overall_best_prog_prefix"]  = np.array(self.run_logger.overall_best_prog_str_prefix_history)
-        # Programs (free const)
-        df["best_prog_of_epoch_free_const"] = np.array(self.run_logger.best_prog_epoch_free_const_history )
-        df["overall_best_prog_free_const"]  = np.array(self.run_logger.overall_best_prog_free_const_history)
+        df = pd.concat([df, overall_best_prog_free_const_history_df], axis=1)
 
         return df
 
@@ -582,12 +581,8 @@ class RunVisualiser:
         df["expression_prefix" ] = np.array([prog.__str__()       for prog in programs ])
         # -> UPDATE START_COL_FREE_CONST_PARETO_CSV = 7 IF CHANGES ARE MADE HERE
         # Exporting free const
-        free_const       = np.array([prog.free_const_values.detach().cpu().numpy() for prog in programs ])
-        free_const_names = [tok.__str__() for tok in self.run_logger.batch.library.free_constants_tokens]
-        for i in range(len(free_const_names)):
-            name   = free_const_names[i]
-            params = free_const[:, i]
-            df[name] = params
+        free_consts_df = pd.concat([prog.free_consts.detach().cpu().df() for prog in programs], ignore_index=True)
+        df = pd.concat([df, free_consts_df], axis=1)
         return df
 
     def save_pareto_fig(self):
