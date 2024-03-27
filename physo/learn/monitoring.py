@@ -246,6 +246,7 @@ class RunVisualiser:
             self.save_path_log        = ''.join(save_path.split('.')[:-1]) + "_data.csv"    # save_path with extension replaced by '_data.csv'
             self.save_path_pareto     = ''.join(save_path.split('.')[:-1]) + "_pareto.csv"  # save_path with extension replaced by '_pareto.csv'
             self.save_path_pareto_fig = ''.join(save_path.split('.')[:-1]) + "_pareto.pdf"  # save_path with extension replaced by '_pareto.pdf'
+            self.save_path_pareto_pkl = ''.join(save_path.split('.')[:-1]) + "_pareto.pkl"  # save_path with extension replaced by '_pareto.pkl'
         self.do_show   = do_show
         self.do_save   = do_save
         self.do_prints = do_prints
