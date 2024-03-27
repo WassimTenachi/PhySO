@@ -4,6 +4,7 @@ import torch
 import numpy as np
 import pandas as pd
 import time
+import pickle
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -588,6 +589,14 @@ class RunVisualiser:
         df = pd.concat([df, free_consts_df], axis=1)
         return df
 
+    def save_pareto_pkl(self):
+        pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = self.run_logger.get_pareto_front()
+        progs = [prog.detach() for prog in pareto_front_programs]
+        # Saving pareto front expressions as pkl
+        with open(self.save_path_pareto_pkl, 'wb') as f:
+            pickle.dump(progs, f)
+        return None
+
     def save_pareto_fig(self):
         def plot_pareto_front(run_logger,
                               do_simplify                   = True,
@@ -694,6 +703,15 @@ class RunVisualiser:
                     self.save_pareto_data()
             except:
                 print("Unable to save pareto data.")
+
+        # Pareto pkl
+        if epoch%self.epoch_refresh_rate == 0:
+            try:
+                if self.do_save:
+                    self.save_pareto_pkl()
+            except:
+                print("Unable to save pareto front expressions as pkl.")
+
         # Figure Pareto
         if epoch%self.epoch_refresh_rate == 0:
             try:
@@ -701,6 +719,7 @@ class RunVisualiser:
                     self.save_pareto_fig()
             except:
                 print("Unable to save pareto figure.")
+
         # Prints
         if epoch % self.epoch_refresh_rate_prints == 0:
             try:
