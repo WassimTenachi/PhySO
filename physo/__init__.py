@@ -7,4 +7,5 @@ from . import benchmark
 # Making important interface functions available at root level
 fit = task.fit.fit
 SR = task.sr.SR
+ClassSR = task.class_sr.ClassSR
 read_pareto_csv = benchmark.utils.read_logs.read_pareto_csv
