@@ -11,12 +11,14 @@ class Test_SR(unittest.TestCase):
     def test_SR_task(self):
 
         run_logger = lambda : monitoring.RunLogger(
-                                      do_save   = True)
+                                      save_path = 'SR.log',
+                                      do_save   = False)
         run_visualiser = lambda : monitoring.RunVisualiser (
                                       epoch_refresh_rate = 1,
+                                      save_path = 'SR_curves.png',
                                       do_show   = False,
                                       do_prints = True,
-                                      do_save   = True, )
+                                      do_save   = False, )
 
         # Seed
         seed = 0
@@ -70,12 +72,14 @@ class Test_SR(unittest.TestCase):
     def test_prior_not_in_op_names (self):
 
         run_logger = lambda : monitoring.RunLogger(
-                                      do_save   = True)
+                                      save_path = 'SR.log',
+                                      do_save   = False)
         run_visualiser = lambda : monitoring.RunVisualiser (
                                       epoch_refresh_rate = 1,
+                                      save_path = 'SR_curves.png',
                                       do_show   = False,
                                       do_prints = True,
-                                      do_save   = True, )
+                                      do_save   = False, )
 
         # Seed
         seed = 0
