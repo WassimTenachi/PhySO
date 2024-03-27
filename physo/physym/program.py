@@ -340,11 +340,18 @@ class Program:
         Saves program as a pickle file.
         """
         # Detach const data
-        self.free_consts.detach()
+        self.detach()
         # Save
         with open(fpath, 'wb') as f:
             pickle.dump(self, f)
         return None
+    def detach(self):
+        """
+        Detaches program's free constants.
+        """
+        # Detach const data
+        self.free_consts.detach()
+        return self
 
     def make_skeleton (self):
         """

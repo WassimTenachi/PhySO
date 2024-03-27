@@ -1617,7 +1617,7 @@ class VectPrograms:
         tokens = self.library.lib_tokens [idx]
         return tokens
 
-    def get_prog(self, prog_idx=0, skeleton = False):
+    def get_prog(self, prog_idx=0, skeleton = False, detach = False):
         """
         Returns a Program object of program of idx = prog_idx in batch.
         Discards void tokens beyond program length.
@@ -1627,6 +1627,8 @@ class VectPrograms:
             Index of program in batch.
         skeleton : bool
             Only exports the bare minimum pickable version of the program for parallel execution purposes.
+        detach : bool
+            If True, detaches program.
         Returns
         -------
         program : program.Program
@@ -1656,20 +1658,27 @@ class VectPrograms:
         if skeleton:
             prog.make_skeleton()
 
+        if detach:
+            prog.detach()
+
         return prog
 
 
 
-    def get_programs_array (self):
+    def get_programs_array (self, detach = False):
         """
         Returns all programs in this vector of programs as a numpy array of Program objects.
         Discards void tokens beyond program length.
+        Parameters
+        ----------
+        detach : bool, optional
+            If True, detaches programs.
         Returns
         -------
         program : numpy.array of program.Program of shape (batch_size,)
             Array of programs representing symbolic functions.
         """
-        progs = np.array([self.get_prog(i) for i in range(self.batch_size)])
+        progs = np.array([self.get_prog(i, detach=detach) for i in range(self.batch_size)])
         return progs
 
     # ------------------------------------------------------------------------------------------------------------------
