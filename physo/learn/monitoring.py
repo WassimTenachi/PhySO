@@ -405,8 +405,8 @@ class RunVisualiser:
             print("Unable to draw one or more prog curve on monitoring plot.")
 
         # ------- Plot limits -------
-        y_min = batch.dataset.y_target.min().detach().cpu().numpy()
-        y_max = batch.dataset.y_target.max().detach().cpu().numpy()
+        y_min = y_target_toplot.min().detach().cpu().numpy()
+        y_max = y_target_toplot.max().detach().cpu().numpy()
         curr_ax.set_ylim(y_min-0.1*np.abs(y_min), y_max+0.1*np.abs(y_max))
         custom_lines = [
             Line2D([0], [0], color='k',      lw=3),
