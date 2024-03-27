@@ -58,7 +58,7 @@ class Test_ClassSR(unittest.TestCase):
         x0 = np.random.uniform(-13, 13, 256)
         x1 = np.random.uniform(-13, 13, 256)
         X = np.stack((x0, x1), axis=0)
-        y = 1.123*x0 + 1.123*x1 + 2*10.123
+        y = 1.3*1.123*x0 + 1.5*1.123*x1 + 10.123
         multi_X.append(X)
         multi_y.append(y)
 
@@ -77,13 +77,14 @@ class Test_ClassSR(unittest.TestCase):
                                          fixed_consts       = [ 1.      ],
                                          # Units of fixed constants
                                          fixed_consts_units = [ [0, 0, 0] ],
-                                         # Free constants names (for display purposes)
-                                         spe_free_consts_names = [ "a"       , "b"        , "c"        ],
-                                         # Units offFree constants
+                                         # Class free constants
+                                         class_free_consts_names = [ "d"        ],
+                                         class_free_consts_units = [ [0, 0, 0]  ],
+                                         # Spe free constants
+                                         spe_free_consts_names = [ "a"       , "b"        , "c"      ],
                                          spe_free_consts_units = [ [0, 0, 0] , [0, 0, 0]  , [0, 0, 0]  ],
                                          # Run config
                                          run_config = physo.config.config0b.config0b,
-
                                          # FOR TESTING
                                          op_names = ["add", "sub", "mul", "div"],
                                          get_run_logger     = run_logger,
