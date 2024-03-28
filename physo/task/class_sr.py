@@ -123,7 +123,7 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
         Number of epochs to perform. By default, uses the number in the default config file.
 
     run_config : dict (optional)
-        Run configuration (by default uses physo.task.sr.default_config)
+        Run configuration (by default uses physo.task.class_sr.default_config)
 
     get_run_logger : callable returning physo.learn.monitoring.RunLogger (optional)
         Run logger (by default uses physo.task.args_handler.get_default_run_logger)
@@ -131,7 +131,7 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
         Run visualiser (by default uses physo.task.args_handler.get_default_run_visualiser)
 
     parallel_mode : bool (optional)
-        Parallel execution if True, execution in a loop else. True by default. Overides parameter in run_config.
+        Parallel execution if True, execution in a loop else. True by default. Overrides parameter in run_config.
     n_cpus : int or None (optional)
         Number of CPUs to use when running in parallel mode. Uses max nb. of CPUs by default.
         Overrides parameter in run_config.

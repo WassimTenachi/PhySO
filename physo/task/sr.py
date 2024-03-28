@@ -111,7 +111,7 @@ def SR(X, y, y_weights=1.,
         Run visualiser (by default uses physo.task.args_handler.get_default_run_visualiser)
 
     parallel_mode : bool (optional)
-        Parallel execution if True, execution in a loop else. True by default. Overides parameter in run_config.
+        Parallel execution if True, execution in a loop else. True by default. Overrides parameter in run_config.
     n_cpus : int or None (optional)
         Number of CPUs to use when running in parallel mode. Uses max nb. of CPUs by default.
         Overrides parameter in run_config.
@@ -126,7 +126,7 @@ def SR(X, y, y_weights=1.,
     # Transmitting arguments to ClassSR as SR is just a sub-case of ClassSR where there is only one realization
     # and no dataset spe free constants.
     best_expression, run_logger = physo.ClassSR(
-                # Wrapping to make a 1 realization dataset
+                # Wrapping to make a 1 realization dataset (single real SR specific)
                 multi_X = [X,],
                 multi_y = [y,],
                 multi_y_weights = [y_weights,],
@@ -143,7 +143,7 @@ def SR(X, y, y_weights=1.,
                 class_free_consts_names    = free_consts_names,
                 class_free_consts_units    = free_consts_units ,
                 class_free_consts_init_val = free_consts_init_val,
-                # Spe Free constants (not used in SR)
+                # Spe Free constants are not used in normal SR (single real SR specific)
                 spe_free_consts_names    = None,
                 spe_free_consts_units    = None,
                 spe_free_consts_init_val = None,
