@@ -102,7 +102,7 @@ for i, prog in enumerate(pareto_front_expressions):
     # Showing expression
     print(prog.get_infix_pretty(do_simplify=True))
     # Showing free constant
-    free_consts = prog.free_const_values.detach().cpu().numpy()
+    free_consts = prog.free_consts.class_values.detach().cpu().numpy()
     for j in range (len(free_consts)):
         print("%s = %f"%(prog.library.free_const_names[j], free_consts[j]))
     # Showing RMSE
