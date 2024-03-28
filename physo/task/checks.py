@@ -13,9 +13,35 @@ from physo.physym import program
 from physo.learn import rnn
 from physo.learn import learn
 
+def dummy_epoch_ClassSR (multi_X, multi_y, run_config, multi_y_weights=1.):
+    """
+    Dummy epoch for class SR task.
+    Plots reward distribution and programs lengths distribution.
 
+    Parameters
+    ----------
+    multi_X : list of len (n_realizations,) of np.array of shape (n_dim, ?,) of float
+        List of X (one per realization). With X being values of the input variables of the problem with n_dim = nb
+        of input variables.
+    multi_y :  list of len (n_realizations,) of np.array of shape (?,) of float
+        List of y (one per realization). With y being values of the target symbolic function on input variables
+        contained in X.
+    multi_y_weights : list of len (n_realizations,) of np.array of shape (?,) of float
+                       or array_like of (n_realizations,) of float
+                       or float, optional
+        List of y_weights (one per realization). With y_weights being weights to apply to y data.
+        Or list of weights one per entire realization.
+        Or single float to apply to all (for default value = 1.).
+    run_config : dict
+        Run configuration.
 
-def dummy_epoch (X, y, run_config):
+    Returns
+    -------
+    rewards : np.array of shape (batch_size,)
+        Rewards distribution.
+    n_lengths : np.array of shape (batch_size,)
+        Programs lengths distribution.
+    """
     # Batch reseter
     def batch_reseter():
         return Batch.Batch (library_args          = run_config["library_config"],
@@ -24,8 +50,9 @@ def dummy_epoch (X, y, run_config):
                             max_time_step         = run_config["learning_config"]["max_time_step"],
                             rewards_computer      = run_config["learning_config"]["rewards_computer"],
                             free_const_opti_args  = run_config["free_const_opti_args"],
-                            X        = X,
-                            y_target = y,
+                            multi_X         = multi_X,
+                            multi_y         = multi_y,
+                            multi_y_weights = multi_y_weights,
                             )
 
     batch = batch_reseter()
@@ -85,21 +112,73 @@ def dummy_epoch (X, y, run_config):
 
     display(fig)
 
-    return None
+    return rewards, n_lengths
+
+def dummy_epoch_SR (X, y, run_config, y_weights = 1.):
+    """
+    Dummy epoch for SR task.
+    Plots reward distribution and programs lengths distribution.
+    Parameters
+    ----------
+    X : numpy.array of shape (n_dim, ?,) of float
+        Values of the input variables of the problem with n_dim = nb of input variables.
+    y : numpy.array of shape (?,) of float
+        Values of the target symbolic function to recover when applied on input variables contained in X.
+    y_weights : np.array of shape (?,) of float
+                or float, optional
+        Weight values to apply to y data.
+        Or single float to apply to all (for default value = 1.).
+
+    run_config : dict
+        Run configuration.
+
+    Returns
+    -------
+    rewards : np.array of shape (batch_size,)
+        Rewards distribution.
+    n_lengths : np.array of shape (batch_size,)
+        Programs lengths distribution.
+    """
+
+    res = dummy_epoch_ClassSR(multi_X         = [X, ],
+                              multi_y         = [y, ],
+                              multi_y_weights = [y_weights, ],
+                              run_config      = run_config,
+                        )
+    return res
 
 
-def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str = None, expected_ideal_reward = 1.):
-
-    # --------------- Data ---------------
-    print("Data")
-    n_dim = X.shape[0]
-    fig, ax = plt.subplots(n_dim, 1, figsize=(10,5))
-    for i in range (n_dim):
-        curr_ax = ax if n_dim==1 else ax[i]
-        curr_ax.plot(X[i].detach().cpu().numpy(), y.detach().cpu().numpy(), 'k.',)
-        curr_ax.set_xlabel("X[%i]"%(i))
-        curr_ax.set_ylabel("y")
-    plt.show()
+def sanity_check_ClassSR (multi_X, multi_y, run_config, multi_y_weights = 1., candidate_wrapper = None, target_program_str = None, expected_ideal_reward = 1.):
+    """
+    Checks if finding the target program would give the expected ideal reward.
+    Parameters
+    ----------
+    multi_X : list of len (n_realizations,) of np.array of shape (n_dim, ?,) of float
+        List of X (one per realization). With X being values of the input variables of the problem with n_dim = nb
+        of input variables.
+    multi_y :  list of len (n_realizations,) of np.array of shape (?,) of float
+        List of y (one per realization). With y being values of the target symbolic function on input variables
+        contained in X.
+    multi_y_weights : list of len (n_realizations,) of np.array of shape (?,) of float
+                       or array_like of (n_realizations,) of float
+                       or float, optional
+        List of y_weights (one per realization). With y_weights being weights to apply to y data.
+        Or list of weights one per entire realization.
+        Or single float to apply to all (for default value = 1.).
+    run_config : dict
+        Run configuration.
+    candidate_wrapper : callable
+        Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
+        a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
+    target_program_str : list of str, optional
+        Polish notation of the target program.
+    expected_ideal_reward : float, optional
+        Expected ideal reward. By default = 1.
+    Returns
+    -------
+    target_program : physo.physym.program.Program
+        Target program.
+    """
 
     # --------------- Batch ---------------
     def batch_reseter():
@@ -109,15 +188,36 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
                             max_time_step         = run_config["learning_config"]["max_time_step"],
                             rewards_computer      = run_config["learning_config"]["rewards_computer"],
                             free_const_opti_args  = run_config["free_const_opti_args"],
-                            X        = X,
-                            y_target = y,
-                            candidate_wrapper = candidate_wrapper
+                            multi_X         = multi_X,
+                            multi_y         = multi_y,
+                            multi_y_weights = multi_y_weights,
+
                             )
 
     batch = batch_reseter()
     n_choices = batch.n_choices
     print(batch.library.lib_choosable_name_to_idx)
     print(batch)
+
+    # --------------- Data ---------------
+
+    dataset = batch.dataset
+    print("Data")
+    n_realizations = dataset.n_realizations
+    n_dim          = dataset.n_dim
+    fig, ax = plt.subplots(n_realizations, n_dim, figsize=(10,5))
+    if n_realizations == 1:
+        ax = ax [np.newaxis, :]
+    if n_dim == 1:
+        ax = ax [:, np.newaxis]
+    for i_real in range (n_realizations):
+        for i_dim in range (n_dim):
+            curr_ax = ax[i_real, i_dim]
+            curr_ax.plot(dataset.multi_X[i_real][i_dim].detach().cpu().numpy(),
+                         dataset.multi_y[i_real]       .detach().cpu().numpy(), 'k.',)
+            curr_ax.set_xlabel("X[%i]"%(i_dim))
+            curr_ax.set_ylabel("y")
+    plt.show()
 
     # --------------- Learning config ---------------
     print("-------------------------- Learning config ------------------------")
@@ -149,10 +249,8 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
         target_program = program.Program(tokens  = [batch.library.lib_name_to_token[name] for name in target_program_str],
                                          library = batch.library,
                                          is_physical = True,
-                                         free_const_values=torch.tensor(batch.library.free_constants_init_val).to(batch.dataset.detected_device),
-                                         candidate_wrapper=candidate_wrapper,
-                                         is_opti=np.array([False]),
-                                         opti_steps=np.array([0]),
+                                         candidate_wrapper = candidate_wrapper,
+                                         n_realizations    = dataset.n_realizations,
                                             )
 
         print("---- Target ----")
@@ -170,13 +268,16 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
         # optimize free const if necessary
         if batch.library.n_free_const > 0:
             t0 = time.perf_counter()
-            history = target_program.optimize_constants(X         = batch.dataset.X,
-                                                        y_target  = batch.dataset.y_target,
+            history = target_program.optimize_constants(X         = batch.dataset.multi_X_flatten,
+                                                        y_target  = batch.dataset.multi_y_flatten,
+                                                        y_weights = batch.dataset.multi_y_weights_flatten,
+                                                        n_samples_per_dataset = dataset.n_samples_per_dataset,
                                                         args_opti = run_config["free_const_opti_args"],
                                                          )
             t1 = time.perf_counter()
             print("free const opti time = %f ms"%((t1-t0)*1e3))
-            print("free constants found: %s"%(target_program.free_const_values))
+            print("class free constants found: %s"%(target_program.free_consts.class_values))
+            print("spe   free constants found: %s"%(target_program.free_consts.spe_values  ))
 
             fig, ax = plt.subplots(1,)
             ax.plot(np.log10(history),)
@@ -188,9 +289,11 @@ def sanity_check (X, y, run_config, candidate_wrapper = None, target_program_str
             plt.show()
 
         ideal_reward = run_config["reward_config"]["reward_function"](
-                                             y_pred = target_program(X),
-                                             y_target = batch.dataset.y_target,
-                                            ).detach().cpu().numpy()
+                                             y_pred    = target_program(batch.dataset.multi_X_flatten,
+                                                                        n_samples_per_dataset = dataset.n_samples_per_dataset),
+                                             y_target  = batch.dataset.multi_y_flatten,
+                                             y_weights = batch.dataset.multi_y_weights_flatten,
+        ).detach().cpu().numpy()
 
         print("Ideal reward :", ideal_reward)
         # todo: assert that it is physical and compute reward through a batch
