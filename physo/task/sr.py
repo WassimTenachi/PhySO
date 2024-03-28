@@ -4,26 +4,11 @@ import warnings
 
 # Internal imports
 from physo.config.config0 import config0
-import physo.learn.monitoring as monitoring
+import physo.task.args_handler as args_handler
 import physo
 
 # DEFAULT RUN CONFIG TO USE
 default_config = config0
-
-# DEFAULT MONITORING CONFIG TO USE
-get_default_run_logger = lambda : monitoring.RunLogger(
-                                      save_path = 'SR.log',
-                                      do_save   = True)
-get_default_run_visualiser = lambda : monitoring.RunVisualiser (
-                                           epoch_refresh_rate = 1,
-                                           save_path = 'SR_curves.png',
-                                           do_show   = False,
-                                           do_prints = True,
-                                           do_save   = True, )
-
-# DEFAULT ALLOWED OPERATIONS
-default_op_names = ["mul", "add", "sub", "div", "inv", "n2", "sqrt", "neg", "exp", "log", "sin", "cos"]
-default_stop_after_n_epochs = 5
 
 def SR(X, y, y_weights=1.,
             # X
@@ -49,8 +34,8 @@ def SR(X, y, y_weights=1.,
             # Default run config to use
             run_config = default_config,
             # Default run monitoring
-            get_run_logger     = get_default_run_logger,
-            get_run_visualiser = get_default_run_visualiser,
+            get_run_logger     = args_handler.get_default_run_logger,
+            get_run_visualiser = args_handler.get_default_run_visualiser,
             # Parallel mode
             parallel_mode = True,
             n_cpus        = None,
@@ -97,7 +82,7 @@ def SR(X, y, y_weights=1.,
 
     op_names : array_like of shape (?) of str or None (optional)
         Names of choosable symbolic operations (see physo.physym.functions for a list of available operations).
-        By default, uses operations listed in physo.task.sr.default_op_names.
+        By default, uses operations listed in physo.task.args_handler.default_op_names.
     use_protected_ops : bool (optional)
         If True, uses protected operations (e.g. division by zero is avoided). True by default.
          (see physo.physym.functions for a list of available protected operations).
@@ -113,12 +98,13 @@ def SR(X, y, y_weights=1.,
 
     epochs : int or None (optional)
         Number of epochs to perform. By default, uses the number in the default config file.
+
     run_config : dict (optional)
         Run configuration (by default uses physo.task.sr.default_config)
     get_run_logger : callable returning physo.learn.monitoring.RunLogger (optional)
-        Run logger (by default uses physo.task.sr.get_default_run_logger)
+        Run logger (by default uses physo.task.args_handler.get_default_run_logger)
     get_run_visualiser : callable returning physo.learn.monitoring.RunVisualiser (optional)
-        Run visualiser (by default uses physo.task.sr.get_default_run_visualiser)
+        Run visualiser (by default uses physo.task.args_handler.get_default_run_visualiser)
 
     parallel_mode : bool (optional)
         Parallel execution if True, execution in a loop else. True by default. Overides parameter in run_config.
