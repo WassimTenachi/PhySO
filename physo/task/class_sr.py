@@ -41,6 +41,7 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
             # Parallel mode
             parallel_mode = True,
             n_cpus        = None,
+            device        = 'cpu',
             ):
     """
     Runs a class symbolic regression task ie. searching for a single functional form fitting multiple datasets
@@ -134,14 +135,14 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
     n_cpus : int or None (optional)
         Number of CPUs to use when running in parallel mode. Uses max nb. of CPUs by default.
         Overrides parameter in run_config.
+    device : str (optional)
+        Device to use for computations (eg. 'cpu', 'cuda'). 'cpu' by default.
 
     Returns
     -------
     best_expression, run_logger : physo.physym.program.Program, physo.learn.monitoring.RunLogger
         Best analytical expression found and run logger.
     """
-    # --- DEVICE ---
-    DEVICE = 'cpu'
 
     # ------------------------------- HANDLING ARGUMENTS -------------------------------
     # Transmitting all arguments to be handled

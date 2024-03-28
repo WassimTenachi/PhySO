@@ -40,7 +40,8 @@ def SR(X, y, y_weights=1.,
             # Parallel mode
             parallel_mode = True,
             n_cpus        = None,
-            ):
+            device        = 'cpu',
+       ):
     """
     Runs a symbolic regression task.
     (Wrapper around physo.task.fit)
@@ -114,6 +115,8 @@ def SR(X, y, y_weights=1.,
     n_cpus : int or None (optional)
         Number of CPUs to use when running in parallel mode. Uses max nb. of CPUs by default.
         Overrides parameter in run_config.
+    device : str (optional)
+        Device to use for computations (eg. 'cpu', 'cuda'). 'cpu' by default.
 
     Returns
     -------
@@ -160,6 +163,7 @@ def SR(X, y, y_weights=1.,
                 # Parallel mode
                 parallel_mode = parallel_mode,
                 n_cpus        = n_cpus,
+                device        = device,
     )
 
     return best_expression, run_logger
