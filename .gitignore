@@ -6,6 +6,7 @@ __pycache__
 demos/**/*.log
 demos/**/*.png
 demos/**/*.csv
+demos/**/*.pkl
 demos/**/*.pdf
 benchmarking/FeynmanBenchmark/FR*
 benchmarking/FeynmanBenchmark/feynman_efficiency_curves.png
