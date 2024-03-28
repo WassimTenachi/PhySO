@@ -302,3 +302,41 @@ def sanity_check_ClassSR (multi_X, multi_y, run_config, multi_y_weights = 1., ca
         assert (expected_ideal_reward - ideal_reward) <= 2*eps, 'Ideal reward should be >= %f +/- %f '% (expected_ideal_reward, eps)
 
         return target_program
+
+# todo:
+def sanity_check_SR (X, y, run_config, y_weights = 1., candidate_wrapper = None, target_program_str = None, expected_ideal_reward = 1.):
+    """
+    Checks if finding the target program would give the expected ideal reward.
+    Parameters
+    ----------
+    X : numpy.array of shape (n_dim, ?,) of float
+        Values of the input variables of the problem with n_dim = nb of input variables.
+    y : numpy.array of shape (?,) of float
+        Values of the target symbolic function to recover when applied on input variables contained in X.
+    y_weights : np.array of shape (?,) of float
+                or float, optional
+        Weight values to apply to y data.
+        Or single float to apply to all (for default value = 1.).
+    run_config : dict
+        Run configuration.
+    candidate_wrapper : callable
+        Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
+        a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
+    target_program_str : list of str, optional
+        Polish notation of the target program.
+    expected_ideal_reward : float, optional
+        Expected ideal reward. By default = 1.
+    Returns
+    -------
+    target_program : physo.physym.program.Program
+        Target program.
+    """
+    target_program = sanity_check_ClassSR(multi_X         = [X, ],
+                                          multi_y         = [y, ],
+                                          multi_y_weights = [y_weights, ],
+                                          run_config      = run_config,
+                                          candidate_wrapper     = candidate_wrapper,
+                                          target_program_str    = target_program_str,
+                                          expected_ideal_reward = expected_ideal_reward,
+                                          )
+    return target_program
