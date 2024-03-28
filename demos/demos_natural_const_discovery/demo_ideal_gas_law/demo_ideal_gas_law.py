@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 # Internal code import
 import physo
 from physo.learn import monitoring
-from physo.task  import benchmark
+from physo.task  import checks
 
 
 # In[2]:
@@ -273,7 +273,7 @@ run_config = {
 # In[18]:
 
 
-benchmark.dummy_epoch(X, y, run_config)
+checks.dummy_epoch_SR(X = X, y = y, run_config = run_config)
 
 
 # ## Run
