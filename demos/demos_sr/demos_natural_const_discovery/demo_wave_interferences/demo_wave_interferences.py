@@ -382,7 +382,7 @@ if __name__ == '__main__':
 
     for prog in pareto_front_programs:
         prog.show_infix(do_simplify=True)
-        free_consts = prog.free_consts.class_values.detach().cpu().numpy()
+        free_consts = prog.free_consts.class_values[0].detach().cpu().numpy()
         for i in range (len(free_consts)):
             print("%s = %f"%(prog.library.free_const_names[i], free_consts[i]))
 
