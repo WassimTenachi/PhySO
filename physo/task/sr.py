@@ -30,6 +30,7 @@ def SR(X, y, y_weights=1.,
             # Stopping
             stop_reward = 1.,
             max_n_evaluations = None,
+            stop_after_n_epochs = args_handler.default_stop_after_n_epochs,
             epochs = None,
             # Default run config to use
             run_config = default_config,
@@ -95,7 +96,9 @@ def SR(X, y, y_weights=1.,
         the symbolic regression task if the limit is about to be reached. The parameter max_n_evaluations is distinct
         from batch_size * n_epochs because batch_size * n_epochs sets the number of expressions generated but a lot of
         these are not evaluated because they have inconsistent units.
-
+    stop_after_n_epochs : int or None (optional)
+        Number of additional epochs to do after early stop condition is reached.
+        Uses args_handler.default_stop_after_n_epochs by default.
     epochs : int or None (optional)
         Number of epochs to perform. By default, uses the number in the default config file.
 
@@ -145,8 +148,9 @@ def SR(X, y, y_weights=1.,
                 op_names          = op_names,
                 use_protected_ops = use_protected_ops,
                 # Stopping
-                stop_reward       = stop_reward,
-                max_n_evaluations = max_n_evaluations,
+                stop_reward         = stop_reward,
+                max_n_evaluations   = max_n_evaluations,
+                stop_after_n_epochs = stop_after_n_epochs,
                 epochs            = epochs,
                 # Default run config to use
                 run_config = run_config,
