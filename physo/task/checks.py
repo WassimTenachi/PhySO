@@ -303,7 +303,6 @@ def sanity_check_ClassSR (multi_X, multi_y, run_config, multi_y_weights = 1., ca
 
         return target_program
 
-# todo:
 def sanity_check_SR (X, y, run_config, y_weights = 1., candidate_wrapper = None, target_program_str = None, expected_ideal_reward = 1.):
     """
     Checks if finding the target program would give the expected ideal reward.
