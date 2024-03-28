@@ -281,7 +281,7 @@ checks.dummy_epoch_SR(X = X, y = y, run_config = run_config)
 # In[19]:
 
 
-rewards, candidates = physo.fit (X, y, run_config,
+rewards, candidates = physo.fit ([X,], [y,], run_config,
                                 stop_reward = 0.9999,
                                 stop_after_n_epochs = 5)
 

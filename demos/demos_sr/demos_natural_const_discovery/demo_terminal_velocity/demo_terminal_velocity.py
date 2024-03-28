@@ -280,7 +280,7 @@ if __name__ == '__main__':
     # In[19]:
 
 
-    rewards, candidates = physo.fit (X, y, run_config,
+    rewards, candidates = physo.fit ([X,], [y,], run_config,
                                     stop_reward = 0.9999,
                                     stop_after_n_epochs = 5)
 
