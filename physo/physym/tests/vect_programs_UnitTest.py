@@ -696,7 +696,7 @@ class VectProgramsTest(unittest.TestCase):
         # Load test
         try:
             prog.save(fpath)
-            prog_loaded = Prog.load_program(fpath)
+            prog_loaded = Prog.load_program_pkl(fpath)
             file_size = os.stat(fpath).st_size
             os.remove(fpath) if os.path.exists(fpath) else None
         except:

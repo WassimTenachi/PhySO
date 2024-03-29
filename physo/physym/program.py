@@ -28,7 +28,7 @@ def DEFAULT_WRAPPER (func, X):
         return func(X)
 
 # Load pickled program
-def load_program(fpath):
+def load_program_pkl(fpath):
     """
     Loads program from pickle file.
     """

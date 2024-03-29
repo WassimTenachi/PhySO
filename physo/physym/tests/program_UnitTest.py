@@ -249,7 +249,7 @@ class ProgramTest(unittest.TestCase):
         # Test pickle load
         try:
             prog.save(fpath)
-            prog_loaded = Prog.load_program(fpath)
+            prog_loaded = Prog.load_program_pkl(fpath)
             os.remove(fpath) if os.path.exists(fpath) else None
         except:
             os.remove(fpath) if os.path.exists(fpath) else None

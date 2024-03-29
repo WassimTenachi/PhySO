@@ -27,6 +27,36 @@ except:
 # Faster than searching for best loc
 LEGEND_LOC = 'upper left' # "best"
 
+def save_pareto_pkl (pareto_progs, fpath):
+    """
+    Save pareto programs to pickle file.
+    Parameters
+    ----------
+    pareto_progs : list of Program.Program
+        List of pareto programs.
+    fpath : str
+        Path to pkl file.
+    """
+    with open(fpath, 'wb') as f:
+        pickle.dump(pareto_progs, f)
+    return None
+
+def load_pareto_pkl (fpath):
+    """
+    Load pareto programs from pickle file.
+    Parameters
+    ----------
+    fpath : str
+        Path to pkl file.
+    Returns
+    -------
+    pareto_progs : list of Program.Program
+        List of pareto programs.
+    """
+    with open(fpath, 'rb') as f:
+        pareto_progs = pickle.load(f)
+    return pareto_progs
+
 class RunLogger:
     """
     Custom logger function.
@@ -594,8 +624,7 @@ class RunVisualiser:
         pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = self.run_logger.get_pareto_front()
         progs = [prog.detach() for prog in pareto_front_programs]
         # Saving pareto front expressions as pkl
-        with open(self.save_path_pareto_pkl, 'wb') as f:
-            pickle.dump(progs, f)
+        save_pareto_pkl (pareto_progs = progs, fpath = self.save_path_pareto_pkl)
         return None
 
     def save_pareto_fig(self):
