@@ -392,23 +392,64 @@ class Program:
         program_str = Exec.ComputeInfixNotation(self.tokens)
         return program_str
 
-    def get_infix_sympy (self, do_simplify = False):
+    def get_sympy_local_dicts (self, replace_nan_with = 1.):
+        """
+        Returns a list of local dicts for each realization of the program to replace free constants by their values in
+        sympy symbolic representation of the program.
+        Parameters
+        ----------
+        replace_nan_with : float, optional
+            Value to replace NaNs with in free constants values.
+        Returns
+        -------
+        sympy_local_dicts : list of dict
+        """
+        sympy_local_dicts = []                                                      # (n_realizations,)
+        for i_real in range(self.n_realizations):
+            local_dict = {}
+            class_local_dict = {self.library.class_free_constants_names[cid]: np.nan_to_num(
+                self.free_consts.class_values[0][cid],
+                nan=replace_nan_with)
+                for cid in self.library.class_free_constants_ids}
+
+            spe_local_dict = {self.library.spe_free_constants_names[cid]: np.nan_to_num(
+                self.free_consts.spe_values[0][cid, i_real],
+                nan=replace_nan_with)
+                for cid in self.library.spe_free_constants_ids}
+            local_dict.update(class_local_dict)
+            local_dict.update(spe_local_dict)
+            sympy_local_dicts.append(local_dict)
+        return sympy_local_dicts                                                    # (n_realizations,)
+
+    def get_infix_sympy (self, do_simplify = False, evaluate_consts = False, replace_nan_with = 1.):
         """
         Returns sympy symbolic representation of a program.
         Parameters
         ----------
-        do_simplify : bool
+        do_simplify : bool, optional
             If True performs a symbolic simplification of program.
+        evaluate_consts : bool, optional
+            If True replaces free constants by their values in the sympy symbolic representation of the program.
+        replace_nan_with : float, optional
+            Value to replace NaNs with in free constants values.
         Returns
         -------
-        program_sympy : sympy.core
+        program_sympy : sympy.core or array of shae (n_realizations,) of sympy.core
             Sympy symbolic function. It is possible to run program_sympy.evalf(subs={'x': 2.4}) where 'x' is a variable
             appearing in the program to evaluate the function with x = 2.4.
+            Returns an array of sympy.core if evaluate_consts is True (one for each realization as spe consts have
+            different values for each realization).
         """
         program_str = self.get_infix_str()
         program_sympy = sympy.parsing.sympy_parser.parse_expr(program_str, evaluate=False)
         if do_simplify:
             program_sympy = sympy.simplify(program_sympy, rational=True) # 2.0 -> 2
+        if evaluate_consts:
+            sympy_local_dicts = self.get_sympy_local_dicts(replace_nan_with=replace_nan_with)                         # (n_realizations,)
+            program_sympy = [ program_sympy.subs(sympy_local_dicts[i_real]) for i_real in range(self.n_realizations)] # (n_realizations,)
+            if do_simplify:
+                program_sympy = [ sympy.simplify(program_sympy[i_real], rational=True) for i_real in range(self.n_realizations)]
+            program_sympy = np.array(program_sympy)
         return program_sympy
 
     def get_infix_pretty (self, do_simplify = False):
