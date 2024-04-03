@@ -297,7 +297,6 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
 
     # ------------------------------- RETURN -------------------------------
     # Returning
-
     handled_args = {
         "multi_X"         : multi_X,
         "multi_y"         : multi_y,
