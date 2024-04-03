@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
+import warnings
 # Internal code import
 import physo
 import physo.learn.monitoring as monitoring
@@ -93,22 +94,28 @@ class Test_SR(unittest.TestCase):
         y = 1.234*9.807*z + 1.234*v**2
 
         # Running SR task
-        expression, logs = physo.SR(X, y,
-                                    X_names = [ "z"       , "v"        ],
-                                    X_units = [ [1, 0, 0] , [1, -1, 0] ],
-                                    y_name  = "E",
-                                    y_units = [2, -2, 1],
-                                    free_consts_names = [ "m"       , "g"        ],
-                                    free_consts_units = [ [0, 0, 1] , [1, -2, 0] ],
-                                    op_names = ["mul", "add", "sub", "div"],
-                                    # Run config
-                                    run_config = physo.config.config0.config0,
-                                    # FOR TESTING
-                                    get_run_logger     = run_logger,
-                                    get_run_visualiser = run_visualiser,
-                                    parallel_mode = False,
-                                    epochs = 2,
-        )
+        # Avoiding expected warnings caused by priors referring to operators not in op_names
+        # We still want to keep those priors for the sake of this test
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            expression, logs = physo.SR(X, y,
+                                        X_names = [ "z"       , "v"        ],
+                                        X_units = [ [1, 0, 0] , [1, -1, 0] ],
+                                        y_name  = "E",
+                                        y_units = [2, -2, 1],
+                                        fixed_consts       = [ 1.      ],
+                                        fixed_consts_units = [ [0,0,0] ],
+                                        free_consts_names = [ "m"       , "g"        ],
+                                        free_consts_units = [ [0, 0, 1] , [1, -2, 0] ],
+                                        op_names = ["mul", "add", "sub", "div"],
+                                        # Run config
+                                        run_config = physo.config.config0.config0,
+                                        # FOR TESTING
+                                        get_run_logger     = run_logger,
+                                        get_run_visualiser = run_visualiser,
+                                        parallel_mode = False,
+                                        epochs = 4,
+            )
         # Inspecting pareto front expressions
         pareto_front_complexities, pareto_front_expressions, pareto_front_r, pareto_front_rmse = logs.get_pareto_front()
 
