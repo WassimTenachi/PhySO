@@ -8,6 +8,7 @@ demos/**/*.png
 demos/**/*.csv
 demos/**/*.pkl
 demos/**/*.pdf
+physo/physym/tests/**/*.png
 benchmarking/FeynmanBenchmark/FR*
 benchmarking/FeynmanBenchmark/feynman_efficiency_curves.png
 docs/build/*
