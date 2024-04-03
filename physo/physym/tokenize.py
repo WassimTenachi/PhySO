@@ -22,7 +22,7 @@ def retrieve_complexity(complexity_dict, curr_name):
     Parameters
     ----------
     complexity_dict : dict of {str : float} or None
-        If dictionary is None, returns token.DEFAULT_COMPLEXITY.
+        If dictionary is None or empty, returns token.DEFAULT_COMPLEXITY.
     curr_name : str
         If curr_name is not in units_dict keys, returns token.DEFAULT_COMPLEXITY.
     Returns
@@ -31,7 +31,8 @@ def retrieve_complexity(complexity_dict, curr_name):
         Complexity of token.
     """
     curr_complexity = Tok.DEFAULT_COMPLEXITY
-    if complexity_dict is not None:
+    # If complexity dictionary is not None or empty dict
+    if (complexity_dict is not None) and (complexity_dict != {}):
         try:
             curr_complexity = complexity_dict[curr_name]
         except KeyError:
@@ -48,7 +49,7 @@ def retrieve_init_val (init_val_dict, curr_name):
     Parameters
     ----------
     init_val_dict : dict of {str : float or array_like of floats} or None
-        If dictionary is None, returns token.DEFAULT_FREE_CONST_INIT_VAL.
+        If dictionary is None or empty, returns token.DEFAULT_FREE_CONST_INIT_VAL.
     curr_name : str
         If curr_name is not in units_dict keys, returns token.DEFAULT_FREE_CONST_INIT_VAL.
     Returns
@@ -57,7 +58,8 @@ def retrieve_init_val (init_val_dict, curr_name):
         Initial value of token.
     """
     curr_init_val = Tok.DEFAULT_FREE_CONST_INIT_VAL
-    if init_val_dict is not None:
+    # If init_val dictionary is not None or empty dict
+    if (init_val_dict is not None) and (init_val_dict != {}):
         try:
             curr_init_val = init_val_dict[curr_name]
         except KeyError:
@@ -80,7 +82,7 @@ def retrieve_units(units_dict, curr_name):
     Parameters
     ----------
     units_dict : dict of {str : array_like} or None
-        If dictionary is None, returned curr_is_constraining_phy_units is False and curr_phy_units is None.
+        If dictionary is None or empty, returned curr_is_constraining_phy_units is False and curr_phy_units is None.
         (Note: creating a token.Token using None in place of units will result in a Token with units = vector of np.NAN)
     curr_name : str
         If curr_name is not in units_dict keys, returned curr_phy_units correspond to that of  dimensionless token
@@ -94,7 +96,8 @@ def retrieve_units(units_dict, curr_name):
     curr_is_constraining_phy_units = False
     curr_phy_units = None
     # retrieving units if user is using units dictionary
-    if units_dict is not None:
+    # If units dictionary is not None or empty dict
+    if (units_dict is not None) and (units_dict != {}):
         curr_is_constraining_phy_units = True
         try:
             curr_phy_units = units_dict[curr_name]
