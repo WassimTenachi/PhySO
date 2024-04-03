@@ -68,6 +68,8 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
     dataset = Dataset.Dataset(multi_X=multi_X, multi_y=multi_y, multi_y_weights=multi_y_weights)
     # Getting number of input variables
     n_dim   = dataset.n_dim
+    # Getting number of realizations
+    n_realizations = dataset.n_realizations
     # Sending data to device and using sent data
     dataset.to(device)
     multi_X         = dataset.multi_X
@@ -167,7 +169,9 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
         n_spe_free_consts = len(spe_free_consts_units)
     else:
         n_spe_free_consts = 0
-        warnings.warn("No information about free constants, not using any.")
+        # Only warning if there are multiple realizations
+        if n_realizations > 1:
+            warnings.warn("No information about spe free constants, not using any.")
 
     # --- spe_free_consts_names ---
     if spe_free_consts_names is None:
