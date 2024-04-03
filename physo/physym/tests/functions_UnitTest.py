@@ -199,7 +199,7 @@ class FuncTest(unittest.TestCase):
     def test_protected_functions_plots (self):
 
         do_show = False
-        do_save = True
+        do_save = False
         make_plots = do_show or do_save  # if either is true, make plots
 
         n_plot = int(1e4)

@@ -32,7 +32,7 @@ def TEST_REDUCE_WRAPPER(y):
 # Should the tests be done via VectPrograms method which in turns uses BatchExecution ?
 BOOL_DO_TEST_VIA_VECTPROGRAMS = False
 # Should the testing figures be saved ?
-DO_SAVE_FIGS = True
+DO_SAVE_FIGS = False
 
 class ExecuteProgramTest(unittest.TestCase):
 
