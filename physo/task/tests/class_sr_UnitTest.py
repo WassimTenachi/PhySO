@@ -62,6 +62,16 @@ class Test_ClassSR(unittest.TestCase):
         multi_X.append(X)
         multi_y.append(y)
 
+        run_config = physo.config.config0b.config0b
+
+        # Removing priors related to tokens that are not used in this example to avoid unnecessary warnings
+        priors_name_to_remove = ["NestedFunctions", "NestedTrigonometryPrior"]
+        priors_to_keep = []
+        for prior_config in run_config["priors_config"]:
+            if prior_config[0] not in priors_name_to_remove:
+                priors_to_keep.append(prior_config)
+        run_config["priors_config"] = priors_to_keep
+
         # Running SR task
         expression, logs = physo.ClassSR(multi_X = multi_X,
                                          multi_y = multi_y,
@@ -84,7 +94,7 @@ class Test_ClassSR(unittest.TestCase):
                                          spe_free_consts_names = [ "a"       , "b"        , "c"      ],
                                          spe_free_consts_units = [ [0, 0, 0] , [0, 0, 0]  , [0, 0, 0]  ],
                                          # Run config
-                                         run_config = physo.config.config0b.config0b,
+                                         run_config = run_config,
                                          # FOR TESTING
                                          op_names = ["add", "sub", "mul", "div"],
                                          get_run_logger     = run_logger,
