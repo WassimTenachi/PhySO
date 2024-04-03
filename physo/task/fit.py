@@ -45,11 +45,6 @@ def fit(multi_X, multi_y, run_config, multi_y_weights = 1., candidate_wrapper = 
         hall_of_fame_R : Corresponding reward values.
         Use hall_of_fame[-1] to access best model found.
     """
-     #todo: assert MAX_TIME_STEP>= max_length
-     #todo: if run_config is None, make const
-     #todo: replace stop_reward by stop_rmse
-     #todo: no plot visualiser by default, text only
-     #todo: check risk_factor, gamma_decay, entropy_weight
 
     def batch_reseter():
         return  Batch.Batch (library_args          = run_config["library_config"],
