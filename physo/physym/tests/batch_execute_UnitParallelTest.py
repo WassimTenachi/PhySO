@@ -29,7 +29,10 @@ def get_ncpus(max_ncpus):
 def TEST_REDUCE_WRAPPER(y):
     return y.mean()
 
+# Should the tests be done via VectPrograms method which in turns uses BatchExecution ?
 BOOL_DO_TEST_VIA_VECTPROGRAMS = False
+# Should the testing figures be saved ?
+DO_SAVE_FIGS = False
 
 class ExecuteProgramTest(unittest.TestCase):
 
@@ -488,6 +491,8 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+        if DO_SAVE_FIGS:
+            fig.savefig("perf_A_ParallelizedExeReduceGather.png")
         plt.show()
 
         return None
@@ -705,6 +710,8 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+        if DO_SAVE_FIGS:
+            fig.savefig("perf_A_ParallelizedExeReduceGather_with_spe_consts.png")
         plt.show()
 
         return None
@@ -847,6 +854,8 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+        if DO_SAVE_FIGS:
+            fig.savefig("perf_B_ParallelizedExeReward.png")
         plt.show()
 
         return None
@@ -1070,6 +1079,8 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+        if DO_SAVE_FIGS:
+            fig.savefig("perf_B_ParallelizedExeReward_with_spe_consts.png")
         plt.show()
 
         return None
@@ -1233,6 +1244,8 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+        if DO_SAVE_FIGS:
+            fig.savefig("perf_C_ParallelizedExeFreeConstants.png")
         plt.show()
 
         return None
@@ -1481,6 +1494,8 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+        if DO_SAVE_FIGS:
+            fig.savefig("perf_C_ParallelizedExeFreeConstants_with_spe_consts.png")
         plt.show()
 
         return None
