@@ -310,11 +310,12 @@ def make_tokens(
     # --------------------- Handling class free constants / free constants args ---------------------
     # Concatenating both args as they refer to the same type of free constants and can be used interchangeably
 
-    # Replacing None by empty sets/dicts
+    # Replacing None by empty sets/dicts in free_constants_x args
     free_constants            = free_constants            if free_constants            is not None else set()
     free_constants_init_val   = free_constants_init_val   if free_constants_init_val   is not None else {}
     free_constants_units      = free_constants_units      if free_constants_units      is not None else {}
     free_constants_complexity = free_constants_complexity if free_constants_complexity is not None else {}
+    # Replacing None by empty sets/dicts in class_free_constants_x args
     class_free_constants            = class_free_constants            if class_free_constants            is not None else set()
     class_free_constants_init_val   = class_free_constants_init_val   if class_free_constants_init_val   is not None else {}
     class_free_constants_units      = class_free_constants_units      if class_free_constants_units      is not None else {}
@@ -325,6 +326,14 @@ def make_tokens(
     class_free_constants_init_val   .update( free_constants_init_val   )
     class_free_constants_units      .update( free_constants_units      )
     class_free_constants_complexity .update( free_constants_complexity )
+
+    # --------------------- Handling spe free constants ---------------------
+
+    # Replacing None by empty sets/dicts in spe_free_constants_x args (for symmetrical behavior with class_free_constants_x)
+    spe_free_constants            = spe_free_constants            if spe_free_constants            is not None else set()
+    spe_free_constants_init_val   = spe_free_constants_init_val   if spe_free_constants_init_val   is not None else {}
+    spe_free_constants_units      = spe_free_constants_units      if spe_free_constants_units      is not None else {}
+    spe_free_constants_complexity = spe_free_constants_complexity if spe_free_constants_complexity is not None else {}
 
     # -------------------------------- Handling class free constants --------------------------------
 
