@@ -1,5 +1,5 @@
 import time
-
+import warnings
 import torch
 import numpy as np
 
@@ -246,12 +246,16 @@ def sanity_check_ClassSR (multi_X, multi_y, run_config, multi_y_weights = 1., ca
     # --------------- Ideal reward ---------------
     if target_program_str is not None:
         print("-------------------------- Ideal reward ------------------------")
-        target_program = program.Program(tokens  = [batch.library.lib_name_to_token[name] for name in target_program_str],
-                                         library = batch.library,
-                                         is_physical = True,
-                                         candidate_wrapper = candidate_wrapper,
-                                         n_realizations    = dataset.n_realizations,
-                                            )
+        # Ignoring warning that no free const table was provided and that a default one will be created with initial
+        # values from library as this is what we want to do here.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            target_program = program.Program(tokens  = [batch.library.lib_name_to_token[name] for name in target_program_str],
+                                             library = batch.library,
+                                             is_physical = True,
+                                             candidate_wrapper = candidate_wrapper,
+                                             n_realizations    = dataset.n_realizations,
+                                                )
 
         print("---- Target ----")
         print("Tokens in prefix notation:")
