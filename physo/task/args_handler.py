@@ -261,6 +261,41 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
     if epochs is not None:
         run_config["learning_config"]["n_epochs"] = epochs
 
+    # ------------------------------- MAX_TIME_STEP ASSERTIONS -------------------------------
+
+    # Asserting that max_time_step is >= HardLengthPrior's max_length
+    for prior_config in run_config["priors_config"]:
+        if prior_config[0] == "HardLengthPrior":
+            assert run_config["learning_config"]["max_time_step"] >= prior_config[1]["max_length"], \
+                "max_time_step should be greater than or equal to HardLengthPrior's max_length."
+
+    # ------------------------------- LEARNING HYPERPARAMS ASSERTIONS -------------------------------
+    # risk_factor should be a float >= 0 and <= 1
+    risk_factor = run_config["learning_config"]["risk_factor"]
+    try:
+        risk_factor = float(risk_factor)
+    except:
+        raise ValueError("risk_factor should be castable to a float.")
+    assert isinstance(risk_factor, float), "risk_factor should be a float."
+    assert 0 <= risk_factor <= 1, "risk_factor should be >= 0 and <= 1."
+
+    # gamma_decay should be a float
+    gamma_decay = run_config["learning_config"]["gamma_decay"]
+    try:
+        gamma_decay = float(gamma_decay)
+    except:
+        raise ValueError("gamma_decay should be castable to a float.")
+    assert isinstance(gamma_decay, float), "gamma_decay should be a float."
+
+    # entropy_weight should be a float
+    entropy_weight = run_config["learning_config"]["entropy_weight"]
+    try:
+        entropy_weight = float(entropy_weight)
+    except:
+        raise ValueError("entropy_weight should be castable to a float.")
+    assert isinstance(entropy_weight, float), "entropy_weight should be a float."
+
+    # ------------------------------- RETURN -------------------------------
     # Returning
 
     handled_args = {
