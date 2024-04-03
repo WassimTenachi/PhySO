@@ -59,7 +59,9 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
     """
     Checks arguments of SR and ClassSR functions and builds run_config for physo.task.fit.
     """
-    # --- DATA ---
+
+    # ------------------------------- DATASETS -------------------------------
+
     # Data checking and conversion to torch if necessary is now handled by Dataset class which is called by Batch class.
     # We use it here to infer n_dim (this will also run most other assertions unrelated to the library which is unknown
     # here and extra time) and sending data to device.
@@ -71,6 +73,8 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
     multi_X         = dataset.multi_X
     multi_y         = dataset.multi_y
     multi_y_weights = dataset.multi_y_weights
+
+    # ------------------------------- LIBRARY ARGS -------------------------------
 
     # -- X_names --
     # Handling input variables names
@@ -193,7 +197,7 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
     if op_names is None:
         op_names = default_op_names
 
-    # ------------------------------- WRAPPING -------------------------------
+    # ------------------------------- WRAPPING LIBRARY -------------------------------
 
     # Converting fixed constants to torch and sending to device
     fixed_consts = torch.tensor(fixed_consts).to(device)
@@ -224,15 +228,23 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
                       "superparent_name"  : y_name,
                     }
 
-    # Monitoring
-    run_logger     = get_run_logger()
-    run_visualiser = get_run_visualiser()
     # Updating config
     run_config.update({
-        "library_config"       : library_config,
+        "library_config" : library_config,
+    })
+
+    # ------------------------------- MONITORING -------------------------------
+    run_logger     = get_run_logger()
+    run_visualiser = get_run_visualiser()
+
+    # Updating config
+    run_config.update({
         "run_logger"           : run_logger,
         "run_visualiser"       : run_visualiser,
     })
+
+    # ------------------------------- PARALLEL CONFIG AND BUILDING RewardsComputer -------------------------------
+
     # Update reward_config
     run_config["reward_config"].update({
         # with parallel config
@@ -243,7 +255,9 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
     reward_config = run_config["reward_config"]
     run_config["learning_config"]["rewards_computer"] = physo.physym.reward.make_RewardsComputer(**reward_config)
 
-    # Number of epochs
+    # ------------------------------- EPOCHS -------------------------------
+
+    # Number of epochs (using epochs args in run_config if it was given).
     if epochs is not None:
         run_config["learning_config"]["n_epochs"] = epochs
 
