@@ -146,7 +146,8 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
 
     # --- class_free_consts_units ---
     if class_free_consts_units is None:
-        warnings.warn("No units given for free constants, assuming dimensionless units.")
+        if n_class_free_consts > 0:
+            warnings.warn("No units given for class free constants, assuming dimensionless units.")
         class_free_consts_units = [[0,0,0] for _ in range(n_class_free_consts)]
     class_free_consts_units = np.array(class_free_consts_units).astype(float)
     assert class_free_consts_units.shape[0] == n_class_free_consts, \
@@ -180,7 +181,8 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
 
     # --- spe_free_consts_units ---
     if spe_free_consts_units is None:
-        warnings.warn("No units given for free constants, assuming dimensionless units.")
+        if n_spe_free_consts > 0:
+            warnings.warn("No units given for spe free constants, assuming dimensionless units.")
         spe_free_consts_units = [[0,0,0] for _ in range(n_spe_free_consts)]
     spe_free_consts_units = np.array(spe_free_consts_units).astype(float)
     assert spe_free_consts_units.shape[0] == n_spe_free_consts, \
