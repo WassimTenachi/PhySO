@@ -134,7 +134,7 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
         n_class_free_consts = len(class_free_consts_units)
     else:
         n_class_free_consts = 0
-        warnings.warn("No information about free constants, not using any.")
+        warnings.warn("No information about class free constants, not using any.")
 
     # --- class_free_consts_names ---
     if class_free_consts_names is None:
