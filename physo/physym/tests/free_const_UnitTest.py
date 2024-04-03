@@ -16,7 +16,7 @@ from physo.physym import execute as Exec
 class FreeConstUtilsTest(unittest.TestCase):
 
     # Testing that LBFGS optimizer is working properly with torch
-    def test_lgbs_optimizer (self):
+    def test_lbfgs_optimizer (self):
 
         seed = 42
         np.random.seed(seed)
