@@ -108,7 +108,7 @@ class Token:
                  phy_units                 = None,
                  ):
         """
-        Note: __init___ accepts None for some parameters for ease of use which are then converted to the right value and
+        Note: __init__ accepts None for some parameters for ease of use which are then converted to the right value and
         type as attributes.
         Parameters
         ----------
