@@ -1112,6 +1112,82 @@ class PriorTest(unittest.TestCase):
 
         return None
 
+    def test_SymbolicPrior(self):
+
+        # LIBRARY CONFIG
+        args_make_tokens = {
+                        # operations
+                        "op_names"             : ["mul", "add", "sub", "div", "inv", "n2", "sqrt", "neg", "exp", "log", "sin", "cos"],
+                        "use_protected_ops"    : True,
+                        # input variables
+                        "input_var_ids"        : {"r" : 0         },
+                        "input_var_units"      : {"r" : [1, 0, 0] },
+                        # constants
+                        "constants"            : {"1" : 1.         },
+                        "constants_units"      : {"1" : [0, 0 , 0] },
+                        # free constants
+                        "free_constants"            : { "R"             , "E_t"              , "A"              , "c"             },
+                        "free_constants_units"      : { "R" : [1, 0, 0] , "E_t" : [2, -2, 0] , "A" : [2, -2, 0] , "c" : [0, 0, 0] },
+                           }
+
+        my_lib = Lib.Library(args_make_tokens = args_make_tokens,
+                             superparent_units = [2, -2, 0], superparent_name = "y")
+
+        # ------------------------- TEST PROGRAMS -------------------------
+        test_prog_str = ["add", "E_t", "mul", "A", "mul", "div", "R", "r", "log", "add", "1", "div", "r", "R"]
+        test_prog_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_prog_str])
+
+        target_prog_str = ["add", "E_t", "mul", "A", "mul", "div", "R", "r", "log", "add", "1", "div", "-", "R"]
+        target_prog_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in target_prog_str])
+
+        max_time_step = len(target_prog_str) + 10 # Extra steps to check behavior outside target
+        batch_size    = 128
+
+        # ------------------------- TEST & EXPECTED VS OBSERVED -------------------------
+
+        # Initializing programs & prior
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+        my_prior    = Prior.SymbolicPrior(library=my_lib, programs=my_programs, expression=target_prog_str)
+
+        target_prog_idx_padded = np.array(target_prog_idx.tolist() + [my_lib.invalid_idx,] * (max_time_step - len(target_prog_str)))
+        self.assertTrue(np.array_equal(my_prior.expression,
+                                       # Expecting expression to have been padded with invalid tokens
+                                       target_prog_idx_padded))
+
+        # Appending tokens
+        mask_prob = my_prior()
+
+        for i in range (max_time_step):
+            mask_prob = my_prior()
+
+            # In cases where we are inside range of target program
+            if i < len(target_prog_str):
+                # In cases where token is not invalid
+                if target_prog_idx[i] != my_lib.invalid_idx:
+                    favored_tokens = np.tile(my_lib.lib_choosable_name, (batch_size, 1))[mask_prob.astype(bool)]
+                    # Asserting that all favored tokens are the same
+                    self.assertTrue(np.unique(favored_tokens).shape[0] == 1)
+                    favored_token = favored_tokens[0]
+                    # Asserting that favored token is the same as the target token
+                    self.assertTrue(favored_token == target_prog_str[i])
+                # In cases where token is invalid
+                if target_prog_idx[i] == my_lib.invalid_idx:
+                    # Asserting that all tokens are choosable
+                    self.assertTrue(np.all(mask_prob == True))
+            # In cases where we are outside range of target program
+            else:
+                # Asserting that all tokens are choosable
+                self.assertTrue(np.all(mask_prob == True))
+
+            if i < len(test_prog_idx):
+                next_tokens_idx = np.full( (batch_size,), test_prog_idx[i] )                        # (batch_size,)
+            else:
+                next_tokens_idx = np.random.randint(low=0, high=my_lib.n_choices, size=batch_size)  # (batch_size,)
+
+            my_programs.append(next_tokens_idx)
+
+        return None
+
     # Test prior collection using (UniformArityPrior, HardLengthPrior)
     def test_PriorCollection(self):
 

@@ -636,6 +636,65 @@ class OccurrencesPrior (Prior):
     def __repr__(self):
         return "OccurrencesPrior (tokens %s can be used %s times max)"%(self.targets_str, self.max)
 
+class SymbolicPrior (Prior):
+    """
+    Enforces that programs must be exactly like [expression].
+    """
+    def __init__(self, library, programs, expression):
+        """
+        Parameters
+        ----------
+        library : library.Library
+        programs : vect_programs.VectPrograms
+        expression : list of str
+            List of tokens to enforce. expression may contain library.invalid.name (ie. Tok.INVALID_TOKEN_NAME) in which
+            case all tokens are allowed. All tokens are allowed after the last token in expression.
+        """
+
+        # -------- ARGUMENTS ASSERTIONS --------
+        expression = np.array(expression)
+        err_msg = "Argument expression should be a list of strings."
+        assert len(expression.shape) == 1 and expression.dtype.char == "U", err_msg
+        err_msg = "Some tokens given in argument expression: %s are not in the library of tokens: %s" \
+                  % (expression, library.lib_name)
+        assert np.isin(expression, library.lib_name).all(), err_msg
+        err_msg = "Argument expression is longer than the maximum number of steps allowed by programs.(%i > %i)" \
+                    % (len(expression), programs.max_time_step)
+        assert len(expression) <= programs.max_time_step, err_msg
+
+
+        # -------- ARGUMENTS HANDLING --------
+
+        Prior.__init__(self, library, programs)
+
+        # Padding expression with library.invalid.name up to max_time_step
+        expression = np.pad(expression, pad_width=(0, programs.max_time_step - len(expression)), constant_values=library.invalid.name) # (max_time_step,)
+        self.expression_str = expression                                                                         # (max_time_step,)
+        self.expression     = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in self.expression_str]) # (max_time_step,)
+
+        # -------- BUILDING REF MASK --------
+
+        # Where normal tokens, only these tokens are allowed
+        # (this line also zeroes out the invalid tokens, this is corrected in next line)
+        step_mask = np.equal.outer(self.expression, np.arange(self.lib.n_choices))                               # (max_time_step, n_choices,)
+        # Where library.invalid.name allow all tokens
+        step_mask[self.expression == self.lib.invalid_idx] = 1                                                   # (n_invalid_in_expression, n_choices,)
+        # Step mask giving one hot prior for each step
+        self.step_mask = step_mask.astype(float)                                                                 # (max_time_step, n_choices,)
+
+        return None
+
+
+
+    def __call__(self):
+        # mask : for each prog in batch, for each token in choosable tokens, is token allowed
+        # Here the mask is the same for all progs in batch
+        mask_prob = np.tile(self.step_mask[self.progs.curr_step], (self.progs.batch_size,1))                    # (batch_size, n_choices,)
+        return mask_prob
+
+    def __repr__(self):
+        return "SymbolicPrior (programs must be like %s)"%(self.expression_str)
+
 class PhysicalUnitsPrior(Prior):
     """
     Enforces that next token should be physically consistent units-wise with current program based on current units
@@ -745,6 +804,7 @@ PRIORS_W_ARGS = {
     "NestedTrigonometryPrior"     : NestedTrigonometryPrior,
     "OccurrencesPrior"            : OccurrencesPrior,
     "PhysicalUnitsPrior"          : PhysicalUnitsPrior,
+    "SymbolicPrior"               : SymbolicPrior,
 }
 
 # All priors
