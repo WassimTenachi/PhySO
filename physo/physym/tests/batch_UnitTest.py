@@ -343,8 +343,8 @@ class BatchTest(unittest.TestCase):
     def test_dummy_epoch_spe_free_consts_mdho2d(self):
 
         DEVICE = 'cpu'
-        if torch.cuda.is_available():
-            DEVICE = 'cuda'
+        #if torch.cuda.is_available():
+        #    DEVICE = 'cuda'
 
         # -------------------------------------- Making fake datasets --------------------------------------
 
