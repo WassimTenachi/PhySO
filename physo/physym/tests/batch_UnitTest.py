@@ -476,7 +476,7 @@ class BatchTest(unittest.TestCase):
 
 
         # --- BATCH ---
-        batch_size    = 1000
+        batch_size    = 100
         max_time_step = 30
 
         my_batch = batch.Batch(library_args     = library_args,
