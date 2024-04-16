@@ -434,7 +434,7 @@ class Program:
             Value to replace NaNs with in free constants values.
         Returns
         -------
-        program_sympy : sympy.core or array of shae (n_realizations,) of sympy.core
+        program_sympy : sympy.core or array of shape (n_realizations,) of sympy.core
             Sympy symbolic function. It is possible to run program_sympy.evalf(subs={'x': 2.4}) where 'x' is a variable
             appearing in the program to evaluate the function with x = 2.4.
             Returns an array of sympy.core if evaluate_consts is True (one for each realization as spe consts have
