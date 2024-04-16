@@ -523,6 +523,21 @@ class FeynmanProblem:
             y = y.astype(float)
         return y
 
+    def get_prefix_expression (self):
+        """
+        Gets the prefix expression of the formula.
+        Returns
+        -------
+        dict :
+            tokens_str : numpy.array of str
+                List of tokens in the expression.
+            arities : numpy.array of int
+                List of arities of the tokens.
+            tokens : numpy.array of sympy.core
+                List of sympy tokens.
+        """
+        return su.sympy_to_prefix(self.formula_sympy)
+
     def __str__(self):
         return "FeynmanProblem : %s : %s\n%s"%(self.eq_filename, self.eq_name, str(self.formula_sympy))
 
