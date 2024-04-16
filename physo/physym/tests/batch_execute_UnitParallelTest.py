@@ -1272,7 +1272,8 @@ class ExecuteProgramTest(unittest.TestCase):
             X = np.stack((x1,x2),axis=0)
             X = torch.tensor(X).to(DEVICE)
             multi_X.append(X)
-        multi_X = multi_X*10                         # (n_realizations,) of (n_dim, [n_samples depends on dataset],)
+        n_real_multi = 10
+        multi_X = multi_X*n_real_multi                         # (n_realizations,) of (n_dim, [n_samples depends on dataset],)
 
         n_samples_per_dataset = np.array([X.shape[1] for X in multi_X])
         n_all_samples = n_samples_per_dataset.sum()
@@ -1307,7 +1308,7 @@ class ExecuteProgramTest(unittest.TestCase):
             return list(torch.split(flattened_data, n_samples_per_dataset.tolist(), dim=-1)) # (n_realizations,) of (..., [n_samples depends on dataset],)
 
         #y_weights_per_dataset = np.array([0, 0.001, 1.0]*10) # Shows weights work
-        y_weights_per_dataset = torch.tensor(np.array([1., 1., 1.]*10))
+        y_weights_per_dataset = torch.tensor(np.array([1., 1., 1.]*n_real_multi))
         multi_y_weights = [torch.full(size=(n_samples_per_dataset[i],), fill_value=y_weights_per_dataset[i]) for i in range (n_realizations)]
         y_weights_flatten = flatten_multi_data(multi_y_weights)
 
@@ -1340,7 +1341,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # k0 * exp(-k1 * t) * cos(c0 * t + k2) + c1 * l
         # "add", "mul", "mul", "k0", "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l"
 
-        k0_init = [1.,1.,1.]*10 # np.full(n_realizations, 1.)
+        k0_init = [1.,1.,1.]*n_real_multi # np.full(n_realizations, 1.)
         # consts
         pi     = torch.tensor (np.pi) .to(DEVICE)
         const1 = torch.tensor (1.)    .to(DEVICE)
