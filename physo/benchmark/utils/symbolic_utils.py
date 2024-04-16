@@ -349,3 +349,52 @@ def expression_size(expr):
         c += 1
     return c
 
+def sympy_to_prefix(sympy_expr):
+    """
+    Converts a sympy expression to prefix notation.
+    Parameters
+    ----------
+    sympy_expr : sympy.core
+        Sympy expression
+    Returns
+    -------
+    dict :
+        tokens_str : numpy.array of str
+            List of tokens in the expression.
+        arities : numpy.array of int
+            List of arities of the tokens.
+        tokens : numpy.array of sympy.core
+            List of sympy tokens.
+    Usage
+    -----
+    sympy_expr = sympy.parse_expr("sqrt(x0+2)")
+    tokens_str = sympy_to_prefix(sympy_expr)["tokens_str"]
+    """
+    arities    = []
+    tokens     = []
+    tokens_str = []
+    for symb in sympy.preorder_traversal(sympy_expr):
+        # Arity
+        arity = len(symb.args)
+        # Token analysis
+        if arity != 0:
+            tok     = symb.func
+            tok_str = symb.func.__name__
+        if arity == 0:
+            # If this is a variable that has no particular value
+            if symb.is_Symbol:
+                tok     = symb
+                tok_str = symb.__str__()
+            # If this is a constant
+            else:
+                tok     = symb
+                tok_str = str(symb.evalf())
+        arities    .append(arity)
+        tokens_str .append(tok_str)
+        tokens     .append(tok)
+    res = {
+        "tokens_str": np.array(tokens_str),
+        "arities"   : np.array(arities   ),
+        "tokens"    : np.array(tokens    ),
+    }
+    return res
