@@ -371,7 +371,7 @@ class ExecuteProgramTest(unittest.TestCase):
     #     return None
 
     # Test parallelized execution + gathering of reduced floats
-    def test_A_ParallelizedExeReduceGather (self):
+    def test_0_A_ParallelizedExeReduceGather (self):
 
         # Testing everything on CPU. If user has CUDA and wants to use CPU parallel mode, it is their responsibility to
         # send the dataset to the proper device.
@@ -529,7 +529,7 @@ class ExecuteProgramTest(unittest.TestCase):
         return None
 
     # Test parallelized execution + gathering of reduced reward floats
-    def test_B_ParallelizedExeReward (self):
+    def test_0_B_ParallelizedExeReward (self):
 
         # Testing everything on CPU. If user has CUDA and wants to use CPU parallel mode, it is their responsibility to
         # send the dataset to the proper device.
@@ -691,7 +691,7 @@ class ExecuteProgramTest(unittest.TestCase):
         return None
 
     # Test parallelized execution of free constant optimization
-    def test_C_ParallelizedExeFreeConstants (self):
+    def test_0_C_ParallelizedExeFreeConstants (self):
 
         seed = 42
         np.random.seed(seed)
@@ -875,7 +875,7 @@ class ExecuteProgramTest(unittest.TestCase):
         return None
 
     # Test parallelized execution + gathering of reduced floats
-    def test_A_ParallelizedExeReduceGather_with_spe_consts (self):
+    def test_1_A_ParallelizedExeReduceGather_with_spe_consts (self):
 
         # Testing everything on CPU. If user has CUDA and wants to use CPU parallel mode, it is their responsibility to
         # send the dataset to the proper device.
@@ -1113,7 +1113,7 @@ class ExecuteProgramTest(unittest.TestCase):
         return None
 
     # Test parallelized execution + gathering of reduced reward floats
-    def test_B_ParallelizedExeReward_with_spe_consts (self):
+    def test_1_B_ParallelizedExeReward_with_spe_consts (self):
 
         # Testing everything on CPU. If user has CUDA and wants to use CPU parallel mode, it is their responsibility to
         # send the dataset to the proper device.
@@ -1356,7 +1356,7 @@ class ExecuteProgramTest(unittest.TestCase):
         return None
 
     # Test parallelized execution of free constant optimization
-    def test_C_ParallelizedExeFreeConstants_with_spe_consts (self):
+    def test_1_C_ParallelizedExeFreeConstants_with_spe_consts (self):
 
         seed = 42
         np.random.seed(seed)
