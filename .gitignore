@@ -9,7 +9,9 @@ demos/**/*.csv
 demos/**/*.pkl
 demos/**/*.pdf
 physo/physym/tests/**/*.png
+physo/physym/tests/**/*.csv
 benchmarking/FeynmanBenchmark/FR*
 benchmarking/FeynmanBenchmark/feynman_efficiency_curves.png
 docs/build/*
 .coverage
+

@@ -1,9 +1,12 @@
 import unittest
+import platform
 import numpy as np
 import time as time
+import pandas as pd
 import torch as torch
 import torch.multiprocessing as mp
 import matplotlib.pyplot as plt
+import os
 
 # Internal imports
 import physo.physym.reward
@@ -33,6 +36,15 @@ def TEST_REDUCE_WRAPPER(y):
 BOOL_DO_TEST_VIA_VECTPROGRAMS = False
 # Should the testing figures be saved ?
 DO_SAVE_FIGS = True
+
+# System info for logging
+system_info = {
+    "cpu_model"       : platform.processor(),
+    "torch_version"   : torch.__version__,
+    "python_version"  : platform.python_version(),
+    "os_type"         : platform.system(),
+    "mp_start_method" : mp.get_start_method(),
+    }
 
 class ExecuteProgramTest(unittest.TestCase):
 
@@ -491,8 +503,25 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+
+        # Logging
+        log_times = times      .tolist() + [not_parallelized_time,]
+        log_ncpus = ncpus_list .tolist() + ["np",]
+        df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        # adding system info to each line
+        for key in system_info.keys():
+            df[key] = system_info[key]
+
+        name = "perf_A_ParallelizedExeReduceGather"
+
         if DO_SAVE_FIGS:
-            fig.savefig("perf_A_ParallelizedExeReduceGather.png")
+            fig.savefig(name + ".png")
+            # If the file already exists, append to it
+            if os.path.isfile(name + ".csv"):
+                df.to_csv(name + ".csv", mode='a', header=False)
+            else:
+                df.to_csv(name + ".csv")
+
         plt.show()
 
         return None
@@ -710,8 +739,25 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+
+        # Logging
+        log_times = times      .tolist() + [not_parallelized_time,]
+        log_ncpus = ncpus_list .tolist() + ["np",]
+        df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        # adding system info to each line
+        for key in system_info.keys():
+            df[key] = system_info[key]
+
+        name = "perf_A_ParallelizedExeReduceGather_with_spe_consts"
+
         if DO_SAVE_FIGS:
-            fig.savefig("perf_A_ParallelizedExeReduceGather_with_spe_consts.png")
+            fig.savefig(name + ".png")
+            # If the file already exists, append to it
+            if os.path.isfile(name + ".csv"):
+                df.to_csv(name + ".csv", mode='a', header=False)
+            else:
+                df.to_csv(name + ".csv")
+
         plt.show()
 
         return None
@@ -854,8 +900,25 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+
+        # Logging
+        log_times = times      .tolist() + [not_parallelized_time,]
+        log_ncpus = ncpus_list .tolist() + ["np",]
+        df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        # adding system info to each line
+        for key in system_info.keys():
+            df[key] = system_info[key]
+
+        name = "perf_B_ParallelizedExeReward"
+
         if DO_SAVE_FIGS:
-            fig.savefig("perf_B_ParallelizedExeReward.png")
+            fig.savefig(name + ".png")
+            # If the file already exists, append to it
+            if os.path.isfile(name + ".csv"):
+                df.to_csv(name + ".csv", mode='a', header=False)
+            else:
+                df.to_csv(name + ".csv")
+
         plt.show()
 
         return None
@@ -1079,8 +1142,25 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+
+        # Logging
+        log_times = times      .tolist() + [not_parallelized_time,]
+        log_ncpus = ncpus_list .tolist() + ["np",]
+        df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        # adding system info to each line
+        for key in system_info.keys():
+            df[key] = system_info[key]
+
+        name = "perf_B_ParallelizedExeReward_with_spe_consts"
+
         if DO_SAVE_FIGS:
-            fig.savefig("perf_B_ParallelizedExeReward_with_spe_consts.png")
+            fig.savefig(name + ".png")
+            # If the file already exists, append to it
+            if os.path.isfile(name + ".csv"):
+                df.to_csv(name + ".csv", mode='a', header=False)
+            else:
+                df.to_csv(name + ".csv")
+
         plt.show()
 
         return None
@@ -1244,8 +1324,25 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+
+        # Logging
+        log_times = times      .tolist() + [not_parallelized_time,]
+        log_ncpus = ncpus_list .tolist() + ["np",]
+        df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        # adding system info to each line
+        for key in system_info.keys():
+            df[key] = system_info[key]
+
+        name = "perf_C_ParallelizedExeFreeConstants"
+
         if DO_SAVE_FIGS:
-            fig.savefig("perf_C_ParallelizedExeFreeConstants.png")
+            fig.savefig(name + ".png")
+            # If the file already exists, append to it
+            if os.path.isfile(name + ".csv"):
+                df.to_csv(name + ".csv", mode='a', header=False)
+            else:
+                df.to_csv(name + ".csv")
+
         plt.show()
 
         return None
@@ -1495,8 +1592,25 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.set_xlabel("Nb. of CPUs")
         ax.set_ylabel("time [ms]")
         ax.legend()
+
+        # Logging
+        log_times = times      .tolist() + [not_parallelized_time,]
+        log_ncpus = ncpus_list .tolist() + ["np",]
+        df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        # adding system info to each line
+        for key in system_info.keys():
+            df[key] = system_info[key]
+
+        name = "perf_C_ParallelizedExeFreeConstants_with_spe_consts"
+
         if DO_SAVE_FIGS:
-            fig.savefig("perf_C_ParallelizedExeFreeConstants_with_spe_consts.png")
+            fig.savefig(name + ".png")
+            # If the file already exists, append to it
+            if os.path.isfile(name + ".csv"):
+                df.to_csv(name + ".csv", mode='a', header=False)
+            else:
+                df.to_csv(name + ".csv")
+
         plt.show()
 
         return None
