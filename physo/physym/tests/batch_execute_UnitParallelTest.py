@@ -505,9 +505,11 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.legend()
 
         # Logging
+        is_parallel_effective = (np.min(times) < not_parallelized_time)
         log_times = times      .tolist() + [not_parallelized_time,]
         log_ncpus = ncpus_list .tolist() + ["np",]
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
         for key in system_info.keys():
             df[key] = system_info[key]
@@ -665,9 +667,11 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.legend()
 
         # Logging
+        is_parallel_effective = (np.min(times) < not_parallelized_time)
         log_times = times      .tolist() + [not_parallelized_time,]
         log_ncpus = ncpus_list .tolist() + ["np",]
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
         for key in system_info.keys():
             df[key] = system_info[key]
@@ -847,9 +851,11 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.legend()
 
         # Logging
+        is_parallel_effective = (np.min(times) < not_parallelized_time)
         log_times = times      .tolist() + [not_parallelized_time,]
         log_ncpus = ncpus_list .tolist() + ["np",]
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
         for key in system_info.keys():
             df[key] = system_info[key]
@@ -1083,9 +1089,11 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.legend()
 
         # Logging
+        is_parallel_effective = (np.min(times) < not_parallelized_time)
         log_times = times      .tolist() + [not_parallelized_time,]
         log_ncpus = ncpus_list .tolist() + ["np",]
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
         for key in system_info.keys():
             df[key] = system_info[key]
@@ -1324,9 +1332,11 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.legend()
 
         # Logging
+        is_parallel_effective = (np.min(times) < not_parallelized_time)
         log_times = times      .tolist() + [not_parallelized_time,]
         log_ncpus = ncpus_list .tolist() + ["np",]
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
         for key in system_info.keys():
             df[key] = system_info[key]
@@ -1592,9 +1602,11 @@ class ExecuteProgramTest(unittest.TestCase):
         ax.legend()
 
         # Logging
+        is_parallel_effective = (np.min(times) < not_parallelized_time)
         log_times = times      .tolist() + [not_parallelized_time,]
         log_ncpus = ncpus_list .tolist() + ["np",]
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
+        df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
         for key in system_info.keys():
             df[key] = system_info[key]
