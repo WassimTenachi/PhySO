@@ -7,6 +7,8 @@ import torch as torch
 import torch.multiprocessing as mp
 import matplotlib.pyplot as plt
 import os
+import importlib.util
+
 
 # Internal imports
 import physo.physym.reward
@@ -37,14 +39,17 @@ BOOL_DO_TEST_VIA_VECTPROGRAMS = False
 # Should the testing figures be saved ?
 DO_SAVE_FIGS = True
 
-# System info for logging
-system_info = {
-    "cpu_model"       : platform.processor(),
-    "torch_version"   : torch.__version__,
-    "python_version"  : platform.python_version(),
-    "os_type"         : platform.system(),
-    "mp_start_method" : mp.get_start_method(),
+# System info for logging (using a function to get up-to-date get_start_method)
+def get_system_info():
+    system_info = {
+        "mp_start_method" : mp.get_start_method(),
+        "physo_installed" : False if importlib.util.find_spec("physo") is None else True,
+        "torch_version"   : torch.__version__,
+        "python_version"  : platform.python_version(),
+        "os_type"         : platform.system(),
+        "cpu_model"       : platform.processor(),
     }
+    return system_info
 
 class ExecuteProgramTest(unittest.TestCase):
 
@@ -511,6 +516,7 @@ class ExecuteProgramTest(unittest.TestCase):
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
         df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
+        system_info = get_system_info()
         for key in system_info.keys():
             df[key] = system_info[key]
 
@@ -673,6 +679,7 @@ class ExecuteProgramTest(unittest.TestCase):
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
         df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
+        system_info = get_system_info()
         for key in system_info.keys():
             df[key] = system_info[key]
 
@@ -857,6 +864,7 @@ class ExecuteProgramTest(unittest.TestCase):
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
         df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
+        system_info = get_system_info()
         for key in system_info.keys():
             df[key] = system_info[key]
 
@@ -1095,6 +1103,7 @@ class ExecuteProgramTest(unittest.TestCase):
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
         df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
+        system_info = get_system_info()
         for key in system_info.keys():
             df[key] = system_info[key]
 
@@ -1338,6 +1347,7 @@ class ExecuteProgramTest(unittest.TestCase):
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
         df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
+        system_info = get_system_info()
         for key in system_info.keys():
             df[key] = system_info[key]
 
@@ -1608,6 +1618,7 @@ class ExecuteProgramTest(unittest.TestCase):
         df = pd.DataFrame({"ncpus": log_ncpus, "time [ms]": log_times})
         df["parallel_effective"] = is_parallel_effective
         # adding system info to each line
+        system_info = get_system_info()
         for key in system_info.keys():
             df[key] = system_info[key]
 
