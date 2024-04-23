@@ -42,10 +42,9 @@ def ParallelExeAvailability(verbose=False):
     """
 
     # Gathering info
-    is_notebook = IsNotebook()
+    is_notebook       = IsNotebook()
     is_cuda_available = torch.cuda.is_available()
-    mp_start_method = mp.get_start_method()  # Fork or Spawn ? # mp.get_context("fork").Pool(processes=n_cpus)
-    max_ncpus = mp.cpu_count() # Nb. of CPUs available
+    max_ncpus         = mp.cpu_count() # Nb. of CPUs available
 
     # Typically MACs / Windows systems return spawn and LINUX systems return fork. Empirical results:
     # Linux / Intel -> fork
