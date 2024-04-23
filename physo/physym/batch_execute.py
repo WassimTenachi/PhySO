@@ -56,8 +56,14 @@ def ParallelExeAvailability(verbose=False):
     # Is parallel mode available or not
     parallel_mode = True
 
-    # spawn (MAC/Windows) + notebook causes issues
-    if mp_start_method == "spawn" and is_notebook:
+    # Enforcing the use of spawn start method
+    # This is necessary because:
+    # 1. fork + physo installed in env     -> parallel mode is always inefficient (for both SR and class SR)
+    # 2. fork + physo not installed in env -> parallel mode is efficient for SR but does NOT RUN for class SR
+    mp.set_start_method("spawn", force=True)
+
+    # spawn + notebook causes issues
+    if mp.get_start_method() == "spawn" and is_notebook:
         parallel_mode = False
         msg = "Parallel mode is not available because physo is being ran from a notebook on a system returning " \
               "multiprocessing.get_start_method() = 'spawn' (typically MACs/Windows). Run physo from the terminal to " \
