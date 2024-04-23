@@ -89,7 +89,7 @@ def ParallelExeAvailability(verbose=False):
 
     # Report
     if verbose:
-        print("\ndefault get_start_method :", mp_start_method)
+        print("\nMultiprocessing start method :", mp.get_start_method())
         print("Running from notebook :", is_notebook)
         print("Is CUDA available :", is_cuda_available)  # OK if dataset on CPU
         print("Total nb. of CPUs : ", max_ncpus)
