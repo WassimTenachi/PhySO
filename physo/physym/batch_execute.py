@@ -172,6 +172,7 @@ def BatchExecution (progs, X,
     if parallel_mode:
         # Opening a pull of processes
         # pool = mp.get_context("fork").Pool(processes=n_cpus)
+        # mp.set_start_method("spawn", force=True)
         pool = mp.Pool(processes=n_cpus)
         results = []
         for i in range(progs.batch_size):
@@ -280,6 +281,7 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper,
     if parallel_mode:
         # Opening a pull of processes
         # pool = mp.get_context("fork").Pool(processes=n_cpus)
+        # mp.set_start_method("spawn", force=True)
         pool = mp.Pool(processes=n_cpus)
         results = []
         for i in range(progs.batch_size):
@@ -393,6 +395,7 @@ def BatchExecutionReward (progs, X, y_target, reward_function, y_weights = 1.,
     if parallel_mode:
         # Opening a pull of processes
         # pool = mp.get_context("fork").Pool(processes=n_cpus)
+        # mp.set_start_method("spawn", force=True)
         pool = mp.Pool(processes=n_cpus)
         results = []
         for i in range(progs.batch_size):
@@ -496,6 +499,7 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args=None, y_weights
     if parallel_mode:
         # Opening a pull of processes
         # pool = mp.get_context("fork").Pool(processes=n_cpus)
+        # mp.set_start_method("spawn", force=True)
         pool = mp.Pool(processes=n_cpus)
         for i in range(progs.batch_size):
             # Optimizing free constants of programs where mask is True and only if it actually contains free constants
