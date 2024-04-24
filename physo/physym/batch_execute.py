@@ -7,6 +7,10 @@ import torch.multiprocessing as mp
 from tqdm import tqdm
 SHOW_PROGRESS_BAR = False
 
+# Enforcing the use of spawn start method at file import
+def EnforceStartMethod():
+    mp.set_start_method("spawn", force=True)
+EnforceStartMethod()
 
 # ------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------ PARALLEL EXECUTION DIAGNOSIS ------------------------------------------
@@ -60,7 +64,8 @@ def ParallelExeAvailability(verbose=False):
     # This is necessary because:
     # 1. fork + physo installed in env     -> parallel mode is always inefficient (for both SR and class SR)
     # 2. fork + physo not installed in env -> parallel mode is efficient for SR but does NOT RUN for class SR
-    mp.set_start_method("spawn", force=True)
+    # Now done in -> EnforceStartMethod()
+
 
     # spawn + notebook causes issues
     if mp.get_start_method() == "spawn" and is_notebook:
