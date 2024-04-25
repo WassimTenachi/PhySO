@@ -7,9 +7,12 @@ import torch.multiprocessing as mp
 from tqdm import tqdm
 SHOW_PROGRESS_BAR = False
 
-# Enforcing start method at file import seems to slow down spawning of processes
 def EnforceStartMethod():
     mp.set_start_method("spawn", force=True)
+
+# Enforcing the use of spawn start method as soon as this file is imported
+if __name__ == '__main__':
+    EnforceStartMethod()
 
 # ------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------ PARALLEL EXECUTION DIAGNOSIS ------------------------------------------
@@ -63,7 +66,8 @@ def ParallelExeAvailability(verbose=False):
     # This is necessary because:
     # 1. fork + physo installed in env     -> parallel mode is always inefficient (for both SR and class SR)
     # 2. fork + physo not installed in env -> parallel mode is efficient for SR but does NOT RUN for class SR
-    EnforceStartMethod()
+    # EnforceStartMethod() # mp.set_start_method("spawn", force=True)
+    # Done at file import
 
     # spawn + notebook causes issues
     if mp.get_start_method() == "spawn" and is_notebook:
