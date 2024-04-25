@@ -13,6 +13,11 @@ from physo.physym import vect_programs as VProg
 # Local imports
 import feynman_config as fconfig
 
+# ------------------------------------------- EFFICIENCY CURVE ---------------------------------------------------------
+# This script is used to generate a parallelization efficiency curve for the free constant optimization task with
+# the setup defined in feynman_config.py.
+# ----------------------------------------------------------------------------------------------------------------------
+
 BATCH_SIZE = fconfig.CONFIG["learning_config"]["batch_size"]
 N_SAMPLES  = fconfig.N_SAMPLES
 N_FREE_CONST_STEPS = fconfig.CONFIG["free_const_opti_args"]["method_args"]["n_steps"]
