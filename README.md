@@ -78,9 +78,9 @@ In addition, latex should be installed on the system.
 
 ### Installing PhySO
 
-Installing `physo` (from the repository root):
+Installing `physo` to the environment (from the repository root):
 ```
-pip install -e .
+python -m pip install -e .
 ```
 
 ### Testing install
