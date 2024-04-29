@@ -10,11 +10,11 @@ SHOW_PROGRESS_BAR = False
 def EnforceStartMethod():
     # Only enforce the use of spawn start method if not already spawn
     if mp.get_start_method() != "spawn":
+        print("Enforcing spawn multiprocessing start method.")
         mp.set_start_method("spawn", force=True)
 
 # Enforcing the use of spawn start method as soon as this file is imported
-if __name__ == '__main__':
-    EnforceStartMethod()
+EnforceStartMethod()
 
 # ------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------ PARALLEL EXECUTION DIAGNOSIS ------------------------------------------
