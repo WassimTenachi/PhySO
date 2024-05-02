@@ -74,7 +74,7 @@ def ParallelExeAvailability(verbose=False):
     # spawn + notebook causes issues
     if mp.get_start_method() == "spawn" and is_notebook:
         parallel_mode = False
-        msg = "Parallel mode is not available because physo is being ran from a notebook on a system using 'spawn' " \
+        msg = "Parallel mode is not available because physo is being ran from a notebook using 'spawn' " \
               "multiprocessing start method (multiprocessing.get_start_method() = 'spawn'). Run physo from the " \
               "terminal to use parallel mode."
         print(msg)
