@@ -18,7 +18,7 @@ commands = []
 for noise in NOISE_LEVELS:
     for frac_real in FRAC_REALIZATIONS:
         for i_trial in range(N_TRIALS):
-            command = "MW_streams_run.py --trial %i --noise %f --frac_real %f"%(i_trial, noise, frac_real)
+            command = "python MW_streams_run.py --trial %i --noise %f --frac_real %f"%(i_trial, noise, frac_real)
             commands.append(command)
 
 bu.make_jobfile_from_command_list(PATH_OUT_JOBFILE, commands)
