@@ -14,9 +14,8 @@ import pandas as pd
 import os
 import argparse
 # Plotting
-import matplotlib.pyplot as plt
 import matplotlib as mpl
-import mpl_toolkits.mplot3d.art3d as art3d
+import matplotlib.pyplot as plt
 # Internal code import
 import physo
 import physo.learn.monitoring as monitoring
@@ -107,7 +106,7 @@ n_streams = len(stream_dfs)
 
 # In[ ]:
 
-
+mpl.rcParams.update(mpl.rcParamsDefault) # Avoids latex missing on HPC
 fig, ax = plt.subplots(1,1, figsize=(10,8))
 
 curr_ax = ax
@@ -125,8 +124,8 @@ curr_ax.set_xticks(ticks=[0,25,50,75,100,125])
 curr_ax.set_xlim(0., 130.)
 curr_ax.set_ylim(0., 0.9*1e5)
 
-curr_ax.set_xlabel(r"${\rm r}$ [${\rm kpc}$]")
-curr_ax.set_ylabel(r"${\rm E}_{\rm kin}$ [$\times 10^5\ {\rm km}^{2}.{\rm s}^{-2}$]")
+#curr_ax.set_xlabel(r"${\rm r}$ [${\rm kpc}$]")
+#curr_ax.set_ylabel(r"${\rm E}_{\rm kin}$ [$\times 10^5\ {\rm km}^{2}.{\rm s}^{-2}$]")
 fig.suptitle("n_realizations : %i"%(n_streams))
 fig.savefig("streams.png")
 
@@ -184,7 +183,7 @@ for i in range(len(multi_X)):
 
 # In[ ]:
 
-
+mpl.rcParams.update(mpl.rcParamsDefault) # Avoids latex missing on HPC
 fig, ax = plt.subplots(1,1, figsize=(10,8))
 
 curr_ax = ax
@@ -196,8 +195,8 @@ for i in range(len(multi_X)):
 curr_ax.set_xlim(0., 130./20.0)
 curr_ax.set_ylim(0., 0.9*1e5/(200.0**2))
 
-curr_ax.set_xlabel(r"${\rm r}$ [$\times 20\ {\rm kpc}$]")
-curr_ax.set_ylabel(r"${\rm E}_{\rm kin}$ [$\times 4.10^9\ {\rm km}^{2}.{\rm s}^{-2}$]")
+#curr_ax.set_xlabel(r"${\rm r}$ [$\times 20\ {\rm kpc}$]")
+#curr_ax.set_ylabel(r"${\rm E}_{\rm kin}$ [$\times 4.10^9\ {\rm km}^{2}.{\rm s}^{-2}$]")
 fig.suptitle("n_realizations : %i"%(len(multi_X)))
 fig.savefig(PATH_DATA_PLOT)
 
