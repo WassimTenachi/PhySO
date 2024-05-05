@@ -62,7 +62,7 @@ N_CPUS        = int(config["ncpus"])
 
 
 # Paths
-RUN_NAME       = "StreamsSR_%i_%i_%i_%f"%(0, N_TRIAL, NOISE_LEVEL, FRAC_REALIZATION)
+RUN_NAME       = "StreamsSR_%i_%i_%f_%f"%(0, N_TRIAL, NOISE_LEVEL, FRAC_REALIZATION)
 PATH_DATA      = "%s_data.csv"%(RUN_NAME) # PATH WHERE TO SAVE RUN DATA BACKUP
 PATH_DATA_PLOT = "%s_data.png"%(RUN_NAME) # PATH WHERE TO SAVE RUN DATA BACKUP PLOT
 
