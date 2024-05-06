@@ -51,6 +51,14 @@ FRAC_REALIZATION = float(config["frac_real"])
 # Parallel config
 PARALLEL_MODE = bool(config["parallel_mode"])
 N_CPUS        = int(config["ncpus"])
+
+print("Run config :")
+print("Trial number : %i"%(N_TRIAL))
+print("Noise level  : %f"%(NOISE_LEVEL))
+print("Fraction of realizations to use : %f"%(FRAC_REALIZATION))
+print("Parallel mode : %s"%(PARALLEL_MODE))
+print("Nb. of CPUs   : %i"%(N_CPUS))
+
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
 
