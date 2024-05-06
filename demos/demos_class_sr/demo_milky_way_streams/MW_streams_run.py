@@ -247,7 +247,7 @@ run_config = physo.config.config1b.config1b
 
 PARALLEL_MODE     = PARALLEL_MODE
 N_CPUS            = N_CPUS
-MAX_N_EVALUATIONS = int(1e5) + 1
+MAX_N_EVALUATIONS = int(2*1e5) + 1
 # Allowed to search in an infinitely large search space, research will be stopped by MAX_N_EVALUATIONS
 N_EPOCHS          = int(1e99) 
 
