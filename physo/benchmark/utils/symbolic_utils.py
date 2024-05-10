@@ -315,6 +315,11 @@ def compare_expression (trial_expr,
         print('   -> Trigo symbolic fraction     :', trigo_sym_frac)
         print('   -> Equivalent :', is_equivalent)
 
+    try:
+        str_err = str(e)
+    except:
+        str_err = "Unknown error."
+
     # SRBench style report
     report = {
         'symbolic_error'                : str(vanilla_sym_err),
@@ -322,7 +327,7 @@ def compare_expression (trial_expr,
         'symbolic_error_is_zero'        : symbolic_error_is_zero,
         'symbolic_error_is_constant'    : symbolic_error_is_constant,
         'symbolic_fraction_is_constant' : symbolic_fraction_is_constant,
-        'sympy_exception'               : str(e),
+        'sympy_exception'               : str_err,
         'symbolic_solution'             : is_equivalent,
         }
 
