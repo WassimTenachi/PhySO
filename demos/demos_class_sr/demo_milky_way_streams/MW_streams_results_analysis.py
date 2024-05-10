@@ -154,92 +154,91 @@ for folder in folders:
         print("noise     : %f"%(noise))
         print("frac_real : %f"%(frac_real))
 
-        if i_trial == 2 and noise == 0.01 and frac_real == 1.0:
 
-            run_result = {}
+        run_result = {}
 
-            run_result.update(
-                {
-                    "i_trial"   : i_trial,
-                    "noise"     : noise,
-                    "frac_real" : frac_real,
-                }
-            )
+        run_result.update(
+            {
+                "i_trial"   : i_trial,
+                "noise"     : noise,
+                "frac_real" : frac_real,
+            }
+        )
 
-            # Pareto expressions pkl
-            path_pareto_pkl = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.pkl")
-            pareto_expressions = physo.load_pareto_pkl(path_pareto_pkl)
+        # Pareto expressions pkl
+        path_pareto_pkl = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.pkl")
+        pareto_expressions = physo.load_pareto_pkl(path_pareto_pkl)
 
-            # Pareto expressions df
-            path_pareto_csv = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.csv")
-            pareto_expressions_df = pd.read_csv(path_pareto_csv)
+        # Pareto expressions df
+        path_pareto_csv = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.csv")
+        pareto_expressions_df = pd.read_csv(path_pareto_csv)
 
-            run_result.update(
-                {
-                    "r2"     : pareto_expressions_df.iloc[-1]["r2"],
-                    "reward" : pareto_expressions_df.iloc[-1]["reward"],
-                }
-            )
+        run_result.update(
+            {
+                "r2"     : pareto_expressions_df.iloc[-1]["r2"],
+                "reward" : pareto_expressions_df.iloc[-1]["reward"],
+            }
+        )
 
-            # Run log
-            path_run_log = os.path.join(RESULTS_PATH, folder, "run_curves_data.csv")
-            run_log_df = pd.read_csv(path_run_log)
+        # Run log
+        path_run_log = os.path.join(RESULTS_PATH, folder, "run_curves_data.csv")
+        run_log_df = pd.read_csv(path_run_log)
 
-            n_evals = run_log_df["n_rewarded"].sum()
-            is_finished = n_evals >= 240_000 # 250k - batch size
-            run_result.update(
-                {
-                "n_evals"     : n_evals,
-                "is_finished" : is_finished,
-                }
-            )
+        n_evals = run_log_df["n_rewarded"].sum()
+        is_finished = n_evals >= 240_000 # 250k - batch size
+        run_result.update(
+            {
+            "n_evals"     : n_evals,
+            "is_finished" : is_finished,
+            }
+        )
 
-            # --------- Assessing symbolic equivalence ---------
+        # --------- Assessing symbolic equivalence ---------
 
-            # Last expression in pareto front
-            # (n_realizations,) size as there is one free const value set per realization
-            trial_expr = pareto_expressions[-1].get_infix_sympy(evaluate_consts=True)     # (n_realizations,)
-            # todo: whole pareto front
+        # Last expression in pareto front
+        # (n_realizations,) size as there is one free const value set per realization
+        trial_expr = pareto_expressions[-1].get_infix_sympy(evaluate_consts=True)     # (n_realizations,)
+        # todo: whole pareto front
 
-            # Comparing any expression found to target expression (with any constants)
-            expr = trial_expr[0]
-            for texpr in target_expr:
-                try:
-                    expr  = su.clean_sympy_expr(expr, round_decimal=3)
-                    texpr = su.clean_sympy_expr(texpr, round_decimal=3)
-                    is_equivalent, report = compare_expr(trial_expr=expr, target_expr=texpr)
-                except:
-                    is_equivalent = False
-                if is_equivalent:
-                    print("Found equivalent expression, breaking.")
-                    break
+        # Comparing any expression found to target expression (with any constants)
+        expr = trial_expr[0]
+        for texpr in target_expr:
+            try:
+                expr  = su.clean_sympy_expr(expr, round_decimal=3)
+                texpr = su.clean_sympy_expr(texpr, round_decimal=3)
+                is_equivalent, report = compare_expr(trial_expr=expr, target_expr=texpr)
+            except:
+                is_equivalent = False
+            if is_equivalent:
+                print("Found equivalent expression, breaking.")
+                break
 
-            run_result.update(
-                {
-                    "symbolic_solution": is_equivalent,
-                    "expression"       : su.clean_sympy_expr(trial_expr[0], round_decimal=4),
+        run_result.update(
+            {
+                "symbolic_solution": is_equivalent,
+                "expression"       : su.clean_sympy_expr(trial_expr[0], round_decimal=4),
 
-                }
-            )
+            }
+        )
 
-            # ----- Results .csv -----
-            run_results.append(run_result)
-            df = pd.DataFrame(run_results)
-            df.to_csv(PATH_RESULTS_SAVE, index=False)
+        # ----- Results .csv -----
+        run_results.append(run_result)
+        df = pd.DataFrame(run_results)
+        df.to_csv(PATH_RESULTS_SAVE, index=False)
 
-            # ----- Listing unfinished jobs -----
+        # ----- Listing unfinished jobs -----
 
-            # If job was not finished let's put it in the joblist of runs to be re-started.
+        # If job was not finished let's put it in the joblist of runs to be re-started.
 
-            if SAVE_UNFINISHED and (not is_finished):
-                command = "python MW_streams_run.py --trial %i --noise %f --frac_real %f"%(i_trial, noise, frac_real)
-                unfinished_jobs.append(command)
-                bu.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
+        if SAVE_UNFINISHED and (not is_finished):
+            command = "python MW_streams_run.py --trial %i --noise %f --frac_real %f"%(i_trial, noise, frac_real)
+            unfinished_jobs.append(command)
+            bu.make_jobfile_from_command_list(PATH_UNFINISHED_JOBFILE, unfinished_jobs)
 
-            if SAVE_UNFINISHED and (not is_finished) and (not is_equivalent):
-                command = "python MW_streams_run.py --trial %i --noise %f --frac_real %f"%(i_trial, noise, frac_real)
-                unfinished_business_jobs.append(command)
-                bu.make_jobfile_from_command_list(PATH_UNFINISHED_BUSINESS_JOBFILE, unfinished_business_jobs)
+        if SAVE_UNFINISHED and (not is_finished) and (not is_equivalent):
+            command = "python MW_streams_run.py --trial %i --noise %f --frac_real %f"%(i_trial, noise, frac_real)
+            unfinished_business_jobs.append(command)
+            bu.make_jobfile_from_command_list(PATH_UNFINISHED_BUSINESS_JOBFILE, unfinished_business_jobs)
         # except:
         #     print("Unable to process folder %s (ignoring it)."%(folder))
 
