@@ -194,6 +194,7 @@ def compare_expression (trial_expr,
                         handle_trigo            = True,
                         prevent_zero_frac       = True,
                         prevent_inf_equivalence = True,
+                        round_decimal = 3,
                         verbose=False):
     """
     Checks if trial_expr is symbolically equivalent to target_expr of this Feynman problem, following a
@@ -216,6 +217,8 @@ def compare_expression (trial_expr,
         If fraction = 0 does not consider expression equivalent.
     prevent_inf_equivalence: bool
         If symbolic error or fraction is infinite does not consider expression equivalent.
+    round_decimal : int
+        Rounding up to this decimal.
     verbose : bool
         Verbose.
     Returns
@@ -239,13 +242,13 @@ def compare_expression (trial_expr,
 
     # ------ Target expression cleaning ------
     try:
-        target_expr = clean_sympy_expr(target_expr)
+        target_expr = clean_sympy_expr(target_expr, round_decimal=round_decimal)
     except Exception as e:
         trial_expr = trial_expr
 
     # ------ Trial expression cleaning ------
     try:
-        trial_expr = clean_sympy_expr(trial_expr)
+        trial_expr = clean_sympy_expr(trial_expr, round_decimal=round_decimal)
     except Exception as e:
         trial_expr = trial_expr
 
@@ -253,7 +256,7 @@ def compare_expression (trial_expr,
 
     # Vanilla
     try:
-        vanilla_sym_err = clean_sympy_expr(target_expr - trial_expr)
+        vanilla_sym_err = clean_sympy_expr(target_expr - trial_expr, round_decimal=round_decimal)
         vanilla_sym_err_is_zero  = str(vanilla_sym_err) == '0'
         vanilla_sym_err_is_const = vanilla_sym_err.is_constant() and contains_no_inf(vanilla_sym_err)
     except Exception as e:
@@ -264,7 +267,7 @@ def compare_expression (trial_expr,
 
     # For trigo cases
     try:
-        trigo_sym_err = clean_sympy_expr(expr_floats_to_pi_fracs(target_expr - trial_expr))
+        trigo_sym_err = clean_sympy_expr(expr_floats_to_pi_fracs(target_expr - trial_expr), round_decimal=round_decimal)
         trigo_sym_err_is_zero  = str(trigo_sym_err) == '0'
         trigo_sym_err_is_const = trigo_sym_err.is_constant() and contains_no_inf(trigo_sym_err)
     except Exception as e:
@@ -280,7 +283,7 @@ def compare_expression (trial_expr,
 
     # Vanilla
     try:
-        vanilla_sym_frac = clean_sympy_expr(target_expr / trial_expr)
+        vanilla_sym_frac = clean_sympy_expr(target_expr / trial_expr, round_decimal=round_decimal)
         vanilla_sym_frac_is_const = vanilla_sym_frac.is_constant() \
                                     and (str(vanilla_sym_frac) != '0' or not prevent_zero_frac) \
                                     and contains_no_inf(vanilla_sym_frac)
@@ -291,7 +294,7 @@ def compare_expression (trial_expr,
 
     # For trigo cases
     try:
-        trigo_sym_frac = clean_sympy_expr(expr_floats_to_pi_fracs(target_expr / trial_expr))
+        trigo_sym_frac = clean_sympy_expr(expr_floats_to_pi_fracs(target_expr / trial_expr), round_decimal=round_decimal)
         trigo_sym_frac_is_const = trigo_sym_frac.is_constant() \
                                   and (str(trigo_sym_frac) != '0' or not prevent_zero_frac) \
                                   and contains_no_inf(trigo_sym_frac)
