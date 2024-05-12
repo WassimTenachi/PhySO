@@ -60,6 +60,7 @@ def compare_expr(trial_expr, target_expr):
 # ------------------------------- TARGET EXPRESSION -------------------------------
 
 # todo: add same with opposite in log to get around protected logabs
+# todo: add - const * log
 # Target expression
 target_expr_str = np.array([
 	   " -2.25433197869809  + 3.77705922384934 * log( 1.0000075063141 *r + 1.0 ) / r ",
@@ -165,27 +166,18 @@ for folder in folders:
             }
         )
 
-        # Pareto expressions pkl
-        path_pareto_pkl = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.pkl")
-        pareto_expressions = physo.load_pareto_pkl(path_pareto_pkl)
+        # --------------- Run log ---------------
+        try:
+            path_run_log = os.path.join(RESULTS_PATH, folder, "run_curves_data.csv")
+            run_log_df = pd.read_csv(path_run_log)
 
-        # Pareto expressions df
-        path_pareto_csv = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.csv")
-        pareto_expressions_df = pd.read_csv(path_pareto_csv)
+            n_evals     = run_log_df["n_rewarded"].sum()
+            is_finished = n_evals >= 240_000 # 250k - batch size
 
-        run_result.update(
-            {
-                "r2"     : pareto_expressions_df.iloc[-1]["r2"],
-                "reward" : pareto_expressions_df.iloc[-1]["reward"],
-            }
-        )
+        except:
+            n_evals     = 0
+            is_finished = False
 
-        # Run log
-        path_run_log = os.path.join(RESULTS_PATH, folder, "run_curves_data.csv")
-        run_log_df = pd.read_csv(path_run_log)
-
-        n_evals = run_log_df["n_rewarded"].sum()
-        is_finished = n_evals >= 240_000 # 250k - batch size
         run_result.update(
             {
             "n_evals"     : n_evals,
@@ -193,30 +185,59 @@ for folder in folders:
             }
         )
 
+        # --------------- Fit quality ---------------
+
+        try:
+            path_pareto_csv = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.csv")
+            pareto_expressions_df = pd.read_csv(path_pareto_csv)
+
+            r2     = pareto_expressions_df.iloc[-1]["r2"]
+            reward = pareto_expressions_df.iloc[-1]["reward"]
+
+        except:
+            r2     = 0.
+            reward = 0.
+
+        run_result.update(
+            {
+                "r2"     : r2,
+                "reward" : reward,
+            }
+        )
+
         # --------- Assessing symbolic equivalence ---------
+        try:
+            # Pareto expressions pkl
+            path_pareto_pkl = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.pkl")
+            pareto_expressions = physo.load_pareto_pkl(path_pareto_pkl)
 
-        # Last expression in pareto front
-        # (n_realizations,) size as there is one free const value set per realization
-        trial_expr = pareto_expressions[-1].get_infix_sympy(evaluate_consts=True)     # (n_realizations,)
-        # todo: whole pareto front
+            # Last expression in pareto front
+            # (n_realizations,) size as there is one free const value set per realization
+            trial_expr = pareto_expressions[-1].get_infix_sympy(evaluate_consts=True)     # (n_realizations,)
+            # todo: whole pareto front
 
-        # Comparing any expression found to target expression (with any constants)
-        expr = trial_expr[0]
-        for texpr in target_expr:
-            try:
-                expr  = su.clean_sympy_expr(expr, round_decimal=3)
-                texpr = su.clean_sympy_expr(texpr, round_decimal=3)
-                is_equivalent, report = compare_expr(trial_expr=expr, target_expr=texpr)
-            except:
-                is_equivalent = False
-            if is_equivalent:
-                print("Found equivalent expression, breaking.")
-                break
+            # Comparing any expression found to target expression (with any constants)
+            expr = trial_expr[0]
+            for texpr in target_expr:
+                try:
+                    expr  = su.clean_sympy_expr(expr, round_decimal=3)
+                    texpr = su.clean_sympy_expr(texpr, round_decimal=3)
+                    is_equivalent, report = compare_expr(trial_expr=expr, target_expr=texpr)
+                except:
+                    is_equivalent = False
+                if is_equivalent:
+                    print("Found equivalent expression, breaking.")
+                    break
+
+            save_expr = su.clean_sympy_expr(trial_expr[0], round_decimal=4)
+        except:
+            is_equivalent = False
+            save_expr     = None
 
         run_result.update(
             {
                 "symbolic_solution": is_equivalent,
-                "expression"       : su.clean_sympy_expr(trial_expr[0], round_decimal=4),
+                "expression"       : save_expr
 
             }
         )
