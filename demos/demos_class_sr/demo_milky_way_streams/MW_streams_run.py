@@ -89,7 +89,7 @@ os.chdir(os.path.join(os.path.abspath(''), RUN_NAME,))
 
 
 # Seed
-seed = N_TRIAL
+seed = 10+N_TRIAL
 np.random.seed(seed)
 torch.manual_seed(seed)
 
