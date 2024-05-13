@@ -554,7 +554,7 @@ class NestedTrigonometryPrior(Prior):
 
         # If no trigonometric functions detected.
         if len(self.trigonometric_functions) == 0:
-            warnings.warn("No trigonometric functions detected, no prior from %s" % (self))
+            warnings.warn("No trigonometric functions detected, (%s), this prior will be ignored." % (self))
             self.active = False
         # Using NestedFunctions prior
         else:
@@ -865,7 +865,8 @@ def make_PriorCollection (library, programs, priors_config,):
             prior = PRIORS_DICT[name](library = library, programs = programs, **prior_args)
             priors.append(prior)
         except Exception as e:
-            warnings.warn("And error while making prior %s, this prior will be ignored. Error message:\n%s"%(name,e))
+            warnings.warn("An error occurred while making prior %s, this prior will be ignored. "
+                          "Error message:\n%s"%(name,e))
     # Setting priors in PriorCollection
     prior_collection.set_priors(priors)
     return prior_collection
