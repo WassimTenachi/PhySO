@@ -120,7 +120,16 @@ target_expr_str = np.array([
        " -2.05315490058432  + 3.77705922384934 * log( - (1.0000075063141 *r + 1.0 ) ) / r ",
        " -1.68884448806975  + 3.77705922384934 * log( - (1.0000075063141 *r + 1.0 ) ) / r ",
        ])
-target_expr = np.array([sympy.parse_expr(expr) for expr in target_expr_str])
+
+
+r = sympy.Symbol('r', real = True, positive = True)
+sympy_X_symbols_dict = {"r": r}
+
+target_expr = np.array([sympy.parse_expr(expr,
+                                         local_dict = sympy_X_symbols_dict,
+                                         evaluate   = True,
+                                         ).simplify()
+                        for expr in target_expr_str])
 
 # ------------------------------- RUN FOLDER DETAILS -------------------------------
 # Run folders
@@ -212,7 +221,11 @@ for folder in folders:
             # Last expression in pareto front
             # (n_realizations,) size as there is one free const value set per realization
             trial_expr = pareto_expressions[-1].get_infix_sympy(evaluate_consts=True)     # (n_realizations,)
-            # todo: whole pareto front
+
+            # Injecting assumptions about r
+            trial_expr = [texpr.subs(sympy_X_symbols_dict).simplify() for texpr in trial_expr]
+
+            # todo: whole pareto front ?
 
             # Comparing any expression found to target expression (with any constants)
             expr = trial_expr[0]
