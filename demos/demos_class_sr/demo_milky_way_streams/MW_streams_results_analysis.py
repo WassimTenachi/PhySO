@@ -210,9 +210,10 @@ for folder in folders:
 
         # --------- Assessing symbolic equivalence ---------
         try:
+            #raise(Exception("Not implemented"))
             # Pareto expressions pkl
             path_pareto_pkl = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.pkl")
-            pareto_expressions = physo.load_pareto_pkl(path_pareto_pkl)
+            pareto_expressions = physo.read_pareto_pkl(path_pareto_pkl)
 
             # Last expression in pareto front
             # (n_realizations,) size as there is one free const value set per realization
