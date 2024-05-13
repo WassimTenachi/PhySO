@@ -34,9 +34,6 @@ PATH_RESULTS_SAVE = os.path.join(RESULTS_PATH, "MW_streams_results_detailed.csv"
 PATH_UNFINISHED_JOBFILE          = os.path.join(RESULTS_PATH, "jobfile_unfinished")
 PATH_UNFINISHED_BUSINESS_JOBFILE = os.path.join(RESULTS_PATH, "jobfile_unfinished_business")
 
-
-#
-
 @timeout_unix.timeout(2) # Max 20s wrapper (works on unix only)
 def timed_compare_expr(trial_expr, target_expr):
     return su.compare_expression(
@@ -162,7 +159,6 @@ for folder in folders:
         print("noise     : %f"%(noise))
         print("frac_real : %f"%(frac_real))
 
-
         run_result = {}
 
         run_result.update(
@@ -271,8 +267,7 @@ for folder in folders:
             command = "python MW_streams_run.py --trial %i --noise %f --frac_real %f"%(i_trial, noise, frac_real)
             unfinished_business_jobs.append(command)
             bu.make_jobfile_from_command_list(PATH_UNFINISHED_BUSINESS_JOBFILE, unfinished_business_jobs)
-        # except:
-        #     print("Unable to process folder %s (ignoring it)."%(folder))
+
 
 # Saving results one last time with sorted lines
 df.sort_values(by=["noise", "frac_real", "i_trial",], inplace=True)
