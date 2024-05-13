@@ -10,4 +10,4 @@ SR = task.sr.SR
 ClassSR = task.class_sr.ClassSR
 # User level log loading tools
 read_pareto_csv = benchmark.utils.read_logs.read_pareto_csv
-load_pareto_pkl = learn.monitoring.load_pareto_pkl
+read_pareto_pkl = learn.monitoring.read_pareto_pkl

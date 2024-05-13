@@ -41,7 +41,7 @@ def save_pareto_pkl (pareto_progs, fpath):
         pickle.dump(pareto_progs, f)
     return None
 
-def load_pareto_pkl (fpath):
+def read_pareto_pkl (fpath):
     """
     Load pareto programs from pickle file.
     Parameters
