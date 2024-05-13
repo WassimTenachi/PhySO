@@ -59,7 +59,6 @@ def compare_expr(trial_expr, target_expr):
 
 # ------------------------------- TARGET EXPRESSION -------------------------------
 
-# todo: add - const * log
 # Target expression
 target_expr_str = np.array([
 	   " -2.25433197869809  + 3.77705922384934 * log( 1.0000075063141 *r + 1.0 ) / r ",
