@@ -59,7 +59,6 @@ def compare_expr(trial_expr, target_expr):
 
 # ------------------------------- TARGET EXPRESSION -------------------------------
 
-# todo: add same with opposite in log to get around protected logabs
 # todo: add - const * log
 # Target expression
 target_expr_str = np.array([
