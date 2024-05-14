@@ -10,11 +10,11 @@ import io
 
 # For tree image (optional)
 try:
-    import pygraphviz as pgv
     import dot2tex as dot2tex
     from pdflatex import PDFLaTeX
     import pdf2image
     from PIL import Image, ImageChops
+    import pygraphviz as pgv
 except:
     warnings.warn("Can not import display packages.")
 
