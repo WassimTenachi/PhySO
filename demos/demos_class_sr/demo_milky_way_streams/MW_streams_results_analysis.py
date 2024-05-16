@@ -5,8 +5,10 @@ import argparse
 import numpy as np
 import sympy
 import platform
+import torch
 # Internal imports
 from physo.benchmark.utils import symbolic_utils as su
+import physo.benchmark.utils.metrics_utils as metrics_utils
 import physo.benchmark.utils.timeout_unix as timeout_unix
 from benchmarking import utils as bu
 import physo
@@ -33,7 +35,10 @@ PATH_RESULTS_SAVE = os.path.join(RESULTS_PATH, "MW_streams_results_detailed.csv"
 # Path where to save jobfile to relaunch unfinished jobs
 PATH_UNFINISHED_JOBFILE          = os.path.join(RESULTS_PATH, "jobfile_unfinished")
 PATH_UNFINISHED_BUSINESS_JOBFILE = os.path.join(RESULTS_PATH, "jobfile_unfinished_business")
+# Path where data is located
+PATH_SOURCE_DATA = "streams.csv"
 
+# ------------------------------- TIMEOUT WRAPPER -------------------------------
 @timeout_unix.timeout(2) # Max 20s wrapper (works on unix only)
 def timed_compare_expr(trial_expr, target_expr):
     return su.compare_expression(
@@ -127,6 +132,30 @@ target_expr = np.array([sympy.parse_expr(expr,
                                          evaluate   = True,
                                          ).simplify()
                         for expr in target_expr_str])
+
+# ------------------------------- TARGET DATA -------------------------------
+
+df = pd.read_csv(PATH_SOURCE_DATA)
+df["r"] = np.sqrt(df["x"] ** 2 + df["y"] ** 2 + df["z"] ** 2)
+df["v"] = np.sqrt(df["vx"] ** 2 + df["vy"] ** 2 + df["vz"] ** 2)
+
+stream_ids = np.unique(df["sID"].to_numpy())  # (n_streams,)
+stream_dfs = [df[df["sID"] == sID] for sID in stream_ids]  # (n_streams,)
+n_streams = len(stream_dfs)
+
+# Dataset
+multi_X = []
+multi_y = []
+for i, df in enumerate(stream_dfs):
+    r = (df["r"]/20.0 ).to_numpy()
+    v = (df["v"]/200.0).to_numpy()
+    E_kin = 0.5 * v**2
+    X = np.stack((r, ), axis=0)
+    y = E_kin
+    multi_X.append(X)
+    multi_y.append(y)
+
+n_samples_per_dataset = [X.shape[1] for X in multi_X]
 
 # ------------------------------- RUN FOLDER DETAILS -------------------------------
 # Run folders
@@ -250,6 +279,47 @@ for folder in folders:
             }
         )
 
+        # --------------- Test fit quality ---------------
+
+        try:
+            # Pareto expressions pkl
+            path_pareto_pkl = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.pkl")
+            pareto_expressions = physo.read_pareto_pkl(path_pareto_pkl)
+
+            # Expression on which to test the fit
+            test_expr = pareto_expressions[-1]
+
+            # We have to re-fit the free constants as each run uses a potentially different set of realizations
+            # Also depending on the number of realizations used, there might not be enough free dataset specific
+            # free constants to fit the expression on all realizations at the same time.
+            # Let's do them one by one always using free constants from the 0th realization.
+
+            multi_y_pred = []
+            for i_real in range (len(multi_X)):
+                X = torch.tensor(multi_X[i_real])
+                y = torch.tensor(multi_y[i_real])
+                test_expr.optimize_constants(X, y, i_realization=0, freeze_class_free_consts=True)
+                y_pred = test_expr.execute(X, i_realization=0)
+                multi_y_pred.append(y_pred.cpu().detach().numpy())
+
+            # Concatenating all predictions
+            multi_y_pred_flatten = np.concatenate(multi_y_pred)
+            multi_y_flatten      = np.concatenate(multi_y)
+            test_r2 = metrics_utils.r2(y_target=multi_y_flatten, y_pred=multi_y_pred_flatten)
+
+            test_expression_save = su.clean_sympy_expr(test_expr.detach().get_infix_sympy(evaluate_consts=True)[0], round_decimal=4)
+
+        except:
+            r2 = 0.
+            test_expression_save = ""
+
+        run_result.update(
+            {
+                "test_expression": test_expression_save,
+                "test_r2": test_r2,
+            }
+        )
+
         # ----- Results .csv -----
         run_results.append(run_result)
         df = pd.DataFrame(run_results)
@@ -273,6 +343,9 @@ for folder in folders:
 # Saving results one last time with sorted lines
 df.sort_values(by=["noise", "frac_real", "i_trial",], inplace=True)
 df.to_csv(PATH_RESULTS_SAVE, index=False)
+
+print("--------------------")
+print("Total evals:", df["n_evals"].sum())
 
 t01 = time.time()
 print("Total time : %f s"%(t01 - t00))
