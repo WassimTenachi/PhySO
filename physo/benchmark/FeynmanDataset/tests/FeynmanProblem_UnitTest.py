@@ -96,7 +96,7 @@ class FeynmanProblemTest(unittest.TestCase):
         assert np.array_equal(relatpb.X_units, np.array([[ 0.,  0.,  1.,  0.,  0.],
                                                          [ 1., -1.,  0.,  0.,  0.],
                                                          [ 1., -1.,  0.,  0.,  0.]])), "Wrong X_units."
-        assert np.array_equal(relatpb.y_units, np.array([1., 0., 0., 0., 0.])), "Wrong y_units."
+        assert np.array_equal(relatpb.y_units, np.array([1., -1., 1., 0., 0.])), "Wrong y_units."
 
         # Test ranges on sample problem
         relatpb = Feyn.FeynmanProblem(18)
