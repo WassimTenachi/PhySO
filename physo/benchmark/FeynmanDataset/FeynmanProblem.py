@@ -217,6 +217,7 @@ def get_units (var_name):
     Parameters
     ----------
     var_name : str
+        original variable name.
     Returns
     -------
     units : numpy.array of shape (FEYN_UNITS_VECTOR_SIZE,) of floats
@@ -331,7 +332,7 @@ class FeynmanProblem:
         # Name of output variable : y or original name (eg. f, E etc.)
         self.y_name = self.y_name_original if self.original_var_names else 'y'   # str
         # Units of output variables
-        self.y_units = get_units(self.y_name)                                    # (FEYN_UNITS_VECTOR_SIZE,)
+        self.y_units = get_units(self.y_name_original)                           # (FEYN_UNITS_VECTOR_SIZE,)
 
         # ----------- X : input variables -----------
         # Utils id of input variables v1, v2 etc. in .csv
