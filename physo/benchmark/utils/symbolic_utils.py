@@ -406,3 +406,35 @@ def sympy_to_prefix(sympy_expr):
         "tokens"    : np.array(tokens    ),
     }
     return res
+
+def sympy_symbol_with_assumptions_from_range(name, low, high):
+    """
+    Returns a sympy symbol with assumptions from its data range.
+    Parameters
+    ----------
+    name : str
+        Name of the variable.
+    low : float
+        Lowest value taken by the variable.
+    high : float
+        Highest value taken by the variable.
+    Returns
+    -------
+    sympy.Symbol
+    """
+    is_positive = low > 0
+    is_negative = high < 0
+    # If 0 is in interval, do not give assumptions as otherwise sympy will assume 0
+    if (not is_positive) and (not is_negative):
+        is_positive, is_negative = None, None
+    symb = sympy.Symbol(name,  # str
+                        # Useful assumptions for simplifying etc
+                        real=True,
+                        positive=is_positive,
+                        negative=is_negative,
+                        # If nonzero = False assumes that always = 0 which causes problems
+                        # when simplifying
+                        # nonzero  = not (low <= 0 and high >= 0),
+                        domain=sympy.sets.sets.Interval(low, high),
+                        )
+    return symb

@@ -354,21 +354,10 @@ class FeynmanProblem:
         # Input variables as sympy symbols
         self.X_sympy_symbols = []
         for i in range(self.n_vars):
-            is_positive = self.X_lows  [i] > 0
-            is_negative = self.X_highs [i] < 0
-            # If 0 is in interval, do not give assumptions as otherwise sympy will assume 0
-            if (not is_positive) and (not is_negative):
-                is_positive, is_negative = None, None
-            self.X_sympy_symbols.append(sympy.Symbol(self.X_names[i],                                                   #  (n_vars,)
-                                                     # Useful assumptions for simplifying etc
-                                                     real     = True,
-                                                     positive = is_positive,
-                                                     negative = is_negative,
-                                                     # If nonzero = False assumes that always = 0 which causes problems
-                                                     # when simplifying
-                                                     # nonzero  = not (self.X_lows[i] <= 0 and self.X_highs[i] >= 0),
-                                                     domain   = sympy.sets.sets.Interval(self.X_lows[i], self.X_highs[i]),
-                                                     ))
+            self.X_sympy_symbols.append (su.sympy_symbol_with_assumptions_from_range(name = self.X_names[i],
+                                                                                     low  = self.X_lows [i],
+                                                                                     high = self.X_highs[i],
+                                                                                    ))
 
         # Input variables names to sympy symbols dict
         self.sympy_X_symbols_dict = {self.X_names[i] : self.X_sympy_symbols[i] for i in range(self.n_vars)}                     #  (n_vars,)
