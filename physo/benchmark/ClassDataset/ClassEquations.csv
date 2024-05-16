@@ -1,0 +1,2 @@
+Number;Name;Output_name;Output_units;Formula;# variables;# spe;v1_name;v1_units;v1_type;v1_low;v1_high;v2_name;v2_units;v2_type;v2_low;v2_high;v3_name;v3_units;v3_type;v3_low;v3_high;v4_name;v4_units;v4_type;v4_low;v4_high
+1;Harmonic Oscillator;l;[0,];A*cos(omega*t + Phi);1;3;t;[1,];var;0;9.42;A;[0,];spe;0.6;1.2;omega;[-1,];spe;0.2;1.5;Phi;[0,];spe;0.95;1.15
