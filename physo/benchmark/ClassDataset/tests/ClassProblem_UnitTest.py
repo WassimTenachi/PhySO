@@ -15,7 +15,7 @@ class ClassProblemTest(unittest.TestCase):
         except:
             self.fail("Failed to load equations csv")
 
-        assert len(df) == 1, "Equations csv has wrong number of equations."
+        assert len(df) == 3, "Equations csv has wrong number of equations."
 
         return None
     def test_ClassProblem_datagen_all(self):
@@ -44,6 +44,7 @@ class ClassProblemTest(unittest.TestCase):
 
             # Loading data sample
             multi_X, multi_y = pb.generate_data_points(n_samples=100)
+            #pb.show_sample()
 
             # Printing min, max of data points and warning if absolute value is above WARN_LIM
             if verbose: print("--- min, max ---")
