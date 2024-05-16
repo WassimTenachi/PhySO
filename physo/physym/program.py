@@ -297,7 +297,7 @@ class Program:
         y = self.candidate_wrapper(lambda X: self.execute_wo_wrapper(X=X, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset), X)
         return y
 
-    def optimize_constants(self, X, y_target, y_weights = 1., i_realization = 0, n_samples_per_dataset = None, args_opti = None):
+    def optimize_constants(self, X, y_target, y_weights = 1., i_realization = 0, n_samples_per_dataset = None, args_opti = None, freeze_class_free_consts = False):
         """
         Optimizes free constants of program.
         Parameters
@@ -319,16 +319,26 @@ class Program:
         args_opti : dict or None, optional
             Arguments to pass to free_const.optimize_free_const. By default, free_const.DEFAULT_OPTI_ARGS
             arguments are used.
+        freeze_class_free_consts : bool, optional
+            If True, class free constants are not optimized.
         """
         if args_opti is None:
             args_opti = free_const.DEFAULT_OPTI_ARGS
         func_params = lambda params: self.__call__(X, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset)
 
-        history = free_const.optimize_free_const (  func      = func_params,
-                                                    params    = [self.free_consts.class_values, self.free_consts.spe_values],
-                                                    y_target  = y_target,
-                                                    y_weights = y_weights,
-                                                    **args_opti)
+        if freeze_class_free_consts:
+            history = free_const.optimize_free_const (  func      = func_params,
+                                                        params    = [self.free_consts.spe_values],
+                                                        y_target  = y_target,
+                                                        y_weights = y_weights,
+                                                        **args_opti)
+        else:
+            history = free_const.optimize_free_const (  func      = func_params,
+                                                        params    = [self.free_consts.class_values, self.free_consts.spe_values],
+                                                        y_target  = y_target,
+                                                        y_weights = y_weights,
+                                                        **args_opti)
+
         # Logging optimization process
         self.free_consts.is_opti    [0] = True
         self.free_consts.opti_steps [0] = len(history)  # Number of iterations it took to optimize the constants
