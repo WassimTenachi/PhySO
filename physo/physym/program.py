@@ -542,7 +542,11 @@ class Program:
         plt.rc('text', usetex=True)
         plt.rc('font', family='serif')
         # enables new_dummy_symbol = "\square"
-        plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
+        # plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
+        if new_dummy_symbol == "\square":
+            msg = "Use of \\square as new_dummy_symbol is not supported by matplotlib alone. " \
+                  "Use plt.rc('text.latex', preamble=r'\\usepackage{amssymb} \\usepackage{xcolor}') to enable it."
+            warnings.warn(msg)
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         ax.axis('off')
         ax.text(text_pos[0], text_pos[1], f'${latex_str}$', size = text_size)
