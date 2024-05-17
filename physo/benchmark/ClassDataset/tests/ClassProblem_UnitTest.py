@@ -15,7 +15,7 @@ class ClassProblemTest(unittest.TestCase):
         except:
             self.fail("Failed to load equations csv")
 
-        assert len(df) == 3, "Equations csv has wrong number of equations."
+        assert len(df) == 4, "Equations csv has wrong number of equations."
 
         return None
     def test_ClassProblem_datagen_all(self):
@@ -41,6 +41,7 @@ class ClassProblemTest(unittest.TestCase):
                 print("--- Units ---")
                 print("X units : \n", pb.X_units)
                 print("y units : \n", pb.y_units)
+                print("K units : \n", pb.K_units)
 
             # Loading data sample
             multi_X, multi_y = pb.generate_data_points(n_samples=100)
