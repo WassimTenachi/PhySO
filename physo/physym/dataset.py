@@ -180,6 +180,13 @@ class Dataset:
         # Asserting that multi_X and multi_y have the same length ie same number of realizations
         assert len(multi_X) == len(multi_y), "multi_X and multi_y must have the same length ie. same number of realizations."
 
+        # Converting multi_X and multi_y to lists in case they are np.array (as slicing torch.tensor into np.array
+        # will convert them back to np.array)
+        if isinstance(multi_X, np.ndarray):
+            multi_X = multi_X.tolist()
+        if isinstance(multi_y, np.ndarray):
+            multi_y = multi_y.tolist()
+
         # Saving the number of realizations
         self.n_realizations = len(multi_X)
 
