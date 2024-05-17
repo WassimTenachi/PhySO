@@ -350,7 +350,7 @@ class ClassProblem:
         y = f(**mapping_vals).astype(float)
         return y
 
-    def generate_data_points (self, n_samples = 10_000, n_realizations = 10):
+    def generate_data_points (self, n_samples = 1_000, n_realizations = 10, return_K = False):
         """
         Generates data points accordingly for this Class problem.
         Parameters
@@ -358,14 +358,18 @@ class ClassProblem:
         n_samples : int
             Number of samples to draw. By default, 1e3.
         n_realizations : int
-            Number of realizations to draw. By default, 5.
+            Number of realizations to draw. By default, 10.
+        return_K : bool
+            If True, returns K values used to generate data as well.
         Returns
         -------
-        multi_X : numpy.array of shape (n_realizations, n_vars, ?,) of floats,
-        multi_y : numpy.array of shape (n_realizations, ?,) of floats
+        multi_X : numpy.array of shape (n_realizations, n_vars, n_samples,) of floats,
+        multi_y : numpy.array of shape (n_realizations, n_samples,) of floats
+        (multi_K : numpy.array of shape (n_realizations, n_spe,) of floats)
         """
         multi_X = []
         multi_y = []
+        multi_K = []
 
         for i_real in range(n_realizations):
             # Random K sample
@@ -377,11 +381,16 @@ class ClassProblem:
 
             multi_X.append(X)
             multi_y.append(y)
+            multi_K.append(K)
 
         multi_X = np.stack(multi_X)                                                                                     # (n_realizations, n_vars, n_samples)
         multi_y = np.stack(multi_y)                                                                                     # (n_realizations, n_samples)
+        multi_K = np.stack(multi_K)                                                                                     # (n_realizations, n_spe)
 
-        return multi_X, multi_y
+        if return_K:
+            return multi_X, multi_y, multi_K
+        else:
+            return multi_X, multi_y
 
 
     def show_sample(self, n_samples = 10_000, n_realizations = 10, do_show = True, save_path = None):
