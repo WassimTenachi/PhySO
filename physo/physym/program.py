@@ -8,13 +8,9 @@ import pickle
 import matplotlib.pyplot as plt
 import io
 
-# For tree image (optional)
+# For display (optional)
 try:
-    import dot2tex as dot2tex
-    from pdflatex import PDFLaTeX
-    import pdf2image
     from PIL import Image, ImageChops
-    import pygraphviz as pgv
 except:
     warnings.warn("Can not import display packages.")
 

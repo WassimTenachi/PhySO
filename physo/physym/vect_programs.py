@@ -6,13 +6,9 @@ import os
 import matplotlib.pyplot as plt
 import shutil
 
-# For tree image (optional)
+# For display (optional)
 try:
-    import dot2tex as dot2tex
-    from pdflatex import PDFLaTeX
-    import pdf2image
     from PIL import Image, ImageChops
-    import pygraphviz as pgv
 except:
     warnings.warn("Can not import display packages.")
 
@@ -2117,6 +2113,12 @@ class VectPrograms:
         -------
         graph : pygraphviz.AGraph
         """
+        try:
+            import pygraphviz as pgv
+        except:
+            print("Unable to import pygraphviz (which is needed to make tree). "
+                  "Please install it via 'conda install pygraphviz'.")
+            return None
 
         # Initializing graph repr
         G = pgv.AGraph(directed=True)
@@ -2245,6 +2247,13 @@ class VectPrograms:
         -------
         tree_latex : str
         """
+        try:
+            import dot2tex as dot2tex
+        except:
+            print("Unable to import dot2tex (which is needed to make tree). "
+                  "Please install it via 'conda install dot2tex'.")
+            return None
+
         # Useful doc
         # https://stackoverflow.com/questions/35830447/python-graphs-latex-math-rendering-of-node-labels
         # https://dot2tex.readthedocs.io/en/latest/usage_guide.html#command-line-options
@@ -2334,6 +2343,19 @@ class VectPrograms:
         -------
         image : PIL.Image.Image
         """
+        try:
+            from pdflatex import PDFLaTeX
+        except:
+            print("Unable to import pdflatex (which is needed to make tree). "
+                  "Please install it via 'pip install pdflatex'.")
+            return None
+
+        try:
+            import pdf2image
+        except:
+            print("Unable to import pdf2image (which is needed to make tree). "
+                  "Please install it via 'pip install pdf2image'.")
+            return None
 
         # Useful doc:
         # https://stackoverflow.com/questions/64841849/how-to-convert-latex-to-image-in-python
