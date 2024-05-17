@@ -8,6 +8,9 @@ N_TRIALS = 4
 # Using original variable names (eg. theta, sigma etc.), not x0, x1 etc.
 ORIGINAL_VAR_NAMES = True
 
+# Equations to exclude from the benchmark (names)
+EXCLUDED_EQS = []
+
 # ----- HYPERPARAMS : CONSTANTS -----
 DIMENSIONLESS_RUN = True
 
