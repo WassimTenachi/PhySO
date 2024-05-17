@@ -2,3 +2,4 @@ Number;Name;Output_name;Output_units;Formula;# variables;# spe;v1_name;v1_units;
 1;Harmonic Oscillator;l;[0,];A*cos(omega*t + Phi);1;3;t;[1,];var;0;9.42;A;[0,];spe;0.6;1.2;omega;[-1,];spe;0.2;1.5;Phi;[0,];spe;0.95;1.15
 2;Radioactive Decay;n;[0,];n0*exp(-t/T);1;2;t;[1,];var;0.5;6;n0;[0,];spe;0.4;2;T;[1,];spe;0.9;1.4;;;;;
 3;Free Fall;z;[1,0,];-0.5*9.81*t**2 + v0*t +z0;1;2;t;[0,1,];var;0;1;v0;[1,-1,];spe;-2;8;z0;[1,0,];spe;-3;3;;;;;
+4;Damped Harmonic Oscillator;l;[0,];exp(-k*t)*cos(1.389*t + Phi);1;2;t;[1,];var;0;9.42;k;[-1,];spe;0.1;0.5;Phi;[0,];spe;0.0;0.20;;;;;
