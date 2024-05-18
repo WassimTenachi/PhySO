@@ -323,8 +323,12 @@ def plot_pareto_front(run_logger,
 
     pareto_front_rmse = pareto_front_rmse
     # Fig params
-    plt.rc('text', usetex=True)
-    plt.rc('font', family='serif')
+    try:
+        plt.rc('text', usetex=True)
+        plt.rc('font', family='serif')
+    except:
+        msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed."
+        print(msg)
     plt.rc('font', size=32)
 
     # Fig

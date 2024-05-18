@@ -319,8 +319,12 @@ if __name__ == '__main__':
 
         pareto_front_r2 = physo.physym.reward.SquashedNRMSE_to_R2(pareto_front_r)
         # Fig params
-        plt.rc('text', usetex=True)
-        plt.rc('font', family='serif')
+        try:
+            plt.rc('text', usetex=True)
+            plt.rc('font', family='serif')
+        except:
+            msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed."
+            print(msg)
 
         # Fig
         fig, ax = plt.subplots(1, 1, figsize=figsize)

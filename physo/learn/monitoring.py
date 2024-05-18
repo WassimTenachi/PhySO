@@ -20,9 +20,11 @@ from physo.physym import reward as reward_funcs
 try:
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
-    plt.rc('font', size=16)
 except:
-    warnings.warn("Latex display not available.")
+    msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed."
+    warnings.warn(msg)
+# Font size
+plt.rc('font', size=16)
 
 # Faster than searching for best loc
 LEGEND_LOC = 'upper left' # "best"
@@ -641,9 +643,10 @@ class RunVisualiser:
             pareto_front_complexities, pareto_front_programs, pareto_front_r, pareto_front_rmse = run_logger.get_pareto_front()
 
             pareto_front_r2 = reward_funcs.SquashedNRMSE_to_R2(pareto_front_r)
-            # Fig params
-            plt.rc('text', usetex=True)
-            plt.rc('font', family='serif')
+
+            # Prettier fig with:
+            #   plt.rc('text', usetex=True)
+            #   plt.rc('font', family='serif')
             #plt.rc('font', size=32)
 
             # Fig

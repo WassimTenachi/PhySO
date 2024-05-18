@@ -13,6 +13,17 @@ from physo.physym import token as Tok
 from physo.physym import execute as Exec
 from physo.physym import free_const
 
+# Fig params
+try:
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+except:
+    msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed."
+    warnings.warn(msg)
+# Font size
+plt.rc('font', size=16)
+
+
 # Pickable default identity wrapper
 def DEFAULT_WRAPPER (func, X):
         return func(X)
@@ -528,15 +539,18 @@ class Program:
         # Adding "superparent =" before program to make it pretty
         if show_superparent_at_beginning:
             latex_str = self.library.superparent.name + ' =' + latex_str
-        # Fig
-        plt.rc('text', usetex=True)
-        plt.rc('font', family='serif')
-        # enables new_dummy_symbol = "\square"
+
+        # Prettier fig with:
+        #   plt.rc('text', usetex=True)
+        #   plt.rc('font', family='serif')
+
+        # Enables new_dummy_symbol = "\square":
         # plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
         if new_dummy_symbol == "\square":
             msg = "Use of \\square as new_dummy_symbol is not supported by matplotlib alone. " \
                   "Use plt.rc('text.latex', preamble=r'\\usepackage{amssymb} \\usepackage{xcolor}') to enable it."
             warnings.warn(msg)
+
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         ax.axis('off')
         ax.text(text_pos[0], text_pos[1], f'${latex_str}$', size = text_size)
