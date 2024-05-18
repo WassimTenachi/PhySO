@@ -2,9 +2,9 @@
 # Install via pip : pip install -r requirements_display2.txt
 
 # Available through conda and pip
-dot2tex == 2.11.3
+dot2tex == 2.11.3 (only useful for tree representation)
 
 # Only available via pip
-pdflatex == 0.1.3
-pdf2image == 1.16.0
-pillow >= 9.0.1
+pdflatex == 0.1.3 (only useful for tree representation)
+pdf2image == 1.16.0 (only useful for tree representation)
+pillow >= 9.0.1 (only useful for getting image data of infix representation)

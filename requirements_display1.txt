@@ -2,5 +2,5 @@
 # Install via conda : conda install --file requirements_display1.txt
 
 # Available through conda and pip
-pygraphviz == 1.9 # Install via conda recommended
+pygraphviz == 1.9 # Install via conda recommended (only useful for tree representation)
 
