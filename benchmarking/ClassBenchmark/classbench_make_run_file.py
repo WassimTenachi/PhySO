@@ -38,7 +38,7 @@ for i_eq in range (ClPb.N_EQS):
             for noise_lvl in NOISE_LEVELS:
                 for n_reals in N_REALIZATIONS:
                     # File name
-                    command = "python classbench_run.py -i %i -t %i -n %f -r %i"%(i_eq, i_trial, noise_lvl, n_reals)
+                    command = "python classbench_run.py -t %i -i %i -n %f -r %i"%(i_trial, i_eq, noise_lvl, n_reals)
                     commands.append(command)
     else:
         print("Problem excluded.")
