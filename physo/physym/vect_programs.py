@@ -2298,6 +2298,9 @@ class VectPrograms:
         else:
             do_save = True
 
+        # Trying to get graph before creating temp file to avoid creating non-removed temp file if error occurs
+        G = self.get_tree_graph(prog_idx=prog_idx, **args_get_tree_graph)
+
         # If result should not be saved, set up a temporary file path + folder
         if not do_save:
             # Name for temp file and folder
@@ -2309,7 +2312,6 @@ class VectPrograms:
             # File
             fpath = os.path.join(temp_name, temp_name+".png")
 
-        G = self.get_tree_graph (prog_idx = prog_idx, **args_get_tree_graph)
         # save an image file
         G.layout(prog='dot')  # use dot
         G.draw(fpath)
@@ -2383,7 +2385,12 @@ class VectPrograms:
             fname_pdf = temp_name  # PDFLaTeX adds ".pdf"
 
         # ---- Create tex ----
-        self.get_tree_latex(prog_idx = prog_idx, fpath = fpath_tex, **args_get_tree_graph)
+        try:
+            self.get_tree_latex(prog_idx = prog_idx, fpath = fpath_tex, **args_get_tree_graph)
+        except Exception as e:
+            # Clean up temp folder in case of failure
+            shutil.rmtree(temp_name)
+            raise e
 
         # ---- Create pdf from tex ----
         pdfl = PDFLaTeX.from_texfile(fpath_tex) # PDFLaTeX adds ".pdf"
