@@ -104,6 +104,7 @@ class DisplayTest(unittest.TestCase):
         try:
             t0 = time.perf_counter()
             img = my_programs.get_infix_image(prog_idx=0,)
+            # my_programs.show_infix(prog_idx=0,)
             t1 = time.perf_counter()
             print("\nget_infix_image time = %.3f s" % (t1 - t0))
         except:
