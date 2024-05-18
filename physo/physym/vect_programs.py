@@ -2111,7 +2111,7 @@ class VectPrograms:
             import pygraphviz as pgv
         except:
             print("Unable to import pygraphviz (which is needed to make tree). "
-                  "Please install it via 'conda install pygraphviz'.")
+                  "Please install it via 'conda install pygraphviz == 1.9'.")
             return None
 
         # Initializing graph repr
@@ -2245,7 +2245,7 @@ class VectPrograms:
             import dot2tex as dot2tex
         except:
             print("Unable to import dot2tex (which is needed to make tree). "
-                  "Please install it via 'conda install dot2tex'.")
+                  "Please install it via 'conda install dot2tex == 2.11.3'.")
             return None
 
         # Useful doc
@@ -2348,14 +2348,14 @@ class VectPrograms:
             from pdflatex import PDFLaTeX
         except:
             print("Unable to import pdflatex (which is needed to make tree). "
-                  "Please install it via 'pip install pdflatex'.")
+                  "Please install it via 'pip install pdflatex == 0.1.3'.")
             return None
 
         try:
             import pdf2image
         except:
             print("Unable to import pdf2image (which is needed to make tree). "
-                  "Please install it via 'pip install pdf2image'.")
+                  "Please install it via 'pip install pdf2image == 1.16.0'.")
             return None
 
         # Useful doc:
