@@ -1,4 +1,4 @@
-# Requirements for display purposes (optional)
+# Requirements for display purposes (only useful for devs)
 # Install via pip : pip install -r requirements_display2.txt
 
 # Available through conda and pip
