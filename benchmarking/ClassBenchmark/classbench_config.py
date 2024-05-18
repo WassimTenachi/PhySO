@@ -4,7 +4,7 @@ import physo.benchmark.ClassDataset.ClassProblem as ClPb
 import physo
 
 # Nb of trials per problem
-N_TRIALS = 4
+N_TRIALS = 5
 # Using original variable names (eg. theta, sigma etc.), not x0, x1 etc.
 ORIGINAL_VAR_NAMES = True
 
