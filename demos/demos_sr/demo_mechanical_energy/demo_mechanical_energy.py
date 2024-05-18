@@ -321,8 +321,6 @@ if __name__ == '__main__':
         # Fig params
         plt.rc('text', usetex=True)
         plt.rc('font', family='serif')
-        # enables new_dummy_symbol = "\square"
-        plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
 
         # Fig
         fig, ax = plt.subplots(1, 1, figsize=figsize)

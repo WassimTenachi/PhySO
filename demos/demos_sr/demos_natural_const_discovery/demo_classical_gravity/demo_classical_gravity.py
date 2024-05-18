@@ -325,8 +325,6 @@ def plot_pareto_front(run_logger,
     # Fig params
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
-    # enables new_dummy_symbol = "\square"
-    plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
     plt.rc('font', size=32)
 
     # Fig
