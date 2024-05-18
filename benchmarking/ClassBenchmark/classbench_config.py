@@ -33,10 +33,10 @@ N_SAMPLES_TEST = int(1e4)
 
 # ----- HYPERPARAMS : CONFIG -----
 CONFIG = physo.config.config0b.config0b
-CONFIG["learning_config"]["batch_size"] = int(4*1e3)
+CONFIG["learning_config"]["batch_size"] = int(2*1e3)
 
 # ----- HYPERPARAMS : MAX NUMBER OF EVALUATIONS -----
-MAX_N_EVALUATIONS = 400_000 + 1
+MAX_N_EVALUATIONS = 200_000 + 1
 # Allowed to search in an infinitely large search space, research will be stopped by MAX_N_EVALUATIONS
 N_EPOCHS = int(1e99)
 #int(MAX_N_EVALUATIONS/CONFIG["learning_config"]["batch_size"])
