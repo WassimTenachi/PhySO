@@ -33,15 +33,6 @@ Installing essential dependencies :
 ```
 conda install --file requirements.txt
 ```
-Installing optional dependencies (for advanced debugging in tree representation) :
-```
-conda install --file requirements_display1.txt
-```
-```
-pip install -r requirements_display2.txt
-```
-
-In addition, latex should be installed on the system.
 
 ---
 
