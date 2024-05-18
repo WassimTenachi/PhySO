@@ -6,12 +6,6 @@ import os
 import matplotlib.pyplot as plt
 import shutil
 
-# For display (optional)
-try:
-    from PIL import Image, ImageChops
-except:
-    warnings.warn("Can not import display packages.")
-
 # Internal imports
 from physo.physym import token as Tok
 from physo.physym import dimensional_analysis as phy
@@ -2288,6 +2282,13 @@ class VectPrograms:
         -------
         image : numpy.array
         """
+
+        try:
+            import PIL as PIL
+        except:
+            print("Unable to import PIL (which is needed to make image data). "
+                  "Please install it via 'pip install pillow >= 9.0.1'.")
+
         # Even if we don't want to save image (fpath = None), we have to save it in temp file, load it and then delete
         # the temp file as AGraph does not support direct image generation
 
@@ -2316,7 +2317,7 @@ class VectPrograms:
         # load image from file
         img_np = plt.imread(fpath)[:,:,0:3]
         img_np_int = (img_np*255).astype('uint8')
-        img = Image.fromarray(img_np_int.astype('uint8'), 'RGB')
+        img = PIL.Image.fromarray(img_np_int.astype('uint8'), 'RGB')
 
         # Deleting temp file and folder if we don't want to save image
         if not do_save:

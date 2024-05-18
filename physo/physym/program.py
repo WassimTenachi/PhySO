@@ -8,12 +8,6 @@ import pickle
 import matplotlib.pyplot as plt
 import io
 
-# For display (optional)
-try:
-    from PIL import Image, ImageChops
-except:
-    warnings.warn("Can not import display packages.")
-
 # Internal imports
 from physo.physym import token as Tok
 from physo.physym import execute as Exec
@@ -583,6 +577,13 @@ class Program:
         -------
         image : PIL.Image.Image
         """
+
+        try:
+            import PIL as PIL
+        except:
+            print("Unable to import PIL (which is needed to make image data). "
+                  "Please install it via 'pip install pillow >= 9.0.1'.")
+
         # Getting fig, ax
         fig, ax = self.get_infix_fig (
                             replace_dummy_symbol = replace_dummy_symbol,
@@ -600,10 +601,10 @@ class Program:
 
         # Buffer -> img
         white = (255, 255, 255, 255)
-        img = Image.open(buf)
-        bg = Image.new(img.mode, img.size, white)
-        diff = ImageChops.difference(img, bg)
-        diff = ImageChops.add(diff, diff, 2.0, -100)
+        img = PIL.Image.open(buf)
+        bg = PIL.Image.new(img.mode, img.size, white)
+        diff = PIL.ImageChops.difference(img, bg)
+        diff = PIL.ImageChops.add(diff, diff, 2.0, -100)
         bbox = diff.getbbox()
         img = img.crop(bbox)
 
