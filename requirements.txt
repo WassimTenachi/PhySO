@@ -8,5 +8,4 @@ numpy
 tqdm
 pandas
 scikit-learn
-jupyterlab
 pip

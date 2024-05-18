@@ -1,5 +1,5 @@
 # Requirements for display purposes (only useful for devs)
-# Install via pip : pip install -r requirements_display2.txt
+# Install via pip : pip install -r dev_requirements_display2.txt
 
 # Available through conda and pip
 dot2tex == 2.11.3 (only useful for tree representation)
