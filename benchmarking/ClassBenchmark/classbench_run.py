@@ -89,7 +89,7 @@ if __name__ == '__main__':
     # MONITORING CONFIG TO USE
     get_run_logger     = lambda : physo.learn.monitoring.RunLogger(
                                           save_path = 'SR.log',
-                                          do_save   = True)
+                                          do_save   = False)
     get_run_visualiser = lambda : physo.learn.monitoring.RunVisualiser (
                                                epoch_refresh_rate = 1,
                                                save_path = 'SR_curves.png',
