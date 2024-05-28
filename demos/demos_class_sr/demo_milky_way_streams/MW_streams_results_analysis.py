@@ -289,7 +289,7 @@ for folder in folders:
             # Expression on which to test the fit
             test_expr = pareto_expressions[-1]
             n_spe_free_consts_appearing = np.array([tok.is_spe_free_const for tok in test_expr.tokens]).sum()
-
+            n_free_consts_appearing     = np.array([tok.is_spe_free_const or tok.is_class_free_const for tok in test_expr.tokens]).sum()
             # We have to re-fit the free constants as each run uses a potentially different set of realizations
             # Also depending on the number of realizations used, there might not be enough free dataset specific
             # free constants to fit the expression on all realizations at the same time.
@@ -301,12 +301,12 @@ for folder in folders:
                 y = torch.tensor(multi_y[i_real])
                 # Fine-tuning spe free constants only
                 # And if they appear in the expression only
-                if n_spe_free_consts_appearing > 0:
+                if n_spe_free_consts_appearing > 0 and n_free_consts_appearing > 0:
                     test_expr.optimize_constants(X, y, i_realization=0, freeze_class_free_consts=True)
                 # If the run was conducted with only 1 realization then we can allow for the class free constants
                 # to be optimized as well as the algo had no knowledge of the disctinction between class and spe
                 # free consts.
-                if frac_real < 1e3:
+                if frac_real < 1e3 and n_free_consts_appearing > 0:
                     test_expr.optimize_constants(X, y, i_realization=0, freeze_class_free_consts=False)
                 y_pred = test_expr.execute(X, i_realization=0)
                 multi_y_pred.append(y_pred.cpu().detach().numpy())
