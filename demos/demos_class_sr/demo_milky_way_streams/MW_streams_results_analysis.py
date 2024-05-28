@@ -217,7 +217,7 @@ for folder in folders:
             }
         )
 
-        # --------------- Fit quality ---------------
+        # --------------- Fit quality from logs ---------------
 
         try:
             path_pareto_csv = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.csv")
@@ -288,6 +288,7 @@ for folder in folders:
 
             # Expression on which to test the fit
             test_expr = pareto_expressions[-1]
+            n_spe_free_consts_appearing = np.array([tok.is_spe_free_const for tok in test_expr.tokens]).sum()
 
             # We have to re-fit the free constants as each run uses a potentially different set of realizations
             # Also depending on the number of realizations used, there might not be enough free dataset specific
@@ -298,7 +299,15 @@ for folder in folders:
             for i_real in range (len(multi_X)):
                 X = torch.tensor(multi_X[i_real])
                 y = torch.tensor(multi_y[i_real])
-                test_expr.optimize_constants(X, y, i_realization=0, freeze_class_free_consts=True)
+                # Fine-tuning spe free constants only
+                # And if they appear in the expression only
+                if n_spe_free_consts_appearing > 0:
+                    test_expr.optimize_constants(X, y, i_realization=0, freeze_class_free_consts=True)
+                # If the run was conducted with only 1 realization then we can allow for the class free constants
+                # to be optimized as well as the algo had no knowledge of the disctinction between class and spe
+                # free consts.
+                if frac_real < 1e3:
+                    test_expr.optimize_constants(X, y, i_realization=0, freeze_class_free_consts=False)
                 y_pred = test_expr.execute(X, i_realization=0)
                 multi_y_pred.append(y_pred.cpu().detach().numpy())
 
@@ -308,15 +317,21 @@ for folder in folders:
             test_r2 = metrics_utils.r2(y_target=multi_y_flatten, y_pred=multi_y_pred_flatten)
 
             test_expression_save = su.clean_sympy_expr(test_expr.detach().get_infix_sympy(evaluate_consts=True)[0], round_decimal=4)
+            test_expression_save_pre = test_expr.__str__().replace("\n", "")
 
         except:
-            r2 = 0.
-            test_expression_save = ""
+            test_r2 = 0.
+            test_expression_save     = ""
+            test_expression_save_pre = ""
+
+        if np.isnan(test_r2):
+            test_r2 = 0.
 
         run_result.update(
             {
-                "test_expression": test_expression_save,
-                "test_r2": test_r2,
+                "test_r2"             : test_r2,
+                "test_expression"     : test_expression_save,
+                "test_expression_pre" : test_expression_save_pre,
             }
         )
 
