@@ -5,6 +5,11 @@ import physo
 
 # Nb of trials per problem
 N_TRIALS = 5
+# Noise levels
+NOISE_LEVELS   = [0.000, 0.001, 0.010, 0.100,]
+# Nb of realizations
+N_REALIZATIONS = [1, 10]
+
 # Using original variable names (eg. theta, sigma etc.), not x0, x1 etc.
 ORIGINAL_VAR_NAMES = True
 

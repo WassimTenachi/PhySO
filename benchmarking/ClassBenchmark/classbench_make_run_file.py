@@ -12,14 +12,13 @@ parser = argparse.ArgumentParser (description     = "Creates a jobfile to run al
                                   formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
-# With 1M expressions -> each run .log -> 400 Mo
 
-N_TRIALS = fconfig.N_TRIALS
 ORIGINAL_VAR_NAMES = fconfig.ORIGINAL_VAR_NAMES
 EXCLUDED_EQS = fconfig.EXCLUDED_EQS
 
-NOISE_LEVELS   = [0.000, 0.001, 0.010, 0.100,]
-N_REALIZATIONS = [1, 10]
+N_TRIALS       = fconfig.N_TRIALS
+NOISE_LEVELS   = fconfig.NOISE_LEVELS
+N_REALIZATIONS = fconfig.N_REALIZATIONS
 
 # Output jobfile name
 PATH_OUT_JOBFILE = "jobfile"
