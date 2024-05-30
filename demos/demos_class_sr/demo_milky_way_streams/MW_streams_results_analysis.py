@@ -203,7 +203,7 @@ n_samples_per_dataset = [X.shape[1] for X in multi_X]
 # ------------------------------- RUN FOLDER DETAILS -------------------------------
 # Run folders
 run_folder_prefix = "StreamsSR_0_"
-folders = os.listdir(RESULTS_PATH)
+folders = os.listdir(RESULTS_PATH).sort() # sorting to have the same order on all machines (for reproducibility)
 
 # ------------------------------- ANALYSIS -------------------------------
 t00 = time.time()
