@@ -172,8 +172,8 @@ sympy_X_symbols_dict = {"r": r}
 target_expr = np.array([sympy.parse_expr(expr,
                                          local_dict = sympy_X_symbols_dict,
                                          evaluate   = True,
-                                         ).simplify() # -> assymetric treatement of target expr and trial expr can
-                                          # lead to sympy being ineffective
+                                         )#.simplify()
+# no simplification here as asymmetric treatment of target expr and trial expr can lead to sympy being ineffective
                         for expr in target_expr_str])
 
 # ------------------------------- TARGET DATA -------------------------------
