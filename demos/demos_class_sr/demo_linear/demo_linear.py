@@ -190,11 +190,11 @@ best_expr = best_expr.get_infix_sympy(evaluate_consts=True)
 best_expr = best_expr[0]
 
 # Printing best expression simplified and with rounded constants
-print("best_expr : ", su.clean_sympy_expr(best_expr, round_decimal = 4))
+print("best_expr : ", su.clean_sympy_expr(best_expr, round_decimal = 3))
 
 # Target expression was:
 target_expr = sympy.parse_expr("1.123*x0 + 1.123*x1 + 10.123")
-print("target_expr : ", su.clean_sympy_expr(target_expr, round_decimal = 4))
+print("target_expr : ", su.clean_sympy_expr(target_expr, round_decimal = 3))
 
 # Check equivalence
 print("\nChecking equivalence:")

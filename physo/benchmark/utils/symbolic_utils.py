@@ -125,7 +125,7 @@ def rationalize (k, limit_err = 0.001, limit_denominator = 10):
     return res, is_rationalized
 
 
-def round_floats(expr, round_decimal = 3):
+def round_floats(expr, round_decimal = 2):
     """
     Rounds the floats in a sympy expression as in SRBench (see https://github.com/cavalab/srbench).
     Parameters
@@ -133,14 +133,14 @@ def round_floats(expr, round_decimal = 3):
     expr : Sympy Expression
     round_decimal : int
         Rounding up to this decimal.
+        Use round_decimal = 2 for SRBench-like behavior (as they actually round up to 2 decimals).
     Returns
     -------
     ex2 : Sympy Expression
     """
     ex2 = expr
     # Why not use expr.atoms ?
-    # Doing it like SRBench
-    # todo: clean func
+    # for a in [el for el in expr.atoms()]:
     for a in sympy.preorder_traversal(expr):
         if isinstance(a, sympy.Float):
             ex2 = ex2.subs(a, round_to_sympy_integer(a, limit_err=10**(-round_decimal),))
@@ -156,15 +156,19 @@ def round_floats(expr, round_decimal = 3):
                 # B. SRBench actually uses this to check if an expr is equivalent (this is visible when checking their
                 # positive results on "dataset" feynman_III_8_54)
                 # With round_decimal = 3, this rounds up to only 2 decimals, actually.
-                ex2 = ex2.subs(a, sympy.Float(round(a, round_decimal), round_decimal))
+                # ex2 = ex2.subs(a, sympy.Float(round(a, round_decimal), round_decimal))
 
-                # C. Sometimes in sympy, a node can have the value 0.398986816406250 but the exact same node can have
+                # C. Working on python float for rounding and subs is better as sympy sometimes fails to find and
+                # replace
+                ex2 = ex2.subs(a, round(float(a), round_decimal))
+
+                # D. Sometimes in sympy, a node can have the value 0.398986816406250 but the exact same node can have
                 # a different value such as 0.39898681640625 in the upper node 0.39898681640625*x.
                 #ex2 = ex2.xreplace({a: round(a, round_decimal)}) # xreplace is for exact node replacment
     return ex2
 
 
-def clean_sympy_expr(expr, round_decimal = 3):
+def clean_sympy_expr(expr, round_decimal = 2):
     """
     Cleans (rounds floats, simplifies) sympy expression for symbolic comparison purposes as in SRBench
     (see https://github.com/cavalab/srbench).
@@ -173,6 +177,7 @@ def clean_sympy_expr(expr, round_decimal = 3):
     expr : Sympy Expression
     round_decimal : int
         Rounding up to this decimal.
+        Use round_decimal = 2 for SRBench-like behavior (as they actually round up to 2 decimals).
     Returns
     -------
     expr : Sympy Expression
@@ -194,7 +199,7 @@ def compare_expression (trial_expr,
                         handle_trigo            = True,
                         prevent_zero_frac       = True,
                         prevent_inf_equivalence = True,
-                        round_decimal = 3,
+                        round_decimal = 2,
                         verbose=False):
     """
     Checks if trial_expr is symbolically equivalent to target_expr of this Feynman problem, following a
@@ -219,6 +224,7 @@ def compare_expression (trial_expr,
         If symbolic error or fraction is infinite does not consider expression equivalent.
     round_decimal : int
         Rounding up to this decimal.
+        Use round_decimal = 2 for SRBench-like behavior (as they actually round up to 2 decimals).
     verbose : bool
         Verbose.
     Returns
