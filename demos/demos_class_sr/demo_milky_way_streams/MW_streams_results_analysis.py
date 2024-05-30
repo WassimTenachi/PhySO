@@ -6,6 +6,7 @@ import numpy as np
 import sympy
 import platform
 import torch
+
 # Internal imports
 from physo.benchmark.utils import symbolic_utils as su
 import physo.benchmark.utils.metrics_utils as metrics_utils
@@ -22,10 +23,13 @@ parser.add_argument("-p", "--path", default = ".",
                     help = "Paths to results folder.")
 parser.add_argument("-u", "--list_unfinished", default = 1,
                     help = "Save a list of unfinished runs.")
+parser.add_argument("-c", "--continue", default = 1,
+                    help = "Continues previous analysis run if it exists.")
 config = vars(parser.parse_args())
 
 RESULTS_PATH    = str(config["path"])
 SAVE_UNFINISHED = bool(int(config["list_unfinished"]))
+CONTINUE        = bool(int(config["continue"]))
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
 
@@ -39,7 +43,7 @@ PATH_UNFINISHED_BUSINESS_JOBFILE = os.path.join(RESULTS_PATH, "jobfile_unfinishe
 PATH_SOURCE_DATA = "streams.csv"
 
 # ------------------------------- TIMEOUT WRAPPER -------------------------------
-@timeout_unix.timeout(2) # Max 20s wrapper (works on unix only)
+@timeout_unix.timeout(2) # Max 2s wrapper (works on unix only)
 def timed_compare_expr(trial_expr, target_expr):
     return su.compare_expression(
                         trial_expr              = trial_expr,
@@ -51,7 +55,14 @@ def timed_compare_expr(trial_expr, target_expr):
                         verbose                 = True, )
 
 def untimed_compare_expr(trial_expr, target_expr):
-    return
+    return su.compare_expression(
+                        trial_expr              = trial_expr,
+                        target_expr             = target_expr,
+                        handle_trigo            = True,
+                        prevent_zero_frac       = True,
+                        prevent_inf_equivalence = True,
+                        round_decimal           = 2,
+                        verbose                 = True, )
 def compare_expr(trial_expr, target_expr):
     if platform.system() == "Windows":
         return untimed_compare_expr(trial_expr, target_expr)
@@ -176,6 +187,8 @@ for folder in folders:
     # If folder is a run folder
     if folder.startswith(run_folder_prefix):
 
+        t0 = time.time()
+
         # try:
         run_name = folder[len(run_folder_prefix):]
         i_trial   = int   (run_name.split("_")[0])
@@ -188,152 +201,179 @@ for folder in folders:
         print("noise     : %f"%(noise))
         print("frac_real : %f"%(frac_real))
 
-        run_result = {}
+        do_analysis = True
 
-        run_result.update(
-            {
-                "i_trial"   : i_trial,
-                "noise"     : noise,
-                "frac_real" : frac_real,
-            }
-        )
+        # Only doing analysis if not already done
+        path_result = os.path.join(RESULTS_PATH, folder, "run_result.csv")
+        if os.path.exists(path_result) and CONTINUE:
+            try:
+                run_result = pd.read_csv(path_result).iloc[0].to_dict()
+                is_finished   = run_result["is_finished"]
+                is_equivalent = run_result["symbolic_solution"]
+                print("Results already analyzed.")
+                do_analysis = False
+            except:
+                do_analysis = True
 
-        # --------------- Run log ---------------
-        try:
-            path_run_log = os.path.join(RESULTS_PATH, folder, "run_curves_data.csv")
-            run_log_df = pd.read_csv(path_run_log)
+        if do_analysis:
 
-            n_evals     = run_log_df["n_rewarded"].sum()
-            is_finished = n_evals >= 240_000 # 250k - batch size
+            run_result = {}
 
-        except:
-            n_evals     = 0
-            is_finished = False
+            run_result.update(
+                {
+                    "i_trial"   : i_trial,
+                    "noise"     : noise,
+                    "frac_real" : frac_real,
+                }
+            )
 
-        run_result.update(
-            {
-            "n_evals"     : n_evals,
-            "is_finished" : is_finished,
-            }
-        )
+            # --------------- Run log ---------------
+            try:
+                path_run_log = os.path.join(RESULTS_PATH, folder, "run_curves_data.csv")
+                run_log_df = pd.read_csv(path_run_log)
 
-        # --------------- Fit quality from logs ---------------
+                n_evals     = run_log_df["n_rewarded"].sum()
+                is_finished = n_evals >= 240_000 # 250k - batch size
 
-        try:
-            path_pareto_csv = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.csv")
-            pareto_expressions_df = pd.read_csv(path_pareto_csv)
+            except:
+                n_evals     = 0
+                is_finished = False
 
-            r2     = pareto_expressions_df.iloc[-1]["r2"]
-            reward = pareto_expressions_df.iloc[-1]["reward"]
+            run_result.update(
+                {
+                "n_evals"     : n_evals,
+                "is_finished" : is_finished,
+                }
+            )
 
-        except:
-            r2     = 0.
-            reward = 0.
+            # --------------- Fit quality from logs ---------------
 
-        run_result.update(
-            {
-                "r2"     : r2,
-                "reward" : reward,
-            }
-        )
+            try:
+                path_pareto_csv = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.csv")
+                pareto_expressions_df = pd.read_csv(path_pareto_csv)
 
-        # --------- Assessing symbolic equivalence ---------
-        try:
-            #raise(Exception("Not implemented"))
-            # Pareto expressions pkl
-            path_pareto_pkl = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.pkl")
-            pareto_expressions = physo.read_pareto_pkl(path_pareto_pkl)
+                r2     = pareto_expressions_df.iloc[-1]["r2"]
+                reward = pareto_expressions_df.iloc[-1]["reward"]
 
-            # Last expression in pareto front
-            # (n_realizations,) size as there is one free const value set per realization
-            trial_expr = pareto_expressions[-1].get_infix_sympy(evaluate_consts=True)     # (n_realizations,)
+            except:
+                r2     = 0.
+                reward = 0.
 
-            # Injecting assumptions about r
-            trial_expr = [texpr.subs(sympy_X_symbols_dict).simplify() for texpr in trial_expr]
+            run_result.update(
+                {
+                    "r2"     : r2,
+                    "reward" : reward,
+                }
+            )
 
-            # todo: whole pareto front ?
+            # --------- Assessing symbolic equivalence ---------
+            try:
+                # raise(Exception("Not implemented"))
+                # Pareto expressions pkl
+                path_pareto_pkl = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.pkl")
+                pareto_expressions = physo.read_pareto_pkl(path_pareto_pkl)
 
-            # Comparing any expression found to target expression (with any constants)
-            expr = trial_expr[0]
-            for texpr in target_expr:
-                try:
-                    expr  = su.clean_sympy_expr(expr, round_decimal=3)
-                    texpr = su.clean_sympy_expr(texpr, round_decimal=3)
-                    is_equivalent, report = compare_expr(trial_expr=expr, target_expr=texpr)
-                except:
-                    is_equivalent = False
-                if is_equivalent:
-                    print("Found equivalent expression, breaking.")
-                    break
+                # Last expression in pareto front
+                # (n_realizations,) size as there is one free const value set per realization
+                trial_expr = pareto_expressions[-1].get_infix_sympy(evaluate_consts=True)     # (n_realizations,)
 
-            save_expr = su.clean_sympy_expr(trial_expr[0], round_decimal=4)
-        except:
-            is_equivalent = False
-            save_expr     = None
+                # Injecting assumptions about r
+                trial_expr = [texpr.subs(sympy_X_symbols_dict).simplify() for texpr in trial_expr]
 
-        run_result.update(
-            {
-                "symbolic_solution": is_equivalent,
-                "expression"       : save_expr
+                # todo: whole pareto front ?
 
-            }
-        )
+                # Comparing any expression found to target expression (with any constants)
+                expr = trial_expr[0]
+                for texpr in target_expr:
+                    try:
+                        expr  = su.clean_sympy_expr(expr, round_decimal=3)
+                        texpr = su.clean_sympy_expr(texpr, round_decimal=3)
+                        is_equivalent, report = compare_expr(trial_expr=expr, target_expr=texpr)
+                    except:
+                        is_equivalent = False
+                    if is_equivalent:
+                        print("Found equivalent expression, breaking.")
+                        break
 
-        # --------------- Test fit quality ---------------
+                save_expr = su.clean_sympy_expr(trial_expr[0], round_decimal=4)
+            except:
+                is_equivalent = False
+                save_expr     = None
 
-        try:
-            # Pareto expressions pkl
-            path_pareto_pkl = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.pkl")
-            pareto_expressions = physo.read_pareto_pkl(path_pareto_pkl)
+            run_result.update(
+                {
+                    "symbolic_solution": is_equivalent,
+                    "expression"       : save_expr
 
-            # Expression on which to test the fit
-            test_expr = pareto_expressions[-1]
-            n_spe_free_consts_appearing = np.array([tok.is_spe_free_const for tok in test_expr.tokens]).sum()
-            n_free_consts_appearing     = np.array([tok.is_spe_free_const or tok.is_class_free_const for tok in test_expr.tokens]).sum()
-            # We have to re-fit the free constants as each run uses a potentially different set of realizations
-            # Also depending on the number of realizations used, there might not be enough free dataset specific
-            # free constants to fit the expression on all realizations at the same time.
-            # Let's do them one by one always using free constants from the 0th realization.
+                }
+            )
 
-            multi_y_pred = []
-            for i_real in range (len(multi_X)):
-                X = torch.tensor(multi_X[i_real])
-                y = torch.tensor(multi_y[i_real])
-                # Fine-tuning spe free constants only
-                # And if they appear in the expression only
-                if n_spe_free_consts_appearing > 0 and n_free_consts_appearing > 0:
-                    test_expr.optimize_constants(X, y, i_realization=0, freeze_class_free_consts=True)
-                # If the run was conducted with only 1 realization then we can allow for the class free constants
-                # to be optimized as well as the algo had no knowledge of the disctinction between class and spe
-                # free consts.
-                if frac_real < 1e3 and n_free_consts_appearing > 0:
-                    test_expr.optimize_constants(X, y, i_realization=0, freeze_class_free_consts=False)
-                y_pred = test_expr.execute(X, i_realization=0)
-                multi_y_pred.append(y_pred.cpu().detach().numpy())
+            # --------------- Test fit quality ---------------
 
-            # Concatenating all predictions
-            multi_y_pred_flatten = np.concatenate(multi_y_pred)
-            multi_y_flatten      = np.concatenate(multi_y)
-            test_r2 = metrics_utils.r2(y_target=multi_y_flatten, y_pred=multi_y_pred_flatten)
+            try:
+                # Pareto expressions pkl
+                path_pareto_pkl = os.path.join(RESULTS_PATH, folder, "run_curves_pareto.pkl")
+                pareto_expressions = physo.read_pareto_pkl(path_pareto_pkl)
 
-            test_expression_save = su.clean_sympy_expr(test_expr.detach().get_infix_sympy(evaluate_consts=True)[0], round_decimal=4)
-            test_expression_save_pre = test_expr.__str__().replace("\n", "")
+                # Expression on which to test the fit
+                test_expr = pareto_expressions[-1]
+                n_spe_free_consts_appearing = np.array([tok.is_spe_free_const for tok in test_expr.tokens]).sum()
+                n_free_consts_appearing     = np.array([tok.is_spe_free_const or tok.is_class_free_const for tok in test_expr.tokens]).sum()
+                # We have to re-fit the free constants as each run uses a potentially different set of realizations
+                # Also depending on the number of realizations used, there might not be enough free dataset specific
+                # free constants to fit the expression on all realizations at the same time.
+                # Let's do them one by one always using free constants from the 0th realization.
 
-        except:
-            test_r2 = 0.
-            test_expression_save     = ""
-            test_expression_save_pre = ""
+                multi_y_pred = []
+                for i_real in range (len(multi_X)):
+                    X = torch.tensor(multi_X[i_real])
+                    y = torch.tensor(multi_y[i_real])
+                    # Fine-tuning spe free constants only
+                    # And if they appear in the expression only
+                    if n_spe_free_consts_appearing > 0 and n_free_consts_appearing > 0:
+                        test_expr.optimize_constants(X, y, i_realization=0, freeze_class_free_consts=True)
+                    # If the run was conducted with only 1 realization then we can allow for the class free constants
+                    # to be optimized as well as the algo had no knowledge of the disctinction between class and spe
+                    # free consts.
+                    if frac_real < 1e3 and n_free_consts_appearing > 0:
+                        test_expr.optimize_constants(X, y, i_realization=0, freeze_class_free_consts=False)
+                    y_pred = test_expr.execute(X, i_realization=0)
+                    multi_y_pred.append(y_pred.cpu().detach().numpy())
 
-        if np.isnan(test_r2):
-            test_r2 = 0.
+                # Concatenating all predictions
+                multi_y_pred_flatten = np.concatenate(multi_y_pred)
+                multi_y_flatten      = np.concatenate(multi_y)
+                test_r2 = metrics_utils.r2(y_target=multi_y_flatten, y_pred=multi_y_pred_flatten)
 
-        run_result.update(
-            {
-                "test_r2"             : test_r2,
-                "test_expression"     : test_expression_save,
-                "test_expression_pre" : test_expression_save_pre,
-            }
-        )
+                test_expression_save = su.clean_sympy_expr(test_expr.detach().get_infix_sympy(evaluate_consts=True)[0], round_decimal=4)
+                test_expression_save_pre = test_expr.__str__().replace("\n", "")
+
+            except:
+                test_r2 = 0.
+                test_expression_save     = ""
+                test_expression_save_pre = ""
+
+            if np.isnan(test_r2):
+                test_r2 = 0.
+
+            run_result.update(
+                {
+                    "test_r2"             : test_r2,
+                    "test_expression"     : test_expression_save,
+                    "test_expression_pre" : test_expression_save_pre,
+                }
+            )
+
+            t1 = time.time()
+            run_result.update(
+                {
+                    "result_analysis_time" : t1 - t0,
+                }
+            )
+
+        # ----- Saving single run result -----
+        run_res_df = pd.DataFrame([run_result,])
+        run_res_df.to_csv(path_result, index=False)
 
         # ----- Results .csv -----
         run_results.append(run_result)
@@ -353,6 +393,7 @@ for folder in folders:
             command = "python MW_streams_run.py --trial %i --noise %f --frac_real %f"%(i_trial, noise, frac_real)
             unfinished_business_jobs.append(command)
             bu.make_jobfile_from_command_list(PATH_UNFINISHED_BUSINESS_JOBFILE, unfinished_business_jobs)
+
 
 
 # Saving results one last time with sorted lines
