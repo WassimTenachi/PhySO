@@ -164,9 +164,7 @@ target_expr_str = np.array([
         " -1.56992178190473  - 3.77705922384934 * log( - 1 / (1.0000075063141 *r + 1.0 ) ) / r ",
         " -2.05315490058432  - 3.77705922384934 * log( - 1 / (1.0000075063141 *r + 1.0 ) ) / r ",
         " -1.68884448806975  - 3.77705922384934 * log( - 1 / (1.0000075063141 *r + 1.0 ) ) / r ",
-
-       ])
-
+])
 
 r = sympy.Symbol('r', real = True, positive = True)
 sympy_X_symbols_dict = {"r": r}
@@ -174,7 +172,8 @@ sympy_X_symbols_dict = {"r": r}
 target_expr = np.array([sympy.parse_expr(expr,
                                          local_dict = sympy_X_symbols_dict,
                                          evaluate   = True,
-                                         ).simplify()
+                                         ).simplify() # -> assymetric treatement of target expr and trial expr can
+                                          # lead to sympy being ineffective
                         for expr in target_expr_str])
 
 # ------------------------------- TARGET DATA -------------------------------
@@ -317,7 +316,7 @@ for folder in folders:
 
                 # Comparing any expression found to target expression (with any constants)
                 expr = trial_expr[0]
-                for texpr in target_expr:
+                for it, texpr in enumerate(target_expr):
                     try:
                         expr  = su.clean_sympy_expr(expr,  round_decimal=1)
                         texpr = su.clean_sympy_expr(texpr, round_decimal=1)
