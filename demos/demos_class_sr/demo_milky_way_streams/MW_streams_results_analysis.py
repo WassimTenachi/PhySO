@@ -286,8 +286,8 @@ for folder in folders:
                 expr = trial_expr[0]
                 for texpr in target_expr:
                     try:
-                        expr  = su.clean_sympy_expr(expr, round_decimal=3)
-                        texpr = su.clean_sympy_expr(texpr, round_decimal=3)
+                        expr  = su.clean_sympy_expr(expr,  round_decimal=1)
+                        texpr = su.clean_sympy_expr(texpr, round_decimal=1)
                         is_equivalent, report = compare_expr(trial_expr=expr, target_expr=texpr)
                     except:
                         is_equivalent = False
@@ -295,7 +295,7 @@ for folder in folders:
                         print("Found equivalent expression, breaking.")
                         break
 
-                save_expr = su.clean_sympy_expr(trial_expr[0], round_decimal=4)
+                save_expr = su.clean_sympy_expr(trial_expr[0], round_decimal=3)
             except:
                 is_equivalent = False
                 save_expr     = None
@@ -345,7 +345,7 @@ for folder in folders:
                 multi_y_flatten      = np.concatenate(multi_y)
                 test_r2 = metrics_utils.r2(y_target=multi_y_flatten, y_pred=multi_y_pred_flatten)
 
-                test_expression_save = su.clean_sympy_expr(test_expr.detach().get_infix_sympy(evaluate_consts=True)[0], round_decimal=4)
+                test_expression_save = su.clean_sympy_expr(test_expr.detach().get_infix_sympy(evaluate_consts=True)[0], round_decimal=3)
                 test_expression_save_pre = test_expr.__str__().replace("\n", "")
 
             except:
