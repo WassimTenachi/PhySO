@@ -61,7 +61,7 @@ def untimed_compare_expr(trial_expr, target_expr):
                         handle_trigo            = True,
                         prevent_zero_frac       = True,
                         prevent_inf_equivalence = True,
-                        round_decimal           = 2,
+                        round_decimal           = 1,
                         verbose                 = True, )
 def compare_expr(trial_expr, target_expr):
     if platform.system() == "Windows":
@@ -246,6 +246,10 @@ for folder in folders:
                 do_analysis = False
             except:
                 do_analysis = True
+
+        ## Quick hack to debug
+        #if i_trial == 6 and noise == 0.001 and frac_real == 0.25:
+        #    do_analysis = True
 
         if do_analysis:
 
