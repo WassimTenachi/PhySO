@@ -392,6 +392,29 @@ class ClassProblem:
         else:
             return multi_X, multi_y
 
+    def get_sympy(self, K_vals=None):
+        """
+        Gets sympy expression of the formula evaluated with spe free consts.
+        Parameters
+        ----------
+        K_vals : numpy.array of shape (?, n_spe,) of floats or None
+            Values to evaluate spe free consts with, if None, uses random values and returns only one realization.
+        Returns
+        -------
+        sympy_expr : np.array of shape (?, n_spe,) of Sympy Expression
+        """
+        if K_vals is None:
+            K  = np.stack([np.random.uniform(self.K_lows[i_var], self.K_highs[i_var], ) for i_var in range(self.n_spe)])        # (n_spe,)
+            K_vals = np.stack([K,])                                                                                             # (?, n_spe) = (1, n_spe)
+
+        sympy_expr = []
+        for K in K_vals:
+            K_dict = {self.K_sympy_symbols[i]: K[i] for i in range(self.n_spe)}
+            expr   = self.formula_sympy.subs(K_dict)
+            sympy_expr.append(expr)
+        sympy_expr = np.array(sympy_expr)                                                                                        # (?,)
+
+        return sympy_expr
 
     def show_sample(self, n_samples = 10_000, n_realizations = 10, do_show = True, save_path = None):
         multi_X, multi_y = self.generate_data_points(n_samples=n_samples, n_realizations=n_realizations)
