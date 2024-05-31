@@ -259,7 +259,7 @@ def compare_expression (trial_expr,
     try:
         target_expr = clean_sympy_expr(target_expr, round_decimal=round_decimal)
     except Exception as e:
-        trial_expr = trial_expr
+        target_expr = target_expr
 
     # ------ Trial expression cleaning ------
     try:
