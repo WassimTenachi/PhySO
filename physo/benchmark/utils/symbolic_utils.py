@@ -138,10 +138,19 @@ def round_floats(expr, round_decimal = 2):
     -------
     ex2 : Sympy Expression
     """
-    ex2 = expr
+
     # Why not use expr.atoms ?
     # for a in [el for el in expr.atoms()]:
+
+    # Other sympy numbers to convert to floats that evalf does not handle
+    ex1 = expr
+    sympy_numbers_to_float = [sympy.core.numbers.Exp1,]#[sympy.core.numbers.Pi]
     for a in sympy.preorder_traversal(expr):
+        if (type(a) in sympy_numbers_to_float):
+            ex1 = ex1.subs(a, round(float(a), round_decimal))
+
+    ex2 = ex1
+    for a in sympy.preorder_traversal(ex1):
         if isinstance(a, sympy.Float):
             ex2 = ex2.subs(a, round_to_sympy_integer(a, limit_err=10**(-round_decimal),))
             if abs(a) < 0.0001:
