@@ -129,8 +129,6 @@ for i_eq in range (ClPb.N_EQS):
     pb = ClPb.ClassProblem(i_eq, original_var_names=ORIGINAL_VAR_NAMES)
     # Making run file only if it is not in excluded problems
     if pb.eq_name not in EXCLUDED_EQS:
-        print(pb)
-        print(pb.get_sympy())
         # Iterating through trials
         for i_trial in range (N_TRIALS):
             for noise_lvl in NOISE_LEVELS:
