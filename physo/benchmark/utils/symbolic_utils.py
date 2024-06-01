@@ -246,8 +246,8 @@ def compare_expression (trial_expr,
                         round_decimal = 2,
                         verbose=False):
     """
-    Checks if trial_expr is symbolically equivalent to target_expr of this Feynman problem, following a
-    similar methodology as SRBench (see https://github.com/cavalab/srbench).
+    Checks if trial_expr is symbolically equivalent to target_expr, following a similar methodology as
+    SRBench (see https://github.com/cavalab/srbench).
     I.e, it is deemed equivalent if:
         - the symbolic difference simplifies to 0
         - OR the symbolic difference is a constant
