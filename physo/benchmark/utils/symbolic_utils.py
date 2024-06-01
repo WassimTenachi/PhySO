@@ -124,6 +124,41 @@ def rationalize (k, limit_err = 0.001, limit_denominator = 10):
         res = k
     return res, is_rationalized
 
+def replace_sin_by_cos (expr):
+    """
+    Replaces sin(...) by cos(pi/2 - ...) in a sympy expression.
+    Parameters
+    ----------
+    expr : Sympy Expression
+    Returns
+    -------
+    ex1 : Sympy Expression
+    """
+    ex1 = expr
+    # If sin(...) is encountered, replacing it by cos(pi/2 - ...)
+    for a in sympy.preorder_traversal(expr):
+        if type(a)==sympy.sin:
+            b = sympy.cos(np.pi/2 - a.args[0])
+            ex1 = ex1.subs(a, b)
+    return ex1
+
+def replace_cos_by_sin (expr):
+    """
+    Replaces cos(...) by sin(pi/2 - ...) in a sympy expression.
+    Parameters
+    ----------
+    expr : Sympy Expression
+    Returns
+    -------
+    ex1 : Sympy Expression
+    """
+    ex1 = expr
+    # If cos(...) is encountered, replacing it by sin(pi/2 - ...)
+    for a in sympy.preorder_traversal(expr):
+        if type(a)==sympy.cos:
+            b = sympy.sin(np.pi/2 - a.args[0])
+            ex1 = ex1.subs(a, b)
+    return ex1
 
 def round_floats(expr, round_decimal = 2):
     """
