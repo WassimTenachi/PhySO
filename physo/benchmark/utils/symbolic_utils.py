@@ -378,9 +378,12 @@ def compare_expression (trial_expr,
         str_err = "Unknown error."
 
     # SRBench style report
+    # Displaying what triggered the equivalence
+    display_sym_err  = vanilla_sym_err  if (vanilla_sym_err_is_zero or vanilla_sym_err_is_const) else trigo_sym_err
+    display_sym_frac = vanilla_sym_frac if vanilla_sym_frac_is_const                             else trigo_sym_frac
     report = {
-        'symbolic_error'                : str(vanilla_sym_err),
-        'symbolic_fraction'             : str(vanilla_sym_frac),
+        'symbolic_error'                : str(display_sym_err),
+        'symbolic_fraction'             : str(display_sym_frac),
         'symbolic_error_is_zero'        : symbolic_error_is_zero,
         'symbolic_error_is_constant'    : symbolic_error_is_constant,
         'symbolic_fraction_is_constant' : symbolic_fraction_is_constant,
