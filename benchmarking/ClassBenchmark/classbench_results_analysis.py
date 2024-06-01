@@ -219,8 +219,6 @@ for i_eq in range (ClPb.N_EQS):
                             # Iterating through pareto expressions in reverse order
                             for i_pareto in range(len(pareto_expressions)-1, -1, -1):
                                 # Getting trial expression
-                                # Pareto expressions pkl
-                                # Last expression in pareto front
                                 # (n_reals,) size as there is one free const value set per realization
                                 trial_expr = pareto_expressions[i_pareto].get_infix_sympy(evaluate_consts=True)       # (n_reals,)
                                 # Injecting assumptions about input variables
