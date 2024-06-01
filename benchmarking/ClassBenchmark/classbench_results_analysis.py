@@ -402,6 +402,16 @@ for i_eq in range (ClPb.N_EQS):
     else:
         print("Problem excluded.")
 
+# Averaging across run seeds
+df_grouped = df.groupby(['i_eq', 'noise', 'n_reals']).agg(
+                                                    {'symbolic_solution': 'mean',
+                                                     'test_r2'          : 'median',
+                                                     'accuracy_solution': 'mean',
+                                                     '# EVALUATIONS'    : 'mean',
+                                                     'FINISHED'         : 'all',
+                                                     }).reset_index()
+df_grouped.to_csv(os.path.join(RESULTS_PATH, "results_summary.csv"), index=False)
+
 
 print("--------------------")
 print("Total evals:", df["# EVALUATIONS"].sum())
