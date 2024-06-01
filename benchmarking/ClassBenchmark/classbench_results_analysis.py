@@ -52,6 +52,9 @@ N_REALIZATIONS = fconfig.N_REALIZATIONS
 # Batch size
 BATCH_SIZE = fconfig.CONFIG["learning_config"]["batch_size"]
 
+# R2 threshold above which an expression is deemed an accuracy solution
+R2_ACCURACY_SOLUTION_THRESHOLD = 0.999
+
 # ------------------------------- PATHS -------------------------------
 # Where to save raw results of all runs
 PATH_RESULTS_SAVE         = os.path.join(RESULTS_PATH, "results_detailed.csv")
@@ -316,6 +319,7 @@ for i_eq in range (ClPb.N_EQS):
                             multi_y_target_flatten = np.concatenate(multi_y_target)
                             multi_y_pred_flatten   = np.concatenate(multi_y_pred)
                             test_r2 = metrics_utils.r2(y_target=multi_y_target_flatten, y_pred=multi_y_pred_flatten)
+                            is_accuracy_solution = test_r2 > R2_ACCURACY_SOLUTION_THRESHOLD
 
                             # fig, ax = plt.subplots(1,1, figsize=(10,8))
                             # for i_real in range(n_reals):
@@ -326,9 +330,11 @@ for i_eq in range (ClPb.N_EQS):
 
                         except:
                             test_r2 = 0.
+                            is_accuracy_solution = False
 
                         fit_quality = {
                                 'test_r2': test_r2,
+                                'accuracy_solution': is_accuracy_solution,
                                       }
                         run_result.update(fit_quality)
 
