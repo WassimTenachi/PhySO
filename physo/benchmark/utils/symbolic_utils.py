@@ -317,7 +317,9 @@ def compare_expression (trial_expr,
 
     # For trigo cases
     try:
-        trigo_sym_err = clean_sympy_expr(expr_floats_to_pi_fracs(target_expr - trial_expr), round_decimal=round_decimal)
+        trigo_sym_err = clean_sympy_expr(
+            expr_floats_to_pi_fracs(target_expr - trial_expr, limit_err = 10**(-round_decimal)),
+            round_decimal=round_decimal)
         trigo_sym_err_is_zero  = str(trigo_sym_err) == '0'
         trigo_sym_err_is_const = trigo_sym_err.is_constant() and contains_no_inf(trigo_sym_err)
     except Exception as e:
@@ -344,7 +346,9 @@ def compare_expression (trial_expr,
 
     # For trigo cases
     try:
-        trigo_sym_frac = clean_sympy_expr(expr_floats_to_pi_fracs(target_expr / trial_expr), round_decimal=round_decimal)
+        trigo_sym_frac = clean_sympy_expr(
+            expr_floats_to_pi_fracs(target_expr / trial_expr, limit_err = 10**(-round_decimal)),
+            round_decimal=round_decimal)
         trigo_sym_frac_is_const = trigo_sym_frac.is_constant() \
                                   and (str(trigo_sym_frac) != '0' or not prevent_zero_frac) \
                                   and contains_no_inf(trigo_sym_frac)
