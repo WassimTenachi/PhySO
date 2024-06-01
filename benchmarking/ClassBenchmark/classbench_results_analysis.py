@@ -238,7 +238,7 @@ for i_eq in range (ClPb.N_EQS):
                         path_pareto_pkl = os.path.join(path_run, "SR_curves_pareto.pkl")
 
                         try:
-                            # raise Exception("Not implemented.")
+                            #raise Exception("Not implemented.")
                             pareto_expressions = physo.read_pareto_pkl(path_pareto_pkl)                           # (n_reals,)
 
                             # Iterating through pareto expressions in reverse order
