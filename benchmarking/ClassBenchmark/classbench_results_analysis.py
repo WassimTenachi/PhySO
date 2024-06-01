@@ -211,10 +211,30 @@ for i_eq in range (ClPb.N_EQS):
                             }
                         run_result.update(run_details)
 
+                        # ----- Most accurate expression found -----
+
+                        # Path to pareto front expressions
+                        path_pareto_pkl = os.path.join(path_run, "SR_curves_pareto.pkl")
+
+                        try:
+                            pareto_expressions = physo.read_pareto_pkl(path_pareto_pkl)  # (n_reals,)
+                            best_expr = pareto_expressions[-1].get_infix_sympy(evaluate_consts=True)[0]
+                            best_expr = su.clean_sympy_expr(best_expr)
+                        except:
+                            best_expr = ""
+
+                        run_result.update(
+                            {
+                                'last_pareto_expression' : best_expr,
+                            }
+                        )
+
+
                         # ----- Symbolic equivalence related -----
 
                         # Path to spe free consts values used in the run
                         path_K_vals     = os.path.join(path_run, run_name + "_datagen.csv")
+                        # Path to pareto front expressions
                         path_pareto_pkl = os.path.join(path_run, "SR_curves_pareto.pkl")
 
                         try:
