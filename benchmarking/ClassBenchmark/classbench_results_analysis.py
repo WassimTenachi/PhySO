@@ -7,6 +7,8 @@ import scipy.stats as st
 import os
 import time
 import platform
+import torch
+import matplotlib.pyplot as plt
 
 # Internal imports
 import physo.benchmark.ClassDataset.ClassProblem as ClPb
@@ -276,6 +278,61 @@ for i_eq in range (ClPb.N_EQS):
 
                         run_result.update(equivalence_report)
                         run_result.update(equivalent_details)
+
+                        # ----- Fit quality related -----
+
+                        # Path to spe free consts values used in the run
+                        path_K_vals     = os.path.join(path_run, run_name + "_datagen.csv")
+                        path_pareto_pkl = os.path.join(path_run, "SR_curves_pareto.pkl")
+
+                        try:
+                            pareto_expressions = physo.read_pareto_pkl(path_pareto_pkl)                           # (n_reals,)
+
+                            # Getting X data (generate_data_points will return y as well from random Ks so we need
+                            # to drop it)
+                            multi_X, _ = pb.generate_data_points(n_samples = 10_000, n_realizations=n_reals)
+
+                            # Getting predictions
+                            # Last expression in pareto front
+                            i_pareto = -1
+                            trial_expr = pareto_expressions[i_pareto]
+                            multi_y_pred = []
+                            for i_real in range(n_reals):
+                                X = torch.tensor(multi_X[i_real])
+                                y_pred = trial_expr.execute(X=X, i_realization=i_real)
+                                y_pred = y_pred.detach().numpy()
+                                multi_y_pred.append(y_pred)
+                            multi_y_pred = np.array(multi_y_pred)
+
+                            # Getting target
+                            K_vals_df = pd.read_csv(path_K_vals, sep=";")
+                            K_vals_df = K_vals_df.drop(columns=["i_real"])
+                            K_vals    = K_vals_df.to_numpy().astype(float)    # (n_reals,)
+                            multi_y_target = []
+                            for i_real in range(n_reals):
+                                y_target = pb.target_function(X=multi_X[i_real], K=K_vals[i_real])
+                                multi_y_target.append(y_target)
+                            multi_y_target = np.array(multi_y_target)
+
+                            # R2
+                            multi_y_target_flatten = np.concatenate(multi_y_target)
+                            multi_y_pred_flatten   = np.concatenate(multi_y_pred)
+                            test_r2 = metrics_utils.r2(y_target=multi_y_target_flatten, y_pred=multi_y_pred_flatten)
+
+                            # fig, ax = plt.subplots(1,1, figsize=(10,8))
+                            # for i_real in range(n_reals):
+                            #     ax.plot(multi_X[i_real][0], multi_y_pred[i_real], 'b.')
+                            #     ax.plot(multi_X[i_real][0], multi_y_target[i_real], 'r.')
+                            # plt.show()
+                            # print(None)
+
+                        except:
+                            test_r2 = 0.
+
+                        fit_quality = {
+                                'test_r2': test_r2,
+                                      }
+                        run_result.update(fit_quality)
 
                         # ----- Listing unfinished jobs -----
                         command = "python classbench_run.py -i %i -t %i -n %f -r %i" % (i_eq, i_trial, noise_lvl, n_reals)
