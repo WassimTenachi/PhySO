@@ -35,7 +35,8 @@ CONTINUE        = bool(int(config["continue"]))
 
 # ------------------------------- PATHS -------------------------------
 # Path where to save the results
-PATH_RESULTS_SAVE = os.path.join(RESULTS_PATH, "MW_streams_results_detailed.csv")
+PATH_RESULTS_SAVE         = os.path.join(RESULTS_PATH, "results_detailed.csv")
+PATH_RESULTS_SUMMARY_SAVE = os.path.join(RESULTS_PATH, "results_summary.csv")
 # Path where to save jobfile to relaunch unfinished jobs
 PATH_UNFINISHED_JOBFILE          = os.path.join(RESULTS_PATH, "jobfile_unfinished")
 PATH_UNFINISHED_BUSINESS_JOBFILE = os.path.join(RESULTS_PATH, "jobfile_unfinished_business")
@@ -431,10 +432,16 @@ for folder in folders:
             bu.make_jobfile_from_command_list(PATH_UNFINISHED_BUSINESS_JOBFILE, unfinished_business_jobs)
 
 
-
 # Saving results one last time with sorted lines
 df.sort_values(by=["noise", "frac_real", "i_trial",], inplace=True)
 df.to_csv(PATH_RESULTS_SAVE, index=False)
+
+df_grouped = df.groupby(['noise', 'frac_real']).agg({'symbolic_solution' : 'mean',
+                                                     'test_r2'           : 'median',
+                                                     'n_evals'           : 'mean',
+                                                     'is_finished'       : 'all',
+                                                        }).reset_index()
+df_grouped.to_csv(PATH_RESULTS_SUMMARY_SAVE, index=False)
 
 print("--------------------")
 print("Total evals:", df["n_evals"].sum())
