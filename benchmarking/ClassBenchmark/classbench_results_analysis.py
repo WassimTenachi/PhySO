@@ -119,6 +119,8 @@ def compare_expr( trial_expr,
                                   verbose                 = verbose,)
 
 # ------------------------------- MAIN SCRIPT -------------------------------
+t00 = time.time()
+
 # List of all lines that will be converted to pd.DataFrame (as df.append is deprecated).
 all_results = []
 
@@ -379,3 +381,10 @@ for i_eq in range (ClPb.N_EQS):
 
     else:
         print("Problem excluded.")
+
+
+print("--------------------")
+print("Total evals:", df["# EVALUATIONS"].sum())
+
+t01 = time.time()
+print("Total time : %f s"%(t01 - t00))
