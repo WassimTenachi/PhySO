@@ -168,6 +168,14 @@ for i_eq in range (ClPb.N_EQS):
                         except:
                             do_analysis = True
 
+                    # Quick debug hack
+                    # if run_name == "CR_3_0_10_0.000000":
+                    #     do_analysis = True
+                    # if do_analysis is False:
+                    #     if run_result["symbolic_solution"] is False:
+                    #         print("Re-analyzing run.")
+                    #         do_analysis = True
+
                     if do_analysis:
 
                         run_result = {}
@@ -417,6 +425,12 @@ df_grouped = df.groupby(['i_eq', 'noise', 'n_reals']).agg(
                                                      '# EVALUATIONS'    : 'mean',
                                                      'FINISHED'         : 'all',
                                                      }).reset_index()
+# Adding target col
+df_grouped["target_formula"] = [ClPb.ClassProblem(i_eq=i_eq).formula_original for i_eq in df_grouped["i_eq"]]
+# Re-ordering columns
+df_grouped = df_grouped[['i_eq', 'noise', 'n_reals', 'target_formula','symbolic_solution','test_r2',
+                         'accuracy_solution','# EVALUATIONS','FINISHED']]
+# Saving
 df_grouped.to_csv(os.path.join(RESULTS_PATH, "results_summary.csv"), index=False)
 
 
