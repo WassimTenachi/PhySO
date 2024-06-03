@@ -20,7 +20,7 @@ get_default_run_visualiser = lambda : monitoring.RunVisualiser (
 
 # DEFAULT ALLOWED OPERATIONS
 default_op_names = ["mul", "add", "sub", "div", "inv", "n2", "sqrt", "neg", "exp", "log", "sin", "cos"]
-default_stop_after_n_epochs = 5
+default_stop_after_n_epochs = 10
 
 
 def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
