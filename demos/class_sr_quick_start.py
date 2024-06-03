@@ -1,35 +1,34 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# # $\Phi$-SO demo : Class SR quick start
+
+# ## Class SR definition
+
+# Class Symbolic Regression:
+# Automatically finding a single analytical functional form that accurately fits multiple datasets - each governed by its own (possibly) unique set of fitting parameters.
+# This hierarchical framework leverages the common constraint that all the members of a single class of physical phenomena follow a common governing law.
+
+# ![class_sr_framework.png](attachment:3b74f0d7-8a06-4663-bf0d-e442c0f40aff.png)
+
+# ## Package import
+
+# In[1]:
+
+
+# External packages
+import numpy as np
+import matplotlib.pyplot as plt
+import torch
+
+# In[2]:
+
+
+# Internal code import
+import physo
+import physo.learn.monitoring as monitoring
+
 if __name__ == '__main__':
-
-    # # $\Phi$-SO demo : Class SR quick start
-
-    # ## Class SR definition
-
-    # Class Symbolic Regression:
-    # Automatically finding a single analytical functional form that accurately fits multiple datasets - each governed by its own (possibly) unique set of fitting parameters.
-    # This hierarchical framework leverages the common constraint that all the members of a single class of physical phenomena follow a common governing law.
-
-    # ![class_sr_framework.png](attachment:3b74f0d7-8a06-4663-bf0d-e442c0f40aff.png)
-
-    # ## Package import
-
-    # In[1]:
-
-
-    # External packages
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import torch
-
-
-    # In[2]:
-
-
-    # Internal code import
-    import physo
-    import physo.learn.monitoring as monitoring
 
 
     # ## Fixing seed
@@ -190,7 +189,7 @@ if __name__ == '__main__':
                                 op_names = ["add", "sub", "mul", "div"],
                                 get_run_logger     = run_logger,
                                 get_run_visualiser = run_visualiser,
-                                # Paralell mode (only available when running from python scripts, not notebooks)
+                                # Parallel mode (only available when running from python scripts, not notebooks)
                                 parallel_mode = False,
                                 # Number of iterations
                                 epochs = 10,

@@ -1,31 +1,30 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# # $\Phi$-SO demo : SR quick start
+
+# ## SR definition
+
+# Symbolic regression (SR) consists in the inference of a free-form symbolic analytical function $f: \mathbb{R}^n \longrightarrow \mathbb{R}$ that fits $y = f(x_0,..., x_n)$ given $(x_0,..., x_n, y)$ data.
+
+# ![sr_framework.png](attachment:61c0f7bb-a3fb-411e-a7d4-ebf2704a54cf.png)
+
+# In[1]:
+
+
+# External packages
+import numpy as np
+import matplotlib.pyplot as plt
+import torch
+
+# In[2]:
+
+
+# Internal code import
+import physo
+import physo.learn.monitoring as monitoring
+
 if __name__ == '__main__':
-
-    # # $\Phi$-SO demo : SR quick start
-
-    # ## SR definition
-
-    # Symbolic regression (SR) consists in the inference of a free-form symbolic analytical function $f: \mathbb{R}^n \longrightarrow \mathbb{R}$ that fits $y = f(x_0,..., x_n)$ given $(x_0,..., x_n, y)$ data.
-
-    # ![sr_framework.png](attachment:61c0f7bb-a3fb-411e-a7d4-ebf2704a54cf.png)
-
-    # In[1]:
-
-
-    # External packages
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import torch
-
-
-    # In[2]:
-
-
-    # Internal code import
-    import physo
-    import physo.learn.monitoring as monitoring
 
 
     # ## Fixing seed
@@ -147,7 +146,7 @@ if __name__ == '__main__':
                                 get_run_visualiser = run_visualiser,
                                 # Run config
                                 run_config = physo.config.config0.config0,
-                                # Paralell mode (only available when running from python scripts, not notebooks)
+                                # Parallel mode (only available when running from python scripts, not notebooks)
                                 parallel_mode = False,
                                 # Number of iterations
                                 epochs = 20
