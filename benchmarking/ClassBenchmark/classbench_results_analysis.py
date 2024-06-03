@@ -247,39 +247,44 @@ for i_eq in range (ClPb.N_EQS):
                             for i_pareto in range(len(pareto_expressions)-1, -1, -1):
                                 # Getting trial expression
                                 # (n_reals,) size as there is one free const value set per realization
-                                trial_expr = pareto_expressions[i_pareto].get_infix_sympy(evaluate_consts=True)       # (n_reals,)
+                                trial_exprs = pareto_expressions[i_pareto].get_infix_sympy(evaluate_consts=True)       # (n_reals,)
                                 # Injecting assumptions about input variables
-                                trial_expr = [texpr.subs(pb.sympy_X_symbols_dict).simplify() for texpr in trial_expr] # (n_reals,)
+                                trial_exprs = [texpr.subs(pb.sympy_X_symbols_dict).simplify() for texpr in trial_exprs] # (n_reals,)
 
                                 # Getting target spe free consts values
                                 K_vals_df = pd.read_csv(path_K_vals, sep=";")
                                 K_vals_df = K_vals_df.drop(columns=["i_real"])
                                 K_vals    = K_vals_df.to_numpy().astype(float)    # (n_reals,)
                                 # Getting target expression
-                                target_expr = pb.get_sympy(K_vals=K_vals)
+                                target_exprs = pb.get_sympy(K_vals=K_vals)
 
-                                # Comparing on realization 0 only
-                                target_expr = target_expr[0]
-                                trial_expr  = trial_expr [0]
+                                # Comparing on all realizations
+                                for i_real in range(n_reals):
+                                    target_expr = target_exprs [i_real]
+                                    trial_expr  = trial_exprs  [i_real]
 
-                                # Getting symbolic equivalence report
-                                target_expr = su.clean_sympy_expr(target_expr,)
-                                trial_expr  = su.clean_sympy_expr(trial_expr ,)
-                                is_equivalent, equivalence_report = compare_expr (
-                                                                               trial_expr  = trial_expr,
-                                                                               target_expr = target_expr,
-                                                                               handle_trigo            = True,
-                                                                               prevent_zero_frac       = True,
-                                                                               prevent_inf_equivalence = True,
-                                                                               verbose                 = True,
-                                                                               round_decimal = 2,
-                                                                               )
+                                    # Getting symbolic equivalence report
+                                    target_expr = su.clean_sympy_expr(target_expr, round_decimal=ROUND_DECIMALS)
+                                    trial_expr  = su.clean_sympy_expr(trial_expr , round_decimal=ROUND_DECIMALS)
+                                    is_equivalent, equivalence_report = compare_expr (
+                                                                                   trial_expr  = trial_expr,
+                                                                                   target_expr = target_expr,
+                                                                                   handle_trigo            = True,
+                                                                                   prevent_zero_frac       = True,
+                                                                                   prevent_inf_equivalence = True,
+                                                                                   verbose                 = True,
+                                                                                   round_decimal = ROUND_DECIMALS,
+                                                                                   )
+                                    if is_equivalent:
+                                        print("Found equivalent expression, breaking (from realization loop).")
+                                        break
+
                                 equivalent_details = {
                                     'equivalent_expr' : trial_expr,
                                     'i_pareto       ' : i_pareto,
                                                      }
                                 if is_equivalent:
-                                    print("Found equivalent expression, breaking.")
+                                    print("Found equivalent expression, breaking (from pareto loop).")
                                     break
                                 else:
                                     equivalent_details.update({'equivalent_expr' : ""})
