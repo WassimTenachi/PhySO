@@ -441,6 +441,10 @@ df_grouped = df.groupby(['noise', 'frac_real']).agg({'symbolic_solution' : 'mean
                                                      'n_evals'           : 'mean',
                                                      'is_finished'       : 'all',
                                                         }).reset_index()
+# Adding target col
+df_grouped["target_formula"] = "E_t +A*R*log((1+(r/R)))/r"
+# Re-ordering columns
+df_grouped = df_grouped[['noise', 'frac_real', 'target_formula', 'symbolic_solution', 'test_r2', 'n_evals', 'is_finished']]
 df_grouped.to_csv(PATH_RESULTS_SUMMARY_SAVE, index=False)
 
 print("--------------------")
