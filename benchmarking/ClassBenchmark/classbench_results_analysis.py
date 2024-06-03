@@ -54,6 +54,8 @@ BATCH_SIZE = fconfig.CONFIG["learning_config"]["batch_size"]
 
 # R2 threshold above which an expression is deemed an accuracy solution
 R2_ACCURACY_SOLUTION_THRESHOLD = 0.999
+# Number of decimal places to round to when comparing expressions
+ROUND_DECIMALS = 1
 
 # ------------------------------- PATHS -------------------------------
 # Where to save raw results of all runs
