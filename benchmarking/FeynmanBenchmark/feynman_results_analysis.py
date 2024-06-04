@@ -3,10 +3,15 @@ import numpy as np
 import sympy
 import pandas as pd
 import argparse
-import scipy.stats as st
 import os
 import time
 import platform
+
+try:
+    import scipy.stats as st
+except:
+    raise ImportError("Scipy not found. Please install it.")
+
 
 # Internal imports
 import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn

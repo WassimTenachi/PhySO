@@ -1,0 +1,7 @@
+# Requirements for display purposes + feynman benchmark analysis script (only useful for devs)
+# Install via conda : conda install --file devreq1.txt
+
+# Available through conda and pip
+scikit-learn # For  Feynman benchmark analysis script
+pygraphviz == 1.9 # Install via conda recommended (only useful for tree representation)
+jupyterlab

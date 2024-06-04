@@ -7,5 +7,4 @@ matplotlib
 numpy
 tqdm
 pandas
-scikit-learn
 pip

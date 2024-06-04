@@ -3,7 +3,6 @@ import numpy as np
 import sympy
 import pandas as pd
 import argparse
-import scipy.stats as st
 import os
 import time
 import platform
