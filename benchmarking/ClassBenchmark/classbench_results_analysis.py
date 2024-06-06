@@ -14,7 +14,6 @@ import physo.benchmark.ClassDataset.ClassProblem as ClPb
 import physo.benchmark.utils.symbolic_utils as su
 import physo.benchmark.utils.metrics_utils as metrics_utils
 import physo.benchmark.utils.timeout_unix  as timeout_unix
-import physo.benchmark.utils.read_logs     as read_logs
 import physo
 
 # Local imports
@@ -288,7 +287,7 @@ for i_eq in range (ClPb.N_EQS):
 
                                 equivalent_details = {
                                     'equivalent_expr' : trial_expr,
-                                    'i_pareto       ' : i_pareto,
+                                    'i_pareto'        : i_pareto,
                                                      }
                                 if is_equivalent:
                                     print("Found equivalent expression, breaking (from pareto loop).")
