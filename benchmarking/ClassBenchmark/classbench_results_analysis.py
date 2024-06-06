@@ -373,6 +373,76 @@ for i_eq in range (ClPb.N_EQS):
                                       }
                         run_result.update(fit_quality)
 
+                        # ----- Fit quality related (via refit) -----
+
+                        # Path to spe free consts values used in the run
+                        path_K_vals     = os.path.join(path_run, run_name + "_datagen.csv")
+                        path_pareto_pkl = os.path.join(path_run, "SR_curves_pareto.pkl")
+
+                        try:
+                            pareto_expressions = physo.read_pareto_pkl(path_pareto_pkl)                           # (n_reals,)
+
+                            # Constant refit optimization args
+                            REFIT_OPTI_ARGS = {
+                                'loss': "MSE",
+                                'method': 'LBFGS',
+                                'method_args': {
+                                        'n_steps' : 100,
+                                        'tol'     : 1e-10,
+                                            'lbfgs_func_args' : {
+                                            'max_iter'       : 4,
+                                            'line_search_fn' : "strong_wolfe",
+                                                                },
+                                               }
+                            }
+
+                            # Refitting constants on n_reals_eval realizations alone one by one to evaluate
+                            n_reals_eval = 10
+
+                            # Getting new data to refit constants with
+                            multi_X, multi_y_target = pb.generate_data_points(n_samples = 10_000,
+                                                                              n_realizations=n_reals_eval)
+
+                            # Getting predictions
+                            # Last expression in pareto front
+                            i_pareto = -1
+                            trial_expr = pareto_expressions[i_pareto]
+
+                            multi_y_pred = []
+                            for i_real in range(n_reals_eval):
+                                X        = torch.tensor(multi_X       [i_real])
+                                y_target = torch.tensor(multi_y_target[i_real])
+                                # Always refitting using constants stored in realization 0
+                                trial_expr.optimize_constants(X=X, y_target=y_target, i_realization=0, args_opti=REFIT_OPTI_ARGS)
+                                # Predicting
+                                y_pred = trial_expr.execute(X=X, i_realization=0)
+                                y_pred = y_pred.detach().numpy()
+                                multi_y_pred.append(y_pred)
+                            multi_y_pred = np.array(multi_y_pred)
+
+                            # R2
+                            multi_y_target_flatten = np.concatenate(multi_y_target)
+                            multi_y_pred_flatten   = np.concatenate(multi_y_pred)
+                            test_r2 = metrics_utils.r2(y_target=multi_y_target_flatten, y_pred=multi_y_pred_flatten)
+                            is_accuracy_solution = test_r2 > R2_ACCURACY_SOLUTION_THRESHOLD
+
+                            # fig, ax = plt.subplots(1,1, figsize=(10,8))
+                            # for i_real in range(n_reals):
+                            #     ax.plot(multi_X[i_real][0], multi_y_pred[i_real], 'b.')
+                            #     ax.plot(multi_X[i_real][0], multi_y_target[i_real], 'r.')
+                            # plt.show()
+                            # print(None)
+
+                        except:
+                            test_r2 = 0.
+                            is_accuracy_solution = False
+
+                        fit_quality = {
+                                'test_r2_refit': test_r2,
+                                'accuracy_solution_refit': is_accuracy_solution,
+                                      }
+                        run_result.update(fit_quality)
+
                         # ----- Listing unfinished jobs -----
                         command = "python classbench_run.py -i %i -t %i -n %f -r %i" % (i_eq, i_trial, noise_lvl, n_reals)
 
@@ -417,17 +487,19 @@ for i_eq in range (ClPb.N_EQS):
 
 # Averaging across run seeds
 df_grouped = df.groupby(['i_eq', 'noise', 'n_reals']).agg(
-                                                    {'symbolic_solution': 'mean',
-                                                     'test_r2'          : 'median',
-                                                     'accuracy_solution': 'mean',
-                                                     '# EVALUATIONS'    : 'mean',
-                                                     'FINISHED'         : 'all',
+                                                    {'symbolic_solution'       : 'mean',
+                                                     'test_r2'                 : 'median',
+                                                     'accuracy_solution'       : 'mean',
+                                                     'test_r2_refit'           : 'median',
+                                                     'accuracy_solution_refit' : 'mean',
+                                                     '# EVALUATIONS'           : 'mean',
+                                                     'FINISHED'                : 'all',
                                                      }).reset_index()
 # Adding target col
 df_grouped["target_formula"] = [ClPb.ClassProblem(i_eq=i_eq).formula_original for i_eq in df_grouped["i_eq"]]
 # Re-ordering columns
-df_grouped = df_grouped[['i_eq', 'noise', 'n_reals', 'target_formula','symbolic_solution','test_r2',
-                         'accuracy_solution','# EVALUATIONS','FINISHED']]
+df_grouped = df_grouped[['i_eq', 'noise', 'n_reals', 'target_formula','symbolic_solution','test_r2', 'accuracy_solution',
+                        'test_r2_refit', 'accuracy_solution_refit', '# EVALUATIONS','FINISHED']]
 # Saving
 df_grouped.to_csv(os.path.join(RESULTS_PATH, "results_summary.csv"), index=False)
 
