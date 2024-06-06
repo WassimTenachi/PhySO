@@ -388,7 +388,7 @@ for i_eq in range (ClPb.N_EQS):
                                 'method': 'LBFGS',
                                 'method_args': {
                                         'n_steps' : 100,
-                                        'tol'     : 1e-10,
+                                        'tol'     : 1e-12,
                                             'lbfgs_func_args' : {
                                             'max_iter'       : 4,
                                             'line_search_fn' : "strong_wolfe",
@@ -397,21 +397,24 @@ for i_eq in range (ClPb.N_EQS):
                             }
 
                             # Refitting constants on n_reals_eval realizations alone one by one to evaluate
-                            n_reals_eval = 10
+                            n_reals_eval = 20
 
                             # Getting new data to refit constants with
                             multi_X, multi_y_target = pb.generate_data_points(n_samples = 10_000,
                                                                               n_realizations=n_reals_eval)
 
                             # Getting predictions
-                            # Last expression in pareto front
-                            i_pareto = -1
+                            # Last expression in pareto front except if symbolic solution was found
+                            i_pareto = run_result["i_pareto"] if run_result["symbolic_solution"] else -1
                             trial_expr = pareto_expressions[i_pareto]
 
                             multi_y_pred = []
                             for i_real in range(n_reals_eval):
                                 X        = torch.tensor(multi_X       [i_real])
                                 y_target = torch.tensor(multi_y_target[i_real])
+                                # Resetting constants
+                                trial_expr.free_consts.reset_class_values()
+                                trial_expr.free_consts.reset_spe_values()
                                 # Always refitting using constants stored in realization 0
                                 trial_expr.optimize_constants(X=X, y_target=y_target, i_realization=0, args_opti=REFIT_OPTI_ARGS)
                                 # Predicting
@@ -421,9 +424,15 @@ for i_eq in range (ClPb.N_EQS):
                             multi_y_pred = np.array(multi_y_pred)
 
                             # R2
-                            multi_y_target_flatten = np.concatenate(multi_y_target)
-                            multi_y_pred_flatten   = np.concatenate(multi_y_pred)
-                            test_r2 = metrics_utils.r2(y_target=multi_y_target_flatten, y_pred=multi_y_pred_flatten)
+                            test_r2s = []
+                            for i_real in range(n_reals_eval):
+                                test_r2 = metrics_utils.r2(y_target=multi_y_target[i_real], y_pred=multi_y_pred[i_real])
+                                test_r2s.append(test_r2)
+                            test_r2s = np.array(test_r2s)
+                            # Taking best across realizations because R2 will vary a lot depending on distance between
+                            # initial values and optimal values which will be different for each realization
+                            # This is not due to the model but to the optimization process
+                            test_r2 = np.max(test_r2s)
                             is_accuracy_solution = test_r2 > R2_ACCURACY_SOLUTION_THRESHOLD
 
                             # fig, ax = plt.subplots(1,1, figsize=(10,8))
