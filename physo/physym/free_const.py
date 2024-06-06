@@ -57,16 +57,36 @@ class FreeConstantsTable:
 
         # Class free constants
         self.n_class_free_const = self.library.n_class_free_const  # Number of class free constants
+        self.reset_class_values()
+
+        # Spe free constants
+        self.n_spe_free_const = self.library.n_spe_free_const  # Number of realization specific free constants
+        self.n_realizations = n_realizations
+        self.reset_spe_values()
+
+        # Shape
+        self.shape = (self.batch_size, self.n_class_free_const,), (self.batch_size, self.n_spe_free_const, self.n_realizations,)
+        self.n_free_const_tokens = library.n_free_const  # Total number of free constant tokens
+        self.n_free_const_values = self.n_class_free_const + self.n_spe_free_const*self.n_realizations # Total number of adjustable values (for each program in batch)
+
+        return None
+
+    def reset_class_values (self):
+        """
+        Reset class free constants values to initial values.
+        """
         init_val = self.library.class_free_constants_init_val                         # (n_class_free_const,) of float
         # Free constants values for each program as torch tensor for fast computation (sent to device in batch.py)
         # If init_val already contains torch tensors, they are converted by np.tile (if on same device)
         values_array = np.tile(init_val, reps=(self.batch_size, 1))                   # (batch_size, n_class_free_const,) of float
         self.class_values = torch.tensor(values_array)                                # (batch_size, n_class_free_const,) of float
         self.class_values = self.class_values                                         # (batch_size, n_class_free_const,) of float
+        return None
 
-        # Spe free constants
-        self.n_spe_free_const = self.library.n_spe_free_const  # Number of realization specific free constants
-        self.n_realizations = n_realizations
+    def reset_spe_values (self):
+        """
+        Reset spe free constants values to initial values.
+        """
         # Check and pad init_val if necessary to match n_realizations (for single float init val)
         self.library.check_and_pad_spe_free_const_init_val (self.n_realizations)
         init_val = self.library.spe_free_constants_init_val                           # (n_spe_free_const, n_realizations,) of float
@@ -74,12 +94,6 @@ class FreeConstantsTable:
         # If init_val already contains torch tensors, they are converted by np.tile (if on same device)
         values_array = np.tile(init_val, reps=(self.batch_size, 1, 1))                # (batch_size, n_spe_free_const, n_realizations,) of float
         self.spe_values = torch.tensor(values_array)                                  # (batch_size, n_spe_free_const, n_realizations,) of float
-
-        # Shape
-        self.shape = (self.batch_size, self.n_class_free_const,), (self.batch_size, self.n_spe_free_const, self.n_realizations,)
-        self.n_free_const_tokens = library.n_free_const  # Total number of free constant tokens
-        self.n_free_const_values = self.n_class_free_const + self.n_spe_free_const*self.n_realizations # Total number of adjustable values (for each program in batch)
-
         return None
 
     def __repr__(self):
