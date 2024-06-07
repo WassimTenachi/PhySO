@@ -35,7 +35,8 @@ parser.add_argument("-t", "--trial", default = 0,
 parser.add_argument("-n", "--noise", default = 0.,
                     help = "Noise level fraction.")
 parser.add_argument("-f", "--frac_real", default = 1.,
-                    help = "Fraction of realizations to use.")
+                    help = "Fraction of realizations to use (rounded up). Use eg. 1e-6 which will be rounded up to "
+                           "use only one realization.")
 parser.add_argument("-p", "--parallel_mode", default = PARALLEL_MODE_DEFAULT,
                     help = "Should parallel mode be used.")
 parser.add_argument("-ncpus", "--ncpus", default = N_CPUS_DEFAULT,
