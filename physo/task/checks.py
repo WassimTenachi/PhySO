@@ -5,7 +5,6 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KernelDensity
-from IPython.display import display, clear_output
 
 # Internal imports
 from physo.physym import batch as Batch
@@ -110,7 +109,12 @@ def dummy_epoch_ClassSR (multi_X, multi_y, run_config, multi_y_weights=1.):
     ax1.set_xlabel("reward")
     ax1.set_ylabel("logprobs")
 
-    display(fig)
+    try:
+        from IPython.display import display, clear_output
+        display(fig)
+    except:
+        print("Unable to import IPython, showing plot using plt.show().")
+        plt.show()
 
     return rewards, n_lengths
 

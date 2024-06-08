@@ -11,7 +11,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.lines import Line2D
 import matplotlib.gridspec as gridspec
 from sklearn.neighbors import KernelDensity
-from IPython.display import display, clear_output
 
 # Internal imports
 from physo.physym import reward as reward_funcs
@@ -566,8 +565,13 @@ class RunVisualiser:
         # -------- Plot update --------
         self.update_plot()
         # -------- Display --------
-        display(self.fig)
-        clear_output(wait=True)
+        try:
+            from IPython.display import display, clear_output
+            display(self.fig)
+            clear_output(wait=True)
+        except:
+            print("Unable to import IPython, showing plot using plt.show().")
+            plt.show()
 
     def get_curves_data_df (self):
         df = pd.DataFrame()
