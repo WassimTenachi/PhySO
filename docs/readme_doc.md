@@ -6,7 +6,7 @@ It can be generated locally using the following instructions.
 ## Requirements
 
 ```
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ## Building documentation
