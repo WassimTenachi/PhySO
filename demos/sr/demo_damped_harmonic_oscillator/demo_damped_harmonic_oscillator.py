@@ -92,7 +92,7 @@ if __name__ == '__main__':
     # In[8]:
 
 
-    physo.physym.batch_execute.SHOW_PROGRESS_BAR = True
+    #physo.physym.batch_execute.SHOW_PROGRESS_BAR = True
 
 
     # In[9]:
