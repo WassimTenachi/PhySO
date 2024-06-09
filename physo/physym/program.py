@@ -257,10 +257,13 @@ class Program:
             Result of computation.
         """
         # If n_samples_per_dataset is given, we need to flatten the free constants to match the number of samples
-        # No need to flatten if there are no spe free constants -> this will be much faster
+        # No need to flatten if there are no spe free constants -> this could be faster
         # One would probably not pass n_samples_per_dataset if there are no spe free constants but physo.SR will
         # as SR problems are treated as Class SR problems of one realization.
-        if n_samples_per_dataset is not None and self.free_consts.n_spe_free_const > 0:
+        if self.free_consts.n_spe_free_const == 0:
+            class_vals = self.free_consts.class_values [0]                              # (n_class_free_const,)
+            spe_vals   = None
+        elif n_samples_per_dataset is not None :
             class_const_flatten, spe_const_flatten = self.free_consts.flatten_like_data(n_samples_per_dataset=n_samples_per_dataset)
             # class_const_flatten                                                       # (1, n_class_free_const, ?)
             # spe_const_flatten                                                         # (1, n_spe_free_const,   ?)
