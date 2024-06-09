@@ -127,7 +127,7 @@ if __name__ == '__main__':
                                 run_config = run_config,
                                 # Parallel mode (only available when running from python scripts, not notebooks)
                                 parallel_mode = True,
-                                n_cpus = 8,
+                                #n_cpus = 8,
                                 # Number of iterations
                                 epochs = int(1e99)
 
