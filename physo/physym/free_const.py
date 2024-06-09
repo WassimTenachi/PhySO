@@ -161,7 +161,9 @@ class FreeConstantsTable:
 
         # ---- Handling spe free constants ----
         # (Spe free const are different for each dataset/realization)
-        spe_const_flatten = self.spe_values.repeat_interleave(torch.tensor(n_samples_per_dataset), dim=-1)         # (batch_size, n_spe_free_const, n_all_samples)
+        detected_device = self.spe_values.device
+        n_samples_per_dataset_torch = torch.tensor(n_samples_per_dataset.to(detected_device))
+        spe_const_flatten = self.spe_values.repeat_interleave(n_samples_per_dataset_torch, dim=-1)                 # (batch_size, n_spe_free_const, n_all_samples)
         #Alternative way to do the same thing (new way is now 30% faster).
         #flattened = []                                                                                            # (n_realizations,) of (batch_size, n_spe_free_const, [n_samples depends on dataset],)
         #for i_real in range(self.n_realizations):
