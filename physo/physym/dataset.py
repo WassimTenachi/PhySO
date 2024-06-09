@@ -251,12 +251,12 @@ class Dataset:
         """
         Send all values to device.
         """
-        for X in self.multi_X:
-            X = X.to(device)
-        for y in self.multi_y:
-            y = y.to(device)
-        for y_weights in self.multi_y_weights:
-            y_weights = y_weights.to(device)
+        for i in range(self.n_realizations):
+            self.multi_X[i] = self.multi_X[i].to(device)
+        for i in range(self.n_realizations):
+            self.multi_y[i] = self.multi_y[i].to(device)
+        for i in range(self.n_realizations):
+            self.multi_y_weights[i] = self.multi_y_weights[i].to(device)
         self.device = device
         return None
 
