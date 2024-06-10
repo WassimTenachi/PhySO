@@ -1,4 +1,6 @@
 Here, we provide instructions to reproduce the results of the benchmarking experiments presented in our papers.
+See the [Benchmarks](https://physo.readthedocs.io/en/latest/r_benchmarks.html) section of the documentation accessing the challenges in the benchmarks (eg. if you want to benchmark your own method).
+
 
 ## Feynman benchmarking
 
