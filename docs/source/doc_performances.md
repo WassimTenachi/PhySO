@@ -6,7 +6,7 @@ In addition, it should be noted that generating monitoring plots takes ~3s flat,
 
 Please note that using a CPU typically results in higher performances than when using a GPU.
 
-## Expected computational performances (SR)
+## Expected perfs (SR)
 
 Summary of expected performances with `physo` (in parallel mode):
 
@@ -23,7 +23,7 @@ Summary of expected performances with `physo` (in parallel mode):
 
 *wop = without parallelization
 
-## Expected computational performances (Class SR)
+## Expected perfs (Class SR)
 
 Summary of expected performances with `physo` (in parallel mode):
 
