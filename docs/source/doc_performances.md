@@ -2,7 +2,9 @@
 
 The main performance bottleneck of `physo` is free constant optimization, therefore, in non-parallel execution mode, performances are almost linearly dependent on the number of free constant optimization steps and on the number of trial expressions per epoch (ie. the batch size).
 
-In addition, it should be noted that generating monitoring plots takes ~3s flat, there?fore we suggest making monitoring plots every >10 epochs for low time / epoch cases.
+In addition, it should be noted that generating monitoring plots takes ~3s flat, therefore we suggest making monitoring plots every >10 epochs for low time / epoch cases.
+
+Please note that using a CPU typically results in higher performances than when using a GPU.
 
 ## Expected computational performances (SR)
 
@@ -36,17 +38,8 @@ Summary of expected performances with `physo` (in parallel mode):
 
 *wop = without parallelization
 
+In Class SR mode, the number of free constants is typically much higher than in SR mode, parallelization is generally not worth it.
 
-
-
-
-
-
-
-
-
-
-Please note that using a CPU typically results in higher performances than when using a GPU.
 
 ## Parallel mode
 
@@ -61,6 +54,15 @@ By default, both of these are true as parallel mode is typically faster for this
 However, if you are using a batch size <10k, due to communication overhead it might be worth it to disable it for this task via:
 ```
 physo.physym.reward.USE_PARALLEL_OPTI_CONST = False
+```
+or simply disabling it when calling physo.SR or physo.ClassSR by setting:
+```
+physo.SR(
+    ...
+    parallel_mode = False
+    ....
+    )
+
 ```
 
 ### Parallel reward computation
@@ -78,8 +80,8 @@ physo.physym.reward.USE_PARALLEL_EXE = True
 
 ### Miscellaneous
 
-- Efficiency curves (nb. of CPUs vs individual task time) are produced by `execute_UnitTest.py` in a realistic toy case with batch size = 10k and $10^3$ data points.
-- Parallel mode is not available from jupyter notebooks on spawn multiprocessing systems (typically MACs/Windows), run .py scripts on those.
+- Efficiency curves (nb. of CPUs vs individual task time) are produced by `batch_execute_UnitParallelTest.py` in realistic toy case with batch size = 10k and $10^3$ data points.
+- Parallel mode is not available from jupyter notebooks on any systems (MACs/Linux/Windows), run .py scripts to use it.
 - The use of `parallel_mode` can be managed in the configuration of the reward which can itself be managed through a hyperparameter config file (see `config` folder) which is handy for running a benchmark on an HPC with a predetermined number of CPUs.
 - Disabling parallel mode entirely via `USE_PARALLEL_EXE=False` `USE_PARALLEL_OPTI_CONST=False` is recommended before running `physo` in a debugger.
 
