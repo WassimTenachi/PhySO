@@ -91,7 +91,7 @@ Showing 1000 data points:
 pb.show_sample(1000)
 ```
 
-![logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/FeynBench-show_samples.png)
+![logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/FeynBench-show_samples-landscapes.png)
 
 
 ### Target function
@@ -276,4 +276,15 @@ is_equivalent, report = su.compare_expression(trial_expr   = candidate_expr,
      -> Trigo symbolic error        : 0
      -> Trigo symbolic fraction     : 1
      -> Equivalent : True
+```
+
+## Adding noise
+
+Adding a noise fraction `NOISE_LEVEL` $\in$ [0, 1] as in [[La Cava 2021]](https://arxiv.org/abs/2107.14351) to data:
+```
+import numpy as np
+
+y_rms = ((y ** 2).mean()) ** 0.5
+epsilon = NOISE_LEVEL * np.random.normal(0, y_rms, len(y))
+y = y + epsilon
 ```
