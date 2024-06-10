@@ -190,7 +190,7 @@ if __name__ == '__main__':
                                 get_run_logger     = run_logger,
                                 get_run_visualiser = run_visualiser,
                                 # Parallel mode (only available when running from python scripts, not notebooks)
-                                parallel_mode = False,
+                                parallel_mode = True,
                                 # Number of iterations
                                 epochs = 10,
     )
