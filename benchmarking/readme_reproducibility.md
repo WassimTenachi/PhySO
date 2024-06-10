@@ -42,7 +42,7 @@ python feynman_results_analysis.py --path [results folder]
 
 ## Class benchmarking
 
-The purpose of the Class benchmark is to evaluate Class symbolic regression systems, that is methods for automatically finding a single analytical functional form that accurately fits multiple datasets - each governed by its own (possibly) unique set of fitting parameters.
+The purpose of the Class benchmark is to evaluate Class symbolic regression systems, that is: methods for automatically finding a single analytical functional form that accurately fits multiple datasets - each governed by its own (possibly) unique set of fitting parameters.
 
 See [[Tenachi 2024]](https://arxiv.org/abs/2312.01816) in which we introduce this first benchmark for Class SR methods and evaluate `physo` on it.
 
