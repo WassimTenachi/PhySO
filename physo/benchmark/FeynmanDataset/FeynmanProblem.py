@@ -445,6 +445,7 @@ class FeynmanProblem:
                             handle_trigo            = True,
                             prevent_zero_frac       = True,
                             prevent_inf_equivalence = True,
+                            round_decimal           = 2,
                             verbose=False):
         """
         Checks if trial_expr is symbolically equivalent to the target expression of this Feynman problem, following a
@@ -464,6 +465,9 @@ class FeynmanProblem:
             If fraction = 0 does not consider expression equivalent.
         prevent_inf_equivalence: bool
             If symbolic error or fraction is infinite does not consider expression equivalent.
+        round_decimal : int
+            Rounding up to this decimal.
+            Use round_decimal = 2 for SRBench-like behavior (as they actually round up to 2 decimals).
         verbose : bool
             Verbose.
         Returns
@@ -480,6 +484,7 @@ class FeynmanProblem:
                                                        handle_trigo            = handle_trigo,
                                                        prevent_zero_frac       = prevent_zero_frac,
                                                        prevent_inf_equivalence = prevent_inf_equivalence,
+                                                       round_decimal           = round_decimal,
                                                        verbose                 = verbose,)
 
         return is_equivalent, report
