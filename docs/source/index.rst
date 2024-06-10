@@ -18,5 +18,6 @@ Contents
    r_getting_started
    r_sr
    r_performances
+   r_benchmarks
    r_reproducibility
    r_reference
