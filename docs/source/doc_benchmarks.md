@@ -1,6 +1,5 @@
 
-This section presents the benchmarking utilities available within `physo`.
-I.e. user-friendly ways to access benchmarking challenges in a reproducible and standardized manner (using standard data ranges etc.).
+This section presents the benchmarking utilities available within `physo` : user-friendly ways to access benchmarking challenges in a reproducible and standardized manner (using standard data ranges etc.).
 For each challenge, we present ways to generate data and compare candidate expressions to the ground truth.
 
 Our interfaces adhere to the standard benchmarking practices presented in [[La Cava 2021]](https://arxiv.org/abs/2107.14351).
@@ -12,13 +11,13 @@ That is methods able to produce compact, predictive and interpretable expression
 
 See [[Udrescu 2019]](https://arxiv.org/abs/1905.11481) which introduced the benchmark, [[La Cava 2021]](https://arxiv.org/abs/2107.14351) which formalized it and [[Tenachi 2023]](https://arxiv.org/abs/2303.03192) for the evaluation of `physo` on this benchmark.
 
-Note that `physo` reads Feynman challenges from the original files (FeynmanEquations.csv, BonusEquations.csv, units.csv) produced by [[Udrescu 2019]](https://arxiv.org/abs/1905.11481) and correcting some mistakes (incorrect units, columns etc.) in the original files.
+Note that `physo` reads Feynman challenges from the original files (FeynmanEquations.csv, BonusEquations.csv, units.csv) produced by [[Udrescu 2019]](https://arxiv.org/abs/1905.11481) and adjusting for some mistakes (incorrect units, columns etc.) in the original files.
 
 ### Loading a Feynman challenge
 
 This benchmark comprises 120 challenges, each with a unique ground truth expression.
 
-Challenge number `i_eq` $\in$ {0, 1, ..., 119} of the Feynman benchmark, {0, ..., 99} corresponding to bulk challenges and {100, ..., 119} to bonus challenges can be accessed as follows:
+Challenge number `i_eq` $\in$ {0, 1, ..., 119} of the Feynman benchmark ({0, ..., 99} corresponding to bulk challenges and {100, ..., 119} to bonus challenges) can be accessed as follows:
 
 ```
 import physo
@@ -31,7 +30,7 @@ print(pb)
 
 ```
 >>> FeynmanProblem : I.42 : I.42
->>> x0*exp((-x1)*x2*x4/((x3*x5)))
+    x0*exp((-x1)*x2*x4/((x3*x5)))
 ```
 
 It is also possible to access the problem with the original variable names:
@@ -41,7 +40,7 @@ print(Feyn.FeynmanProblem(i_eq, original_var_names=True))
 ```
 ```
 >>> FeynmanProblem : I.40.1 : I.40.1
->>> n_0*exp(g*(-m)*x/((T*kb)))
+    n_0*exp(g*(-m)*x/((T*kb)))
 ```
 
 ### Getting formula and variable names
@@ -76,7 +75,7 @@ print(pb.y_units)
 
 ### Generating data
 
-Generating $1000$ data points:
+Generating 1000 data points:
 ```
 X, y = pb.generate_data_points(n_samples=1000)
 ```
@@ -115,7 +114,7 @@ candidate_expr = sympy.parse_expr(candidate_expr_str,
                                  # Encoding assumptions about variables (positivity etc.)
                                  local_dict = pb.sympy_X_symbols_dict)
 ```
-Comparing it to the ground truth:
+Comparing it to the ground truth (using [[La Cava 2021]](https://arxiv.org/abs/2107.14351) standard methodology):
 ```
 is_equivalent, report = pb.compare_expression(trial_expr    = candidate_expr, 
                                               round_decimal = 3,
@@ -123,7 +122,8 @@ is_equivalent, report = pb.compare_expression(trial_expr    = candidate_expr,
                                              )
 ```
 ```
->>>   -> Assessing if x0*exp(-x1*x2*x4/(x3*x5)) (target) is equivalent to 1.0002*x0*(1.00040008001067*exp(-0.9993*x1*x2*x4))**(1/(x3*x5)) + 0.00034 (trial)
+>>>
+      -> Assessing if x0*exp(-x1*x2*x4/(x3*x5)) (target) is equivalent to 1.0002*x0*(1.00040008001067*exp(-0.9993*x1*x2*x4))**(1/(x3*x5)) + 0.00034 (trial)
        -> Simplified expression : x0*exp(-x1*x2*x4/(x3*x5))
        -> Symbolic error        : 0
        -> Symbolic fraction     : 1
