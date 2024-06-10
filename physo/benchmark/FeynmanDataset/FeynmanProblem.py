@@ -429,15 +429,16 @@ class FeynmanProblem:
     def show_sample(self, n_samples = 100, do_show = True, save_path = None):
         X_array, y_array = self.generate_data_points(n_samples = n_samples)
         n_dim = X_array.shape[0]
-        fig, ax = plt.subplots(n_dim, 1, figsize=(10, n_dim * 4))
+        fig, ax = plt.subplots(n_dim, 1, figsize=(15, n_dim * 6 + 1))
         fig.suptitle(self.formula_original)
         for i in range(n_dim):
             curr_ax = ax if n_dim == 1 else ax[i]
             curr_ax.plot(X_array[i], y_array, 'k.', markersize=1.)
             curr_ax.set_xlabel("%s : %s" % (self.X_names[i], self.X_units[i]))
             curr_ax.set_ylabel("%s : %s" % (self.y_name    , self.y_units))
+        fig.tight_layout()
         if save_path is not None:
-            fig.savefig(save_path)
+            fig.savefig(save_path, dpi=200)
         if do_show:
             plt.show()
 

@@ -420,7 +420,7 @@ class ClassProblem:
         multi_X, multi_y = self.generate_data_points(n_samples=n_samples, n_realizations=n_realizations)
 
         n_dim = multi_X.shape[1]
-        fig, ax = plt.subplots(n_dim, 1, figsize=(10, n_dim * 4))
+        fig, ax = plt.subplots(n_dim, 1, figsize=(15, n_dim * 6))
         fig.suptitle(self.formula_original)
         for i in range(n_dim):
             curr_ax = ax if n_dim == 1 else ax[i]
@@ -428,8 +428,9 @@ class ClassProblem:
             curr_ax.set_ylabel("%s : %s" % (self.y_name    , self.y_units))
             for i_real in range(n_realizations):
                 curr_ax.plot(multi_X[i_real,i], multi_y[i_real], '.', markersize=1.)
+        fig.tight_layout()
         if save_path is not None:
-            fig.savefig(save_path)
+            fig.savefig(save_path, dpi=200)
         if do_show:
             plt.show()
 
