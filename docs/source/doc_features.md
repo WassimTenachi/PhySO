@@ -1,3 +1,7 @@
+## Dimensional analysis
+
+## Weighting Data Points
+
 ## Adding custom functions
 
 ### Defining function token
