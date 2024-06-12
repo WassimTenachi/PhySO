@@ -17,6 +17,7 @@ Contents
    r_installation
    r_getting_started
    r_sr
+   r_class_sr
    r_features
    r_performances
    r_benchmarks
