@@ -1,7 +1,3 @@
-## Dimensional analysis
-
-## Weighting Data Points
-
 ## Adding custom functions
 
 ### Defining function token
@@ -51,7 +47,5 @@ python ./physo/physym/tests/functions_UnitTest.py
 If you found the function you have added useful, don't hesitate to make a pull request so other people can use it too !
 
 
-## Custom symbolic optimization task
 
-[Coming soon...]
 
