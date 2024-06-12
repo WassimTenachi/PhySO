@@ -1,4 +1,5 @@
-## A simple symbolic regression task
+## Getting started (SR)
+
 Symbolic regression (SR) consists in the inference of a free-form symbolic analytical function $f: \mathbb{R}^n \longrightarrow \mathbb{R}$ that fits $y = f(x_0,..., x_n)$ given $(x_0,..., x_n, y)$ data.
 
 Given a dataset $(x_0,..., x_n, y)$:
