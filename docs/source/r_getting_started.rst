@@ -1,3 +1,5 @@
-.. mdinclude:: doc_getting_started_header.md
+Getting Started
+===============
 
-.. mdinclude:: doc_getting_started_sr.md
+.. mdinclude:: others/doc_getting_started_summary.md
+.. mdinclude:: sr/doc_sr_getting_started.md

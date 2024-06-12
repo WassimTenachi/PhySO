@@ -1,4 +1,4 @@
 Benchmarks
 ==========
 
-.. mdinclude:: doc_benchmarks.md
+.. mdinclude:: others/doc_benchmarks.md
