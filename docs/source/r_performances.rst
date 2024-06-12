@@ -1,1 +1,1 @@
-.. mdinclude:: doc_performances.md
+.. mdinclude:: others/doc_performances.md

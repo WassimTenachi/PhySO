@@ -1,1 +1,1 @@
-.. mdinclude:: doc_reference.md
+.. mdinclude:: others/doc_reference.md

@@ -1,1 +1,1 @@
-.. mdinclude:: doc_installation.md
+.. mdinclude:: others/doc_installation.md
