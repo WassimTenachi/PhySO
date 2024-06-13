@@ -70,8 +70,8 @@ multi_X.append(X)
 multi_y.append(y)
 ```
 
-Where `multi_X` and `multi_y` are lists containing $n_{reals}$ realizations (here $n_{reals}=4$). `multi_X` should contain $n_{reals}$ elements consisting of input variables values ($X$) (one per realization) and `multi_y` should contain $n_{reals}$ corresponding target values ($y$) (one per realization).
-Elements $X$, $y$ should respectively be of shape $(n_{dim}, ?,)$ and $(?,)$ where $n_{dim}$ is the number of input variables (here $n_{dim}=2$ as there are 2 input variables: $\{x_0, x_1\}$) and `?` is the number of data points (this number must be consistent across each $\{X, y\}$ pair but can depend on the realization).
+Where `multi_X` and `multi_y` are lists containing $n_\{reals\}$ realizations (here $n_\{reals\}=4$). `multi_X` should contain $n_\{reals\}$ elements consisting of input variables values ($X$) (one per realization) and `multi_y` should contain $n_\{reals\}$ corresponding target values ($y$) (one per realization).
+Elements $X$, $y$ should respectively be of shape $(n_\{dim\}, ?,)$ and $(?,)$ where $n_\{dim\}$ is the number of input variables (here $n_\{dim\}=2$ as there are 2 input variables: $(x_0, x_1)$) and `?` is the number of data points (this number must be consistent across each $(X, y)$ pair but can depend on the realization).
 
 It should be noted that free constants search starts around 1. by default. Therefore, when using default hyperparameters, normalizing the data around an order of magnitude of 1 is strongly recommended.
 
@@ -95,9 +95,9 @@ Summary of currently available hyperparameters presets configurations:
 
 |  Config    |            Recommended usecases                           |    Speed    |   Effectiveness   |                           Notes                                |
 |:----------:|:---------------------------------------------------------:|:-----------:|:-----------------:|:--------------------------------------------------------------:|
-| `config0b` | Demos                                                     |     +++     |          +        | Light and fast config.                                         |
-| `config1b` | SR with DA$^*$ ;  Class SR with DA$^*$                    |       +     |        +++        | Config used for Feynman Benchmark and MW streams Benchmark.    |
-| `config2b` | SR ; Class SR                                             |      ++     |         ++        | Config used for Class Benchmark.                               |
+| `config0b` | Demos                                                     |     ★★★     |         ★         | Light and fast config.                                         |
+| `config1b` | SR with DA$^*$ ;  Class SR with DA$^*$                    |      ★      |        ★★★        | Config used for Feynman Benchmark and MW streams Benchmark.    |
+| `config2b` | SR ; Class SR                                             |      ★★     |        ★★         | Config used for Class Benchmark.                               |
 
 $^*$DA = Dimensional Analysis
 
@@ -132,8 +132,9 @@ run_visualiser = lambda : monitoring.RunVisualiser (epoch_refresh_rate = 1,
 Automatically finding a single analytical functional form that accurately fits multiple datasets - each governed by its own (possibly) unique set of fitting parameters.  
 This hierarchical framework leverages the common constraint that all the members of a single class of physical phenomena follow a common governing law.  
 
-Ie. recovering a single analytical function $f$ that best fits $y_{i_{real}} = f_{i_{real}}(x_0, ..., x_{n_{dim}})$ for each realization $i_{real} \leq n_{reals}$ of a phenomena given $\{\{x_0, ..., x_{n_{dim}}\}_{i_{real}}\}_{i_{real} \leq n_{reals}}$ (`multi_X`) data and $\{y_{i_{real}}\}_{i_{real} \leq n_{reals}}$ (`multi_y`) data.  
-Realization-specific free constants ie. free constants taking different values depending on the realization ($\{k_0, k_1, ...\}_{i_{real} \leq n_{reals}}$) are designated as `spe_free_consts` and free constants common to the whole class ($\{c_0, c_1, ...\}$) are designated as `class_free_consts`.
+Ie. recovering a single analytical function $f$ that best fits $y_\{i_\{real\}\} = f_\{i_\{real\}\}(x_0, ..., x_\{n_\{dim\}\})$ for each realization $i_\{real\} \leq n_\{reals\}$ of a phenomena given ${\\{x_0, ..., x_{n_{dim}}\\}}\_{{i_{real}} \leq n_{reals}}$ (`multi_X`) data and ${\\{y\\}}\_{{i_{real}} \leq n_{reals}}$ (`multi_y`) data.
+Realization-specific free constants ie. free constants taking different values depending on the realization (${\\{k_0, k_1, ... \\}}\_{{i_{real}} \leq n_{reals}}$) are designated as `spe_free_consts` and free constants common to the whole class ($\\{c_0, c_1, ... \\}$) are designated as `class_free_consts`.
+
 ```
 # Running SR task
 expression, logs = physo.ClassSR(multi_X, multi_y,
@@ -227,7 +228,7 @@ best_expr.get_infix_latex()
 ```
 
 ```
->>> 'c_{0} \\left(k_{0} + k_{1} \\cdot \\left(2 k_{0} k_{1} + k_{0} + x_{0}\\right) - k_{1} + 2 x_{1}\\right)'
+>>> 'c_\{0\} \\left(k_\{0\} + k_\{1\} \\cdot \\left(2 k_\{0\} k_\{1\} + k_\{0\} + x_\{0\}\\right) - k_\{1\} + 2 x_\{1\}\\right)'
 ```
 
 A latex string (with evaluated free constants values):
@@ -236,7 +237,7 @@ sympy.latex(best_expr.get_infix_sympy(evaluate_consts=True))
 ```
 
 ```
->>> '\\mathtt{\\text{[1.12300062502826*x0 + 1.12299943170758*x1 + 10.1229929701024\n 2.24600237740662*x0 + 1.12299943170758*x1 + 10.1229940888655\n 1.12299855430429*x0 + 1.12299943170758*x1 + 5.0615011673083\n 0.561499701563431*x0 + 1.12299943170758*x1 + 20.2460066025792]}}'
+>>> '\\mathtt\{\\text\{[1.12300062502826*x0 + 1.12299943170758*x1 + 10.1229929701024\n 2.24600237740662*x0 + 1.12299943170758*x1 + 10.1229940888655\n 1.12299855430429*x0 + 1.12299943170758*x1 + 5.0615011673083\n 0.561499701563431*x0 + 1.12299943170758*x1 + 20.2460066025792]\}\}'
 ```
 
 __Getting free constant values:__
