@@ -1,11 +1,11 @@
 Welcome to PhySO's documentation!
 ===================================
 
-.. mdinclude:: doc_logo.md
+.. mdinclude:: headers/doc_logo.md
 
-.. mdinclude:: doc_header.md
+.. mdinclude:: headers/doc_header.md
 
-.. include:: doc_presentation_rtd.rst
+.. include:: headers/doc_presentation_rtd.rst
 
 
 Contents
