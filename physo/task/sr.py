@@ -53,8 +53,7 @@ def SR(X, y, y_weights=1.,
         Values of the input variables of the problem with n_dim = nb of input variables.
     y : numpy.array of shape (?,) of float
         Values of the target symbolic function to recover when applied on input variables contained in X.
-    y_weights : np.array of shape (?,) of float
-                or float, optional
+    y_weights : np.array of shape (?,) of float or float, optional
         Weight values to apply to y data.
         Or single float to apply to all (for default value = 1.).
 
@@ -86,8 +85,8 @@ def SR(X, y, y_weights=1.,
         Names of choosable symbolic operations (see physo.physym.functions for a list of available operations).
         By default, uses operations listed in physo.task.args_handler.default_op_names.
     use_protected_ops : bool (optional)
-        If True, uses protected operations (e.g. division by zero is avoided). True by default.
-         (see physo.physym.functions for a list of available protected operations).
+        If True, uses protected operations (e.g. division by zero is avoided). True by default. (see
+        physo.physym.functions for a list of available protected operations).
 
     stop_reward : float (optional)
         Early stops if stop_reward is reached by a program (= 1 by default), use stop_reward = (1-1e-5) when using free
