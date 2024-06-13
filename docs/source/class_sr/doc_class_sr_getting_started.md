@@ -90,7 +90,7 @@ for i in range(n_reals):
 
 ### Class SR configuration
 
-It should be noted that SR capabilities of `physo` are heavily dependent on hyperparameters, it is therefore recommended to tune hyperparameters to your own specific problem for doing science.  
+It should be noted that SR capabilities of `physo` are heavily dependent on hyperparameters, it is therefore recommended to tune hyperparameters to your own specific problem for doing science.
 Summary of currently available hyperparameters presets configurations:
 
 |  Config    |            Recommended usecases                           |    Speed    |   Effectiveness   |                           Notes                                |
@@ -101,6 +101,7 @@ Summary of currently available hyperparameters presets configurations:
 
 $^*$DA = Dimensional Analysis
 
+Users are encouraged to edit configurations (they can be found in: [physo/config/](https://github.com/WassimTenachi/PhySO/tree/main/physo/config)).
 By default, `config0b` is used, however it is recommended to follow the upper recommendations for doing science.
 
 __Class SR side notes__:  
