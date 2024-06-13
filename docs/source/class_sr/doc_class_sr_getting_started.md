@@ -1,7 +1,7 @@
 ## Getting started (Class SR)
 
 
-In this tutorial, we show `physo` to perform Class Symbolic Regression (Class SR) by exploiting 4 datasets.
+In this tutorial, we show how to use `physo` to perform Class Symbolic Regression (Class SR) by exploiting 4 datasets.
 The reference notebook for this tutorial can be found here: [class_sr_quick_start.ipynb](https://github.com/WassimTenachi/PhySO/blob/main/demos/class_sr_quick_start.ipynb).
 
 ### Setup
