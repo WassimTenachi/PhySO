@@ -48,6 +48,7 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
     allowing each dataset to have its own realization specific free constant values (spe_free_consts) but using
     the same class free constants (class_free_consts) for all datasets.
     (Wrapper around physo.task.fit)
+
     Parameters
     ----------
 
@@ -57,9 +58,7 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
     multi_y :  list of len (n_realizations,) of np.array of shape (?,) of float
         List of y (one per realization). With y being values of the target symbolic function on input variables
         contained in X.
-    multi_y_weights : list of len (n_realizations,) of np.array of shape (?,) of float
-                       or array_like of (n_realizations,) of float
-                       or float, optional
+    multi_y_weights : list of len (n_realizations,) of np.array of shape (?,) of float or array_like of (n_realizations,) of float or float, optional
         List of y_weights (one per realization). With y_weights being weights to apply to y data.
         Or list of weights one per entire realization.
         Or single float to apply to all (for default value = 1.).
@@ -92,9 +91,7 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
         Names of free constants (for display purposes).
     spe_free_consts_units : array_like of shape (?, n_units) of float or None (optional)
         Units vector for each free constant (n_units <= 7). By default, assumes dimensionless.
-    spe_free_consts_init_val : dict of { str : float }
-                               or dict of { str : array_like of shape (n_realizations,) of floats }
-                               or None, optional
+    spe_free_consts_init_val : dict of { str : float } or dict of { str : array_like of shape (n_realizations,) of floats } or None, optional
         Dictionary containing realization specific free constants names as keys (eg. 'k0', 'k1', 'k2') and
         corresponding float initial values to use during optimization process (eg. 1., 1., 1.). Realization
         specific initial values can be used by providing a vector of shape (n_realizations,) for each constant
