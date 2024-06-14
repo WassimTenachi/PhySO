@@ -104,14 +104,16 @@ $^*$DA = Dimensional Analysis
 Users are encouraged to edit configurations (they can be found in: [physo/config/](https://github.com/WassimTenachi/PhySO/tree/main/physo/config)).
 By default, `config0b` is used, however it is recommended to follow the upper recommendations for doing science.
 
+---
 __Class SR side notes__:  
-
-1. It is recommended to always use the `b` variant (ie. `configxb`) of configurations for Class SR as these variants specify a larger number of steps for the free constants optimizations that is performed during expression candidate evaluation (this is necessary because all free constants specific to each realization are optimized at the same time which typically makes it necessary to have a larger number of optimization steps).
-
+1. It is recommended to always use the `b` variant (ie. `configxb`) of configurations for Class SR as these variants specify a larger number of steps for the free constants optimizations that is performed during expression candidate evaluation (this is necessary because all free constants specific to each realization are optimized at the same time which typically makes it necessary to have a larger number of optimization steps).  
 2. Due to the typically higher number of free constants values to tune, Class SR is typically much more expansive computationally than regular SR, lower batch size configurations are therefore recommended.
+---
 
-__DA side note__:   
+---
+__DA side notes__:   
 1. During the first tens of iterations, the neural network is typically still learning the rules of dimensional analysis, resulting in most candidates being discarded and not learned on, effectively resulting in a much smaller batch size (typically 10x smaller), thus making the evaluation process much less computationally expensive. It is therefore recommended to compensate this behavior by using a higher batch size configuration which helps provide the neural network sufficient learning information.
+---
 
 Logging and visualisation setup:
 ```
