@@ -376,7 +376,10 @@ print("Is equivalent:", is_equivalent)
        -> Trigo symbolic fraction     : 1
        -> Equivalent : True
     Is equivalent: True
-```# Citing this work
+```
+
+
+# Citing this work
  
 Symbolic Regression with reinforcement learning & dimensional analysis
 

@@ -312,5 +312,7 @@ print("Is equivalent:", is_equivalent)
        -> Trigo symbolic fraction     : 1
        -> Equivalent : True
     Is equivalent: True
-
 ```
+
+
+

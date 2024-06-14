@@ -269,3 +269,4 @@ print("Is equivalent:", is_equivalent)
        -> Equivalent : True
     Is equivalent: True
 ```
+
