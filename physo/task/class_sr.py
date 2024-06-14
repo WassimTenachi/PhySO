@@ -34,7 +34,7 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
             stop_after_n_epochs = args_handler.default_stop_after_n_epochs,
             epochs = None,
             # Default run config to use
-            run_config = default_config,
+            run_config = None,
             # Default run monitoring
             get_run_logger     = args_handler.get_default_run_logger,
             get_run_visualiser = args_handler.get_default_run_visualiser,
@@ -102,8 +102,8 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
         Names of choosable symbolic operations (see physo.physym.functions for a list of available operations).
         By default, uses operations listed in physo.task.args_handler.default_op_names.
     use_protected_ops : bool (optional)
-        If True, uses protected operations (e.g. division by zero is avoided). True by default.
-         (see physo.physym.functions for a list of available protected operations).
+        If True, uses protected operations (e.g. division by zero is avoided). True by default. (see
+        physo.physym.functions for a list of available protected operations).
 
     stop_reward : float (optional)
         Early stops if stop_reward is reached by a program (= 1 by default), use stop_reward = (1-1e-5) when using free
@@ -119,9 +119,9 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
     epochs : int or None (optional)
         Number of epochs to perform. By default, uses the number in the default config file.
 
-    run_config : dict (optional)
+    run_config : dict or None (optional)
         Run configuration (by default uses physo.task.class_sr.default_config)
-
+        See physo/config/ for examples of run configurations.
     get_run_logger : callable returning physo.learn.monitoring.RunLogger (optional)
         Run logger (by default uses physo.task.args_handler.get_default_run_logger)
     get_run_visualiser : callable returning physo.learn.monitoring.RunVisualiser (optional)
@@ -140,6 +140,10 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
     best_expression, run_logger : physo.physym.program.Program, physo.learn.monitoring.RunLogger
         Best analytical expression found and run logger.
     """
+
+    # Default run config to use
+    if run_config is None:
+        run_config = default_config
 
     # ------------------------------- HANDLING ARGUMENTS -------------------------------
     # Transmitting all arguments to be handled

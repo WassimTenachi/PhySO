@@ -33,7 +33,7 @@ def SR(X, y, y_weights=1.,
             stop_after_n_epochs = args_handler.default_stop_after_n_epochs,
             epochs = None,
             # Default run config to use
-            run_config = default_config,
+            run_config = None,
             # Default run monitoring
             get_run_logger     = args_handler.get_default_run_logger,
             get_run_visualiser = args_handler.get_default_run_visualiser,
@@ -102,8 +102,9 @@ def SR(X, y, y_weights=1.,
     epochs : int or None (optional)
         Number of epochs to perform. By default, uses the number in the default config file.
 
-    run_config : dict (optional)
+    run_config : dict or None (optional)
         Run configuration (by default uses physo.task.sr.default_config)
+        See physo/config/ for examples of run configurations.
     get_run_logger : callable returning physo.learn.monitoring.RunLogger (optional)
         Run logger (by default uses physo.task.args_handler.get_default_run_logger)
     get_run_visualiser : callable returning physo.learn.monitoring.RunVisualiser (optional)
@@ -122,6 +123,11 @@ def SR(X, y, y_weights=1.,
     best_expression, run_logger : physo.physym.program.Program, physo.learn.monitoring.RunLogger
         Best analytical expression found and run logger.
     """
+
+    # Default run config to use
+    if run_config is None:
+        run_config = default_config
+
     # Transmitting arguments to ClassSR as SR is just a sub-case of ClassSR where there is only one realization
     # and no dataset spe free constants.
     best_expression, run_logger = physo.ClassSR(
