@@ -1,11 +1,3 @@
-Priors
-------
-
-We provide a number of priors that can be used to guide the symbolic regression process and constraining the search space.
-For using a prior, a tuple should be added to the `priors_config` list in the config file.
-The first element of the tuple should be the name of the prior class, and the second element should be the parameters to be passed to the prior class.
-These should parametrize the prior class as required in `__init__` method of the class (except for library, program which are handled by the algorithm itself).
-
 Uniform Arity Prior
 ~~~~~~~~~~~~~~~~~~~
 
@@ -84,7 +76,7 @@ Example of usage from the config file:
 
 
 No Useless Inverse Prior
-~~~~~~~~~~~~~~~~~~~~~~~~
+""""""""""""""""""""""""
 
 .. autoclass:: physo.physym.prior.NoUselessInversePrior
     :members: __init__
@@ -179,6 +171,7 @@ Example of usage from the config file:
 
 Physical Units Prior
 ~~~~~~~~~~~~~~~~~~~~
+
 .. autoclass:: physo.physym.prior.PhysicalUnitsPrior
     :members: __init__
 
