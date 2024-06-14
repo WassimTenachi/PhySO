@@ -57,7 +57,7 @@ source_suffix = {
 
 # -- Options for HTML output
 html_theme = 'sphinx_rtd_theme'
-html_logo = '../assets/logo_doc.png'
+html_logo = '../assets/logo_doc_white.png'
 
 
 # -- Options for EPUB output
