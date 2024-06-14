@@ -74,7 +74,7 @@ for i in range (n_dim):
     curr_ax.legend()
 plt.show()
 ```
-[logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/demo_weights_data_plot.png)
+![logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/demo_weights_data_plot.png)
 
 #### SR configuration
 
@@ -225,7 +225,7 @@ for i in range (n_dim):
 plt.show()
 ```
 
-[logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/demo_weights_results_plot.png)
+![logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/demo_weights_results_plot.png)
 
 
 
