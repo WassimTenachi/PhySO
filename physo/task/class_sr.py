@@ -36,8 +36,8 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
             # Default run config to use
             run_config = None,
             # Default run monitoring
-            get_run_logger     = args_handler.get_default_run_logger,
-            get_run_visualiser = args_handler.get_default_run_visualiser,
+            get_run_logger     = None,
+            get_run_visualiser = None,
             # Parallel mode
             parallel_mode = True,
             n_cpus        = None,
@@ -122,9 +122,9 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
     run_config : dict or None (optional)
         Run configuration (by default uses physo.task.class_sr.default_config)
         See physo/config/ for examples of run configurations.
-    get_run_logger : callable returning physo.learn.monitoring.RunLogger (optional)
+    get_run_logger : callable returning physo.learn.monitoring.RunLogger or None (optional)
         Run logger (by default uses physo.task.args_handler.get_default_run_logger)
-    get_run_visualiser : callable returning physo.learn.monitoring.RunVisualiser (optional)
+    get_run_visualiser : callable returning physo.learn.monitoring.RunVisualiser or None (optional)
         Run visualiser (by default uses physo.task.args_handler.get_default_run_visualiser)
 
     parallel_mode : bool (optional)
@@ -144,6 +144,10 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
     # Default run config to use
     if run_config is None:
         run_config = default_config
+    if get_run_logger is None:
+        get_run_logger = args_handler.get_default_run_logger
+    if get_run_visualiser is None:
+        get_run_visualiser = args_handler.get_default_run_visualiser
 
     # ------------------------------- HANDLING ARGUMENTS -------------------------------
     # Transmitting all arguments to be handled
