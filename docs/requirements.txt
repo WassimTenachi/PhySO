@@ -15,4 +15,4 @@ tqdm
 pandas
 pip
 scikit-learn
-.. # PhySO install
+. # PhySO install
