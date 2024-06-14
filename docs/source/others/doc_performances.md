@@ -29,10 +29,10 @@ Summary of expected performances with `physo` (in parallel mode):
 
 | Time / epoch   | Device                                     | config   | Batch size | free const opti steps | Example                  | # free const |
 |----------------|--------------------------------------------|----------|------------|-----------------------|--------------------------|--------------|
-| ~              | CPU: Intel W-2155 10c/20t <br>RAM: 128 Go  | config1b | 10k        | 60                    | eg: MW_streams_run       | 100          |
+| ~1000s wop     | CPU: Intel W-2155 10c/20t <br>RAM: 128 Go  | config1b | 10k        | 60                    | eg: MW_streams_run       | 100          |
 | ~              | CPU: Mac M1 <br>RAM: 16 Go                 | config1b | 10k        | 60                    | eg: MW_streams_run       | 100          |
 | ~              | GPU: Nvidia GV100 <br>VRAM : 32 Go         | config1b | 10k        | 60                    | eg: MW_streams_run       | 100          |
-| ~              | CPU: Intel W-2155 10c/20t <br>RAM: 128 Go  | config0b | 1k         | 30                    | eg: class_sr_quick_start | 10           |
+| ~100s wop      | CPU: Intel W-2155 10c/20t <br>RAM: 128 Go  | config0b | 1k         | 30                    | eg: class_sr_quick_start | 10           |
 | ~20s (40s wop) | CPU: Mac M1 <br>RAM: 16 Go                 | config0b | 1k         | 30                    | eg: class_sr_quick_start | 10           |
 | ~              | GPU: Nvidia GV100 <br>VRAM : 32 Go         | config0b | 1k         | 30                    | eg: class_sr_quick_start | 10           |
 
