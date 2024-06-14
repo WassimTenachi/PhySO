@@ -7,6 +7,9 @@ sphinxcontrib-video==0.2.0
 sphinx_mdinclude==0.5.3
 
 # For auto-generating API documentation
+# PhySO install
+.
+# Dependencies
 torch
 sympy
 matplotlib
@@ -15,4 +18,4 @@ tqdm
 pandas
 pip
 scikit-learn
-. # PhySO install
+
