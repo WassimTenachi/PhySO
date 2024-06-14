@@ -16,6 +16,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
+    # For numpy style docstrings
+    'sphinx.ext.napoleon',
     # For latex style math (works in md too)
     'sphinx_math_dollar',
     # Maths

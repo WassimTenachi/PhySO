@@ -1,5 +1,4 @@
 Function docstring
 ------------------
 
-.. automodule:: physo.ClassSR
-    :members:
+.. autofunction:: physo.ClassSR
