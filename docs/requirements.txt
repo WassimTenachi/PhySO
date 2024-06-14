@@ -5,3 +5,14 @@ myst-parser
 sphinx-math-dollar
 sphinxcontrib-video==0.2.0
 sphinx_mdinclude==0.5.3
+
+# For auto-generating API documentation
+torch
+sympy
+matplotlib
+numpy
+tqdm
+pandas
+pip
+scikit-learn
+.. # PhySO install
