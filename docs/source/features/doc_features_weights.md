@@ -17,6 +17,7 @@ They can have the same shape as the target values `multi_y` or simply the length
 ### Example
 
 Example of weight usage in SR.
+The reference notebook for this tutorial can be found here: [demo_y_weights.ipynb](https://github.com/WassimTenachi/PhySO/blob/main/demos/sr/demo_y_weights/demo_y_weights.ipynb).
 
 
 #### Setup
@@ -224,7 +225,7 @@ for i in range (n_dim):
 plt.show()
 ```
 
-[logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/demo_fit_plot.png)
+[logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/demo_weights_results_plot.png)
 
 
 
