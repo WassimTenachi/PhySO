@@ -29,10 +29,12 @@ Or by direct downloading a zip of the repository: [here](https://github.com/Wass
 ### Dependencies
 From the repository root:
 
-Installing essential dependencies :
+Installing dependencies :
 ```
 conda install --file requirements.txt
 ```
+
+In order to simplify the installation process, since its first version, `physo` has been updated to have minimal very standard dependencies.
 
 ---
 
@@ -62,7 +64,7 @@ Running all unit tests except parallel mode ones (from the repository root):
 ```
 python -m unittest discover -p "*UnitTest.py"
 ```
-This should result in all tests being successfully passed (except for program_display_UnitTest tests if optional dependencies were not installed).
+This should result in all tests being successfully passed.
 
 Running all unit tests (from the repository root):
 ```
