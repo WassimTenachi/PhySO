@@ -80,7 +80,10 @@ python classbench_results_analysis.py --path [results folder]
 
 ## Class benchmarking (MW bonus)
 
-The purpose of this bonus is to evaluate Class symbolic regression systems on a real-world problem, that is the discovery of the Milky Way dark matter distribution from the observed positions and velocities of stellar streams.
+The purpose of this bonus is to evaluate Class symbolic regression systems on a real-world problem, that is the discovery of the Milky Way dark matter distribution from observed positions and velocities of stellar streams.
+
+![logo](https://raw.githubusercontent.com/WassimTenachi/PhySO/main/docs/assets/demo_streams_plot.png)
+
 
 See [[Tenachi 2024]](https://arxiv.org/abs/2312.01816) in which we introduce this bonus and evaluate `physo` on it.
 
