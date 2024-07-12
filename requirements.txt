@@ -4,7 +4,7 @@
 pytorch >= 1.11.0
 sympy == 1.10.1
 matplotlib
-numpy
+numpy <= 2.0.0
 tqdm
 pandas
 pip
