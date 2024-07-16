@@ -9,5 +9,5 @@ tqdm
 pandas
 pip
 scikit-learn # For Feynman benchmark analysis script and for density in monitoring plots
-
+jupyterlab # For running the notebooks
 
