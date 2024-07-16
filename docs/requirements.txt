@@ -8,7 +8,7 @@ sphinx_mdinclude==0.5.3
 
 # For auto-generating API documentation
 # PhySO install
-.
+
 # Dependencies
 torch
 sympy
