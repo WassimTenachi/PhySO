@@ -99,7 +99,7 @@ Summary of currently available hyperparameters presets configurations:
 | `config1b` | SR with DA$^*$ ;  Class SR with DA$^*$                    |      ★      |        ★★★        | Config used for Feynman Benchmark and MW streams Benchmark.    |
 | `config2b` | SR ; Class SR                                             |      ★★     |        ★★         | Config used for Class Benchmark.                               |
 
-$^*$DA = Dimensional Analysis
+$^*$ DA = Dimensional Analysis
 
 Users are encouraged to edit configurations (they can be found in: [physo/config/](https://github.com/WassimTenachi/PhySO/tree/main/physo/config)).
 By default, `config0b` is used, however it is recommended to follow the upper recommendations for doing science.

@@ -85,7 +85,7 @@ if __name__ == '__main__':
     # | `config1`  | SR with DA$^*$ ;  Class SR with DA$^*$                    |       +     |        +++        | Config used for Feynman Benchmark and MW streams Benchmark.    |
     # | `config2`  | SR ; Class SR                                             |      ++     |         ++        | Config used for Class Benchmark.                               |
     #
-    # $^*$DA = Dimensional Analysis
+    # $^*$ DA = Dimensional Analysis
     #
     # By default, `config0` is used, however it is recommended to follow the upper recommendations for doing science.
     #
