@@ -82,7 +82,7 @@ if __name__ == '__main__':
     # |  Config    |            Recommended usecases                           |    Speed    |   Effectiveness   |                           Notes                                |
     # |:----------:|:---------------------------------------------------------:|:-----------:|:-----------------:|:--------------------------------------------------------------:|
     # | `config0`  | Demos                                                     |     +++     |          +        | Light and fast config.                                         |
-    # | `config1`  | SR with DA$^*$ ;  Class SR with DA$^*$                    |       +     |        +++        | Config used for Feynman Benchmark and MW streams Benchmark.    |
+    # | `config1`  | SR with DA $^*$ ;  Class SR with DA $^*$                    |       +     |        +++        | Config used for Feynman Benchmark and MW streams Benchmark.    |
     # | `config2`  | SR ; Class SR                                             |      ++     |         ++        | Config used for Class Benchmark.                               |
     #
     # $^*$ DA = Dimensional Analysis

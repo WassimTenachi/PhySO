@@ -96,7 +96,7 @@ Summary of currently available hyperparameters presets configurations:
 |  Config    |            Recommended usecases                           |    Speed    |   Effectiveness   |                           Notes                                |
 |:----------:|:---------------------------------------------------------:|:-----------:|:-----------------:|:--------------------------------------------------------------:|
 | `config0b` | Demos                                                     |     ★★★     |         ★         | Light and fast config.                                         |
-| `config1b` | SR with DA$^*$ ;  Class SR with DA$^*$                    |      ★      |        ★★★        | Config used for Feynman Benchmark and MW streams Benchmark.    |
+| `config1b` | SR with DA $^*$ ;  Class SR with DA $^*$                    |      ★      |        ★★★        | Config used for Feynman Benchmark and MW streams Benchmark.    |
 | `config2b` | SR ; Class SR                                             |      ★★     |        ★★         | Config used for Class Benchmark.                               |
 
 $^*$ DA = Dimensional Analysis
