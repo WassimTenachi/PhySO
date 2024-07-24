@@ -13,6 +13,12 @@ from physo.physym import free_const
 from physo.physym import program as Prog
 from physo.physym import batch_execute as BExec
 
+# Default colors for graph
+AGRAPH_BLUE  = "#008F94" # "blue"
+AGRAPH_BLACK = "black"   # "black"
+AGRAPH_RED   = "#C00028" # "red"
+AGRAPH_GREY  = "grey"    # "grey"
+
 class VectPrograms:
     """
     Represents a batch of symbolic programs (jit-able class).
@@ -2065,12 +2071,12 @@ class VectPrograms:
     def get_tree_graph (self, prog_idx = 0,
         n_dim_units       = 3,
         shape             = "circle",
-        constraint_color  = "blue",
-        vanilla_color     = "black",
-        dummy_color       = "red",
-        special_color     = "red",
+        constraint_color  = AGRAPH_BLUE,
+        vanilla_color     = AGRAPH_BLACK,
+        dummy_color       = AGRAPH_RED,
+        special_color     = AGRAPH_RED,
         special_color_pos = None,
-        edge_color        = "grey",
+        edge_color        = AGRAPH_GREY,
         optimize_for_tex  = False,
         phy_units_display = None,
                  ):
@@ -2173,7 +2179,7 @@ class VectPrograms:
             if optimize_for_tex:
                 # Must use \\ to get \ in tex via dot2tex (see dot2tex doc)
                 label_name    = "\\mathbf{[%s]}" % name
-                label_pos_str = "-%s-" % pos_str
+                label_pos_str = "\\langle %s \\rangle" % pos_str
                 label_units_str = units_str
                 label = "$\\begin{array}{c} %s \\\ \\scriptscriptstyle{%s} \\\ \\scriptscriptstyle{%s} \\end{array}$" \
                         % (label_name, label_pos_str, label_units_str)
