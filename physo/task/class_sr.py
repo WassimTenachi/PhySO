@@ -33,6 +33,8 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
             max_n_evaluations = None,
             stop_after_n_epochs = args_handler.default_stop_after_n_epochs,
             epochs = None,
+            # Candidate wrapper
+            candidate_wrapper = None,
             # Default run config to use
             run_config = None,
             # Default run monitoring
@@ -119,6 +121,9 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
     epochs : int or None (optional)
         Number of epochs to perform. By default, uses the number in the default config file.
 
+    candidate_wrapper : callable or None (optional)
+        Wrapper to apply to candidate program's output, candidate_wrapper taking func, X as arguments where func is
+        a candidate program callable (taking X as arg). By default = None, no wrapper is applied (identity).
     run_config : dict or None (optional)
         Run configuration (by default uses physo.task.class_sr.default_config)
         See physo/config/ for examples of run configurations.
@@ -182,6 +187,8 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
                                     use_protected_ops = use_protected_ops,
                                     # Stopping
                                     epochs = epochs,
+                                    # Candidate wrapper
+                                    candidate_wrapper = candidate_wrapper,
                                     # Default run config to use
                                     run_config = run_config,
                                     # Default run monitoring
@@ -209,7 +216,8 @@ def ClassSR(multi_X, multi_y, multi_y_weights=1.,
     rewards, candidates = fit (multi_X         = multi_X,
                                multi_y         = multi_y,
                                multi_y_weights = multi_y_weights,
-                               run_config      = run_config,
+                               candidate_wrapper = candidate_wrapper,
+                               run_config        = run_config,
                                stop_reward         = stop_reward,
                                stop_after_n_epochs = stop_after_n_epochs,
                                max_n_evaluations   = max_n_evaluations,

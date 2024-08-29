@@ -46,6 +46,8 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
             use_protected_ops,
             # Stopping
             epochs,
+            # Candidate wrapper
+            candidate_wrapper,
             # Default run config to use
             run_config,
             # Default run monitoring
@@ -300,6 +302,10 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
     except:
         raise ValueError("entropy_weight should be castable to a float.")
     assert isinstance(entropy_weight, float), "entropy_weight should be a float."
+
+    # ------------------------------- CANDIDATE_WRAPPER -------------------------------
+    # candidate_wrapper should be callable or None
+    assert candidate_wrapper is None or callable(candidate_wrapper), "candidate_wrapper should be callable or None."
 
     # ------------------------------- RETURN -------------------------------
     # Returning
