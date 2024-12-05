@@ -247,6 +247,14 @@ class FuncTest(unittest.TestCase):
             if do_show: plt.show()
             if do_save: fig.savefig("protected_sqrt.png")
 
+            # protected_cbrt
+            x1 = torch.linspace(-10, 10, n_plot)
+            fig, ax = plt.subplots(1, 1, figsize=(20, 10))
+            ax.plot(x1, Func.protected_cbrt(x1), label="protected_cbrt", color="k")
+            ax.legend()
+            if do_show: plt.show()
+            if do_save: fig.savefig("protected_cbrt.png")
+
             # protected_inv
             x1 = torch.linspace(-10*Func.EPSILON, 10*Func.EPSILON, n_plot)
             fig, ax = plt.subplots(1, 1, figsize=(20, 10))

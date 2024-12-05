@@ -21,7 +21,7 @@ class OpUnitsBehavior(object):
     Attributes
     ----------
     op_names : list of str
-        List of operation names having this behavior (eg. [sqrt, n2, n3] for power tokens)
+        List of operation names having this behavior (eg. [sqrt, cbrt, n2, n3] for power tokens)
     behavior_id : int
         Unique id of behavior.
     """
@@ -104,7 +104,7 @@ OP_UNIT_BEHAVIORS_DICT = {
     # Division operation (units of op = units of arg 0 - units of arg 1).
     "DIVISION_OP"               : OpUnitsBehavior(behavior_id = 21, op_names = ["div",]),
     # Power operations taking one argument.
-    "UNARY_POWER_OP"            : OpUnitsBehavior(behavior_id = 3 , op_names = ["n2", "sqrt", "n3", "n4", "inv"]),
+    "UNARY_POWER_OP"            : OpUnitsBehavior(behavior_id = 3 , op_names = ["n2", "sqrt", "n3", "cbrt", "n4", "inv"]),
     # Operations taking one argument and having an additive behavior: units of arg and parent should be the same).
     "UNARY_ADDITIVE_OP"         : OpUnitsBehavior(behavior_id = 4 , op_names = ["neg", "abs", "max", "min"]),
     # Dimensionless operations taking one dimensionless argument.
@@ -125,12 +125,14 @@ TRIGONOMETRIC_OP = ["sin", "cos", "tan", "tanh", "sinh", "cosh", "arctan", "arcc
 
 # INVERSE OP
 INVERSE_OP_DICT = {
-    "inv": "inv",
-    "neg": "neg",
-    "exp": "log",
-    "log": "exp",
-    "sqrt": "n2",
-    "n2": "sqrt",
+    "inv" : "inv",
+    "neg" : "neg",
+    "exp" : "log",
+    "log" : "exp",
+    "sqrt" : "n2",
+    "n2"   : "sqrt",
+    "cbrt" : "n3",
+    "n3"   : "cbrt",
     "arctan" : "tan",
     "tan"    : "arctan",
     "arcsin" : "sin",
@@ -144,6 +146,7 @@ OP_POWER_VALUE_DICT = {
      "n2"   : 2,
      "sqrt" : 0.5,
      "n3"   : 3,
+     "cbrt" : 1./3,
      "n4"   : 4,
      "inv"  : -1,
 }
@@ -186,6 +189,7 @@ OPS_UNPROTECTED = [
     TokenOp (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 1 , function = torch.exp        ),
     TokenOp (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 1 , function = torch.log        ),
     TokenOp (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 1 , function = torch.sqrt       ),
+    TokenOp (name = "cbrt"   , sympy_repr = "cbrt"   , arity = 1 , complexity = 1 , function = lambda x :torch.pow(x, 1./3) ),
     TokenOp (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 1 , function = torch.square     ),
     TokenOp (name = "neg"    , sympy_repr = "-"      , arity = 1 , complexity = 1 , function = torch.negative   ),
     TokenOp (name = "abs"    , sympy_repr = "abs"    , arity = 1 , complexity = 1 , function = torch.abs        ),
@@ -232,6 +236,9 @@ protected_logabs = protected_log
 def protected_sqrt(x1):
     return torch.sqrt(torch.abs(x1))
 
+def protected_cbrt(x1):
+    return torch.pow(torch.abs(x1), 1./3)
+
 def protected_inv(x1):
     # with np.errstate(divide='ignore', invalid='ignore'):
     return torch.where(torch.abs(x1) > EPSILON, 1. / x1, 0.)
@@ -276,6 +283,7 @@ OPS_PROTECTED = [
     TokenOp (name = "exp"    , sympy_repr = "exp"    , arity = 1 , complexity = 1 , function = protected_exp    ),
     TokenOp (name = "log"    , sympy_repr = "log"    , arity = 1 , complexity = 1 , function = protected_log    ),
     TokenOp (name = "sqrt"   , sympy_repr = "sqrt"   , arity = 1 , complexity = 1 , function = protected_sqrt   ),
+    TokenOp (name = "cbrt"   , sympy_repr = "cbrt"   , arity = 1 , complexity = 1 , function = protected_cbrt   ),
     TokenOp (name = "n2"     , sympy_repr = "n2"     , arity = 1 , complexity = 1 , function = protected_n2     ),
     TokenOp (name = "inv"    , sympy_repr = "1/"     , arity = 1 , complexity = 1 , function = protected_inv    ),
     TokenOp (name = "arccos" , sympy_repr = "arccos" , arity = 1 , complexity = 1 , function = protected_arccos ),
