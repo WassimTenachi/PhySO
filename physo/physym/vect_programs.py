@@ -1870,7 +1870,7 @@ class VectPrograms:
         res  = prog.get_infix_str()
         return res
 
-    def get_infix_sympy (self, prog_idx = 0, do_simplify = True):
+    def get_infix_sympy (self, prog_idx = 0, do_simplify = True, evaluate_consts = False, replace_nan_with = 1.):
         """
         Returns sympy symbolic representation of a program.
         Parameters
@@ -1879,6 +1879,10 @@ class VectPrograms:
             Index of program in VectPrograms.
         do_simplify : bool
             If True performs a symbolic simplification of program.
+        evaluate_consts : bool, optional
+            If True replaces free constants by their values in the sympy symbolic representation of the program.
+        replace_nan_with : float, optional
+            Value to replace NaNs with in free constants values.
         Returns
         -------
         program_sympy : sympy.core
@@ -1886,7 +1890,9 @@ class VectPrograms:
             appearing in the program to evaluate the function with x = 2.4.
         """
         prog = self.get_prog(prog_idx = prog_idx)
-        res  = prog.get_infix_sympy(do_simplify=do_simplify)
+        res  = prog.get_infix_sympy(do_simplify      = do_simplify,
+                                    evaluate_consts  = evaluate_consts,
+                                    replace_nan_with = replace_nan_with)
         return res
 
     def get_infix_pretty (self, prog_idx = 0, do_simplify = True):
