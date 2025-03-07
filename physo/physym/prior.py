@@ -938,7 +938,7 @@ class StructurePrior (Prior):
 
         return mask_prob
 
-    def __repr__(self):
+    def structure_repr(self):
 
         # Current stack of computed results
         curr_stack = []
@@ -946,7 +946,7 @@ class StructurePrior (Prior):
         # Number of unique sub-functions in structure
         n_subfuncs = (self.structure_arity == 0).sum()
         # Unique no for each sub-function
-        subfunc_ids = np.full(self.n_struct, fill_value=self.INVALID_STRUCTURE_ID, dtype=int)  # (n_struct,
+        subfunc_ids = np.full(self.n_struct, fill_value=self.INVALID_STRUCTURE_ID, dtype=int)  # (n_struct,)
         subfunc_ids[self.structure_arity == 0] = np.arange(n_subfuncs)
 
         # Representation of ops
@@ -973,8 +973,13 @@ class StructurePrior (Prior):
             curr_stack.append(res)
 
         struct_repr = curr_stack[0]
+        return struct_repr
 
+    def __repr__(self):
+
+        struct_repr = self.structure_repr()
         prior_repr = "StructurePrior (programs must be like %s)"%(struct_repr)
+
         return prior_repr
 
 
