@@ -1,11 +1,14 @@
 import unittest
 import numpy as np
+import warnings
 
 # Internal imports
 from physo.physym import library as Lib
 from physo.physym import program as Prog
 from physo.physym import prior as Prior
 from physo.physym import vect_programs as VProg
+from physo.physym import token as Tok
+from physo.physym import functions as Func
 
 class PriorTest(unittest.TestCase):
 
@@ -1187,6 +1190,420 @@ class PriorTest(unittest.TestCase):
             my_programs.append(next_tokens_idx)
 
         return None
+
+    def test_StructurePrior(self):
+
+        # -------------------- LIB TEST CASE --------------------
+        args_make_tokens = {
+                        # operations
+                        "op_names"             : ["add", "sub", "mul", "div", "neg", "inv", "n2", "sqrt", "cos", "sin", "exp", "log"],
+                        "use_protected_ops"    : False,
+                        # input variables
+                        "input_var_ids"        : {"x1" : 0, "x2" : 1, "x3" : 2, "x4" : 3, "t" : 4},
+                        # constants
+                        "constants"            : {"pi" : np.pi    },
+                        "constants_complexity" : {"pi" : 0.       },
+                            }
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            # Raises some warnings due to some units provided (this is ok)
+            my_lib = Lib.Library(args_make_tokens = args_make_tokens, superparent_name = "y")
+
+        # -------------------- TEST CASES--------------------
+        # TEST CASE A
+        def get_test_case_A ():
+            # --- Test structure ---
+            # Target is like f(x1,x2) * ( f(t) * (f(x3)+f(x4)) )
+            test_structure = ["mul", ["x1","x2"], "mul", ["t"], "add", ["x3"], ["x4"]]
+
+            # --- Test progs ---
+            test_programs_idx = []
+            test_programs_str = [
+                # Target is sin(x1*x2)*t*(1/x3 + 1/x4)
+                ["mul", "sin", "mul", "x1", "x2", "mul", "t", "add", "inv", "x3", "inv", "x4", "-"],
+                # Target is (x1/x2)*t*(1/x3 + 1/x4)
+                ["mul", "div", "x1", "x2", "mul", "t", "add", "inv", "x3", "inv", "x4", "-", "-"],
+                # Target is (log(x1)/exp(x2))*t*(1/x3 + 1/x4)
+                ["mul", "div", "log", "x1", "exp", "x2", "mul", "t", "add", "inv", "x3", "inv", "x4"],
+            ]
+            # Using terminal token placeholder that will be replaced by '-' void token in append function
+            test_programs_str = np.char.replace(test_programs_str, '-', 't')
+            # Converting into idx
+            for test_program_str in test_programs_str :
+                test_programs_idx.append(np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str]))
+            test_programs_idx = np.array(test_programs_idx)
+            max_time_step = test_programs_idx.shape[1]
+
+            # --- Expected output ---
+            subf1 = ["x1","x2"] # subfunction 1 depends on x1 and x2
+            subf2 = ["t",]
+            subf3 = ["x3",]
+            subf4 = ["x4",]
+            test_programs_expected_struct = [
+                # Target is sin(x1*x2)*t*(1/x3 + 1/x4)
+                ["mul", subf1, subf1, subf1, subf1, "mul", subf2, "add", subf3, subf3, subf4, subf4, "-"],
+                # Target is (x1/x2)*t*(1/x3 + 1/x4)
+                ["mul", subf1, subf1, subf1, "mul", subf2, "add",  subf3, subf3, subf4, subf4, "-", "-"],
+                # Target is (log(x1)/exp(x2))*t*(1/x3 + 1/x4)
+                ["mul", subf1, subf1, subf1, subf1, subf1, "mul", subf2, "add", subf3, subf3, subf4, subf4]
+            ]
+            test_programs_expected_prior = []
+            for prog in test_programs_expected_struct:
+                prog_priors = []
+                for node in prog:
+                    if isinstance(node,str):
+                        # "mul" or "add"
+                        if node == "mul" or node == "add":
+                            if node == "mul":
+                                legal_tokens = Func.MULTIPLICATIVE_SEP_OPS  # eg. ["mul","div"]
+                            elif node == "add":
+                                legal_tokens = Func.ADDITIVE_SEP_OPS  # eg. ["add","sub"]
+                            else:
+                                raise ValueError("Invalid node")
+                            # Zeroes everywhere except at legal tokens
+                            prior = np.zeros(my_lib.n_choices)
+                            for tok in legal_tokens:
+                                idx = my_lib.lib_name_to_idx[tok]
+                                prior[idx] = 1
+                        # "-"
+                        elif node == "-":
+                            # Everything is allowed
+                            prior = np.ones(my_lib.n_choices)
+                        else:
+                            raise ValueError("Invalid node")
+                    # ["x1","x2"] or ["t"] or ["x3"] or ["x4"]
+                    elif isinstance(node,list):
+                        # No input variables are allowed except the ones in the list
+                        prior = ~(my_lib.var_type == Tok.VAR_TYPE_INPUT_VAR)[:my_lib.n_choices]
+                        for var in node:
+                            prior[my_lib.lib_name_to_idx[var]] = True
+                    else:
+                        raise ValueError("Invalid node")
+
+                    prog_priors.append(prior.astype(float))
+                test_programs_expected_prior.append(prog_priors)
+            test_programs_expected_prior = np.array(test_programs_expected_prior) # (n_progs, max_time_step, n_choices)
+
+            return test_programs_idx, test_structure, test_programs_expected_prior, max_time_step
+
+        # TEST CASE B
+        def get_test_case_B():
+            # --- Test structure ---
+            # Target is like f(x1,x2)
+            test_structure = [["x1","x2"],]
+
+            # --- Test progs ---
+            test_programs_idx = []
+            test_programs_str = [
+                # Target is sin(x1*x2)
+                ["sin", "mul", "x1", "x2", "-", "-"],
+                # Target is (x1/x2)
+                ["div", "x1", "x2", "-", "-", "-"],
+                # Target is (log(x1)/exp(x2))
+                ["div", "log", "x1", "exp", "x2", "-"],
+            ]
+            # Using terminal token placeholder that will be replaced by '-' void token in append function
+            test_programs_str = np.char.replace(test_programs_str, '-', 't')
+            # Converting into idx
+            for test_program_str in test_programs_str :
+                test_programs_idx.append(np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str]))
+            test_programs_idx = np.array(test_programs_idx)
+            max_time_step = test_programs_idx.shape[1]
+
+            # --- Expected output ---
+            subf1 = ["x1","x2"]
+            test_programs_expected_struct = [
+                # Target is sin(x1*x2)
+                [subf1, subf1, subf1, subf1, "-", "-"],
+                # Target is (x1/x2)
+                [subf1, subf1, subf1, "-", "-", "-"],
+                # Target is (log(x1)/exp(x2))
+                [subf1, subf1, subf1, subf1, subf1, "-"]
+            ]
+            test_programs_expected_prior = []
+            for prog in test_programs_expected_struct:
+                prog_priors = []
+                for node in prog:
+                    if isinstance(node, str):
+                        # "mul" or "add"
+                        if node == "mul" or node == "add":
+                            if node == "mul":
+                                legal_tokens = Func.MULTIPLICATIVE_SEP_OPS  # eg. ["mul","div"]
+                            elif node == "add":
+                                legal_tokens = Func.ADDITIVE_SEP_OPS  # eg. ["add","sub"]
+                            else:
+                                raise ValueError("Invalid node")
+                            # Zeroes everywhere except at legal tokens
+                            prior = np.zeros(my_lib.n_choices)
+                            for tok in legal_tokens:
+                                idx = my_lib.lib_name_to_idx[tok]
+                                prior[idx] = 1
+                        # "-"
+                        elif node == "-":
+                            # Everything is allowed
+                            prior = np.ones(my_lib.n_choices)
+                        else:
+                            raise ValueError("Invalid node")
+                    # ["x1","x2"] or ["t"] or ["x3"] or ["x4"]
+                    elif isinstance(node, list):
+                        # No input variables are allowed except the ones in the list
+                        prior = ~(my_lib.var_type == Tok.VAR_TYPE_INPUT_VAR)[:my_lib.n_choices]
+                        for var in node:
+                            prior[my_lib.lib_name_to_idx[var]] = True
+                    else:
+                        raise ValueError("Invalid node")
+
+                    prog_priors.append(prior.astype(float))
+                test_programs_expected_prior.append(prog_priors)
+            test_programs_expected_prior = np.array(test_programs_expected_prior)  # (n_progs, max_time_step, n_choices)
+            return test_programs_idx, test_structure, test_programs_expected_prior, max_time_step
+
+        # TEST CASE C
+        def get_test_case_C():
+            # --- Test structure ---
+            # Target is like f(t)*f(x1)+f(x2,x3)+f()
+            test_structure = ["add", "mul", ["t"], ["x1"], "add", ["x2", "x3"], []] # structure can use only part of the input vars and can use non dependent subfuncs
+
+            # --- Test progs ---
+            test_programs_idx = []
+            test_programs_str = [
+                # Target is sin(t)*cos(x1)+exp(x2*x3)+pi
+                ["add", "mul", "sin", "t", "cos", "x1", "add", "exp", "mul", "x2", "x3", "pi", "-",],
+                # Target is exp(t)/x1 + (x2+x3) + cos(pi) # multiplicative does not mean just mul, could be div
+                ["add", "div", "exp", "t", "x1", "add", "add", "x2", "x3", "cos", "pi", "-", "-",],
+                # Target is t/x1 + (x2) + sin(pi) # subfunc can use only part of its input vars
+                ["add", "div", "t", "x1", "add", "x2", "sin", "pi", "-", "-", "-", "-", "-",],
+            ]
+            # Using terminal token placeholder that will be replaced by '-' void token in append function
+            test_programs_str = np.char.replace(test_programs_str, '-', 't')
+            # Converting into idx
+            for test_program_str in test_programs_str:
+                test_programs_idx.append(
+                    np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str]))
+            test_programs_idx = np.array(test_programs_idx)
+            max_time_step = test_programs_idx.shape[1]
+
+            # --- Expected output ---
+            subf1 = ["t"]  # subfunction 1 depends on t
+            subf2 = ["x1", ]
+            subf3 = ["x2","x3" ]
+            subf4 = []
+            test_programs_expected_struct = [
+                # Target is sin(t)*cos(x1)+exp(x2*x3)+pi
+                ["add", "mul", subf1, subf1, subf2, subf2, "add", subf3, subf3, subf3, subf3, subf4, "-",],
+                # Target is exp(t)/x1 + (x2+x3) + cos(pi) # multiplicative does not mean just mul, could be div
+                ["add", "mul", subf1, subf1, subf2, "add", subf3, subf3, subf3, subf4, subf4, "-", "-",],
+                # Target is t/x1 + (x2) + sin(pi) # subfunc can use only part of its input vars
+                ["add", "mul", subf1, subf2, "add", subf3, subf4, subf4, "-", "-", "-", "-", "-",],
+            ]
+            test_programs_expected_prior = []
+            for prog in test_programs_expected_struct:
+                prog_priors = []
+                for node in prog:
+                    if isinstance(node, str):
+                        # "mul" or "add"
+                        if node == "mul" or node == "add":
+                            if node == "mul":
+                                legal_tokens = Func.MULTIPLICATIVE_SEP_OPS  # eg. ["mul","div"]
+                            elif node == "add":
+                                legal_tokens = Func.ADDITIVE_SEP_OPS  # eg. ["add","sub"]
+                            else:
+                                raise ValueError("Invalid node")
+                            # Zeroes everywhere except at legal tokens
+                            prior = np.zeros(my_lib.n_choices)
+                            for tok in legal_tokens:
+                                idx = my_lib.lib_name_to_idx[tok]
+                                prior[idx] = 1
+                        # "-"
+                        elif node == "-":
+                            # Everything is allowed
+                            prior = np.ones(my_lib.n_choices)
+                        else:
+                            raise ValueError("Invalid node")
+                    # ["x1","x2"] or ["t"] or ["x3"] or ["x4"]
+                    elif isinstance(node, list):
+                        # No input variables are allowed except the ones in the list
+                        prior = ~(my_lib.var_type == Tok.VAR_TYPE_INPUT_VAR)[:my_lib.n_choices]
+                        for var in node:
+                            prior[my_lib.lib_name_to_idx[var]] = True
+                    else:
+                        raise ValueError("Invalid node")
+
+                    prog_priors.append(prior.astype(float))
+                test_programs_expected_prior.append(prog_priors)
+            test_programs_expected_prior = np.array(
+                test_programs_expected_prior)  # (n_progs, max_time_step, n_choices)
+
+            return test_programs_idx, test_structure, test_programs_expected_prior, max_time_step
+
+
+        # All test cases
+        test_cases = [get_test_case_A, get_test_case_B, get_test_case_C]
+
+        # -------------------- CREATION TEST --------------------
+
+        for get_test_case in test_cases:
+            test_programs_idx, test_structure, test_programs_expected_prior, max_time_step = get_test_case()
+
+            try:
+                my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+                my_prior = Prior.StructurePrior (library = my_lib, programs = my_programs,
+                                                   structure = test_structure,
+                                                   )
+            except:
+                self.fail("Prior creation failed.")
+
+        # -------------------- ASSERTIONS --------------------
+
+        test_programs_idx, test_structure, test_programs_expected_prior, max_time_step = get_test_case_A()
+
+        # Test that non-existing sep raises error
+        with self.assertRaises(AssertionError, msg="Invalid sep node must raise error"):
+            wrong_test_structure = ["mul", ["x1","x2"], "mul", ["t"], "invalid_sep", ["x3"], ["x4"]]
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs, structure=wrong_test_structure)
+
+        # Test that add sep not in lib but mentionned in structure raises error
+        with self.assertRaises(AssertionError, msg="Invalid sep node must raise error"):
+            weird_args_make_tokens = {
+                # operations
+                "op_names": ["mul", "div", "neg", "inv", "n2", "sqrt", "cos", "sin", "exp", "log"],
+                "use_protected_ops": False,
+                # input variables
+                "input_var_ids": {"x1": 0, "x2": 1, "x3": 2, "x4": 3, "t": 4},
+                # constants
+                "constants": {"pi": np.pi},
+                "constants_complexity": {"pi": 0.},
+            }
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                # Raises some warnings due to some units provided (this is ok)
+                my_weird_lib = Lib.Library(args_make_tokens=weird_args_make_tokens, superparent_name="y")
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_weird_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_weird_lib, programs=my_programs, structure=test_structure)
+
+        # Test that wrong subfunc node raises error (not a list of str)
+        with self.assertRaises(AssertionError, msg="Invalid subfunc node must raise error"):
+            wrong_test_structure = ["mul", [1,2], "mul", ["t"], "invalid_sep", ["x3"], ["x4"]]
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs, structure=wrong_test_structure)
+
+        # Test that wrong subfunc node raises error (non existing input var)
+        with self.assertRaises(AssertionError, msg="Invalid subfunc node must raise error"):
+            wrong_test_structure = ["mul", ["x1","x2"], "mul", ["t"], "add", ["x9999999"], ["x4"],]
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs, structure=wrong_test_structure)
+
+        # Test that wrong node type raises error
+        with self.assertRaises(AssertionError, msg="Invalid node type must raise error"):
+            wrong_test_structure = ["mul", ["x1","x2"], "mul", "t", "add", ["x3"], ["x4"],]
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs, structure=wrong_test_structure)
+        with self.assertRaises(ValueError, msg="Invalid node type must raise error"):
+            wrong_test_structure = ["mul", ["x1","x2"], "mul", ["t",], "add", ["x3"], 4.12,]
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs, structure=wrong_test_structure)
+
+        # Test that unbalanced structure raises error
+        with self.assertRaises(AssertionError, msg="Unbalanced structure must raise error"):
+            wrong_test_structure = ["mul", ["x1","x2"], "mul", ["t",], "add", ["x3"],]
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs, structure=wrong_test_structure)
+        with self.assertRaises(AssertionError, msg="Unbalanced structure must raise error"):
+            wrong_test_structure = ["mul", ["x1","x2"], "mul", "add", ["x3"], ["x4"],]
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs, structure=wrong_test_structure)
+        with self.assertRaises(AssertionError, msg="Unbalanced structure must raise error"):
+            wrong_test_structure = ["mul", ["x1","x2"], "mul", ["t"], "add", "mul", ["x3"], ["x4"]]
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs, structure=wrong_test_structure)
+
+
+        # -------------------- REPR TEST --------------------
+
+        for get_test_case in test_cases:
+            test_programs_idx, test_structure, test_programs_expected_prior, max_time_step = get_test_case()
+
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs,
+                                            structure=test_structure,
+                                            )
+            try:
+                a = my_prior.__repr__()
+            except:
+                self.fail("Prior __repr__ failed.")
+
+        # -------------------- NORMAL USAGE --------------------
+
+        for get_test_case in test_cases:
+            test_programs_idx, test_structure, test_programs_expected_prior, max_time_step = get_test_case()
+
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs,
+                                            structure=test_structure,
+                                            )
+            for i in range(max_time_step):
+                mask_prob = my_prior()                                      # (n_progs, n_choices)
+                expected_mask_prob = test_programs_expected_prior[:, i, :]  # (n_progs, n_choices)
+                self.assertTrue(np.all(mask_prob == expected_mask_prob))
+                my_programs.append(test_programs_idx[:, i])
+
+        # -------------------- NORMAL USAGE WITH EPS --------------------
+        prob_eps = 1e-6
+
+        for get_test_case in test_cases:
+            test_programs_idx, test_structure, test_programs_expected_prior, max_time_step = get_test_case()
+
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs,
+                                            structure=test_structure,
+                                            prob_eps = prob_eps,
+                                            )
+            for i in range(max_time_step):
+                mask_prob = my_prior()                                      # (n_progs, n_choices)
+                expected_mask_prob = test_programs_expected_prior[:, i, :]  # (n_progs, n_choices)
+                # We expect eps instead of 0
+                expected_mask_prob[expected_mask_prob == 0] = prob_eps
+                self.assertTrue(np.all(mask_prob == expected_mask_prob))
+                my_programs.append(test_programs_idx[:, i])
+
+        # -------------------- UNREGULAR CALLS --------------------
+
+        for get_test_case in test_cases:
+            test_programs_idx, test_structure, test_programs_expected_prior, max_time_step = get_test_case()
+
+            my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs,
+                                            structure=test_structure,
+                                            )
+            for i in range(max_time_step):
+                if i%3 == 0:
+                    mask_prob = my_prior()                                      # (n_progs, n_choices)
+                    expected_mask_prob = test_programs_expected_prior[:, i, :]  # (n_progs, n_choices)
+                    self.assertTrue(np.all(mask_prob == expected_mask_prob))
+                my_programs.append(test_programs_idx[:, i])
+
+        # -------------------- UN-OBEYED PRIOR --------------------
+
+        test_programs_idx_A, test_structure_A, _, max_time_step = get_test_case_A()
+        test_programs_idx_C, test_structure_C, _, max_time_step = get_test_case_C() # have same max_time_step
+
+        # Let's say we have prior structure from A but progs from C are being generated instead
+        test_structure    = test_structure_A
+        test_programs_idx = test_programs_idx_C
+
+        my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
+        my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs,
+                                        structure=test_structure,
+                                        )
+
+        for i in range(max_time_step):
+            mask_prob = my_prior()  # (n_progs, n_choices)
+            my_programs.append(test_programs_idx[:, i])
+
+        return None
+
+
 
     # Test prior collection using (UniformArityPrior, HardLengthPrior)
     def test_PriorCollection(self):

@@ -695,6 +695,291 @@ class SymbolicPrior (Prior):
     def __repr__(self):
         return "SymbolicPrior (programs must be like %s)"%(self.expression_str)
 
+class StructurePrior (Prior):
+    """
+    Enforces that programs must follow a given tree structure of sub-functions each taking (possibly) different
+    subsets of input variables. Sub-functions are related to one another by additive or multiplicative separabilities.
+    (The prior is able to work even if not called at each step, it will recompute its internal representation of the
+    structure from the beginning if needed.)
+    """
+    def __init__(self, library, programs, structure, prob_eps = 0.):
+        """
+        Parameters
+        ----------
+        library : library.Library
+        programs : vect_programs.VectPrograms
+        structure : array_like of (str or lists)
+            Structure to enforce in prefix notation. Use "mul" to indicate a multiplicative seperability, "add" for
+            additive seperability, and a list to indicate a sub-function taking the given subset of input variables
+            given in the list.
+            Eg. structure = ["mul", ["x1","x2"], "mul", ["x5"], "add", ["x3"], ["x4"]] to enforce programs to be like
+            f1(x1,x2) * ( f2(x5) * ( f3(x3) + f4(x4) ) )
+        prob_eps : float
+            Value to return for the prior inplace of zeros (useful for avoiding sampling problems)
+        """
+
+        # -------- ARGUMENTS ASSERTIONS / HANDLING --------
+
+        structure = np.array(structure, dtype=object)
+        n_struct = len(structure)
+        # Legal tokens for composing current node of structure (names of tokens)
+        structure_legal_names = []                                                         # (n_struct,) of list of str
+        # Legal tokens for composing current node of structure (bool for each choosable token)
+        structure_legal_mask  = []                                                         # (n_struct, n_choices) of bool
+        # mask : is current node a seperability (otherwise it is a sub-function)
+        structure_is_sep      = []                                                         # (n_struct,) of bool
+
+        for el in structure:
+
+            # Handling seperability
+            if isinstance(el, str):
+                # Should be "mul" or "add"
+                assert el in ["mul", "add"], "String elements in argument structure should be 'mul' or 'add'."
+
+                # Additive seperability
+                if el == "add":
+                    # mask : is token in library an additive operator
+                    # Only tokens in library that are additive operators are allowed
+                    legality_mask = np.array([tok in Func.ADDITIVE_SEP_OPS for tok in library.lib_choosable_name])
+                    # Check that at least one additive operator is in the library
+                    assert np.any(legality_mask), "Additive seperability mentioned in structure but none of %s is in library %s."%(Func.ADDITIVE_SEP_OPS, library.lib_choosable_name)
+
+                # Multiplicative seperability
+                elif el == "mul":
+                    # mask: is token in library a multiplicative operator
+                    # Only tokens in library that are multiplicative operators are allowed
+                    legality_mask = np.array([tok in Func.MULTIPLICATIVE_SEP_OPS for tok in library.lib_choosable_name])
+                    # Check that at least one multiplicative operator is in the library
+                    assert np.any(legality_mask), "Multiplicative seperability mentioned in structure but none of %s is in library %s."%(Func.MULTIPLICATIVE_SEP_OPS, library.lib_choosable_name)
+                # Is seperability
+                is_sep = True
+
+            # Handling sub-function
+            elif isinstance(el, (list, tuple, np.ndarray)):
+
+                # Should be an array_like of strings
+                assert all(isinstance(tok, str) for tok in el), "List elements in argument structure should be an array_like of strings."
+                # Should be a subset of input variables
+                input_var_names = library.lib_name[library.var_type == Tok.VAR_TYPE_INPUT_VAR]
+                for tok in el:
+                    assert tok in input_var_names, "Input variable %s mentionned in structure is not in the library which contains %s input variables."%(tok, input_var_names)
+
+                # mask : for each token in library, is token in the list of input variables allowed in this sub-function
+                is_legal_input_var = np.array([tok in el for tok in library.lib_choosable_name])
+                # mask : is input variable
+                is_input_var = (library.get_choosable_prop("var_type") == Tok.VAR_TYPE_INPUT_VAR)
+                # mask : is token allowed to compose current sub-function
+                # ie. is token a legal input variable or anything else
+                legality_mask = np.logical_or(is_legal_input_var, np.logical_not(is_input_var))
+                # Is sub-function
+                is_sep = False
+
+            # else (should not happen)
+            else:
+                raise ValueError("Elements in argument structure should be strings or lists.")
+
+            # Appending
+            structure_legal_mask  .append (legality_mask)
+            structure_legal_names .append (library.lib_choosable_name[legality_mask])
+            structure_is_sep      .append (is_sep)
+
+        # To numpy
+        structure_legal_mask  = np.array(structure_legal_mask)                           # (n_struct, n_choices) of bool
+        structure_legal_names = np.array(structure_legal_names, dtype=object)            # (n_struct,) of list of str
+        structure_is_sep      = np.array(structure_is_sep)                               # (n_struct,) of bool
+
+        # Arities of nodes in structure
+        # Separabilities have arity 2, sub-functions have arity 0
+        structure_arity = np.array([2 if is_sep else 0 for is_sep in structure_is_sep])   # (n_struct,) of int
+        struct_n_dangling = n_struct-structure_arity.sum()
+        assert struct_n_dangling == 1, "Structure %s is not a tree, nb of dangling nodes should be = 1."%(structure)
+
+        # -------- ARGUMENTS HANDLING --------
+
+        Prior.__init__(self, library, programs)
+
+        self.n_struct = n_struct
+        # Structure to enforce in prefix notation
+        self.structure_str = structure                                                    # (n_struct,) of (str or list)
+        # Legal tokens for composing current node of structure (names of tokens)
+        self.structure_legal_names = structure_legal_names                                # (n_struct,) of list of str
+        # Legal tokens for composing current node of structure (bool for each choosable token)
+        self.structure_legal_mask  = structure_legal_mask                                 # (n_struct, n_choices) of bool
+        # mask : is current node a seperability (otherwise it is a sub-function)
+        self.structure_is_sep      = structure_is_sep                                     # (n_struct,) of bool
+        # Structure nodes id, giving a unique identifier to each node in the structure
+        # (we assume ids are ordered in __call__ so we need to use np.arange)
+        self.structure_ids = np.arange(n_struct)                                          # (n_struct,) of int
+        # Arities of nodes in structure
+        # Separabilities have arity 2, sub-functions have arity 0
+        self.structure_arity = structure_arity                                            # (n_struct,) of int
+
+        # Invalid node id to fill with
+        self.INVALID_STRUCTURE_ID = Tok.INVALID_POS
+
+        batch_size = self.progs.batch_size
+        # id of node for each token of each prog in the batch
+        self.node_id     = np.full((batch_size, self.progs.max_time_step), fill_value=self.INVALID_STRUCTURE_ID)  # (batch_size, max_time_step)
+        # mask : does token have node id
+        self.has_node_id = np.full((batch_size, self.progs.max_time_step), fill_value=False)                      # (batch_size, max_time_step)
+
+        # prob_eps
+        self.prob_eps = prob_eps
+
+        # -------- INITIALIZING --------
+        # Initializing root node id
+        self.initialize_root_node_id()
+
+        return None
+
+    def initialize_root_node_id(self):
+        # Applying root node id (from structure) to root tokens (from progs)
+        self.node_id     [:, 0] = self.structure_ids[0]                                    # (batch_size,)
+        self.has_node_id [:, 0] = True                                                     # (batch_size,)
+    def __call__(self):
+
+        # ----------------- Checking if internal representation is up-to-date -----------------
+        # Previous step's node id should always be defined
+        # mask : is computation possible ?
+        # Computation is possible if and only if current (eg. first step) or previous node id is defined
+        is_prev_node_id_defined = self.has_node_id[:, self.progs.curr_step-1]                      # (batch_size,)
+        is_curr_node_id_defined = self.has_node_id[:, self.progs.curr_step]                        # (batch_size,)
+        is_computation_possible = np.logical_or(is_prev_node_id_defined, is_curr_node_id_defined)  # (batch_size,)
+        # If prog is completed than this is fine too
+        is_computation_possible = np.logical_or(is_computation_possible, self.progs.is_complete)   # (batch_size,)
+        run_possible = is_computation_possible.all()
+        # assert run_possible, "Computation impossible, at least one of current or previous node id should be defined."
+
+        # If representation is already up-to-date, we just update in on current step
+        if run_possible:
+            step_range = [self.progs.curr_step]
+        # Otherwise we reconstruct the whole representation from scratch
+        # (Could be more efficient to check at which step the representation is not up-to-date and update only from there but it is not a normal use case)
+        else:
+            self.initialize_root_node_id()
+            step_range = np.arange(0,self.progs.curr_step+1)
+
+
+        # ----------------- Updating internal representation of structure -----------------
+        for curr_step in step_range:
+
+            # Cases to handle:
+            # sep -> sep
+            # sep -> subf
+            # subf -> sep
+            # subf -> subf
+
+            # Getting current node id for each prog in batch
+            curr_node_id     = self.node_id     [:, curr_step]                                  # (batch_size,)
+            curr_has_node_id = self.has_node_id [:, curr_step]                                  # (batch_size,)
+
+            # --- Checking completeness of previous nodes if undefined node at current step ---
+            # mask : does prog have an undefined node id for current token ?
+            # n_undefined = mask_undef_node.sum()
+            mask_undef_node = self.has_node_id[:, curr_step] == False                                          # (batch_size,)
+            # Not affecting completed programs
+            mask_undef_node = mask_undef_node  & (~self.progs.is_complete)                                     # (batch_size,)
+
+            # Checking completeness of previous node ---
+            prev_node_id = self.node_id[mask_undef_node, curr_step-1]                                          # (n_undefined,)
+            # mask : does token belong to subtree of previous node ?
+            mask_in_prev_node = self.node_id[mask_undef_node] == prev_node_id[:, None]                                    # (n_undefined, max_time_step)
+            # Length of previous node
+            prev_node_length = mask_in_prev_node.sum(axis=1)                                                              # (n_undefined,)
+            # Arities in previous node (zeroing out arities out of node)
+            prev_node_arities = np.multiply(self.progs.tokens.arity[mask_undef_node], mask_in_prev_node.astype(float))    # (n_undefined, max_time_step)
+            # Previous node's nb of dangling tokens
+            n_dangling = prev_node_length - prev_node_arities.sum(axis=1)                                                 # (n_undefined,)
+            # mask : is previous node complete ?
+            mask_prev_node_is_done = n_dangling == 1                                                                      # (n_undefined,)
+
+            # --- Giving node id to undefined nodes ---
+            node_id_undef     = self.node_id     [mask_undef_node]
+            has_node_id_undef = self.has_node_id [mask_undef_node]
+            # Undefined nodes having completed previous node -> Switching to next node ---
+            node_id_undef     [mask_prev_node_is_done, curr_step]  = node_id_undef[mask_prev_node_is_done, curr_step-1] + 1      # (n_change_node,)
+            has_node_id_undef [mask_prev_node_is_done, curr_step]  = True                                                        # (n_change_node,)
+            # Undefined nodes having incomplete previous node -> Inheriting previous node id ---
+            node_id_undef     [~mask_prev_node_is_done, curr_step] = node_id_undef[~mask_prev_node_is_done, curr_step-1]         # (n_change_node,)
+            has_node_id_undef [~mask_prev_node_is_done, curr_step]  = True
+            # Update
+            self.node_id     [mask_undef_node] = node_id_undef
+            self.has_node_id [mask_undef_node] = has_node_id_undef
+
+            # --- Separability node -> Switching to next node for next token ---
+            # This is dangerous if one day we end up having the possibility of separabilities appearing as a last
+            # token of the batch since we are affecting the next token in the batch.
+            # mask : for each prog in the batch, was current node just done ?
+            batch_change_next_node = np.full(self.progs.batch_size, fill_value=False)                                           # (batch_size,)
+            # If current node is a seperability then next token belongs to next node (protection to only affect non-complete progs)
+            batch_is_sep = np.full(self.progs.batch_size, fill_value=False)                                                     # (batch_size,)
+            batch_is_sep[~self.progs.is_complete] = self.structure_is_sep[curr_node_id[~self.progs.is_complete]]                # (batch_size - progs.n_completed,)
+            batch_change_next_node[batch_is_sep] = True                                                                         # (batch_size,)
+            # Not affecting completed programs (this is redundant with the previous lines, but it is safer to keep it)
+            batch_change_next_node = batch_change_next_node & (~self.progs.is_complete)                                         # (batch_size,)
+            # Update
+            # Do not update the next token if it is beyond range of the sequence:
+            if curr_step+1 < self.progs.max_time_step:
+                self.node_id     [batch_change_next_node, curr_step+1] = curr_node_id[batch_change_next_node] + 1   # (batch_size,)
+                self.has_node_id [batch_change_next_node, curr_step+1] = True                                       # (batch_size,)
+
+        # ----------------- Getting legal tokens from current node id  -----------------
+        # mask : for each prog in batch, for each token in choosable tokens, is token allowed ?
+        mask_prob = np.full((self.progs.batch_size, self.lib.n_choices), fill_value=True)                                  # (batch_size, n_choices)
+        # For progs for which we have a node id, we use it to get legal tokens
+        mask_prob[~self.progs.is_complete] = self.structure_legal_mask[curr_node_id[~self.progs.is_complete]]              # (progs.n_completed, n_choices)
+        # For the others, all tokens are allowed (this should only happen for tokens outside complete prog range)
+        mask_prob[self.progs.is_complete] = True                                                                           # (batch_size-progs.n_completed, n_choices)
+
+        # To float
+        mask_prob = mask_prob.astype(float)                                                                                # (batch_size, n_choices)
+        # Replacing zeros by prob_eps
+        mask_prob[mask_prob == 0] = self.prob_eps
+
+        return mask_prob
+
+    def __repr__(self):
+
+        # Current stack of computed results
+        curr_stack = []
+
+        # Number of unique sub-functions in structure
+        n_subfuncs = (self.structure_arity == 0).sum()
+        # Unique no for each sub-function
+        subfunc_ids = np.full(self.n_struct, fill_value=self.INVALID_STRUCTURE_ID, dtype=int)  # (n_struct,
+        subfunc_ids[self.structure_arity == 0] = np.arange(n_subfuncs)
+
+        # Representation of ops
+        structure_reps = self.structure_str
+        # Replace "mul" by "*" and "add" by "+"
+        structure_reps = np.where(structure_reps == "mul", "*", structure_reps)
+        structure_reps = np.where(structure_reps == "add", "+", structure_reps)
+
+        # De-stacking program (iterating from last token to first)
+        start = self.n_struct - 1
+        for i in range(start, -1, -1):
+            node  = self.structure_str   [i]
+            arity = self.structure_arity [i]
+            # Last pending elements are those needed for next computation (in reverse order)
+            args = curr_stack[-arity:][::-1]
+            if arity == 0:
+                res = "f%s(%s)" % (subfunc_ids[i]+1, ','.join(f'{xi}' for xi in node))
+            elif arity == 2:
+                res = "(%s%s%s)" % (args[0], structure_reps[i], args[1])
+            if arity > 0:
+                # Removing those pending elements as they were used
+                curr_stack = curr_stack[:-arity]
+            # Appending last result to stack
+            curr_stack.append(res)
+
+        struct_repr = curr_stack[0]
+
+        prior_repr = "StructurePrior (programs must be like %s)"%(struct_repr)
+        return prior_repr
+
+
+
+
 class PhysicalUnitsPrior(Prior):
     """
     Enforces that next token should be physically consistent units-wise with current program based on current units

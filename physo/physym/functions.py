@@ -151,6 +151,10 @@ OP_POWER_VALUE_DICT = {
      "inv"  : -1,
 }
 
+# Type of separabilities between sub-functions (useful in the context of the structure prior)
+ADDITIVE_SEP_OPS       = ["add", "sub"]
+MULTIPLICATIVE_SEP_OPS = ["mul", "div"]
+
 # Data conversion to perform before being able to use functions
 def data_conversion (data):
     if isinstance(data, float):
