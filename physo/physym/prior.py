@@ -823,6 +823,11 @@ class StructurePrior (Prior):
         # Separabilities have arity 2, sub-functions have arity 0
         self.structure_arity = structure_arity                                            # (n_struct,) of int
 
+        # Number of unique sub-functions in structure
+        self.n_subfuncs = (self.structure_arity == 0).sum()                               # int
+        # Ids of sub-functions in structure
+        self.subfuncs_ids = self.structure_ids[self.structure_is_subfunc]                 # (n_subfuncs,)
+
         # Invalid node id to fill with
         self.INVALID_STRUCTURE_ID = Tok.INVALID_POS
 
@@ -878,6 +883,10 @@ class StructurePrior (Prior):
         self.initialize_root_node_id()
 
         return None
+
+    @property
+    def structure_is_subfunc(self):
+        return np.logical_not(self.structure_is_sep)
 
     def initialize_root_node_id(self):
         # Applying root node id (from structure) to root tokens (from progs)
@@ -1044,11 +1053,9 @@ class StructurePrior (Prior):
         # Current stack of computed results
         curr_stack = []
 
-        # Number of unique sub-functions in structure
-        n_subfuncs = (self.structure_arity == 0).sum()
         # Unique no for each sub-function
         subfunc_ids = np.full(self.n_struct, fill_value=self.INVALID_STRUCTURE_ID, dtype=int)  # (n_struct,)
-        subfunc_ids[self.structure_arity == 0] = np.arange(n_subfuncs)
+        subfunc_ids[self.structure_arity == 0] = np.arange(self.n_subfuncs)
 
         # Representation of ops
         structure_reps = self.structure_str
