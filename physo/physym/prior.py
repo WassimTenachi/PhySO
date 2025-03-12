@@ -702,7 +702,7 @@ class StructurePrior (Prior):
     (The prior is able to work even if not called at each step, it will recompute its internal representation of the
     structure from the beginning if needed.)
     """
-    def __init__(self, library, programs, structure, prob_eps = 0.):
+    def __init__(self, library, programs, structure, prob_eps = 0., use_soft_length_prior=True, soft_length_loc = 2, soft_length_scale = 1):
         """
         Parameters
         ----------
@@ -714,8 +714,17 @@ class StructurePrior (Prior):
             given in the list.
             Eg. structure = ["mul", ["x1","x2"], "mul", ["x5"], "add", ["x3"], ["x4"]] to enforce programs to be like
             f1(x1,x2) * ( f2(x5) * ( f3(x3) + f4(x4) ) )
-        prob_eps : float
-            Value to return for the prior inplace of zeros (useful for avoiding sampling problems)
+        use_soft_length_prior : bool, optional
+            If True, a soft length prior will be used to enforce the length of each sub-function node of the structure.
+            By default = True.
+        soft_length_loc : float or array_like of float of shape (n_sub_functions,), optional
+            Desired length (ie. nb of tokens) for sub-function node of the structure. If a single float is passed, all
+            sub-functions will have the same prior length. By default = 3.
+        soft_length_scale : float or array_like of float of shape (n_sub_functions,), optional
+            Scale of the gaussian prior for the length of sub-function node of the structure. If a single float is
+            passed, all sub-functions will have the same prior scale. By default = 5.
+        prob_eps : float, optional
+            Value to return for the prior inplace of zeros (useful for avoiding sampling problems). By default = 0.
         """
 
         # -------- ARGUMENTS ASSERTIONS / HANDLING --------
@@ -826,6 +835,44 @@ class StructurePrior (Prior):
         # prob_eps
         self.prob_eps = prob_eps
 
+        # -------- SOFT LENGTH PRIOR RELATED --------
+        self.use_soft_length_prior = use_soft_length_prior
+
+        # ARGS HANDLING
+        if isinstance(soft_length_loc, (int, float)):
+            soft_length_loc   = np.full(shape=(self.n_subfuncs,), fill_value=soft_length_loc,   dtype=float)      # (n_subfuncs,)
+        elif isinstance(soft_length_loc, (list, tuple, np.ndarray)):
+            try:
+                soft_length_loc = np.array(soft_length_loc, dtype=float)
+            except:
+                raise ValueError("Argument soft_length_loc should be a float or an array_like of floats.")
+            assert len(soft_length_loc) == self.n_subfuncs, "Argument soft_length_loc should have the same length as the number of sub-functions in the structure ie. %i."%(self.n_subfuncs)
+        else:
+            raise ValueError("Argument soft_length_loc should be a float or an array_like of floats.")
+
+        if isinstance(soft_length_scale, (int, float)):
+            soft_length_scale = np.full(shape=(self.n_subfuncs,), fill_value=soft_length_scale, dtype=float)      # (n_subfuncs,)
+        elif isinstance(soft_length_scale, (list, tuple, np.ndarray)):
+            try:
+                soft_length_scale = np.array(soft_length_scale, dtype=float)
+            except:
+                raise ValueError("Argument soft_length_scale should be a float or an array_like of floats.")
+            assert len(soft_length_scale) == self.n_subfuncs, "Argument soft_length_scale should have the same length as the number of sub-functions in the structure ie. %i."%(self.n_subfuncs)
+
+        # Lengths : as an array of shape (n_struct,), filling with nans where not a sub-function
+        self.locs = np.full(shape=(self.n_struct,), fill_value=np.nan, dtype=float)                           # (n_struct,)
+        self.locs[self.structure_is_subfunc] = soft_length_loc                                                # (n_subfuncs,)
+        # Scales : as an array of shape (n_struct,), filling with nans where not a sub-function
+        self.scales = np.full(shape=(self.n_struct,), fill_value=np.nan, dtype=float)                         # (n_struct,)
+        self.scales[self.structure_is_subfunc] = soft_length_scale                                            # (n_subfuncs,)
+
+        # Gaussian
+        self.length_gaussian = lambda step,loc,scale : np.exp(-(step - loc) ** 2 / (2 * scale))
+
+        # Is token of the library a terminal token : mask
+        terminal_arity = 0
+        self.mask_lib_is_terminal = (self.lib.get_choosable_prop("arity") == terminal_arity)                  # (n_choices,)
+
         # -------- INITIALIZING --------
         # Initializing root node id
         self.initialize_root_node_id()
@@ -931,8 +978,62 @@ class StructurePrior (Prior):
         # For the others, all tokens are allowed (this should only happen for tokens outside complete prog range)
         mask_prob[self.progs.is_complete] = True                                                                           # (batch_size-progs.n_completed, n_choices)
 
+        # ----------------- Soft length prior related -----------------
+        # Length prior probability for each prog in batch for each token in choosable tokens
+        length_prior_prob = np.full((self.progs.batch_size, self.lib.n_choices), fill_value=1.)                            # (batch_size, n_choices)
+
+        # mask : is current node id a sub-function for each prog in batch
+        mask_is_subfunc = np.full(self.progs.batch_size, fill_value=False)                                                  # (batch_size,)
+        # (Where we have a node id and node is a sub-function, we have a True)
+        mask_is_subfunc[~self.progs.is_complete] = self.structure_is_subfunc[curr_node_id[~self.progs.is_complete]]         # (progs.n_completed,)
+
+        # Getting position of current step in their node sub-function for prog in batch where current node is a sub-function
+        # n_batch_subfuncs = mask_is_subfunc.sum() (nb of sub-functions in batch at current step)
+        # (mask : for each token in prog, for each prog in batch, is token in curr sub-function where current node is a sub-function)
+        mask_in_curr_subf = (self.node_id[mask_is_subfunc] == curr_node_id[mask_is_subfunc,np.newaxis])                     # (n_batch_subfuncs, max_time_step)
+        # (Start position of current sub-function for each prog in batch where current node is a sub-function)
+        subf_start_pos = mask_in_curr_subf.argmax(axis=1)                                                                   # (n_batch_subfuncs,)
+        # Result
+        subf_loc_pos = curr_step - subf_start_pos                                                                           # (n_batch_subfuncs,)
+
+        # Getting locs and scales for prog in batch where current node is a sub-function
+        subf_loc   = self.locs   [curr_node_id[mask_is_subfunc]]                                                           # (n_batch_subfuncs,)
+        subf_scale = self.scales [curr_node_id[mask_is_subfunc]]                                                           # (n_batch_subfuncs,)
+
+        # Gaussian vals
+        gauss_vals = self.length_gaussian(subf_loc_pos, subf_loc, subf_scale)                                              # (n_batch_subfuncs,)
+
+        # Handling prog where curr step is before loc of gaussian
+        mask_before_loc = subf_loc_pos < subf_loc                                                                          # (n_batch_subfuncs,)
+        # For those, terminal token probs are set to gauss_vals
+        if mask_before_loc.sum() > 0:
+            # length_prior_prob[:, self.mask_lib_is_terminal][mask_is_subfunc][mask_before_loc] = \
+            #     gauss_vals[mask_before_loc, np.newaxis]
+            tmpA = length_prior_prob[:, self.mask_lib_is_terminal][mask_is_subfunc]
+            tmpA[mask_before_loc] = gauss_vals[mask_before_loc, np.newaxis]
+            tmpB = length_prior_prob[:, self.mask_lib_is_terminal]
+            tmpB[mask_is_subfunc] = tmpA
+            length_prior_prob[:, self.mask_lib_is_terminal] = tmpB
+
+        # At loc: gaussian value = 1. -> We keep the default value of 1.
+        # Handling prog where curr step is after loc of gaussian
+        mask_after_loc = subf_loc_pos > subf_loc                                                                           # (n_batch_subfuncs,)
+        # For those, non-terminal token probs are set to gauss_vals
+        if mask_after_loc.sum() > 0:
+            # length_prior_prob[:, ~self.mask_lib_is_terminal][mask_is_subfunc][mask_after_loc] = \
+            #     gauss_vals[mask_after_loc, np.newaxis]                                                                     # (n_after_loc, n_non_terminal_tokens)
+            tmpA = length_prior_prob[:, ~self.mask_lib_is_terminal][mask_is_subfunc]
+            tmpA[mask_after_loc] = gauss_vals[mask_after_loc, np.newaxis]
+            tmpB = length_prior_prob[:, ~self.mask_lib_is_terminal]
+            tmpB[mask_is_subfunc] = tmpA
+            length_prior_prob[:, ~self.mask_lib_is_terminal] = tmpB
+
+        # ----------------- Result -----------------
         # To float
         mask_prob = mask_prob.astype(float)                                                                                # (batch_size, n_choices)
+        # Applying length prior
+        if self.use_soft_length_prior:
+            mask_prob = np.multiply(mask_prob, length_prior_prob)                                                              # (batch_size, n_choices)
         # Replacing zeros by prob_eps
         mask_prob[mask_prob == 0] = self.prob_eps
 
