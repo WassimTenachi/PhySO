@@ -1291,6 +1291,7 @@ PRIORS_W_ARGS = {
     "OccurrencesPrior"            : OccurrencesPrior,
     "PhysicalUnitsPrior"          : PhysicalUnitsPrior,
     "SymbolicPrior"               : SymbolicPrior,
+    "StructurePrior"              : StructurePrior,
 }
 
 # All priors
