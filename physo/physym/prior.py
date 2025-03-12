@@ -1329,6 +1329,7 @@ def make_PriorCollection (library, programs, priors_config,):
     prior_collection = PriorCollection(library = library, programs = programs)
     # Individual priors
     priors = []
+    names  = []
     # Iterating through individual priors
     for config in priors_config:
         # --- TYPE ASSERTIONS ---
@@ -1351,11 +1352,12 @@ def make_PriorCollection (library, programs, priors_config,):
         try:
             prior = PRIORS_DICT[name](library = library, programs = programs, **prior_args)
             priors.append(prior)
+            names .append(name)
         except Exception as e:
             warnings.warn("An error occurred while making prior %s, this prior will be ignored. "
                           "Error message:\n%s"%(name,e))
     # Setting priors in PriorCollection
-    prior_collection.set_priors(priors)
+    prior_collection.set_priors(priors, names)
     return prior_collection
 
 
@@ -1372,20 +1374,39 @@ class PriorCollection:
         programs : vect_programs.VectPrograms
             Programs in the batch.
         """
-        self.priors    = []
+        self.priors       = []
+        self.priors_names = []
+        self.n_priors     = 0
         self.lib       = library
         self.progs     = programs
         self.init_prob = np.ones( (self.progs.batch_size, self.lib.n_choices), dtype = float)
 
-    def set_priors (self, priors):
+    def set_priors (self, priors, names):
         """
         Sets constituent priors.
         Parameters
         ----------
         priors : list of prior.Prior
+        names  : list of str
         """
         for prior in priors:
             self.priors.append(prior)
+        for name in names:
+            self.priors_names.append(name)
+        self.n_priors = len(self.priors)
+
+    def get_prior (self, name):
+        """
+        Return all instances of priors having name [name].
+        Parameters
+        ----------
+        name : str
+        Returns
+        -------
+        priors : list of prior.Prior
+        """
+        priors = [prior for prior, prior_name in zip(self.priors, self.priors_names) if prior_name == name]
+        return priors
 
     def __call__(self):
         """
