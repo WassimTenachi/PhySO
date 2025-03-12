@@ -892,28 +892,61 @@ class StructurePrior (Prior):
         # Applying root node id (from structure) to root tokens (from progs)
         self.node_id     [:, 0] = self.structure_ids[0]                                    # (batch_size,)
         self.has_node_id [:, 0] = True                                                     # (batch_size,)
-    def __call__(self):
+
+    def get_protected_curr_step(self):
+        """
+        Returns the current step of the programs in the batch. If the current step is out of range, the last step is
+        returned.
+        Returns
+        -------
+        curr_step : int
+        """
+        # If out of range call, then let's just call at the last step possible
+        if self.progs.curr_step >= self.progs.max_time_step:
+            curr_step = self.progs.max_time_step - 1
+        else:
+            curr_step = self.progs.curr_step
+        return curr_step
+
+    def __call__(self, recompute=False):
+        """
+        Returns the prior for the current step of the programs in the batch.
+        Parameters
+        ----------
+        recompute : bool, optional
+            If True, the internal representation of the structure is recomputed from scratch.
+        Returns
+        -------
+        mask_prob : array_like of shape (batch_size, n_choices)
+            Mask of prior probabilities for next tokento generate for each program in the batch.
+        """
+
+        # ----------------- Protection for out of range calls -----------------
+        # If out of range call, then let's just call at the last step possible
+        curr_step = self.get_protected_curr_step()
 
         # ----------------- Checking if internal representation is up-to-date -----------------
         # Previous step's node id should always be defined
         # mask : is computation possible ?
         # Computation is possible if and only if current (eg. first step) or previous node id is defined
-        is_prev_node_id_defined = self.has_node_id[:, self.progs.curr_step-1]                      # (batch_size,)
-        is_curr_node_id_defined = self.has_node_id[:, self.progs.curr_step]                        # (batch_size,)
+        is_prev_node_id_defined = self.has_node_id[:, curr_step-1]                      # (batch_size,)
+        is_curr_node_id_defined = self.has_node_id[:, curr_step]                        # (batch_size,)
         is_computation_possible = np.logical_or(is_prev_node_id_defined, is_curr_node_id_defined)  # (batch_size,)
         # If prog is completed than this is fine too
         is_computation_possible = np.logical_or(is_computation_possible, self.progs.is_complete)   # (batch_size,)
         run_possible = is_computation_possible.all()
         # assert run_possible, "Computation impossible, at least one of current or previous node id should be defined."
+        if recompute:
+            run_possible = False
 
         # If representation is already up-to-date, we just update in on current step
         if run_possible:
-            step_range = [self.progs.curr_step]
+            step_range = [curr_step]
         # Otherwise we reconstruct the whole representation from scratch
         # (Could be more efficient to check at which step the representation is not up-to-date and update only from there but it is not a normal use case)
         else:
             self.initialize_root_node_id()
-            step_range = np.arange(0,self.progs.curr_step+1)
+            step_range = np.arange(0,curr_step+1)
 
 
         # ----------------- Updating internal representation of structure -----------------
@@ -978,6 +1011,12 @@ class StructurePrior (Prior):
             if curr_step+1 < self.progs.max_time_step:
                 self.node_id     [batch_change_next_node, curr_step+1] = curr_node_id[batch_change_next_node] + 1   # (batch_size,)
                 self.has_node_id [batch_change_next_node, curr_step+1] = True                                       # (batch_size,)
+
+        # ----------------- Managing current step -----------------
+        curr_step = self.get_protected_curr_step()
+        # Getting current node id for each prog in batch
+        curr_node_id     = self.node_id     [:, curr_step]                                  # (batch_size,)
+        curr_has_node_id = self.has_node_id [:, curr_step]                                  # (batch_size,)
 
         # ----------------- Getting legal tokens from current node id  -----------------
         # mask : for each prog in batch, for each token in choosable tokens, is token allowed ?
