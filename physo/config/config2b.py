@@ -82,6 +82,11 @@ priors_config  = [
                 #("OccurrencesPrior", {"targets" : ["1",], "max" : [3,] }),
                  ]
 
+# ---------- STRUCTURE ANALYSIS CONFIG ----------
+struct_analysis = {
+    "structure_analysis" : False,
+    }
+
 # ---------- RNN CELL CONFIG ----------
 cell_config = {
     "hidden_size" : 128,
@@ -96,4 +101,5 @@ config2b = {
     "free_const_opti_args" : free_const_opti_args,
     "priors_config"        : priors_config,
     "cell_config"          : cell_config,
+    "struct_analysis"      : struct_analysis,
 }
