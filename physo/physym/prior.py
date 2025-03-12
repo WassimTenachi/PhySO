@@ -1087,6 +1087,55 @@ class StructurePrior (Prior):
 
         return mask_prob
 
+    def is_structured(self):
+        """
+        Is program following the structure ?
+        (Will not work properly if prior was not called at each step as internal structure update code will not make
+        proper updates on progs marked as completed.)
+        Returns
+        -------
+        is_structured : boool of shape (batch_size,)
+            Is program following the structure ?
+        """
+        # Making internal call to have up-to-date representation
+        self.__call__(recompute=True)
+
+        # mask : is token legal for each prog in batch
+        mask_legal_token = np.full(self.progs.shape, fill_value=False)                      # (batch_size, max_time_step)
+        # Checking legality where this is defined
+        # mask : is legality defined for each token of each prog in the batch
+        # Ie. where we have a node id and token is choosable (not a dummy in particular)
+        mask_leg_def = (self.progs.tokens.idx < self.lib.n_choices) & self.has_node_id      # (batch_size, max_time_step)
+        mask_legal_token[mask_leg_def] = self.structure_legal_mask[self.node_id[mask_leg_def],
+                                                                  self.progs.tokens.idx[mask_leg_def]] # (has_node_id.sum())
+        # mask : is token in range of valid prog part of sequence
+        token_in_range = self.progs.tokens.pos < np.tile(self.progs.n_lengths, (self.progs.max_time_step,1)).transpose()
+
+        # A prog is structured if and only if all of its in range tokens are legal
+        is_structured = (mask_legal_token | (~token_in_range)).all(axis=1)                              # (batch_size,)
+
+        return is_structured
+
+    def get_node_lengths(self):
+        """
+        Returns the lengths of each node in the structure for each program in the batch.
+        Returns
+        -------
+        lengths : array_like of shape (n_struct, batch_size)
+        """
+        lengths = (self.node_id == self.structure_ids[:, np.newaxis, np.newaxis]).sum(axis=2)
+        return lengths
+
+    def get_subfuncs_lengths(self):
+        """
+        Returns the lengths of each sub-function in the structure for each program in the batch.
+        Returns
+        -------
+        lengths : array_like of shape (n_subfuncs, batch_size)
+        """
+        lengths = self.get_node_lengths()[self.structure_is_subfunc]
+        return lengths
+
     def structure_repr(self):
 
         # Current stack of computed results
