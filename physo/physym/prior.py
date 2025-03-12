@@ -1083,7 +1083,7 @@ class StructurePrior (Prior):
         if self.use_soft_length_prior:
             mask_prob = np.multiply(mask_prob, length_prior_prob)                                                              # (batch_size, n_choices)
         # Replacing zeros by prob_eps
-        mask_prob[mask_prob == 0] = self.prob_eps
+        mask_prob[mask_prob < self.prob_eps] = self.prob_eps
 
         return mask_prob
 
