@@ -155,6 +155,9 @@ class Library:
         self.n_input_var        = (self.var_type == Tok.VAR_TYPE_INPUT_VAR).sum()
         # Ids of input variables available
         self.input_var_ids      = self.var_id[self.var_type == Tok.VAR_TYPE_INPUT_VAR]   # (n_input_var,) of int
+        # Input variables names
+        self.input_var_name_from_id = {self.var_id[i]: self.lib_name[i] for i in range(self.n_library) if
+                                       self.var_type[i] == Tok.VAR_TYPE_INPUT_VAR}       # (n_input_var,) of {int : str}
 
         # ------------------------------ CLASS FREE CONSTANTS ------------------------------
 
