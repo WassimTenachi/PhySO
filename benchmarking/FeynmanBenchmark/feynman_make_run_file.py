@@ -5,22 +5,27 @@ import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 
 # Local imports
 from benchmarking import utils as bu
-import feynman_config as fconfig
+import feynman_configs as fconfigs
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Creates a jobfile to run all Feynman problems at specified noise level.",
                                   formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-n", "--noise", default = 0.,
                     help = "Noise level.")
+parser.add_argument("-c", "--feynman_config", default = "feynman_config_r10",
+                    help = "Feynman config file to use, using feynman_config_r10 by default.")
 config = vars(parser.parse_args())
 
+# Noise level
 NOISE_LEVEL = float(config["noise"])
+# Feynman config
+FCONFIG = str(config["feynman_config"])
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
 # Expected performances on unistra HPC
 # With N_SAMPLES = 1e5 on 1 CPU core -> 40min/10k evaluations
 # With 1M expressions -> each run .log -> 400 Mo
-
+fconfig = fconfigs.configs[FCONFIG]
 N_TRIALS = fconfig.N_TRIALS
 ORIGINAL_VAR_NAMES = fconfig.ORIGINAL_VAR_NAMES
 EXCLUDED_IN_SRBENCH_EQS_FILENAMES = fconfig.EXCLUDED_IN_SRBENCH_EQS_FILENAMES
@@ -41,7 +46,7 @@ for i_eq in range (Feyn.N_EQS):
         # Iterating through trials
         for i_trial in range (N_TRIALS):
             # File name
-            command = "python feynman_run.py -i %i -t %i -n %f"%(i_eq, i_trial, NOISE_LEVEL)
+            command = "python feynman_run.py -i %i -t %i -n %f -c %s"%(i_eq, i_trial, NOISE_LEVEL, FCONFIG)
             commands.append(command)
     else:
         print("Problem excluded.")

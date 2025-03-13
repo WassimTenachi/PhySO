@@ -11,7 +11,7 @@ import physo.benchmark.FeynmanDataset.FeynmanProblem as Feyn
 import physo
 
 # Local imports
-import feynman_config as fconfig
+import feynman_configs as fconfigs
 
 # Parallel config :
 # Parallel mode may cause issues due to the number of samples, non-parallel mode is recommended
@@ -28,6 +28,8 @@ parser.add_argument("-t", "--trial", default = 0,
                     help = "Trial number (sets seed accordingly).")
 parser.add_argument("-n", "--noise", default = 0.,
                     help = "Noise level fraction.")
+parser.add_argument("-c", "--feynman_config", default = "feynman_config_r10",
+                    help = "Feynman config file to use, using feynman_config_r10 by default.")
 parser.add_argument("-p", "--parallel_mode", default = PARALLEL_MODE_DEFAULT,
                     help = "Should parallel mode be used.")
 parser.add_argument("-ncpus", "--ncpus", default = N_CPUS_DEFAULT,
@@ -40,12 +42,16 @@ I_FEYN  = int(config["equation"])
 N_TRIAL = int(config["trial"])
 # Noise level
 NOISE_LEVEL = float(config["noise"])
+# Feynman config
+FCONFIG = str(config["feynman_config"])
 # Parallel config
 PARALLEL_MODE = bool(config["parallel_mode"])
 N_CPUS        = int(config["ncpus"])
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
 if __name__ == '__main__':
+
+    fconfig = fconfigs.configs[FCONFIG]
 
     # ----- HYPERPARAMS -----
     FIXED_CONSTS       = fconfig.FIXED_CONSTS

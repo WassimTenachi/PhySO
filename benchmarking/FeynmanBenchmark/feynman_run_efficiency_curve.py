@@ -1,3 +1,5 @@
+import argparse
+
 import numpy as np
 import time as time
 import torch as torch
@@ -11,12 +13,21 @@ from physo.physym import library as Lib
 from physo.physym import vect_programs as VProg
 
 # Local imports
-import feynman_config as fconfig
+import feynman_configs as fconfigs
 
-# ------------------------------------------- EFFICIENCY CURVE ---------------------------------------------------------
-# This script is used to generate a parallelization efficiency curve for the free constant optimization task with
-# the setup defined in feynman_config.py.
-# ----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
+parser = argparse.ArgumentParser (description = "This script is used to generate a parallelization efficiency curve"
+                                                " for the free constant optimization task with the setup defined "
+                                                "in feynman_config.",
+                                  formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("-c", "--feynman_config", default = "feynman_config_r10",
+                    help = "Feynman config file to use, using feynman_config_r10 by default.")
+config = vars(parser.parse_args())
+
+FCONFIG = str(config["feynman_config"])
+# ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
+
+fconfig = fconfigs.configs[FCONFIG]
 
 BATCH_SIZE = fconfig.CONFIG["learning_config"]["batch_size"]
 N_SAMPLES  = fconfig.N_SAMPLES

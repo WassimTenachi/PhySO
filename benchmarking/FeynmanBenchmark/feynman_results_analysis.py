@@ -20,9 +20,8 @@ import physo.benchmark.utils.metrics_utils as metrics_utils
 import physo.benchmark.utils.timeout_unix  as timeout_unix
 import physo.benchmark.utils.read_logs     as read_logs
 # Local imports
-import feynman_config as fconfig
 from benchmarking import utils as bu
-
+import feynman_configs as fconfigs
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Analyzes Feynman run results folder (works on ongoing benchmarks) "
@@ -34,13 +33,17 @@ parser.add_argument("-p", "--path", default = ".",
                     help = "Paths to results folder.")
 parser.add_argument("-u", "--list_unfinished", default = 1,
                     help = "Save a list of unfinished runs.")
+parser.add_argument("-c", "--feynman_config", default = "feynman_config_r10",
+                    help = "Feynman config file to use, using feynman_config_r10 by default.")
 config = vars(parser.parse_args())
 
 NOISE_LVL       = float(config["noise"])
 RESULTS_PATH    = str(config["path"])
 SAVE_UNFINISHED = bool(int(config["list_unfinished"]))
-
+FCONFIG = str(config["feynman_config"])
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
+
+fconfig = fconfigs.configs[FCONFIG]
 
 N_TRIALS = fconfig.N_TRIALS
 EXCLUDED_IN_SRBENCH_EQS_FILENAMES = fconfig.EXCLUDED_IN_SRBENCH_EQS_FILENAMES
