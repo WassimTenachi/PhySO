@@ -131,7 +131,7 @@ def BatchExecution (progs, X,
                     n_samples_per_dataset = None,
                     # Mask
                     mask     = None,
-                    pad_with = np.NaN,
+                    pad_with = np.nan,
                     # Parallel mode related
                     n_cpus        = 1,
                     parallel_mode = False):
@@ -237,7 +237,7 @@ def BatchExecutionReduceGather (progs, X, reduce_wrapper,
                                 n_samples_per_dataset = None,
                                 # Mask
                                 mask     = None,
-                                pad_with = np.NaN,
+                                pad_with = np.nan,
                                 # Parallel mode related
                                 n_cpus        = 1,
                                 parallel_mode = False
@@ -345,7 +345,7 @@ def BatchExecutionReward (progs, X, y_target, reward_function, y_weights = 1.,
                           n_samples_per_dataset = None,
                           # Mask
                           mask     = None,
-                          pad_with = np.NaN,
+                          pad_with = np.nan,
                           # Parallel mode related
                           n_cpus        = 1,
                           parallel_mode = False

@@ -142,13 +142,13 @@ class TokenTest(unittest.TestCase):
         # Test exception: fixed_const is supposed to be non nan
         with self.assertRaises(AssertionError):
             pi = Tok.Token(name='pi', sympy_repr='pi', arity=0, complexity=0, var_type=Tok.VAR_TYPE_FIXED_CONST,
-                           fixed_const=np.NaN,
+                           fixed_const=np.nan,
                            function=None,
                            var_id=None)
         # Same test with type specific class
         with self.assertRaises(AssertionError):
             pi = Tok.TokenFixedConst(name='pi', sympy_repr='pi', complexity=0,
-                           fixed_const=np.NaN,)
+                           fixed_const=np.nan,)
 
         # Test exception: function is supposed to be None
         with self.assertRaises(AssertionError):

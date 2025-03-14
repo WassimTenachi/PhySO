@@ -226,7 +226,7 @@ class RunLogger:
         # Init
         if self.epoch == 0:
             self.pareto_complexities  = np.arange(0,10*curr_batch.max_time_step)
-            self.pareto_rewards       = np.full(shape=(self.pareto_complexities.shape), fill_value = np.NaN)
+            self.pareto_rewards       = np.full(shape=(self.pareto_complexities.shape), fill_value = np.nan)
             self.pareto_programs      = np.full(shape=(self.pareto_complexities.shape), fill_value = None, dtype=object)
 
         # Update with current epoch info
