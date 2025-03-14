@@ -106,7 +106,7 @@ class Library:
         # Should happen 1st so that superparent.name is defined when calling reset_library
         # Units # using retrieve_units for its error raising + padding features
         if superparent_units is None:
-            superparent_units_dict = None  # will result in y_units = None => token.units = vector of np.NAN
+            superparent_units_dict = None  # will result in y_units = None => token.units = vector of np.nan
         else:
             superparent_units_dict = {superparent_name: superparent_units}
         y_is_constraining_phy_units, y_units = tokenize.retrieve_units(superparent_units_dict, superparent_name)

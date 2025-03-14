@@ -240,9 +240,9 @@ class TestDataset(unittest.TestCase):
                                          library=my_lib)
         # Containing NaNs
         wrong_multi_X = [X.cpu().numpy().copy() for X in multi_X]
-        wrong_multi_X [0][0, 0] = float(np.NAN)
+        wrong_multi_X [0][0, 0] = float(np.nan)
         wrong_multi_y = [y.cpu().numpy().copy() for y in multi_y_target]
-        wrong_multi_y [0][0] = float(np.NAN)
+        wrong_multi_y [0][0] = float(np.nan)
         with self.assertRaises(AssertionError):
             my_dataset = dataset.Dataset(multi_X=wrong_multi_X, multi_y=multi_y_target, library=my_lib)
         with self.assertRaises(AssertionError):
@@ -273,7 +273,7 @@ class TestDataset(unittest.TestCase):
             self.assertTrue((y_weights == expected).all())
         # NAN assertion
         with self.assertRaises(AssertionError):
-            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=np.NAN,
+            my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=np.nan,
                                          library=my_lib)
         # Wrong type -> Converts to float in this case
         my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=int(2), library=my_lib)
@@ -299,7 +299,7 @@ class TestDataset(unittest.TestCase):
         # NAN assertion
         with self.assertRaises(AssertionError):
             wrong_y_weights_per_dataset = y_weights_per_dataset.copy()
-            wrong_y_weights_per_dataset[0] = np.NAN
+            wrong_y_weights_per_dataset[0] = np.nan
             my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target,
                                          multi_y_weights=wrong_y_weights_per_dataset, library=my_lib)
         # Wrong (n_realizations,) length
@@ -332,7 +332,7 @@ class TestDataset(unittest.TestCase):
         # NAN assertion
         with self.assertRaises(AssertionError):
             wrong_multi_y_weights = [y.cpu().numpy().copy() for y in multi_y_weights]
-            wrong_multi_y_weights[0][0] = float(np.NAN)
+            wrong_multi_y_weights[0][0] = float(np.nan)
             my_dataset = dataset.Dataset(multi_X=multi_X, multi_y=multi_y_target, multi_y_weights=wrong_multi_y_weights,
                                          library=my_lib)
         # Wrong (n_realizations,) length

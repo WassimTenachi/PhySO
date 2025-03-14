@@ -97,7 +97,7 @@ class LibraryTest(unittest.TestCase):
         # Test lib
         test_lib_types_and_size(my_lib=my_lib, expected_n_lib=n_tokens_via_make)
         # Test superparent units
-        bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.NAN), equal_nan=True)
+        bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.nan), equal_nan=True)
         self.assertEqual(bool_works, True)
         # Test sample token units
         bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["v"]][0:3],
@@ -123,7 +123,7 @@ class LibraryTest(unittest.TestCase):
         # Test lib
         test_lib_types_and_size(my_lib=my_lib, expected_n_lib=n_tokens_via_custom)
         # Test superparent units
-        bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.NAN), equal_nan=True)
+        bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.nan), equal_nan=True)
         self.assertEqual(bool_works, True)
         # Test sample token units
         bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["x0"]][0:3],
@@ -139,7 +139,7 @@ class LibraryTest(unittest.TestCase):
         test_lib_types_and_size(my_lib=my_lib, expected_n_lib=n_tokens_via_custom+n_tokens_via_make)
 
         # Test superparent units
-        bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.NAN),
+        bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.nan),
                                     equal_nan=True)
         self.assertEqual(bool_works, True)
         # Test sample token units
@@ -159,7 +159,7 @@ class LibraryTest(unittest.TestCase):
         test_lib_types_and_size(my_lib=my_lib, expected_n_lib=n_tokens_via_custom + n_tokens_via_make)
 
         # Test superparent units
-        bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.NAN),
+        bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.nan),
                                     equal_nan=True)
         self.assertEqual(bool_works, True)
         # Test sample token units
@@ -181,7 +181,7 @@ class LibraryTest(unittest.TestCase):
         # Test lib
         test_lib_types_and_size(my_lib=my_lib, expected_n_lib=n_tokens_via_custom + n_tokens_via_make)
         # Test superparent units
-        bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.NAN),
+        bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.nan),
                                     equal_nan=True)
         self.assertEqual(bool_works, True)
         # Test sample token units

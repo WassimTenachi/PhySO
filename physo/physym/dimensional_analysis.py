@@ -110,8 +110,8 @@ def assign_required_units(programs, coords,):
     # By default = False (no constraint)
     is_constraining = np.full(shape = n_tokens, fill_value = False, dtype = bool)                         # (n_tokens,)
 
-    # Required units for each token in batch. By default = np.NAN (no constraint)
-    phy_units = np.full(shape = (n_tokens, Tok.UNITS_VECTOR_SIZE) , fill_value = np.NAN, dtype = float)   # (n_tokens, UNITS_VECTOR_SIZE)
+    # Required units for each token in batch. By default = np.nan (no constraint)
+    phy_units = np.full(shape = (n_tokens, Tok.UNITS_VECTOR_SIZE) , fill_value = np.nan, dtype = float)   # (n_tokens, UNITS_VECTOR_SIZE)
 
     # -------------------- UTILS --------------------
     # Dummy token's idx in the library
@@ -138,7 +138,7 @@ def assign_required_units(programs, coords,):
     # Utils function to apply no constraints at mask_case
     def apply_no_constraints (mask_case):
         apply_const_constraints(mask_case, const_is_constraining = False,
-                                           const_phy_units = np.NAN)
+                                           const_phy_units = np.nan)
 
     # -------------------- GETTING PROPERTIES OF PARENT --------------------
     # mask : does token have parent (ie. are any of the properties meaningful ie. they do not consist of filler values)

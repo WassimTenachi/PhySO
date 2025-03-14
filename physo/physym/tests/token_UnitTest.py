@@ -482,7 +482,7 @@ class TokenTest(unittest.TestCase):
                                           phy_units=np.ones(Tok.UNITS_VECTOR_SIZE + 1))
         # Test exception: token with is_constraining_phy_units = True must not contain any NAN
         wrong_units = np.ones(Tok.UNITS_VECTOR_SIZE)
-        wrong_units[0] = np.NAN
+        wrong_units[0] = np.nan
         with self.assertRaises(AssertionError):
             physical_quantity = Tok.Token(name='x0', sympy_repr='x0', arity=0, complexity=0,
                                           var_type=Tok.VAR_TYPE_INPUT_VAR,
