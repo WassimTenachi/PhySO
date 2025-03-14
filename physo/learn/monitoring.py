@@ -241,7 +241,7 @@ class RunLogger:
                 # If reward > currently max reward for this complexity or empty, replace
                 if self.pareto_rewards[i] <= max_r_at_c or np.isnan(self.pareto_rewards[i]):
                     self.pareto_programs [i] = curr_batch.programs.get_prog(arg_have_c_and_max[0], detach=True)
-                    self.pareto_rewards  [i] = max_r_at_c
+                    self.pareto_rewards  [i] = max_r_at_c[0]
 
     def get_pareto_front(self,):
         # Postprocessing
