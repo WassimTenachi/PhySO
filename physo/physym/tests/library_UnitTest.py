@@ -24,16 +24,16 @@ class LibraryTest(unittest.TestCase):
             bool_works = np.array_equal(my_lib.arity, my_lib.properties.arity[0, :], equal_nan=True)
             self.assertEqual(bool_works, True)
             # Test properties vectors types # https://numpy.org/doc/stable/reference/arrays.scalars.html
-            self.assertEqual( my_lib            .lib_function                 .dtype , np.object_ )
-            self.assertEqual( my_lib.properties .arity                        .dtype , np.int_    )
-            self.assertEqual( my_lib.properties .complexity                   .dtype , np.float_  )
-            self.assertEqual( my_lib.properties .var_type                     .dtype , np.int_   )
-            self.assertEqual( my_lib.properties .var_id                       .dtype , np.int_    )
-            self.assertEqual( my_lib.properties .is_constraining_phy_units    .dtype , np.bool_   )
-            self.assertEqual( my_lib.properties .phy_units                    .dtype , np.float_  )
-            self.assertEqual( my_lib.properties .behavior_id                  .dtype , np.int_    )
-            self.assertEqual( my_lib.properties .is_power                     .dtype , np.bool_   )
-            self.assertEqual( my_lib.properties .power                        .dtype , np.float_  )
+            self.assertEqual(                my_lib            .lib_function                 .dtype , np.object_ )
+            self.assertTrue( np.issubdtype ( my_lib.properties .arity                        .dtype , np.integer    ))
+            self.assertTrue( np.issubdtype ( my_lib.properties .complexity                   .dtype , np.floating   ))
+            self.assertTrue( np.issubdtype ( my_lib.properties .var_type                     .dtype , np.integer    ))
+            self.assertTrue( np.issubdtype ( my_lib.properties .var_id                       .dtype , np.integer    ))
+            self.assertTrue( np.issubdtype ( my_lib.properties .is_constraining_phy_units    .dtype , np.bool_      ))
+            self.assertTrue( np.issubdtype ( my_lib.properties .phy_units                    .dtype , np.floating   ))
+            self.assertTrue( np.issubdtype ( my_lib.properties .behavior_id                  .dtype , np.integer    ))
+            self.assertTrue( np.issubdtype ( my_lib.properties .is_power                     .dtype , np.bool_      ))
+            self.assertTrue( np.issubdtype ( my_lib.properties .power                        .dtype , np.floating   ))
 
         # -------- Test args --------
         custom_tokens = [
