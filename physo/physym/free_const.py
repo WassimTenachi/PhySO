@@ -200,7 +200,7 @@ class FreeConstantsTable:
 
         # Spe free const df
         values = self.spe_values.cpu().detach().numpy()
-        values = np.reshape(values, shape=(self.batch_size, self.n_spe_free_const*self.n_realizations))      # (batch_size, n_spe_free_const*n_realizations)
+        values = np.reshape(values, (self.batch_size, self.n_spe_free_const*self.n_realizations))            # (batch_size, n_spe_free_const*n_realizations)
         names  = self.library.spe_free_constants_names                                                       # (n_spe_free_const,)
         # Adding realization number to names (eg. "k0_0", "k0_1", "k0_2", ..., "k1_0", "k1_1", "k1_2", ...)
         names  = [name + "_%s" % (i) for name in names for i in range(self.n_realizations)]                  # (n_spe_free_const*n_realizations,)
