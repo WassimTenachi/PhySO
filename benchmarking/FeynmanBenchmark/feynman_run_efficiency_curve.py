@@ -22,9 +22,14 @@ parser = argparse.ArgumentParser (description = "This script is used to generate
                                   formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-c", "--feynman_config", default = "feynman_config_r10",
                     help = "Feynman config file to use, using feynman_config_r10 by default.")
+parser.add_argument("-ncpus", "--ncpus", default = None,
+                    help = "Maximum number of CPUs to test.")
+
 config = vars(parser.parse_args())
 
 FCONFIG = str(config["feynman_config"])
+MAX_NCPUS = None if str(config["ncpus"])=="None" else int(config["ncpus"])
+
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
 fconfig = fconfigs.configs[FCONFIG]
@@ -32,6 +37,9 @@ fconfig = fconfigs.configs[FCONFIG]
 BATCH_SIZE = fconfig.CONFIG["learning_config"]["batch_size"]
 N_SAMPLES  = fconfig.N_SAMPLES
 N_FREE_CONST_STEPS = fconfig.CONFIG["free_const_opti_args"]["method_args"]["n_steps"]
+
+# Maximum number of CPUs to test
+MAX_NCPUS = mp.cpu_count() if MAX_NCPUS is None else MAX_NCPUS
 
 # List of number of CPUs to test based on the total nb of CPUs (if 8 cores returns [8, 1, 2 4,])
 def get_ncpus(max_ncpus):
@@ -155,7 +163,7 @@ if __name__ == '__main__':
 
     # Getting parallel times
     print("\nParallelized free constant optimization test:")
-    max_ncpus = mp.cpu_count()
+    max_ncpus = MAX_NCPUS
     print("Total nb. of CPUs: ", max_ncpus)
     # Getting computation times as a function of the number of CPUs
     times = []
