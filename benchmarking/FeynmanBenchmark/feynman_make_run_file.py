@@ -39,6 +39,11 @@ N_CPUS        = int(config["ncpus"])
 # Expected performances on unistra HPC
 # With N_SAMPLES = 1e5 on 1 CPU core -> 40min/10k evaluations
 # With 1M expressions -> each run .log -> 400 Mo
+
+# Expected performances on Compute Canada
+# With N_SAMPLES = 1e5 on 1 CPU core -> 20min/10k evaluations
+# With 1M expressions -> each run .log -> 400 Mo
+
 fconfig = fconfigs.configs[FCONFIG]
 N_TRIALS = fconfig.N_TRIALS
 ORIGINAL_VAR_NAMES = fconfig.ORIGINAL_VAR_NAMES
