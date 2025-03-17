@@ -5,6 +5,8 @@ import time as time
 import torch as torch
 import torch.multiprocessing as mp
 import matplotlib.pyplot as plt
+import platform
+import socket
 
 # Internal imports
 import physo.physym.reward
@@ -62,6 +64,13 @@ if __name__ == '__main__':
     #if torch.cuda.is_available():
     #    DEVICE = 'cuda'
 
+    # Get CPU name (on any OS)
+    CPU_NAME = platform.processor()
+    print("CPU:", CPU_NAME)
+    # Get host name (on any OS)
+    host_name = socket.gethostname()
+    print("Host Name:", host_name)
+
     # LIBRARY CONFIG
     args_make_tokens = {
                     # operations
@@ -96,7 +105,7 @@ if __name__ == '__main__':
     test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
     # BATCH
-    my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+    my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib, n_realizations=1)
     my_programs.set_programs(test_program_idx)
 
     # TEST DATA
@@ -183,7 +192,7 @@ if __name__ == '__main__':
     # Plot
     fig,ax = plt.subplots(1,1)
     enabled = physo.physym.reward.USE_PARALLEL_OPTI_CONST
-    fig.suptitle("Efficiency curve: free const. opti.\n Using parallelization in physo run : %s"%(str(enabled)))
+    fig.suptitle("Efficiency of free const. opti.\n [System : %s ; %s]\n Using parallelization in physo run : %s"%(CPU_NAME,host_name,str(enabled)), fontsize=12)
     ax.plot(ncpus_list, times, 'k--')
     ax.plot(ncpus_list, times, 'ko')
     ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
