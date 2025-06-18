@@ -425,14 +425,14 @@ class Program:
         sympy_local_dicts = []                                                      # (n_realizations,)
         for i_real in range(self.n_realizations):
             local_dict = {}
-            class_local_dict = {self.library.class_free_constants_names[cid]: np.nan_to_num(
+            class_local_dict = {str(self.library.class_free_constants_names[cid]): float(np.nan_to_num(
                 self.free_consts.class_values[0][cid],
-                nan=replace_nan_with)
+                nan=replace_nan_with))
                 for cid in self.library.class_free_constants_ids}
 
-            spe_local_dict = {self.library.spe_free_constants_names[cid]: np.nan_to_num(
+            spe_local_dict = {str(self.library.spe_free_constants_names[cid]): float(np.nan_to_num(
                 self.free_consts.spe_values[0][cid, i_real],
-                nan=replace_nan_with)
+                nan=replace_nan_with))
                 for cid in self.library.spe_free_constants_ids}
             local_dict.update(class_local_dict)
             local_dict.update(spe_local_dict)
