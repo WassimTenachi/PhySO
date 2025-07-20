@@ -76,7 +76,7 @@ struct_analysis = {
     "structure_analysis" : True,
     # Prior related
     "prior_config" : {
-        #"structure" : None,  # structure is automatically computed and transmitted
+        #"structure" : None, # structure is automatically computed and transmitted
         "prob_eps"              : eps_struct_prior,
         "use_soft_length_prior" : True,
         "soft_length_loc"       : 2,
