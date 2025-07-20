@@ -4,3 +4,5 @@ from . import config1
 from . import config1b
 from . import config2
 from . import config2b
+from . import config3_expA
+
