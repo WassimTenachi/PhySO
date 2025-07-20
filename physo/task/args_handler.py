@@ -253,15 +253,22 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
 
     # ------------------------------- PARALLEL CONFIG AND BUILDING RewardsComputer -------------------------------
 
-    # Update reward_config
-    run_config["reward_config"].update({
-        # with parallel config
-        "parallel_mode" : parallel_mode,
-        "n_cpus"        : n_cpus,
-        })
-    #  Updating reward config for parallel mode
-    reward_config = run_config["reward_config"]
-    run_config["learning_config"]["rewards_computer"] = physo.physym.reward.make_RewardsComputer(**reward_config)
+   # Assert if custom rewards computer is used
+    if "custom_rewards_computer" in run_config["learning_config"]:
+        if run_config["learning_config"]["custom_rewards_computer"]:
+            print("Using custom rewards computer...")
+            pass
+    else:
+        # Update reward_config
+        run_config["reward_config"].update({
+            # with parallel config
+            "parallel_mode" : parallel_mode,
+            "n_cpus"        : n_cpus,
+            })
+        #  Updating reward config for parallel mode
+        reward_config = run_config["reward_config"]
+        run_config["learning_config"]["rewards_computer"] = physo.physym.reward.make_RewardsComputer(**reward_config)
+
 
     # ------------------------------- EPOCHS -------------------------------
 
