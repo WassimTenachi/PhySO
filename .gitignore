@@ -36,3 +36,8 @@ demos/class_sr/demo_milky_way_streams/jobfile
 docs/build/*
 # Docs build: PhySO build from docs
 build/*
+# Science : Galaxy profile
+science/galaxy_profile/**/*.dat
+science/galaxy_profile/nihaoap_class_sr_v*/**
+science/galaxy_profile/nihaoap_class_sr_v*/equations_*.png
+
