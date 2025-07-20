@@ -1518,14 +1518,13 @@ class PriorTest(unittest.TestCase):
             my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
             my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs, structure=wrong_test_structure)
 
-
         # -------------------- REPR TEST --------------------
 
         for get_test_case in test_cases:
             test_programs_idx, test_structure, test_programs_expected_prior, max_time_step = get_test_case()
 
             my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
-            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs,
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs, use_soft_length_prior=False,
                                             structure=test_structure,
                                             )
             try:
@@ -1539,7 +1538,7 @@ class PriorTest(unittest.TestCase):
             test_programs_idx, test_structure, test_programs_expected_prior, max_time_step = get_test_case()
 
             my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
-            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs,
+            my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs, use_soft_length_prior=False,
                                             structure=test_structure,
                                             )
             for i in range(max_time_step):
@@ -1547,6 +1546,11 @@ class PriorTest(unittest.TestCase):
                 expected_mask_prob = test_programs_expected_prior[:, i, :]  # (n_progs, n_choices)
                 self.assertTrue(np.all(mask_prob == expected_mask_prob))
                 my_programs.append(test_programs_idx[:, i])
+
+            # Assert that all progs are considered as structured as it should be in this test
+            is_structured = my_prior.is_structured()
+            expected_is_structured = np.full_like(is_structured, True)
+            self.assertTrue(np.all(is_structured == expected_is_structured))
 
         # -------------------- NORMAL USAGE WITH EPS --------------------
         prob_eps = 1e-6
@@ -1556,7 +1560,7 @@ class PriorTest(unittest.TestCase):
 
             my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
             my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs,
-                                            structure=test_structure,
+                                            structure=test_structure, use_soft_length_prior=False,
                                             prob_eps = prob_eps,
                                             )
             for i in range(max_time_step):
@@ -1567,6 +1571,11 @@ class PriorTest(unittest.TestCase):
                 self.assertTrue(np.all(mask_prob == expected_mask_prob))
                 my_programs.append(test_programs_idx[:, i])
 
+            # Assert that all progs are considered as structured as it should be in this test
+            is_structured = my_prior.is_structured()
+            expected_is_structured = np.full_like(is_structured, True)
+            self.assertTrue(np.all(is_structured == expected_is_structured))
+
         # -------------------- UNREGULAR CALLS --------------------
 
         for get_test_case in test_cases:
@@ -1574,7 +1583,7 @@ class PriorTest(unittest.TestCase):
 
             my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
             my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs,
-                                            structure=test_structure,
+                                            structure=test_structure, use_soft_length_prior=False,
                                             )
             for i in range(max_time_step):
                 if i%3 == 0:
@@ -1582,6 +1591,7 @@ class PriorTest(unittest.TestCase):
                     expected_mask_prob = test_programs_expected_prior[:, i, :]  # (n_progs, n_choices)
                     self.assertTrue(np.all(mask_prob == expected_mask_prob))
                 my_programs.append(test_programs_idx[:, i])
+
 
         # -------------------- UN-OBEYED PRIOR --------------------
 
@@ -1594,12 +1604,17 @@ class PriorTest(unittest.TestCase):
 
         my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_time_step, library=my_lib, n_realizations=1)
         my_prior = Prior.StructurePrior(library=my_lib, programs=my_programs,
-                                        structure=test_structure,
+                                        structure=test_structure, use_soft_length_prior=False,
                                         )
 
         for i in range(max_time_step):
             mask_prob = my_prior()  # (n_progs, n_choices)
             my_programs.append(test_programs_idx[:, i])
+
+        # Assert that all progs are considered as structured as it should be in this test
+        is_structured = my_prior.is_structured()
+        expected_is_structured = np.full_like(is_structured, False)
+        self.assertTrue(np.all(is_structured == expected_is_structured))
 
         return None
 
