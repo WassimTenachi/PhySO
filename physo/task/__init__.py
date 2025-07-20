@@ -1,6 +1,7 @@
 from . import sr
 from . import class_sr
 from . import optimize
+from . import structure_analysis
 
 from . import fit
 
