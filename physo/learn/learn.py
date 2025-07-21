@@ -125,6 +125,9 @@ def learner ( model,
             # 0 protection so there is always something to sample
             epsilon = 0 #1e-14 #1e0*np.finfo(np.float32).eps
             prior_array[prior_array==0] = epsilon
+            is_able_to_sample = (prior_array.sum(axis=-1)>0.)      # (batch_size,)
+            assert is_able_to_sample.all(), "Prior(s) make it impossible to successfully sample expression(s) as all " \
+                                            "choosable tokens have 0 prob for %i/%i programs."%(is_able_to_sample.sum(), batch_size)
 
             # To log
             prior    = torch.tensor(prior_array, requires_grad=False) # (batch_size, output_size)
