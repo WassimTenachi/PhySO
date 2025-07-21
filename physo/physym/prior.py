@@ -842,6 +842,7 @@ def make_PriorCollection (library, programs, priors_config,):
     prior_collection = PriorCollection(library = library, programs = programs)
     # Individual priors
     priors = []
+    names  = []
     # Iterating through individual priors
     for config in priors_config:
         # --- TYPE ASSERTIONS ---
@@ -864,11 +865,12 @@ def make_PriorCollection (library, programs, priors_config,):
         try:
             prior = PRIORS_DICT[name](library = library, programs = programs, **prior_args)
             priors.append(prior)
+            names .append(name)
         except Exception as e:
             warnings.warn("An error occurred while making prior %s, this prior will be ignored. "
                           "Error message:\n%s"%(name,e))
     # Setting priors in PriorCollection
-    prior_collection.set_priors(priors)
+    prior_collection.set_priors(priors, names)
     return prior_collection
 
 
