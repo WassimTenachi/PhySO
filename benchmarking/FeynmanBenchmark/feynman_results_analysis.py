@@ -10,7 +10,7 @@ import platform
 try:
     import scipy.stats as st
 except:
-    raise ImportError("Scipy not found. Please install it.")
+    raise ImportError("Scipy not found. Please install it for results analysis with eg.: conda install scipy")
 
 
 # Internal imports
