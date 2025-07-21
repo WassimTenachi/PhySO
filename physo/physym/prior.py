@@ -159,7 +159,7 @@ class SoftLengthPrior (Prior):
         length_loc : float
             Desired length of programs.
         scale : float
-            Scale of gaussian used as  prior.
+            Scale of gaussian used as prior.
         """
         # Assertions
         try: length_loc = float(length_loc)
