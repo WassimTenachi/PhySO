@@ -88,7 +88,7 @@ if __name__ == '__main__':
     test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
     # BATCH
-    my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+    my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib, n_realizations=1)
     my_programs.set_programs(test_program_idx)
 
     # TEST DATA
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     # Function to run the hyper-task once with a given config
     def run (parallel=True, n_cpus=1):
         # reset before each run, so it is not easier (early stop) to optimize free const next time
-        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib)
+        my_programs = VProg.VectPrograms(batch_size=batch_size, max_time_step=test_program_length, library=my_lib, n_realizations=1)
         my_programs.set_programs(test_program_idx)
         # Run tasks
         t0 = time.perf_counter()
