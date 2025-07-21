@@ -11,8 +11,10 @@ The package has been tested on:
 
 To install the package it is recommended to first create a conda virtual environment:
 ```
-conda create -n PhySO python=3.8
+conda create -n PhySO python=3.12
 ```
+Supporting Python 3.8 - 3.12; other versions may also work.
+
 And activate it:
 ```
 conda activate PhySO
