@@ -1,11 +1,14 @@
 import unittest
 import numpy as np
+import warnings
 
 # Internal imports
 from physo.physym import library as Lib
 from physo.physym import program as Prog
 from physo.physym import prior as Prior
 from physo.physym import vect_programs as VProg
+from physo.physym import token as Tok
+from physo.physym import functions as Func
 
 class PriorTest(unittest.TestCase):
 
