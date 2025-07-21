@@ -492,6 +492,6 @@ def sympy_symbol_with_assumptions_from_range(name, low, high):
                         # If nonzero = False assumes that always = 0 which causes problems
                         # when simplifying
                         # nonzero  = not (low <= 0 and high >= 0),
-                        domain=sympy.sets.sets.Interval(low, high),
+                        domain=sympy.sets.sets.Interval(float(low), float(high)),
                         )
     return symb
