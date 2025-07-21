@@ -175,7 +175,7 @@ if __name__ == '__main__':
     # Plot
     fig,ax = plt.subplots(1,1)
     enabled = physo.physym.reward.USE_PARALLEL_OPTI_CONST
-    fig.suptitle("Efficiency curve: free const. opti.\n Using parallelization in physo run : %s"%(str(enabled)))
+    fig.suptitle("Efficiency of free const. opti.\n [System : %s ; %s]\n Using parallelization in physo run : %s"%(CPU_NAME,host_name,str(enabled)), fontsize=12)
     ax.plot(ncpus_list, times, 'k--')
     ax.plot(ncpus_list, times, 'ko')
     ax.plot(1, not_parallelized_time, 'ro', label="not parallelized")
