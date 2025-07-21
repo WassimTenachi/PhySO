@@ -101,7 +101,7 @@ def ParallelExeAvailability(verbose=False):
         print("\nMultiprocessing start method :", mp.get_start_method())
         print("Running from notebook :", is_notebook)
         print("Is CUDA available :", is_cuda_available)  # OK if dataset on CPU
-        print("Total nb. of CPUs : ", max_ncpus)
+        print("Total nb. of CPUs available : ", max_ncpus)
         print("Recommended config", recommended_config)
 
     # Too many issues with cuda available + parallel mode on linux (even when sending to proper device).
