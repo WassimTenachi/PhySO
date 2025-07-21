@@ -1687,7 +1687,7 @@ class VectPrograms:
                                 n_samples_per_dataset = None,
                                 # Mask
                                 mask     = None,
-                                pad_with = np.NaN,
+                                pad_with = np.nan,
                                 # Parallel mode related
                                 n_cpus        = 1,
                                 parallel_mode = False
@@ -1744,7 +1744,7 @@ class VectPrograms:
                                 n_samples_per_dataset = None,
                                 # Mask
                                 mask     = None,
-                                pad_with = np.NaN,
+                                pad_with = np.nan,
                                 # Parallel mode related
                                 n_cpus        = 1,
                                 parallel_mode = False

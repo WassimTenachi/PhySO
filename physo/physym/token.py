@@ -93,16 +93,16 @@ class Token:
                  # Function specific
                  function = None,
                  # Free constant specific
-                 init_val = np.NAN,
+                 init_val = np.nan,
                  # Input variable / free constant specific
                  var_id   = None,
                  # Fixed constant specific
-                 fixed_const = np.NAN,
+                 fixed_const = np.nan,
                  # ---- Physical units : behavior id ----
                  behavior_id               = None,
                  # ---- Physical units : power ----
                  is_power                  = False,
-                 power                     = np.NAN,
+                 power                     = np.nan,
                  # ---- Physical units : units (semi_positional) ----
                  is_constraining_phy_units = False,
                  phy_units                 = None,
@@ -140,9 +140,9 @@ class Token:
             of floats of shape (int,) or a single float number.
             - This token represents an input_var or a constant (ie. var_type = VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST,
             VAR_TYPE_SPE_FREE_CONST or VAR_TYPE_FIXED_CONST) <=> function = None
-        init_val : float or array_like of floats or np.NAN
+        init_val : float or array_like of floats or np.nan
             - This token represents a function, a fixed const or an input variable (ie. var_type = VAR_TYPE_OP, VAR_TYPE_FIXED_CONST or VAR_TYPE_INPUT_VAR)
-            <=> init_val = np.NAN
+            <=> init_val = np.nan
             - This token represents a class free const (ie. var_type = VAR_TYPE_CLASS_FREE_CONST) <=>  init_val = non NaN float
             - This token represents a spe free const (ie. var_type = VAR_TYPE_SPE_FREE_CONST) <=>  init_val = non NaN float or array_like of floats (for multiple realizations)
         var_id : int or None
@@ -151,7 +151,7 @@ class Token:
             array.
             - This token represents a function or a fixed constant (ie. var_type = VAR_TYPE_OP or VAR_TYPE_FIXED_CONST) <=> var_id = None.
             (converted to INVALID_VAR_ID in __init__)
-        fixed_const : float or np.NAN
+        fixed_const : float or np.nan
             - This token represents a fixed constant (ie. var_type = VAR_TYPE_FIXED_CONST) <=> fixed_const = non NaN float
             - This token represents a function, an input_var or a free const (ie. var_type = VAR_TYPE_OP, VAR_TYPE_INPUT_VAR, VAR_TYPE_CLASS_FREE_CONST or VAR_TYPE_SPE_FREE_CONST )
             <=>  fixed_const = NaN float
@@ -161,9 +161,9 @@ class Token:
 
         is_power : bool
             True if token is a power token (n2, sqrt, n3 etc.), False else.
-        power : float or np.NAN
+        power : float or np.nan
             - is_power = True <=> power is a float representing the power of a token (0.5 for sqrt, 2 for n2 etc.)
-            - is_power = False <=> power is np.NAN
+            - is_power = False <=> power is np.nan
 
         is_constraining_phy_units : bool
             - True if there are hard constraints regarding with this token's physical units (eg. dimensionless op such
@@ -171,7 +171,7 @@ class Token:
             - False if this token's units are free ie there are no constraints associated with this token's physical
             units (eg. add, mul tokens).
         phy_units : numpy.array of size UNITS_VECTOR_SIZE of float or None
-            - is_constraining_phy_units = False <=> phy_units = None (converted to vector of np.NAN in __init__)
+            - is_constraining_phy_units = False <=> phy_units = None (converted to vector of np.nan in __init__)
             - is_constraining_phy_units = True  <=> phy_units = vector containing power of units.
             Ie. vector of zeros for dimensionless operations (eg. cos, sin, exp, log), vector containing power of units
             for constants or input variable (eg. [1, -1, 0, 0, 0, 0, 0] for a token representing a velocity with the
@@ -301,7 +301,7 @@ class Token:
             assert isinstance(power, float) and not np.isnan(power), \
                         "Token with is_power=True must have a non nan float power (%s is not a float)" % (str(power))
         else:
-            assert np.isnan(power), "Token with is_power=False must have a np.NAN power"
+            assert np.isnan(power), "Token with is_power=False must have a np.nan power"
         # ---- Attribution ----
         self.is_power = is_power                               # bool
         self.power    = power                                  # float
@@ -313,14 +313,14 @@ class Token:
             assert phy_units is not None, 'Token having physical units constraint (is_constraining_phy_units = True) must contain physical units.'
             assert np.array(phy_units).shape == (UNITS_VECTOR_SIZE,), 'Physical units vectors must be of shape (%s,) not %s, pad with zeros you are not using all elements.' % (UNITS_VECTOR_SIZE, np.array(phy_units).shape)
             assert np.array(phy_units).dtype == float, 'Physical units vectors must contain float.'
-            assert not np.isnan(np.array(phy_units)).any(), 'No NaN allowed in phy_units, to create a free constraint token, use is_constraining_phy_units = False and phy_units = None (will result in phy_units = vect of np.NAN)'
+            assert not np.isnan(np.array(phy_units)).any(), 'No NaN allowed in phy_units, to create a free constraint token, use is_constraining_phy_units = False and phy_units = None (will result in phy_units = vect of np.nan)'
         else:
             assert phy_units is None, 'Token not having physical units constraint (is_constraining_phy_units = False) can not contain physical units.'
         # ---- Attribution ----
         self.is_constraining_phy_units = bool(is_constraining_phy_units)  # bool
         if phy_units is None:
             # no list definition in default arg
-            self.phy_units = np.full((UNITS_VECTOR_SIZE), np.NAN)  # (UNITS_VECTOR_SIZE,) of float
+            self.phy_units = np.full((UNITS_VECTOR_SIZE), np.nan)  # (UNITS_VECTOR_SIZE,) of float
         else:
             # must be a numpy.array to support operations
             self.phy_units = np.array(phy_units)                   # (UNITS_VECTOR_SIZE,) of float
@@ -384,7 +384,7 @@ class TokenOp (Token):
                  behavior_id               = None,
                  # ---- Physical units : power ----
                  is_power                  = False,
-                 power                     = np.NAN,
+                 power                     = np.nan,
                  # ---- Physical units : units (semi_positional) ----
                  is_constraining_phy_units = False,
                  phy_units                 = None,
@@ -395,9 +395,9 @@ class TokenOp (Token):
 
         # These properties should always have these values for this type of token (operation / function).
         var_type    = VAR_TYPE_OP
-        init_val    = np.NAN
+        init_val    = np.nan
         var_id      = None
-        fixed_const = np.NAN
+        fixed_const = np.nan
 
         # Passing arguments parametrizing this type of token to parent object and filling in the rest.
         super().__init__(
@@ -442,7 +442,7 @@ class TokenInputVar (Token):
                  behavior_id               = None,
                  # ---- Physical units : power ----
                  is_power                  = False,
-                 power                     = np.NAN,
+                 power                     = np.nan,
                  # ---- Physical units : units (semi_positional) ----
                  is_constraining_phy_units = False,
                  phy_units                 = None,
@@ -455,8 +455,8 @@ class TokenInputVar (Token):
         arity       = 0
         var_type    = VAR_TYPE_INPUT_VAR
         function    = None
-        init_val    = np.NAN
-        fixed_const = np.NAN
+        init_val    = np.nan
+        fixed_const = np.nan
 
         # Passing arguments parametrizing this type of token to parent object and filling in the rest.
         super().__init__(
@@ -499,14 +499,14 @@ class TokenClassFreeConst (Token):
                  # ---- Token main properties ----
                  complexity  = DEFAULT_COMPLEXITY,
                  # Free constant specific
-                 init_val = np.NAN,
+                 init_val = np.nan,
                  # Input variable / free constant specific
                  var_id   = None,
                  # ---- Physical units : behavior id ----
                  behavior_id               = None,
                  # ---- Physical units : power ----
                  is_power                  = False,
-                 power                     = np.NAN,
+                 power                     = np.nan,
                  # ---- Physical units : units (semi_positional) ----
                  is_constraining_phy_units = False,
                  phy_units                 = None,
@@ -519,7 +519,7 @@ class TokenClassFreeConst (Token):
         arity       = 0
         var_type    = VAR_TYPE_CLASS_FREE_CONST
         function    = None
-        fixed_const = np.NAN
+        fixed_const = np.nan
 
         # Passing arguments parametrizing this type of token to parent object and filling in the rest.
         super().__init__(
@@ -562,14 +562,14 @@ class TokenSpeFreeConst (Token):
                  # ---- Token main properties ----
                  complexity  = DEFAULT_COMPLEXITY,
                  # Free constant specific
-                 init_val = np.NAN,
+                 init_val = np.nan,
                  # Input variable / free constant specific
                  var_id   = None,
                  # ---- Physical units : behavior id ----
                  behavior_id               = None,
                  # ---- Physical units : power ----
                  is_power                  = False,
-                 power                     = np.NAN,
+                 power                     = np.nan,
                  # ---- Physical units : units (semi_positional) ----
                  is_constraining_phy_units = False,
                  phy_units                 = None,
@@ -582,7 +582,7 @@ class TokenSpeFreeConst (Token):
         arity       = 0
         var_type    = VAR_TYPE_SPE_FREE_CONST
         function    = None
-        fixed_const = np.NAN
+        fixed_const = np.nan
 
         # Passing arguments parametrizing this type of token to parent object and filling in the rest.
         super().__init__(
@@ -622,12 +622,12 @@ class TokenFixedConst (Token):
                  # ---- Token main properties ----
                  complexity  = DEFAULT_COMPLEXITY,
                  # Fixed constant specific
-                 fixed_const = np.NAN,
+                 fixed_const = np.nan,
                  # ---- Physical units : behavior id ----
                  behavior_id               = None,
                  # ---- Physical units : power ----
                  is_power                  = False,
-                 power                     = np.NAN,
+                 power                     = np.nan,
                  # ---- Physical units : units (semi_positional) ----
                  is_constraining_phy_units = False,
                  phy_units                 = None,
@@ -640,7 +640,7 @@ class TokenFixedConst (Token):
         arity       = 0
         var_type    = VAR_TYPE_FIXED_CONST
         function    = None
-        init_val    = np.NAN
+        init_val    = np.nan
         var_id      = None
 
         # Passing arguments parametrizing this type of token to parent object and filling in the rest.
@@ -689,7 +689,7 @@ class TokenSpecial (Token):
                  behavior_id               = None,
                  # ---- Physical units : power ----
                  is_power                  = False,
-                 power                     = np.NAN,
+                 power                     = np.nan,
                  # ---- Physical units : units (semi_positional) ----
                  is_constraining_phy_units = False,
                  phy_units                 = None,
@@ -700,9 +700,9 @@ class TokenSpecial (Token):
 
         # These properties should always have these values for this type of token (special).
         var_type    = VAR_TYPE_SPECIAL
-        init_val    = np.NAN
+        init_val    = np.nan
         var_id      = None
-        fixed_const = np.NAN
+        fixed_const = np.nan
 
         # Passing arguments parametrizing this type of token to parent object and filling in the rest.
         super().__init__(
@@ -854,7 +854,7 @@ class VectTokens:
         # ---- Physical units : power ----
         # Default values
         self.default_is_power = False
-        self.default_power    = np.NAN
+        self.default_power    = np.nan
         # Properties
         self.is_power = np.full(shape=self.shape, fill_value=self.default_is_power ,  dtype=bool)
         self.power    = np.full(shape=self.shape, fill_value=self.default_power    ,  dtype=float)
@@ -866,7 +866,7 @@ class VectTokens:
         # ---- Physical units : units ----
         # Default values
         self.default_is_constraining_phy_units = False
-        self.default_phy_units                 = np.NAN
+        self.default_phy_units                 = np.nan
         # Properties
         self.is_constraining_phy_units = np.full(shape=self.shape,                        fill_value=self.default_is_constraining_phy_units  ,  dtype=bool)
         self.phy_units                 = np.full(shape=self.shape + (UNITS_VECTOR_SIZE,), fill_value=self.default_phy_units                  ,  dtype=float)

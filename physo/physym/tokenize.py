@@ -83,7 +83,7 @@ def retrieve_units(units_dict, curr_name):
     ----------
     units_dict : dict of {str : array_like} or None
         If dictionary is None or empty, returned curr_is_constraining_phy_units is False and curr_phy_units is None.
-        (Note: creating a token.Token using None in place of units will result in a Token with units = vector of np.NAN)
+        (Note: creating a token.Token using None in place of units will result in a Token with units = vector of np.nan)
     curr_name : str
         If curr_name is not in units_dict keys, returned curr_phy_units correspond to that of  dimensionless token
         (ie. vector of zeros).

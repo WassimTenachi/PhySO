@@ -308,7 +308,7 @@ class VectProgramsTest(unittest.TestCase):
         expected_is_physical = np.array([False,  True, False])
         # Only expressing expectations for cases
         o = phy.UNITS_ANALYSIS_NOT_PERFORMED_CASE_CODE
-        n = np.NAN
+        n = np.nan
         expected_units_analysis_cases = np.array([
             [ n,  n, n, n, n, n, o],
             [ n,  n, n, n, n, n, n],
