@@ -305,7 +305,7 @@ def load_run_data (pb_folder_prefix):
         warnings.warn("Unable to find folder starting with: %s" % (pb_folder_prefix))
         path_pareto = None
         path_curves = None
-        noise_lvl   = np.NAN
+        noise_lvl   = np.nan
 
     # ----- Loading data -----
     try:
