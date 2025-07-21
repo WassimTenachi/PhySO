@@ -2184,10 +2184,10 @@ class VectPrograms:
             # For tex display
             if optimize_for_tex:
                 # Must use \\ to get \ in tex via dot2tex (see dot2tex doc)
-                label_name    = "\\mathbf{[%s]}" % name
-                label_pos_str = "\\langle %s \\rangle" % pos_str
+                label_name    = r"\\mathbf{[%s]}" % name
+                label_pos_str = r"\\langle %s \\rangle" % pos_str
                 label_units_str = units_str
-                label = "$\\begin{array}{c} %s \\\ \\scriptscriptstyle{%s} \\\ \\scriptscriptstyle{%s} \\end{array}$" \
+                label = r"$\\begin{array}{c} %s \\\ \\scriptscriptstyle{%s} \\\ \\scriptscriptstyle{%s} \\end{array}$" \
                         % (label_name, label_pos_str, label_units_str)
                 # It is important to use argument texlbl instead of label for latex export down the line
                 # See dot2tex doc

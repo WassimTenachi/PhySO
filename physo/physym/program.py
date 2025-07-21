@@ -553,7 +553,7 @@ class Program:
 
         # Enables new_dummy_symbol = "\square":
         # plt.rc('text.latex', preamble=r'\usepackage{amssymb} \usepackage{xcolor}')
-        if new_dummy_symbol == "\square":
+        if new_dummy_symbol == r"\square":
             msg = "Use of \\square as new_dummy_symbol is not supported by matplotlib alone. " \
                   "Use plt.rc('text.latex', preamble=r'\\usepackage{amssymb} \\usepackage{xcolor}') to enable it."
             warnings.warn(msg)
