@@ -1,8 +1,12 @@
+import argparse
+
 import numpy as np
 import time as time
 import torch as torch
 import torch.multiprocessing as mp
 import matplotlib.pyplot as plt
+import platform
+import socket
 
 # Internal imports
 import physo.physym.reward
@@ -42,6 +46,13 @@ if __name__ == '__main__':
     DEVICE = 'cpu'
     #if torch.cuda.is_available():
     #    DEVICE = 'cuda'
+
+    # Get CPU name (on any OS)
+    CPU_NAME = platform.processor()
+    print("CPU:", CPU_NAME)
+    # Get host name (on any OS)
+    host_name = socket.gethostname()
+    print("Host Name:", host_name)
 
     # LIBRARY CONFIG
     args_make_tokens = {
