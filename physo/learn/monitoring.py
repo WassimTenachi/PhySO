@@ -359,9 +359,9 @@ class RunVisualiser:
         # -------- Complexity --------
         curr_ax = self.ax2
         curr_ax.clear()
-        curr_ax.plot(run_logger.epochs_history, run_logger.best_prog_complexity_history, 'orange', linestyle='solid'   ,  label="Best of epoch")
-        curr_ax.plot(run_logger.epochs_history, run_logger.mean_complexity_history     , 'b',      linestyle='solid'   ,  label="Mean")
-        curr_ax.set_ylabel("Complexity")
+        curr_ax.plot(run_logger.epochs_history, run_logger.best_prog_complexity_history, 'k', linestyle='solid'   ,  label="Best of epoch")
+        curr_ax.plot(run_logger.epochs_history, run_logger.mean_complexity_history     , 'k', linestyle='--'      ,  label="Mean")
+        curr_ax.set_ylabel("Length")
         curr_ax.set_xlabel("Epochs")
         curr_ax.legend(loc=LEGEND_LOC)
 
