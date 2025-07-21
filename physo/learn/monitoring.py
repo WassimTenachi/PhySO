@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import time
 import pickle
+import psutil
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -27,6 +28,8 @@ plt.rc('font', size=16)
 
 # Faster than searching for best loc
 LEGEND_LOC = 'upper left' # "best"
+
+pid = psutil.Process().pid
 
 def save_pareto_pkl (pareto_progs, fpath):
     """
@@ -541,6 +544,8 @@ class RunVisualiser:
 
         print("=========== Epoch %s ==========="%(str(self.run_logger.epoch).zfill(5)))
         print("-> Time %.2f s"%(t2-t1))
+        mem_info = psutil.Process(pid).memory_info()
+        print(f"-> Memory Usage: {mem_info.rss / (1024 * 1024):.2f} MB")
 
         # Overall best
         print("\nOverall best  at R=%f"%(self.run_logger.overall_max_R_history[-1]))
