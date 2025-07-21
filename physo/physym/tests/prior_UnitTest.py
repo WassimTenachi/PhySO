@@ -954,7 +954,7 @@ class PriorTest(unittest.TestCase):
         with self.assertRaises(AssertionError, msg="max arg must be valid"):
             my_prior = Prior.OccurrencesPrior  (library = my_lib, programs = my_programs,
                                                 targets = ["add", "x"],
-                                                max     = [np.NAN, 2],)
+                                                max     = [np.nan, 2],)
         with self.assertRaises(AssertionError, msg="max arg must be valid"):
             my_prior = Prior.OccurrencesPrior (library = my_lib, programs = my_programs,
                                                targets = ["add", "x"],
