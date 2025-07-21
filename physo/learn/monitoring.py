@@ -455,7 +455,7 @@ class RunVisualiser:
         curr_ax.plot(run_logger.epochs_history, run_logger.n_physical, 'red'   , label="Physical count")
         curr_ax.plot(run_logger.epochs_history, run_logger.n_rewarded, 'black' , label="Rewarded count")
         curr_ax.set_xlabel("Epochs")
-        curr_ax.set_ylabel("Count")
+        curr_ax.set_ylabel("Physical Count")
         curr_ax.legend(loc=LEGEND_LOC)
 
         # -------- Lengths of physical distribution vs epoch --------
