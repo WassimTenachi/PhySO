@@ -73,9 +73,13 @@ class DisplayTest(unittest.TestCase):
         my_programs.set_programs(test_program_idx)
 
         # TEST get_pretty
-        expected_pretty = '                                      2       \n     2    ⎛c⋅const₁    ⎞           M⋅c        \n- M⋅c ⋅cos⎜──────── - 1⎟ + ───────────────────\n          ⎝   v        ⎠         _____________\n                                ╱           2 \n                               ╱           v  \n                              ╱   const₁ - ── \n                             ╱              2 \n                           ╲╱              c  '
+        expected_pretty_old_sympy = '                                     2        \n     2    ⎛c⋅const₁    ⎞          M⋅c         \n- M⋅c ⋅cos⎜──────── - 1⎟ + ───────────────────\n          ⎝   v        ⎠         _____________\n                                ╱           2 \n                               ╱           v  \n                              ╱   const₁ - ── \n                             ╱              2 \n                           ╲╱              c  '
+        expected_pretty_new_sympy = '                                      2       \n     2    ⎛c⋅const₁    ⎞           M⋅c        \n- M⋅c ⋅cos⎜──────── - 1⎟ + ───────────────────\n          ⎝   v        ⎠         _____________\n                                ╱           2 \n                               ╱           v  \n                              ╱   const₁ - ── \n                             ╱              2 \n                           ╲╱              c  '
         result_pretty = my_programs.get_infix_pretty(prog_idx=0)
-        works_bool = expected_pretty == result_pretty
+        # Compare without spaces as they can vary depending on sympy version
+        expected_pretty_no_spaces = expected_pretty_new_sympy.replace(" ", "")
+        result_pretty_no_spaces   = result_pretty.replace(" ", "")
+        works_bool = expected_pretty_no_spaces == result_pretty_no_spaces
         self.assertTrue(works_bool)
 
         # TEST get_latex
