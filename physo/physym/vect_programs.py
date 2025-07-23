@@ -2184,11 +2184,15 @@ class VectPrograms:
             # For tex display
             if optimize_for_tex:
                 # Must use \\ to get \ in tex via dot2tex (see dot2tex doc)
-                label_name    = r"\\mathbf{[%s]}" % name
-                label_pos_str = r"\\langle %s \\rangle" % pos_str
+                label_name    = "\\mathbf{[%s]}" % name
+                label_pos_str = "\\langle %s \\rangle" % pos_str
                 label_units_str = units_str
-                label = r"$\\begin{array}{c} %s \\\ \\scriptscriptstyle{%s} \\\ \\scriptscriptstyle{%s} \\end{array}$" \
-                        % (label_name, label_pos_str, label_units_str)
+                # This raises SyntaxWarning: invalid escape sequence '\ ':
+                # label = "$\\begin{array}{c} %s \\\ \\scriptscriptstyle{%s} \\\ \\scriptscriptstyle{%s} \\end{array}$" \
+                # % (label_name, label_pos_str, label_units_str)
+                # Putting r"..." in front makes latex render fail
+                # Fix by using fr"..." instead
+                label = fr"$\begin{{array}}{{c}} {label_name} \\ \scriptscriptstyle{{{label_pos_str}}} \\ \scriptscriptstyle{{{label_units_str}}} \end{{array}}$"
                 # It is important to use argument texlbl instead of label for latex export down the line
                 # See dot2tex doc
                 G.add_node(pos,
