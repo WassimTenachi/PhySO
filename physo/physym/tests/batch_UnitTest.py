@@ -143,6 +143,7 @@ class BatchTest(unittest.TestCase):
             probs        = torch.tensor(np.random.rand(my_batch.batch_size, my_batch.library.n_choices).astype(np.float32))  # (batch_size, n_choices,)
             # Actions
             actions      = torch.multinomial(probs * prior, num_samples=1)[:, 0]
+            actions      = actions.cpu().numpy()
             my_batch.programs.append(actions)
         # Embedding output
         lengths = my_batch.programs.n_lengths
@@ -225,6 +226,7 @@ class BatchTest(unittest.TestCase):
             probs        = torch.tensor(np.random.rand(my_batch.batch_size, my_batch.library.n_choices).astype(np.float32))  # (batch_size, n_choices,)
             # Actions
             actions      = torch.multinomial(probs * prior, num_samples=1)[:, 0]
+            actions      = actions.cpu().numpy()
             my_batch.programs.append(actions)
         # Embedding output
         lengths = my_batch.programs.n_lengths
@@ -329,6 +331,7 @@ class BatchTest(unittest.TestCase):
             probs        = torch.tensor(np.random.rand(my_batch.batch_size, my_batch.library.n_choices).astype(np.float32))  # (batch_size, n_choices,)
             # Actions
             actions      = torch.multinomial(probs * prior, num_samples=1)[:, 0]
+            actions      = actions.cpu().numpy()
             my_batch.programs.append(actions)
         # Embedding output
         lengths = my_batch.programs.n_lengths
@@ -511,6 +514,7 @@ class BatchTest(unittest.TestCase):
             probs[0, target_prog_idx[step]] = 1.  # Setting the target program to 1
             # Actions
             actions      = torch.multinomial(probs * prior, num_samples=1)[:, 0]
+            actions      = actions.cpu().numpy()
             my_batch.programs.append(actions)
         # Embedding output
         lengths = my_batch.programs.n_lengths
@@ -615,6 +619,7 @@ class BatchTest(unittest.TestCase):
             probs        = torch.tensor(np.random.rand(my_batch.batch_size, my_batch.library.n_choices).astype(np.float32))  # (batch_size, n_choices,)
             # Actions
             actions      = torch.multinomial(probs * prior, num_samples=1)[:, 0]
+            actions      = actions.cpu().numpy()
             my_batch.programs.append(actions)
         # Embedding output
         lengths = my_batch.programs.n_lengths
@@ -721,6 +726,7 @@ class BatchTest(unittest.TestCase):
             probs        = torch.tensor(np.random.rand(my_batch.batch_size, my_batch.library.n_choices).astype(np.float32))  # (batch_size, n_choices,)
             # Actions
             actions      = torch.multinomial(probs * prior, num_samples=1)[:, 0]
+            actions      = actions.cpu().numpy()
             my_batch.programs.append(actions)
         # Embedding output
         lengths = my_batch.programs.n_lengths
