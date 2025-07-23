@@ -192,7 +192,6 @@ class DisplayTest(unittest.TestCase):
                     print("\nshow_tree (via_tex=True) time = %.3f s"%(t1-t0))
                 except:
                     print("Tree generation failed : show_tree (via_tex=True) (Acceptable failure)")
-                    print("PyCharm failure is expected here.")
                 # show_tree (via_tex=False)
                 try:
                     t0 = time.perf_counter()
@@ -202,7 +201,6 @@ class DisplayTest(unittest.TestCase):
                     print("\nshow_tree (via_tex=False) time = %.3f s"%(t1-t0))
                 except:
                     print("Tree generation failed : show_tree (via_tex=False) (Acceptable failure)")
-                    print("PyCharm failure is expected here.")
         return None
 
 if __name__ == '__main__':
