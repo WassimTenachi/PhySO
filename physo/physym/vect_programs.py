@@ -234,6 +234,9 @@ class VectPrograms:
             checked. To work properly the assign_required_units method should have been called on all previous steps +
             this one before appending.
         """
+        # Assert that new_tokens_idx is a numpy array of dtype = int
+        assert isinstance(new_tokens_idx, np.ndarray), "Arg new_tokens_idx must be a numpy array of dtype = int"
+        assert (new_tokens_idx.dtype == int or new_tokens_idx.dtype==np.dtype("int64")), "Arg new_tokens_idx must be a numpy array of dtype = int"
         # Will be modified afterward
         new_tokens_idx = np.copy(new_tokens_idx)
 
