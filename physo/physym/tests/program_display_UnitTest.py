@@ -183,6 +183,26 @@ class DisplayTest(unittest.TestCase):
                     print("\nget_tree_image_via_tex time = %.3f s"%(t1-t0))
                 except:
                     print("Tree generation failed : get_tree_image_via_tex (Acceptable failure)")
+                # show_tree (via_tex=True)
+                try:
+                    t0 = time.perf_counter()
+                    my_programs.show_tree(prog_idx=0, via_tex=True)
+                    plt.close()
+                    t1 = time.perf_counter()
+                    print("\nshow_tree (via_tex=True) time = %.3f s"%(t1-t0))
+                except:
+                    print("Tree generation failed : show_tree (via_tex=True) (Acceptable failure)")
+                    print("PyCharm failure is expected here.")
+                # show_tree (via_tex=False)
+                try:
+                    t0 = time.perf_counter()
+                    my_programs.show_tree(prog_idx=0, via_tex=False)
+                    plt.close()
+                    t1 = time.perf_counter()
+                    print("\nshow_tree (via_tex=False) time = %.3f s"%(t1-t0))
+                except:
+                    print("Tree generation failed : show_tree (via_tex=False) (Acceptable failure)")
+                    print("PyCharm failure is expected here.")
         return None
 
 if __name__ == '__main__':
