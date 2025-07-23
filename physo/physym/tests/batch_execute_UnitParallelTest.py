@@ -809,7 +809,7 @@ class ExecuteProgramTest(unittest.TestCase):
             n_correct_computations = float((torch.abs((my_programs.free_consts.class_values - expected_class_vals)) < tol).all(axis=-1).sum())
             perc_correct_computations = 100*n_correct_computations/mask.sum()
             # Checking that logging worked
-            is_correct_log = np.logical_and((my_programs.free_consts.is_opti == True), (my_programs.free_consts.opti_steps > 0))
+            is_correct_log = torch.logical_and((my_programs.free_consts.is_opti == True), (my_programs.free_consts.opti_steps > 0))
             n_correct_log = float(is_correct_log.sum())
             perc_correct_log = 100*n_correct_log/mask.sum()
             print(" -> Correct computations : %f %%" % (perc_correct_computations))
@@ -1563,7 +1563,7 @@ class ExecuteProgramTest(unittest.TestCase):
             n_correct_computations = float((torch.logical_and(is_correct_class_vals, is_correct_spe_vals)).sum())
             perc_correct_computations = 100*n_correct_computations/mask.sum()
             # Checking that logging worked
-            is_correct_log = np.logical_and((my_programs.free_consts.is_opti == True), (my_programs.free_consts.opti_steps > 0))
+            is_correct_log = torch.logical_and((my_programs.free_consts.is_opti == True), (my_programs.free_consts.opti_steps > 0))
             n_correct_log = float(is_correct_log.sum())
             perc_correct_log = 100*n_correct_log/mask.sum()
             print(" -> Correct computations : %f %%" % (perc_correct_computations))
