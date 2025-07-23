@@ -2335,7 +2335,7 @@ class VectPrograms:
         # load image from file
         img_np = plt.imread(fpath)[:,:,0:3]
         img_np_int = (img_np*255).astype('uint8')
-        img = PIL.Image.fromarray(img_np_int.astype('uint8'), 'RGB')
+        img = PIL.Image.fromarray(img_np_int.astype('uint8')) # indicating mode='RGB' is deprecated
 
         # Deleting temp file and folder if we don't want to save image
         if not do_save:
