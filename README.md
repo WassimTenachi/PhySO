@@ -74,7 +74,7 @@ In order to simplify the installation process, since its first version, `physo` 
 
 ---
 
-**NOTE** : `physo` supports CUDA but it should be noted that since the bottleneck of the code is free constant optimization, using CUDA (even on a very high-end GPU) does not improve performances over a CPU and can actually hinder performances.
+**NOTE** : `physo` supports CUDA but it should be noted that since the bottleneck of the code is free constant optimization, using CUDA (even on a very high-end GPU) does not improve performances over a CPU and tends to actually hinder performances.
 
 ---
 
@@ -114,7 +114,37 @@ Uninstalling the package.
 conda deactivate
 conda env remove -n PhySO
 ```
-## Getting started (SR)
+
+## (Compute Canada users)
+
+If you are using `physo` on [Compute Canada](https://alliancecan.ca/en), follow the steps below.
+
+First, connect to the cluster (e.g., Narval, Beluga) and load one of the modules available for Python (```module avail python```), e.g.:
+```
+module load python/3.10.13
+```
+Then, create and activate a virtual environment for `physo`:
+```
+virtualenv --no-download PhySO
+source PhySO/bin/activate
+```
+Install the required dependencies:
+```
+pip install --no-index --upgrade pip
+pip install torch
+pip install sympy
+pip install matplotlib
+pip install numpy
+pip install tqdm
+pip install pandas
+pip install scikit-learn # For Feynman benchmark analysis script and for density in monitoring plots
+pip install jupyterlab # For running the notebooks
+```
+Finally, download and install `physo`:
+```
+git clone https://github.com/WassimTenachi/PhySO
+python -m pip install -e .
+```## Getting started (SR)
 
 In this tutorial, we show how to use `physo` to perform Symbolic Regression (SR).
 The reference notebook for this tutorial can be found here: [sr_quick_start.ipynb](https://github.com/WassimTenachi/PhySO/blob/main/demos/sr_quick_start.ipynb).
