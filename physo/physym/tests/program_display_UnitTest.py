@@ -178,7 +178,7 @@ class DisplayTest(unittest.TestCase):
                 # get_tree_image_via_tex
                 try:
                     t0 = time.perf_counter()
-                    img        = my_programs.get_tree_image_via_tex(prog_idx=0)
+                    img = my_programs.get_tree_image_via_tex(prog_idx=0, fname="tree_repr_test")
                     t1 = time.perf_counter()
                     print("\nget_tree_image_via_tex time = %.3f s"%(t1-t0))
                 except:
