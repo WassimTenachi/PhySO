@@ -92,8 +92,11 @@ def generate_expressions(
         If True, uses protected operations (e.g. division by zero is avoided). True by default. (see
         physo.physym.functions for a list of available protected operations).
 
-    priors_config : list of tuples or None, optional
-
+    priors_config : list of tuples (str : dict), optional
+        List of priors. List containing tuples with prior name as first item in couple (see prior.PRIORS_DICT for list
+        of available priors) and additional arguments (besides library and programs) to be passed to priors as second
+        item of couple, leave None for priors that do not require arguments. By default, uses priors from config
+        physo.task.sr.default_config.
 
     n_realizations : int or None, optional
         Number of realizations for each program, ie. number of datasets each program has to fit.
