@@ -20,6 +20,7 @@ Documentation: [physo.readthedocs.io](https://physo.readthedocs.io/en/latest/)
 **2024-02** : 🎯 Uncertainty-aware fitting.  
 **2023-08** : ⚡ Dimensional analysis acceleration.  
 **2023-03** : 🌟 **PhySO** initial release (physics-focused SR).
+
 ## Highlights
 
 $\Phi$-SO's symbolic regression module uses deep reinforcement learning to infer analytical physical laws that fit data points, searching in the space of functional forms.  

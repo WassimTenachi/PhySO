@@ -6,3 +6,4 @@
 **2024-02** : 🎯 Uncertainty-aware fitting.  
 **2023-08** : ⚡ Dimensional analysis acceleration.  
 **2023-03** : 🌟 **PhySO** initial release (physics-focused SR).
+
