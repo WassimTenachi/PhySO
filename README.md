@@ -12,7 +12,14 @@ Physical symbolic optimization ( $\Phi$-SO ) - A symbolic optimization package b
 Source code: [WassimTenachi/PhySO](https://github.com/WassimTenachi/PhySO)\
 Documentation: [physo.readthedocs.io](https://physo.readthedocs.io/en/latest/)
 
-## Highlights
+## What's New ✨  
+
+**2025-07** : 🐍 Python 3.12 + latest `NumPy`/`PyTorch`/`SymPy` support.  
+**2024-06** : 📚 Full documentation overhaul.  
+**2024-05** : 🔬 **Class SR**: Multi-dataset symbolic regression.  
+**2024-02** : 🎯 Uncertainty-aware fitting.  
+**2023-08** : ⚡ Dimensional analysis acceleration.  
+**2023-03** : 🌟 **PhySO** initial release (physics-focused SR).## Highlights
 
 $\Phi$-SO's symbolic regression module uses deep reinforcement learning to infer analytical physical laws that fit data points, searching in the space of functional forms.  
 

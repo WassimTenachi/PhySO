@@ -5,6 +5,8 @@ Welcome to PhySO's documentation!
 
 .. mdinclude:: headers/doc_header.md
 
+.. mdinclude:: headers/doc_news.md
+
 .. include:: headers/doc_presentation_rtd.rst
 
 
