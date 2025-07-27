@@ -23,62 +23,61 @@ default_op_names = ["mul", "add", "sub", "div", "inv", "n2", "sqrt", "neg", "exp
 default_stop_after_n_epochs = 10
 
 
-def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
-            # X
-            X_names,
-            X_units,
-            # y
-            y_name ,
-            y_units,
-            # Fixed constants
-            fixed_consts,
-            fixed_consts_units,
-            # Class free constants
-            class_free_consts_names   ,
-            class_free_consts_units   ,
-            class_free_consts_init_val,
-            # Spe Free constants
-            spe_free_consts_names   ,
-            spe_free_consts_units   ,
-            spe_free_consts_init_val,
-            # Operations to use
-            op_names,
-            use_protected_ops,
-            # Stopping
-            epochs,
-            # Candidate wrapper
-            candidate_wrapper,
-            # Default run config to use
-            run_config,
-            # Default run monitoring
-            get_run_logger,
-            get_run_visualiser,
-            # Parallel mode
-            parallel_mode,
-            n_cpus,
-            device,
+def check_priors_config(priors_config, max_time_step):
+    """
+    Checks that the prior configurations are valid with respect to the max_time_step.
+    Parameters
+    ----------
+    priors_config : list of tuples (str : dict)
+        List of priors. List containing tuples with prior name as first item in couple (see prior.PRIORS_DICT for list
+        of available priors) and additional arguments (besides library and programs) to be passed to priors as second
+        item of couple, leave None for priors that do not require arguments.
+    max_time_step : int
+        Max number of tokens programs can contain.
+    """
+    # Asserting that max_time_step is >= HardLengthPrior's max_length
+    for prior_config in priors_config:
+        if prior_config[0] == "HardLengthPrior":
+            assert max_time_step >= prior_config[1]["max_length"], \
+                "max_time_step should be greater than or equal to HardLengthPrior's max_length."
+
+def check_library_args(
+        # X
+        X_names,
+        X_units,
+        # y
+        y_name,
+        y_units,
+        # Fixed constants
+        fixed_consts,
+        fixed_consts_units,
+        # Class free constants
+        class_free_consts_names,
+        class_free_consts_units,
+        class_free_consts_init_val,
+        # Spe Free constants
+        spe_free_consts_names,
+        spe_free_consts_units,
+        spe_free_consts_init_val,
+        # Operations to use
+        op_names,
+        use_protected_ops,
+        # Number of dimensions
+        n_dim = None,
+        # Number of realizations
+        n_realizations = 1,
+        # Device to use
+        device = "cpu",
     ):
-    """
-    Checks arguments of SR and ClassSR functions and builds run_config for physo.task.fit.
-    """
 
-    # ------------------------------- DATASETS -------------------------------
-
-    # Data checking and conversion to torch if necessary is now handled by Dataset class which is called by Batch class.
-    # We use it here to infer n_dim (this will also run most other assertions unrelated to the library which is unknown
-    # here and extra time) and sending data to device.
-    dataset = Dataset.Dataset(multi_X=multi_X, multi_y=multi_y, multi_y_weights=multi_y_weights)
-    # Getting number of input variables
-    n_dim   = dataset.n_dim
-    # Getting number of realizations
-    n_realizations = dataset.n_realizations
-    # Sending data to device and using sent data
-    dataset.to(device)
-    multi_X         = dataset.multi_X
-    multi_y         = dataset.multi_y
-    multi_y_weights = dataset.multi_y_weights
-
-    # ------------------------------- LIBRARY ARGS -------------------------------
+    # Number of dimensions
+    if n_dim is None:
+        if X_names is not None:
+            n_dim = len(X_names)
+        elif X_units is not None:
+            n_dim = len(X_units)
+        else:
+            raise ValueError("n_dim should be given or X_names or X_units should be provided to infer it.")
 
     # -- X_names --
     # Handling input variables names
@@ -235,6 +234,93 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
                       "superparent_units" : y_units,
                       "superparent_name"  : y_name,
                     }
+    return library_config
+
+def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
+            # X
+            X_names,
+            X_units,
+            # y
+            y_name ,
+            y_units,
+            # Fixed constants
+            fixed_consts,
+            fixed_consts_units,
+            # Class free constants
+            class_free_consts_names   ,
+            class_free_consts_units   ,
+            class_free_consts_init_val,
+            # Spe Free constants
+            spe_free_consts_names   ,
+            spe_free_consts_units   ,
+            spe_free_consts_init_val,
+            # Operations to use
+            op_names,
+            use_protected_ops,
+            # Stopping
+            epochs,
+            # Candidate wrapper
+            candidate_wrapper,
+            # Default run config to use
+            run_config,
+            # Default run monitoring
+            get_run_logger,
+            get_run_visualiser,
+            # Parallel mode
+            parallel_mode,
+            n_cpus,
+            device,
+    ):
+    """
+    Checks arguments of SR and ClassSR functions and builds run_config for physo.task.fit.
+    """
+
+    # ------------------------------- DATASETS -------------------------------
+
+    # Data checking and conversion to torch if necessary is now handled by Dataset class which is called by Batch class.
+    # We use it here to infer n_dim (this will also run most other assertions unrelated to the library which is unknown
+    # here and extra time) and sending data to device.
+    dataset = Dataset.Dataset(multi_X=multi_X, multi_y=multi_y, multi_y_weights=multi_y_weights)
+    # Getting number of input variables
+    n_dim   = dataset.n_dim
+    # Getting number of realizations
+    n_realizations = dataset.n_realizations
+    # Sending data to device and using sent data
+    dataset.to(device)
+    multi_X         = dataset.multi_X
+    multi_y         = dataset.multi_y
+    multi_y_weights = dataset.multi_y_weights
+
+    # ------------------------------- LIBRARY ARGS -------------------------------
+
+    library_config = check_library_args(
+            # X
+            X_names = X_names,
+            X_units = X_units,
+            # y
+            y_name  = y_name,
+            y_units = y_units,
+            # Fixed constants
+            fixed_consts       = fixed_consts,
+            fixed_consts_units = fixed_consts_units,
+            # Class free constants
+            class_free_consts_names    = class_free_consts_names,
+            class_free_consts_units    = class_free_consts_units,
+            class_free_consts_init_val = class_free_consts_init_val,
+            # Spe Free constants
+            spe_free_consts_names    = spe_free_consts_names,
+            spe_free_consts_units    = spe_free_consts_units,
+            spe_free_consts_init_val = spe_free_consts_init_val,
+            # Operations to use
+            op_names = op_names,
+            use_protected_ops = use_protected_ops,
+            # Number of dimensions
+            n_dim = n_dim,
+            # Number of realizations
+            n_realizations = n_realizations,
+            # Device to use
+            device = device,
+            )
 
     # Updating config
     run_config.update({
@@ -271,11 +357,9 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
 
     # ------------------------------- MAX_TIME_STEP ASSERTIONS -------------------------------
 
-    # Asserting that max_time_step is >= HardLengthPrior's max_length
-    for prior_config in run_config["priors_config"]:
-        if prior_config[0] == "HardLengthPrior":
-            assert run_config["learning_config"]["max_time_step"] >= prior_config[1]["max_length"], \
-                "max_time_step should be greater than or equal to HardLengthPrior's max_length."
+
+    check_priors_config(priors_config = run_config["priors_config"],
+                        max_time_step = run_config["learning_config"]["max_time_step"])
 
     # ------------------------------- LEARNING HYPERPARAMS ASSERTIONS -------------------------------
     # risk_factor should be a float >= 0 and <= 1
