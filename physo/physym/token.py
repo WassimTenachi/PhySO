@@ -925,3 +925,23 @@ class VectTokens:
         self.n_children         = np.full(shape=self.shape,  fill_value=self.default_n_children , dtype=int)
         self.n_ancestors        = np.full(shape=self.shape,  fill_value=self.default_n_ancestors, dtype=int)
 
+
+    @property
+    def is_function(self):
+        return self.var_type == VAR_TYPE_OP
+    @property
+    def is_input_var(self):
+        return self.var_type == VAR_TYPE_INPUT_VAR
+    @property
+    def is_class_free_const(self):
+        return self.var_type == VAR_TYPE_CLASS_FREE_CONST
+    @property
+    def is_spe_free_const(self):
+        return self.var_type == VAR_TYPE_SPE_FREE_CONST
+    @property
+    def is_fixed_const(self):
+        return self.var_type == VAR_TYPE_FIXED_CONST
+
+    @property
+    def is_special(self):
+        return self.var_type == VAR_TYPE_SPECIAL
