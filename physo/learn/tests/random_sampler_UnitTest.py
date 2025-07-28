@@ -62,12 +62,16 @@ class RandomSamplerTest(unittest.TestCase):
                     soft_length_scale = 5.,
                     # X
                     X_names = ["x1", "x2"],
+                    X_units = [[0,],[0,]],
                     # y
                     y_name = "y",
+                    y_units = [0,],
                     # Fixed constants
                     fixed_consts       = [1.],
+                    fixed_consts_units = [[0,]],
                     # Class free constants
                     class_free_consts_names    = ["c0", "c1"],
+                    class_free_consts_units    = [[0,], [0,]],
                     # Operations to use
                     op_names          = ["add", "sub", "mul", "div", "pow", "log", "exp", "cos"],
                     # Priors configuration
@@ -75,7 +79,7 @@ class RandomSamplerTest(unittest.TestCase):
                     # Device to use
                     device="cpu",
                     # verbose
-                    verbose=True
+                    verbose=False
                 )
         except Exception as e:
             self.fail("Expression generation failed.")
@@ -110,16 +114,16 @@ class RandomSamplerTest(unittest.TestCase):
 
                     # X
                     X_names = ["x1", "x2"],
-                    X_units = None,
+                    X_units = [[0,], [0,]],
                     # y
                     y_name = "y",
-                    y_units = None,
+                    y_units = [0,],
                     # Fixed constants
                     fixed_consts       = [1.],
-                    fixed_consts_units = None,
+                    fixed_consts_units = [[0,]],
                     # Class free constants
                     class_free_consts_names    = ["c0", "c1"],
-                    class_free_consts_units    = None,
+                    class_free_consts_units    = [[0,], [0,]],
                     class_free_consts_init_val = None,
                     # Spe Free constants
                     spe_free_consts_names    = None,
@@ -173,16 +177,16 @@ class RandomSamplerTest(unittest.TestCase):
 
                     # X
                     X_names = ["x1", "x2"],
-                    X_units = None,
+                    X_units = [[0,], [0,]],
                     # y
                     y_name = "y",
-                    y_units = None,
+                    y_units = [0,],
                     # Fixed constants
                     fixed_consts       = [1.],
-                    fixed_consts_units = None,
+                    fixed_consts_units = [[0,]],
                     # Class free constants
                     class_free_consts_names    = ["c0", "c1"],
-                    class_free_consts_units    = None,
+                    class_free_consts_units    = [[0,], [0,]],
                     class_free_consts_init_val = None,
                     # Spe Free constants
                     spe_free_consts_names    = None,
