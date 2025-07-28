@@ -11,8 +11,12 @@ from physo.physym import vect_programs as VProg
 def generate_expressions(
             # Batch size
             batch_size=1000,
-            # Max time step
-            max_time_step=50,
+            # Max length
+            max_length=None,
+
+            # Soft length prior
+            soft_length_loc = None,
+            soft_length_scale = 5.,
 
             # X
             X_names = ["x1", "x2"],
@@ -47,8 +51,17 @@ def generate_expressions(
     """
     batch_size : int
         Number of programs in batch.
-    max_time_step : int
-        Max number of tokens programs can contain.
+    max_length : int
+        Max number of tokens programs can contain. By default, uses physo.task.sr.default_config['learning_config']['max_time_step'].
+        If user provides a priors_config, this value will be ignored as the max_length will be set by the HardLengthPrior in the priors_config.
+
+    length_soft_loc : float or None
+        Prior setting for desired length of programs. By default, only priors in priors_config are used.
+        If length_soft_loc is set but no priors_config is provided, this setting will override the default SoftLengthPrior
+        in physo.task.sr.default_config, if priors_config is provided, this setting will be ignored as users can set
+        their own SoftLengthPrior in priors_config.
+    length_soft_scale : float, optional
+        Scale of gaussian used as prior set through soft_length_loc arg. By default, uses 5.
 
     X_names : array_like of shape (n_dim,) of str or None (optional)
         Names of input variables (for display purposes).
@@ -139,14 +152,57 @@ def generate_expressions(
 
     lib = Lib.Library(**library_config)
 
+    # ----- max_time_step -----
+    # If no max_length is provided, we will use the default max_time_step from the learning_config
+    if max_length is None:
+        max_length = sr.default_config["learning_config"]['max_time_step']
+
+    # If priors_config is provided, we will use the HardLengthPrior to set the max_length.
+    # If there is no HardLengthPrior in the priors_config, raise an error.
+    if priors_config is not None:
+        HardLengthPrior_found = False
+        for prior_config in priors_config:
+            if prior_config[0] == "HardLengthPrior":
+                HardLengthPrior_found = True
+                max_length = prior_config[1]["max_length"]
+                break
+        # No HardLengthPrior found in priors_config, raise an error
+        if HardLengthPrior_found is False:
+            raise ValueError("No HardLengthPrior found in priors_config. Please provide a HardLengthPrior with a max_length value.")
+
+    # assert that max_length is a positive integer
+    assert isinstance(max_length, int) and max_length > 0, "max_length must be a positive integer, got %s." % max_length
+    max_time_step = max_length
+
     # ----- Programs -----
 
     progs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=lib, n_realizations=1)
 
     # ----- Priors -----
 
+    # SoftLengthPrior passed by user through args if any
+    user_softlengthprior = None
+    if soft_length_loc is not None:
+        # Assert args
+        assert isinstance(soft_length_loc, (float, int)),   "soft_length_loc must be a float or int, got %s." % type(soft_length_loc)
+        assert isinstance(soft_length_scale, (float, int)), "soft_length_scale must be a float or int, got %s." % type(soft_length_scale)
+        # SoftLengthPrior
+        user_softlengthprior = ("SoftLengthPrior"  , {"length_loc": soft_length_loc, "scale": soft_length_scale, })
+
+    # User not providing priors_config, use default one
     if priors_config is None:
         priors_config = sr.default_config["priors_config"]
+        # Replace HardLengthPrior with user provided max_length
+        for i, prior_config in enumerate(priors_config):
+            if prior_config[0] == "HardLengthPrior":
+                min_length = prior_config[1]["min_length"] # using min_length from default config
+                priors_config[i] = ("HardLengthPrior", {"min_length" : min_length, "max_length": max_time_step, })
+        # Replace SoftLengthPrior with user provided one if any
+        if user_softlengthprior is not None:
+            for i, prior_config in enumerate(priors_config):
+                if prior_config[0] == "SoftLengthPrior":
+                    priors_config[i] = user_softlengthprior
+
     # Check priors configuration
     args_handler.check_priors_config(priors_config=priors_config, max_time_step=max_time_step)
 
