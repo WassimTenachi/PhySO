@@ -47,6 +47,8 @@ def generate_expressions(
             # Device to use
             device="cpu",
 
+            # verbose
+            verbose=True
     ):
     """
     batch_size : int
@@ -117,6 +119,9 @@ def generate_expressions(
         Uses 1 by default (if None).
     device : str, optional
         Device on which free constants will be stored and computations will be performed.
+
+    verbose : bool, optional
+        If True, prints information about the generation process. True by default.
     """
 
     # ----- Library ------
@@ -216,7 +221,8 @@ def generate_expressions(
     n_choices = progs.n_choices
 
     for i in range(max_time_step):
-        print("Token number %i/%i" % (i+1, max_time_step))
+        if verbose:
+            print("Generating tokens at pos: %i/%i" % (i+1, max_time_step))
 
         # -- Sample next token --
         # Random probs for next tokens
