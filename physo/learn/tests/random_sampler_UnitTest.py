@@ -1,9 +1,9 @@
 import os
-
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
 import warnings
+
 # Internal code import
 import physo
 import physo.learn.random_sampler as rs
