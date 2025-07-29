@@ -14,15 +14,44 @@ from physo.physym import token as Tok
 from physo.physym import execute as Exec
 from physo.physym import free_const
 
-try:
-    if shutil.which('latex') is not None:
-        plt.rc('text', usetex=True)
-        plt.rc('font', family='serif')
+# Latex usage flag
+FLAG_USE_TEX = True
+
+def latex_display():
+    is_available = True
+    issues       = []
+
+    # Check shutil
+    if shutil.which('latex') is None:
+        is_available = False
+        msg = "shutil.which('latex') returned None"
+        issues.append(msg)
+
+    # Check flag
+    if not FLAG_USE_TEX:
+        is_available = False
+        msg = "physo.FLAG_USE_TEX is set to False"
+        issues.append(msg)
+
+    # Try to use latex
+    if is_available:
+        try:
+            plt.rc('text', usetex=True)
+            plt.rc('font', family='serif')
+        except Exception as e:
+            is_available = False
+            msg = "plt.rc('text', usetex=True) failed with error: %s" % str(e)
+            issues.append(msg)
+
+    # If not available, warn the user
     else:
-        raise ImportError('latex not found')
-except:
-    msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed and shutil.which('latex') is None."
-    warnings.warn(msg)
+        msg = "Latex display is not available. Issues: %s" % ", ".join(issues)
+        warnings.warn(msg)
+
+    return is_available
+
+# Using latex for display if available
+using_tex = latex_display()
 
 # Font size
 plt.rc('font', size=16)
