@@ -6,6 +6,7 @@ import pandas as pd
 import time
 import pickle
 import psutil
+import shutil
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -15,14 +16,10 @@ from sklearn.neighbors import KernelDensity
 
 # Internal imports
 from physo.physym import reward as reward_funcs
+from physo.physym import program as Prog
 
-# Fig params
-try:
-    plt.rc('text', usetex=True)
-    plt.rc('font', family='serif')
-except:
-    msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed."
-    warnings.warn(msg)
+using_tex = Prog.latex_display()
+
 # Font size
 plt.rc('font', size=16)
 

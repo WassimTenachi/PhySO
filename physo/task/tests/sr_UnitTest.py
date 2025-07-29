@@ -114,7 +114,7 @@ class Test_SR(unittest.TestCase):
                                         get_run_logger     = run_logger,
                                         get_run_visualiser = run_visualiser,
                                         parallel_mode = False,
-                                        epochs = 5,
+                                        epochs = 7,
             )
         # Inspecting pareto front expressions
         pareto_front_complexities, pareto_front_expressions, pareto_front_r, pareto_front_rmse = logs.get_pareto_front()

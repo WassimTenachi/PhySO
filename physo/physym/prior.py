@@ -389,7 +389,7 @@ class NoUselessInversePrior(Prior):
         """
         Prior.__init__(self, library, programs)
 
-        # Considering (function, inverse function) couples where both tokens are in library
+        # Considering (function, inverse function) tuples where both tokens are in library
         effectors = []
         targets   = []
         for func_name, inverse_func_name in Func.INVERSE_OP_DICT.items():
@@ -405,7 +405,7 @@ class NoUselessInversePrior(Prior):
 
         # If no (function, inverse function) detected.
         if len(self.effectors) == 0:
-            # warnings.warn("No (func, inverse func) couples detected, no prior from %s" % (self))
+            # warnings.warn("No (func, inverse func) tuples detected, no prior from %s" % (self))
             self.active = False
         # Using RelationshipConstraintPrior prior
         # Enforcing that [targets] cannot be the [relationship] of [effectors]
@@ -825,15 +825,15 @@ def make_PriorCollection (library, programs, priors_config,):
         Library of choosable tokens.
     programs : vect_programs.VectPrograms
         Programs in the batch.
-    priors_config : list of couples (str : dict)
-        List of priors. List containing couples with prior name as first item in couple (see prior.PRIORS_DICT for list
+    priors_config : list of tuples (str : dict)
+        List of priors. List containing tuples with prior name as first item in couple (see prior.PRIORS_DICT for list
         of available priors) and additional arguments (besides library and programs) to be passed to priors as second
         item of couple, leave None for priors that do not require arguments.
     Returns
     -------
     Prior.PriorCollection
     """
-    type_err_msg = "priors_config should be a list containing couples with prior name string as first item in couple " \
+    type_err_msg = "priors_config should be a list containing tuples with prior name string as first item in couple " \
                    "and additional arguments to be passed to priors dictionary as second item of couple, leave None " \
                    "for priors that do not require arguments."
     # Assertion
