@@ -6,7 +6,7 @@ import warnings
 
 # Internal code import
 import physo
-import physo.learn.random_sampler as rs
+import physo.toolkit.random_sampler as rs
 
 import unittest
 
