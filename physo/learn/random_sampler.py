@@ -8,7 +8,7 @@ from physo.physym import prior as Prior
 import physo.physym.free_const as free_const
 from physo.physym import vect_programs as VProg
 
-def generate_expressions(
+def sample_random_expressions(
             # Batch size
             batch_size=1000,
             # Max length

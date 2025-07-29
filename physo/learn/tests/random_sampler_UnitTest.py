@@ -11,12 +11,12 @@ import physo.learn.random_sampler as rs
 import unittest
 
 class RandomSamplerTest(unittest.TestCase):
-    def test_generate_expressions_default(self):
+    def test_sample_random_expressions_default(self):
         seed = 42
         np.random.seed(seed)
         torch.manual_seed(seed)
         try:
-            eqs = rs.generate_expressions(
+            eqs = rs.sample_random_expressions(
                     # X
                     X_names = ["f", "t"],
                     X_units = [[0,-1], [0,1]],
@@ -46,12 +46,12 @@ class RandomSamplerTest(unittest.TestCase):
 
         return None
 
-    def test_generate_expressions_custom_args(self):
+    def test_sample_random_expressions_custom_args(self):
         seed = 42
         np.random.seed(seed)
         torch.manual_seed(seed)
         try:
-            eqs = rs.generate_expressions(
+            eqs = rs.sample_random_expressions(
                     # Batch size
                     batch_size=1000,
                     # Max length
@@ -84,7 +84,7 @@ class RandomSamplerTest(unittest.TestCase):
         except Exception as e:
             self.fail("Expression generation failed.")
 
-    def test_generate_expressions_custom_configs(self):
+    def test_sample_random_expressions_custom_configs(self):
         seed = 42
         np.random.seed(seed)
         torch.manual_seed(seed)
@@ -103,7 +103,7 @@ class RandomSamplerTest(unittest.TestCase):
                 #("OccurrencesPrior", {"targets" : ["1",], "max" : [3,] }),
                  ]
         try:
-            eqs = rs.generate_expressions(
+            eqs = rs.sample_random_expressions(
                      # Batch size
                     batch_size=1000,
                     # Max length
@@ -147,7 +147,7 @@ class RandomSamplerTest(unittest.TestCase):
         except Exception as e:
             self.fail("Expression generation failed.")
 
-    def test_generate_expressions_custom_configs_overrides(self):
+    def test_sample_random_expressions_custom_configs_overrides(self):
         seed = 42
         np.random.seed(seed)
         torch.manual_seed(seed)
@@ -166,7 +166,7 @@ class RandomSamplerTest(unittest.TestCase):
                 #("OccurrencesPrior", {"targets" : ["1",], "max" : [3,] }),
                  ]
         try:
-            eqs = rs.generate_expressions(
+            eqs = rs.sample_random_expressions(
                      # Batch size
                     batch_size=1000,
                     # Max length
