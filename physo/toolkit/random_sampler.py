@@ -3,6 +3,7 @@ import numpy as np
 # Internal imports
 import physo.task.args_handler as args_handler
 import physo.task.sr as sr
+import physo.toolkit.codec as codec
 from physo.physym import library as Lib
 from physo.physym import prior as Prior
 import physo.physym.free_const as free_const
@@ -39,13 +40,13 @@ def sample_random_expressions(
             op_names          = args_handler.default_op_names,
             use_protected_ops = True,
 
-            # Priors configuration
-            priors_config = None,
-
             # Number of realizations
             n_realizations = 1,
             # Device to use
             device="cpu",
+
+            # Priors configuration
+            priors_config = None,
 
             # verbose
             verbose=True
@@ -127,8 +128,7 @@ def sample_random_expressions(
     # ----- Library ------
 
     # Build the library configuration
-    library_config = args_handler.check_library_args(
-
+    lib = codec.get_library(
                 # X
                 X_names = X_names,
                 X_units = X_units,
@@ -154,8 +154,6 @@ def sample_random_expressions(
                 # Device to use
                 device = device,
                 )
-
-    lib = Lib.Library(**library_config)
 
     # ----- max_time_step -----
     # If no max_length is provided, we will use the default max_time_step from the learning_config
