@@ -1,8 +1,8 @@
-## (Compute Canada users)
+## HPC & Compute Canada users
 
-If you are using `physo` on [Compute Canada](https://alliancecan.ca/en), follow the steps below.
+If you are using `physo` on an HPC such as [Compute Canada](https://alliancecan.ca/en), follow the steps below.
 
-First, connect to the cluster (e.g., Narval, Beluga) and load one of the modules available for Python (```module avail python```), e.g.:
+First, connect to the cluster (e.g., Narval, Beluga) and load one of the modules available for Python (```module avail python```) on your HPC, e.g.:
 ```
 module load python/3.10.13
 ```
