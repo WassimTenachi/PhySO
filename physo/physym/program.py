@@ -15,7 +15,7 @@ from physo.physym import execute as Exec
 from physo.physym import free_const
 
 # Latex usage flag
-FLAG_USE_TEX = True
+FLAG_USE_LATEX_RENDERING = True
 
 def latex_display():
     is_available = True
@@ -28,9 +28,9 @@ def latex_display():
         issues.append(msg)
 
     # Check flag
-    if not FLAG_USE_TEX:
+    if not FLAG_USE_LATEX_RENDERING:
         is_available = False
-        msg = "physo.FLAG_USE_TEX is set to False"
+        msg = "physo.FLAG_USE_LATEX_RENDERING is set to False"
         issues.append(msg)
 
     # Try to use latex
