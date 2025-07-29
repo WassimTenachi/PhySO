@@ -3,6 +3,7 @@ import numpy as np
 import copy as copy  # for Cursor
 import sympy as sympy
 import pickle
+import shutil
 
 # For tree image (optional)
 import matplotlib.pyplot as plt
@@ -13,13 +14,16 @@ from physo.physym import token as Tok
 from physo.physym import execute as Exec
 from physo.physym import free_const
 
-# Fig params
 try:
-    plt.rc('text', usetex=True)
-    plt.rc('font', family='serif')
+    if shutil.which('latex') is not None:
+        plt.rc('text', usetex=True)
+        plt.rc('font', family='serif')
+    else:
+        raise ImportError('latex not found')
 except:
-    msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed."
+    msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed and shutil.which('latex') is None."
     warnings.warn(msg)
+
 # Font size
 plt.rc('font', size=16)
 
