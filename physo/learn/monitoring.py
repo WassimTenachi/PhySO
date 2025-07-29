@@ -6,6 +6,7 @@ import pandas as pd
 import time
 import pickle
 import psutil
+import shutil
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -18,10 +19,13 @@ from physo.physym import reward as reward_funcs
 
 # Fig params
 try:
-    plt.rc('text', usetex=True)
-    plt.rc('font', family='serif')
+    if shutil.which('latex') is not None:
+        plt.rc('text', usetex=True)
+        plt.rc('font', family='serif')
+    else:
+        raise ImportError('latex not found')
 except:
-    msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed."
+    msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed and shutil.which('latex') is None."
     warnings.warn(msg)
 # Font size
 plt.rc('font', size=16)
