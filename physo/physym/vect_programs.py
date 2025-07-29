@@ -1644,14 +1644,18 @@ class VectPrograms:
         lib     = self.library
         wrapper = self.candidate_wrapper
 
+        # Does prog contain at least one free constant token ?
+        has_free_consts = self.n_free_const_occurrences[prog_idx]>0
+
         # Export
         prog = Prog.Program(tokens            = tokens,
                             library           = lib,
                             is_physical       = is_physical,
                             candidate_wrapper = wrapper,
                             # Free constant related
-                            free_consts       = table,
-                            n_realizations    = self.free_consts.n_realizations,
+                            free_consts     = table,
+                            n_realizations  = self.free_consts.n_realizations,
+                            has_free_consts = has_free_consts,
                        )
 
         if skeleton:

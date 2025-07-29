@@ -643,6 +643,68 @@ class ProgramTest(unittest.TestCase):
 
         return None
 
+    # Test program const optimization when no constants are present
+    def test_optimize_no_consts_in_prog (self):
+
+        seed = 42
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+
+        ideal_class_params = torch.tensor([1.389, 1.005]) # (n_class_params, )
+
+        # Synthetic data
+        x0 = torch.linspace(0, 10, 1000)
+        x1 = torch.linspace(-5, 1 , 1000)
+        X = torch.stack((x0,x1),axis=0)
+        y_ideals = X[0] + X[1]
+
+        # consts
+        pi     = data_conversion (np.pi)
+        const1 = data_conversion (1.)
+
+        # LIBRARY CONFIG
+        args_make_tokens = {
+                        # operations
+                        "op_names"             : "all",  # or ["mul", "neg", "inv", "sin"]
+                        "use_protected_ops"    : False,
+                        # input variables
+                        "input_var_ids"        : {"x0" : 0         , "x1" : 1         },
+                        "input_var_units"      : {"x0" : [0, 0, 0] , "x1" : [0, 0, 0] },
+                        "input_var_complexity" : {"x0" : 0.        , "x1" : 1.        },
+                        # constants
+                        "constants"            : {"pi" : pi        , "1" : const1    },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "1" : [0, 0, 0] },
+                        "constants_complexity" : {"pi" : 0.        , "1" : 1.        },
+                        # free constants
+                        "free_constants"            : {"a"             , "b"             },
+                        "free_constants_init_val"   : {"a" : 1.        , "b" : 1.        },
+                        "free_constants_units"      : {"a" : [0, 0, 0] , "b" : [0, 0, 0] },
+                        "free_constants_complexity" : {"a" : 0.        , "b" : 1.        },
+                           }
+        my_lib = Lib.Library(args_make_tokens = args_make_tokens,
+                             superparent_units = [0, 0, 0], superparent_name = "y")
+
+        # PROGRAM
+        test_program_str = ["add", "x0", "x1",]
+        test_program     = [my_lib.lib_name_to_token[name] for name in test_program_str]
+        free_const_table = free_const.FreeConstantsTable(batch_size=1, library=my_lib, n_realizations=1)
+        prog = Prog.Program(tokens=test_program, library=my_lib, free_consts=free_const_table, n_realizations=1)
+
+        # OPTIMIZATION
+        try:
+            history = prog.optimize_constants(X=X, y_target=y_ideals,)
+        except:
+            self.fail("Program optimization failed when no free constants are present.")
+
+        # Execution for results
+        y_pred  = prog.execute(X=X,)
+        # Testing that optimization processed was logged
+        expected_opti_steps = 0
+        works_bool = (prog.free_consts.is_opti[0] == True) and (prog.free_consts.opti_steps[0] == expected_opti_steps)
+        self.assertTrue(works_bool)
+
+        return None
+
     # Test program const optimization in Class SR scenario
     def test_optimize_with_spe_free_consts (self):
 
