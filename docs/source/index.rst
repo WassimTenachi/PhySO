@@ -24,4 +24,5 @@ Contents
    r_performances
    r_benchmarks
    r_reproducibility
+   r_faq
    r_reference
