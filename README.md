@@ -62,6 +62,20 @@ And activate it:
 ```
 conda activate PhySO
 ```
+
+---
+
+**Without Conda (Alternative)** : 
+
+If you are unable to use conda, you can install the dependencies manually using `pip`.  
+This approach is especially useful on some HPC systems where conda is not available.
+
+Step-by-step instructions for this method are available in the  
+[HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
+
+---
+
+
 ### Downloading
 
 `physo` can be downloaded using git:
