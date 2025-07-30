@@ -16,17 +16,10 @@ from sklearn.neighbors import KernelDensity
 
 # Internal imports
 from physo.physym import reward as reward_funcs
+from physo.physym import program as Prog
 
-# Fig params
-try:
-    if shutil.which('latex') is not None:
-        plt.rc('text', usetex=True)
-        plt.rc('font', family='serif')
-    else:
-        raise ImportError('latex not found')
-except:
-    msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed and shutil.which('latex') is None."
-    warnings.warn(msg)
+using_tex = Prog.latex_display()
+
 # Font size
 plt.rc('font', size=16)
 
