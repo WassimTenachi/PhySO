@@ -239,8 +239,11 @@ class Program:
         Number of realizations for this program, ie. number of datasets this program has to fit.
         Dataset specific free constants will have different values different for each realization.
         If free_consts is given, n_realizations is taken from it and this argument is ignored.
+    has_free_consts : bool
+        Is there at least one free constant token appearing in the program ?
+        If None, it is determined from tokens.
     """
-    def __init__(self, tokens, library, free_consts = None, is_physical = None, candidate_wrapper = None, n_realizations=1):
+    def __init__(self, tokens, library, free_consts = None, is_physical = None, candidate_wrapper = None, n_realizations=1, has_free_consts = None):
         """
         Parameters
         ----------
@@ -260,6 +263,12 @@ class Program:
         self.candidate_wrapper = candidate_wrapper
 
         # ----- free const related -----
+        # Determining if program contains free constants tokens
+        if has_free_consts is None:
+            is_token_free_const = np.array([t.is_class_free_const or t.is_spe_free_const for t in self.tokens]) # (n_tokens,)
+            has_free_consts = np.any(is_token_free_const)  # True if at least one token is a free constant
+        self.has_free_consts = has_free_consts
+
         # If no free constants table is given, let's create one and warn the user
         if free_consts is None:
             warnings.warn("No free constants table was given when initializing prog %s, a default one will be created with initial values."%(str(self)))
@@ -341,6 +350,7 @@ class Program:
     def optimize_constants(self, X, y_target, y_weights = 1., i_realization = 0, n_samples_per_dataset = None, args_opti = None, freeze_class_free_consts = False):
         """
         Optimizes free constants of program.
+        If there are no free constant tokens in the program, does nothing and returns empty history.
         Parameters
         ----------
         X : torch.tensor of shape (n_dim, ?,) of float
@@ -367,18 +377,23 @@ class Program:
             args_opti = free_const.DEFAULT_OPTI_ARGS
         func_params = lambda params: self.__call__(X, i_realization=i_realization, n_samples_per_dataset=n_samples_per_dataset)
 
-        if freeze_class_free_consts:
-            history = free_const.optimize_free_const (  func      = func_params,
-                                                        params    = [self.free_consts.spe_values],
-                                                        y_target  = y_target,
-                                                        y_weights = y_weights,
-                                                        **args_opti)
+        if self.has_free_consts:
+            if freeze_class_free_consts:
+                history = free_const.optimize_free_const (  func      = func_params,
+                                                            params    = [self.free_consts.spe_values],
+                                                            y_target  = y_target,
+                                                            y_weights = y_weights,
+                                                            **args_opti)
+            else:
+                history = free_const.optimize_free_const (  func      = func_params,
+                                                            params    = [self.free_consts.class_values, self.free_consts.spe_values],
+                                                            y_target  = y_target,
+                                                            y_weights = y_weights,
+                                                            **args_opti)
+
         else:
-            history = free_const.optimize_free_const (  func      = func_params,
-                                                        params    = [self.free_consts.class_values, self.free_consts.spe_values],
-                                                        y_target  = y_target,
-                                                        y_weights = y_weights,
-                                                        **args_opti)
+            # If there are no free constants, we do not optimize anything
+            history = []
 
         # Logging optimization process
         self.free_consts.is_opti    [0] = True

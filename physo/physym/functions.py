@@ -209,7 +209,7 @@ OPS_UNPROTECTED = [
     TokenOp (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 1 , function = lambda x :torch.pow(x, 4)         ),
 
     # Custom binary operations
-    TokenOp (name = "pow"     , sympy_repr = "^"     , arity = 2 , complexity = 1 , function = torch_pow                         ),
+    TokenOp (name = "pow"     , sympy_repr = "^"   , arity = 2 , complexity = 1 , function = torch_pow                         ),
 ]
 
 # ------------- protected functions -------------
