@@ -58,6 +58,10 @@ class VectProgramsTest(unittest.TestCase):
         except:
             self.fail("VectPrograms creation failed.")
 
+        # Test len
+        self.assertEqual(len(my_programs), batch_size)
+        self.assertEqual(len(my_programs), my_programs.shape[0])
+
     # Test VectPrograms init
     def test_make_VectPrograms_assertions(self):
         # BATCH CONFIG
@@ -541,6 +545,18 @@ class VectProgramsTest(unittest.TestCase):
 
         test_idx = 0
         single_prog = my_programs.get_prog(test_idx, skeleton=True)
+        single_prog.free_consts.is_opti    [0] = True
+        single_prog.free_consts.opti_steps [0] = 42
+        self.assertTrue(my_programs.free_consts.is_opti   [test_idx] == single_prog.free_consts.is_opti    [0])
+        self.assertTrue(my_programs.free_consts.opti_steps[test_idx] == single_prog.free_consts.opti_steps [0])
+        single_prog.free_consts.is_opti    [0] = False
+        single_prog.free_consts.opti_steps [0] = 37
+        self.assertTrue(my_programs.free_consts.is_opti   [test_idx] == single_prog.free_consts.is_opti    [0])
+        self.assertTrue(my_programs.free_consts.opti_steps[test_idx] == single_prog.free_consts.opti_steps [0])
+
+        # Test via getitem
+        test_idx = 1
+        single_prog = my_programs[test_idx]
         single_prog.free_consts.is_opti    [0] = True
         single_prog.free_consts.opti_steps [0] = 42
         self.assertTrue(my_programs.free_consts.is_opti   [test_idx] == single_prog.free_consts.is_opti    [0])
