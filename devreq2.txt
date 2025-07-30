@@ -2,9 +2,12 @@
 # Install via pip : pip install -r devreq2.txt
 
 # Available through conda and pip
-dot2tex == 2.11.3 # (only useful for tree representation)
+dot2tex # == 2.11.3 # (only useful for tree representation)
 
 # Only available via pip
-pdflatex == 0.1.3 # (only useful for tree representation)
-pdf2image == 1.16.0 # (only useful for tree representation)
-pillow >= 9.0.1 # (only useful for getting image data of infix representation)
+pdflatex # == 0.1.3 # (only useful for tree representation)
+pdf2image # == 1.16.0 # (only useful for tree representation)
+pillow # >= 9.0.1 # (only useful for getting image data of infix representation)
+
+# These packages semm to require an attrs version that makes it impossible to have jupyterlab with modern versions
+# of python.
