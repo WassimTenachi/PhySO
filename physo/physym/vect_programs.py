@@ -2551,3 +2551,7 @@ class VectPrograms:
 
     def __len__(self):
         return self.batch_size
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
