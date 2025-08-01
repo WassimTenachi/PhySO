@@ -1,0 +1,13 @@
+# Requirements for display purposes (only useful for devs)
+# Install via conda : conda install --file devreq.txt
+
+# Available through conda and pip but conda install is preferred
+
+# Only useful for tree representation:
+pygraphviz
+conda-forge::pdf2image
+conda-forge::pdflatex
+conda-forge::dot2tex
+
+# Only useful for getting image data of infix representation
+pillow
