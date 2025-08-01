@@ -2546,3 +2546,8 @@ class VectPrograms:
     def __repr__(self):
         return str(self.status())
 
+    def __getitem__(self, key):
+        return self.get_prog(prog_idx=key)
+
+    def __len__(self):
+        return self.batch_size
