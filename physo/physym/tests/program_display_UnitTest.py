@@ -116,6 +116,64 @@ class DisplayTest(unittest.TestCase):
 
         return None
 
+    def test_infix_repr_with_pow(self):
+        # LIBRARY CONFIG
+        args_make_tokens = {
+                        # operations
+                        "op_names"             : "all",  # or ["mul", "neg", "inv", "sin"]
+                        "use_protected_ops"    : True,
+                        # input variables
+                        "input_var_ids"        : {"x" : 0         , "v" : 1          , "t" : 2,        },
+                        "input_var_units"      : {"x" : [0, 0, 0] , "v" : [0, 0, 0]  , "t" : [0, 0, 0] },
+                        "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
+                        # constants
+                        "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       , "const1" : 1         },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [0, 0, 0] , "M" : [0, 0, 0] , "const1" : [0, 0, 0] },
+                        "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        , "const1" : 1.        },
+                            }
+        my_lib = Lib.Library(args_make_tokens = args_make_tokens,
+                             superparent_units = [0, 0, 0], superparent_name = "y")
+
+        # TEST PROGRAM
+        test_program_str = ["mul", "x", "pow", "t", "c",]
+        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_length = len(test_program_str)
+        test_program_idx = test_program_idx[np.newaxis, :]
+
+        # BATCH
+        my_programs = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib, n_realizations=1)
+        my_programs.set_programs(test_program_idx)
+
+        # TEST get_pretty
+        expected_pretty_sympy = ' c  \nt ⋅x'
+        result_pretty = my_programs.get_infix_pretty(prog_idx=0)
+        # Compare without spaces as they can vary depending on sympy version
+        expected_pretty_no_spaces = expected_pretty_sympy.replace(" ", "")
+        result_pretty_no_spaces   = result_pretty.replace(" ", "")
+        works_bool = expected_pretty_no_spaces == result_pretty_no_spaces
+        self.assertTrue(works_bool)
+
+        # TEST get_latex
+        expected_latex = 't^{c} x'
+        result_latex = my_programs.get_infix_latex(prog_idx=0)
+        works_bool = expected_latex == result_latex
+        self.assertTrue(works_bool)
+
+        # TEST get_sympy
+        try:
+            my_programs.get_prog(0).get_infix_sympy()
+        except:
+            self.fail("get_infix_sympy failed")
+
+        # TEST get_infix_str
+        try:
+            my_programs.get_prog(0).get_infix_str()
+        except:
+            self.fail("get_infix_str failed")
+
+
+        return None
+
     def test_tree_rpr(self):
 
         if platform.system() == "Windows":
