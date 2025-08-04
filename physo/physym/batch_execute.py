@@ -4,7 +4,6 @@ import numpy as np
 import torch as torch
 import torch.multiprocessing as mp
 
-from tqdm import tqdm
 SHOW_PROGRESS_BAR = False
 
 def EnforceStartMethod():
@@ -496,6 +495,10 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args=None, y_weights
     """
     pb = lambda x: x
     if SHOW_PROGRESS_BAR:
+        try:
+            from tqdm import tqdm
+        except:
+            warnings.warn("Unable to import tqdm, please install it to use the progress bar.")
         pb = tqdm
 
     # mask : should program be executed ?

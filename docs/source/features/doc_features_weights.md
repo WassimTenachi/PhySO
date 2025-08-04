@@ -1,9 +1,9 @@
-## Weighting Data Points
+## Weighting Data Points / Uncertainty Quantification in SR
 
 ### About weights
 
 `physo` provides a feature that allows the user to weight data points when performing symbolic regression.
-This feature can be used to give more importance to certain data points over others. 
+This feature can be used to give more importance to certain data points over others - in order to take into account uncertainties in the data, or to favor certain parts of the dataset over others.
 The weights are used during free constant optimization as well as for computing the reward driving the symbolic regression process.
 
 Weights can simply be passed through the `y_weights` argument of `physo.SR`, they should have the same shape as the target values `y`.
