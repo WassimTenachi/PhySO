@@ -3,6 +3,11 @@
 
 # Available through conda and pip but conda install is preferred
 
+# Others (making main requirements.txt smaller)
+pip
+tqdm
+jupyterlab # For running the notebooks
+
 # Only useful for tree representation:
 pygraphviz
 conda-forge::pdf2image
