@@ -25,13 +25,12 @@ plt.rc('font', size=16)
 # Faster than searching for best loc
 LEGEND_LOC = 'upper left' # "best"
 
-psutil_available = False
 try:
     import psutil
     pid = psutil.Process().pid
     psutil_available = True
 except:
-    warnings.warn("psutil not available, process id info unavailable, you can install it with `pip install psutil`")
+    psutil_available = False
 
 def save_pareto_pkl (pareto_progs, fpath):
     """
@@ -107,6 +106,10 @@ class RunLogger:
         self.n_rewarded                   = []
         self.lengths_of_physical          = []
         self.lengths_of_unphysical        = []
+
+        if not psutil_available:
+            warnings.warn(
+                "psutil not available, RAM usage can not be displayed. You can install it with `pip install psutil`")
 
     def log(self, epoch, batch, model, rewards, keep, notkept, loss_val):
 
