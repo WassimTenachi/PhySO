@@ -34,8 +34,7 @@ pip install pandas
 pip install matplotlib
 pip install scikit-learn
 ```
-This approach is especially useful on some HPC systems, see the  
-[HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
+This approach is especially useful on some HPC systems, see the [HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
 
 ---
 
