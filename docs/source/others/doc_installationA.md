@@ -24,11 +24,17 @@ conda activate PhySO
 
 **Without Conda (Alternative)** : 
 
-If you are unable to use conda, you can install the dependencies manually using `pip`.  
-This approach is especially useful on some HPC systems where conda is not available.
-
-Step-by-step instructions for this method are available in the  
-[HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
+If you are unable to use conda or prefer to use another environment manager, you can install the dependencies manually using `pip`:  
+``` bash
+pip install --no-index --upgrade pip
+pip install torch >= 1.11.0
+pip install numpy
+pip install sympy
+pip install pandas
+pip install matplotlib
+pip install scikit-learn
+```
+This approach is especially useful on some HPC systems, see the [HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
 
 ---
 
@@ -62,7 +68,7 @@ In order to simplify the installation process, since its first version, `physo` 
 
 Installing `physo` to the environment (from the repository root):
 ```
-python -m pip install -e .
+python -m pip install -e . --no-deps
 ```
 
 ### Testing install
@@ -89,7 +95,11 @@ python -m unittest discover -p "*Test.py"
 This  should take 5-15 min depending on your system (as if you have a lot of CPU cores, it will take longer to make the efficiency curves).
 
 ## Uninstalling
-Uninstalling the package.
+Uninstalling the package:
+```
+pip uninstall physo
+```
+Removing the conda environment:
 ```
 conda deactivate
 conda env remove -n PhySO

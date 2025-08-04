@@ -1,3 +1,4 @@
+# Install via python -m pip install -r requirements.txt
 sphinxcontrib-napoleon
 sphinx==7.1.2
 sphinx-rtd-theme==1.3.0rc1

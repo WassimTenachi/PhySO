@@ -1,13 +1,15 @@
 # Requirements for PhySO
 # Install via conda : conda install --file requirements.txt
+# This file is read by setup.py, comments on the same line as a package should be avoided.
+# If requirements change, update:
+# - the documentation (as it contains hardcoded pip install commands)
+# - setup.py if a package is under a different name on pip
 
 pytorch >= 1.11.0
-sympy
-matplotlib
 numpy
-tqdm
+sympy
 pandas
-pip
-scikit-learn # For Feynman benchmark analysis script and for density in monitoring plots
-jupyterlab # For running the notebooks
+matplotlib
+# For Feynman benchmark analysis script and for density in monitoring plots
+scikit-learn
 
