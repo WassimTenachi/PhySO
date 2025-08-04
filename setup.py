@@ -2,7 +2,7 @@ import setuptools
 from pathlib import Path
 import os
 
-VERSION = '1.1.6'
+VERSION = '1.1.7'
 DESCRIPTION = 'Physical Symbolic Optimization'
 
 def get_long_description():
