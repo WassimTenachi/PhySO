@@ -54,7 +54,7 @@ The package has been tested on:
 
 To install the package it is recommended to first create a conda virtual environment:
 ```
-conda create -n PhySO python=3.12
+conda create -n PhySO python=3.12 --yes
 ```
 Supporting Python 3.8 - 3.12; other versions may also work.
 
@@ -145,7 +145,7 @@ pip uninstall physo
 Removing the conda environment:
 ```
 conda deactivate
-conda env remove -n PhySO
+conda env remove -n PhySO --yes
 ```
 ## Getting started (SR)
 
