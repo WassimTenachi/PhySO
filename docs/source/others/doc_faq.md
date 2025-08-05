@@ -50,6 +50,11 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 ```
 
+### 2. How can I support this project?
+
+Consider citing `physo` in your work. You can find the citation information [here](https://physo.readthedocs.io/en/latest/r_reference.html).
+If you are a researcher or a student, email me if you are interested in collaborating in the development of future features of `physo`.
+
 ### 3. I am encountering an issue that is not covered here
 
 If you are facing an issue that is not addressed in this FAQ, update the package and its dependencies to their latest available versions.
