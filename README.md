@@ -50,6 +50,8 @@ The package has been tested on:
 
 ## Install procedure
 
+If you are encountering issues with the installation, please refer to the [FAQ](https://physo.readthedocs.io/en/latest/r_faq.html) or raise an issue on the [GitHub repository](https://github.com/WassimTenachi/PhySO/issues).
+
 ### Virtual environment
 
 To install the package it is recommended to first create a conda virtual environment:
