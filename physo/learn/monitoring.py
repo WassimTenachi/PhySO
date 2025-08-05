@@ -732,43 +732,49 @@ class RunVisualiser:
                     self.make_visualisation()
                 if self.do_save:
                     self.save_visualisation()
-            except:
-                print("Unable to make visualisation plots.")
+            except Exception as e:
+                print("Unable to make visualisation plots, error:")
+                print(e)
         # Data curves
         if epoch%self.epoch_refresh_rate == 0:
             try:
                 if self.do_save:
                     self.save_data()
-            except:
-                print("Unable to save train curves data.")
+            except Exception as e:
+                print("Unable to save train curves data, error:")
+                print(e)
         # Data Pareto
         if epoch%self.epoch_refresh_rate == 0:
             try:
                 if self.do_save:
                     self.save_pareto_data()
-            except:
-                print("Unable to save pareto data.")
+            except Exception as e:
+                print("Unable to save pareto data, error:")
+                print(e)
 
         # Pareto pkl
         if epoch%self.epoch_refresh_rate == 0:
             try:
                 if self.do_save:
                     self.save_pareto_pkl()
-            except:
-                print("Unable to save pareto front expressions as pkl.")
+            except Exception as e:
+                print("Unable to save pareto front expressions as pkl, error:")
+                print(e)
 
         # Figure Pareto
         if epoch%self.epoch_refresh_rate == 0:
             try:
                 if self.do_save:
                     self.save_pareto_fig()
-            except:
-                print("Unable to save pareto figure.")
+            except Exception as e:
+                print("Unable to save pareto figure, error:")
+                print(e)
 
         # Prints
         if epoch % self.epoch_refresh_rate_prints == 0:
             try:
                 if self.do_prints:
                     self.make_prints()
-            except:
-                print("Unable to print status.")
+            except Exception as e:
+                print("Unable to print status, error:")
+                print(e)
