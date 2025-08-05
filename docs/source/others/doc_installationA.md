@@ -22,25 +22,6 @@ And activate it:
 conda activate PhySO
 ```
 
----
-
-**Without Conda (Alternative)** : 
-
-If you are unable to use conda or prefer to use another environment manager, you can install the dependencies manually using `pip`:  
-``` bash
-pip install --no-index --upgrade pip
-pip install torch >= 1.11.0
-pip install numpy
-pip install sympy
-pip install pandas
-pip install matplotlib
-pip install scikit-learn
-```
-This approach is especially useful on some HPC systems, see the [HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
-
----
-
-
 ### Downloading
 
 `physo` can be downloaded using git:
@@ -58,7 +39,25 @@ Installing dependencies :
 conda install --file requirements.txt
 ```
 
-In order to simplify the installation process, since its first version, `physo` has been updated to have minimal very standard dependencies.
+In order to simplify the installation process, `physo` has very few and standard dependencies, which are listed in the `requirements.txt` file.
+
+---
+
+**Without Conda (Alternative)** : 
+
+If you are unable to use conda or prefer to use another environment manager, you can install the dependencies manually using `pip`:  
+``` bash
+pip install --no-index --upgrade pip
+pip install torch >= 1.11.0
+pip install numpy
+pip install sympy
+pip install pandas
+pip install matplotlib
+pip install scikit-learn
+```
+This approach is especially useful on some HPC systems, see the [HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
+
+---
 
 ---
 

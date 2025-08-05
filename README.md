@@ -50,6 +50,8 @@ The package has been tested on:
 
 ## Install procedure
 
+If you are encountering issues with the installation, please refer to the [FAQ](https://physo.readthedocs.io/en/latest/r_faq.html) or raise an issue on the [GitHub repository](https://github.com/WassimTenachi/PhySO/issues).
+
 ### Virtual environment
 
 To install the package it is recommended to first create a conda virtual environment:
@@ -62,25 +64,6 @@ And activate it:
 ```
 conda activate PhySO
 ```
-
----
-
-**Without Conda (Alternative)** : 
-
-If you are unable to use conda or prefer to use another environment manager, you can install the dependencies manually using `pip`:  
-``` bash
-pip install --no-index --upgrade pip
-pip install torch >= 1.11.0
-pip install numpy
-pip install sympy
-pip install pandas
-pip install matplotlib
-pip install scikit-learn
-```
-This approach is especially useful on some HPC systems, see the [HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
-
----
-
 
 ### Downloading
 
@@ -99,7 +82,25 @@ Installing dependencies :
 conda install --file requirements.txt
 ```
 
-In order to simplify the installation process, since its first version, `physo` has been updated to have minimal very standard dependencies.
+In order to simplify the installation process, `physo` has very few and standard dependencies, which are listed in the `requirements.txt` file.
+
+---
+
+**Without Conda (Alternative)** : 
+
+If you are unable to use conda or prefer to use another environment manager, you can install the dependencies manually using `pip`:  
+``` bash
+pip install --no-index --upgrade pip
+pip install torch >= 1.11.0
+pip install numpy
+pip install sympy
+pip install pandas
+pip install matplotlib
+pip install scikit-learn
+```
+This approach is especially useful on some HPC systems, see the [HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
+
+---
 
 ---
 
