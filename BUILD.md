@@ -1,6 +1,6 @@
 # Building PhySO for PyPI
 
-Build can be found [here](??).
+Build can be found [here](https://pypi.org/project/physo/).
 It can be built locally using the following instructions.
 
 ## Requirements
@@ -40,7 +40,7 @@ After testing on Test PyPI, the package can be uploaded to the main PyPI reposit
 ```bash
 twine upload dist/*
 ```
-Package can be found [here](??) and installed using:
+Package can be found [here](https://pypi.org/project/physo/) and installed using:
 ```bash
 pip install physo
 ```
