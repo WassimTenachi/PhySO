@@ -1,13 +1,4 @@
-# Installation
-
-The package has been tested on:
-- Linux
-- OSX (ARM & Intel)
-- Windows
-
-## Install procedure
-
-If you are encountering issues with the installation, please refer to the [FAQ](https://physo.readthedocs.io/en/latest/r_faq.html) or raise an issue on the [GitHub repository](https://github.com/WassimTenachi/PhySO/issues).
+## Source Install
 
 ### Virtual environment
 
@@ -94,14 +85,3 @@ Running all unit tests (from the repository root):
 python -m unittest discover -p "*Test.py"
 ```
 This  should take 5-15 min depending on your system (as if you have a lot of CPU cores, it will take longer to make the efficiency curves).
-
-## Uninstalling
-Uninstalling the package:
-```
-pip uninstall physo
-```
-Removing the conda environment:
-```
-conda deactivate
-conda env remove -n PhySO
-```
