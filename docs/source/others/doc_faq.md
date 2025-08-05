@@ -49,3 +49,8 @@ import matplotlib as plt
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 ```
+
+### 3. I am encountering an issue that is not covered here
+
+If you are facing an issue that is not addressed in this FAQ, update the package and its dependencies to their latest available versions.
+You can then raise an issue on the [GitHub repository](https://github.com/WassimTenachi/PhySO/issues).
