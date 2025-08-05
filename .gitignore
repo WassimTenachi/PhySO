@@ -48,6 +48,7 @@ science/galaxy_profile/nihaoap_class_sr_v*/**
 science/galaxy_profile/nihaoap_class_sr_v*/equations_*.png
 # Science : Reionization
 science/reionization-stellar-evolution/data/**.csv
-science/reionization-stellar-evolution/*.log
-science/reionization-stellar-evolution/*.csv
-science/reionization-stellar-evolution/*.png
+science/reionization-stellar-evolution/**.log
+science/reionization-stellar-evolution/**.csv
+science/reionization-stellar-evolution/**.png
+science/reionization-stellar-evolution/**.pkl
