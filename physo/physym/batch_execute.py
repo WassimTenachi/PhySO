@@ -497,9 +497,10 @@ def BatchFreeConstOpti (progs, X, y_target, free_const_opti_args=None, y_weights
     if SHOW_PROGRESS_BAR:
         try:
             from tqdm import tqdm
+            pb = tqdm
         except:
             warnings.warn("Unable to import tqdm, please install it to use the progress bar.")
-        pb = tqdm
+
 
     # mask : should program be executed ?
     # By default, all programs of batch are executed
