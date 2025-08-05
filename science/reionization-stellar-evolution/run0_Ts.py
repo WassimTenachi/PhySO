@@ -17,22 +17,22 @@ if __name__ == '__main__':
     # Dataset
     PATH_DATA = "data/10k_curves_physical.csv"
     data = pd.read_csv(PATH_DATA)
-    # Subsample data to 50k
-    data = data.sample(n=50000, random_state=42).reset_index(drop=True)
+    # Subsample data to 10k
+    data = data.sample(n=10000, random_state=seed).reset_index(drop=True)
     # Randomize data
     data = data.sample(frac=1, random_state=seed).reset_index(drop=True)
     shorter_names = {
         "z": "z",
-        "F_STAR10": "f_*",
-        "F_ESC10": "f_esc",
-        "ALPHA_STAR": "α_*",
-        "ALPHA_ESC": "α_esc",
-        "M_TURN": "M_t",
-        "L_X": "L_X",
-        "t_STAR": "τ_*",
-        "xHI": "x_HI",
-        "Ts": "T_s",
-        "Tb": "T_b"
+        "F_STAR10": "Fs",
+        "F_ESC10": "Fesc",
+        "ALPHA_STAR": "As",
+        "ALPHA_ESC": "Aesc",
+        "M_TURN": "Mt",
+        "L_X": "LX",
+        "t_STAR": "taus",
+        "xHI": "xHI",
+        "Ts": "Ts",
+        "Tb": "Tb"
     }
     var_names = ["z", "F_STAR10", "F_ESC10", "ALPHA_STAR", "ALPHA_ESC", "M_TURN", "L_X", "t_STAR"]
     X = data[var_names].values.T
@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     X_names = [shorter_names[name] for name in var_names]
     y_name = shorter_names["Ts"]
-    free_consts_names = ["c%i" % i for i in range(10)]
+    free_consts_names = ["c%i" % i for i in range(8)]
 
     # Dataset plot
     n_dim = X.shape[0]
@@ -52,15 +52,17 @@ if __name__ == '__main__':
         curr_ax.set_ylabel("y")
     plt.show()
 
+
+
     # Logging config
 
-    save_path_training_curves = 'demo_curves.png'
-    save_path_log             = 'demo.log'
+    save_path_training_curves = 'run0_Ts_curves.png'
+    save_path_log             = 'run0_Ts.log'
 
     run_logger     = lambda : monitoring.RunLogger(save_path = save_path_log,
                                                     do_save = True)
 
-    run_visualiser = lambda : monitoring.RunVisualiser (epoch_refresh_rate = 1,
+    run_visualiser = lambda : monitoring.RunVisualiser (epoch_refresh_rate = 5,
                                                save_path = save_path_training_curves,
                                                do_show   = False,
                                                do_prints = True,
@@ -68,9 +70,21 @@ if __name__ == '__main__':
 
 
     # Run
-    #physo.physym.batch_execute.SHOW_PROGRESS_BAR = True
-    run_config = physo.config.config1.config1
-    run_config["learning_config"]["batch_size"] = 20
+    physo.physym.batch_execute.SHOW_PROGRESS_BAR = True
+    run_config = physo.config.config3.config3
+
+    # Soft Length Prior
+    for prior in run_config["priors_config"]:
+        if prior[0] == "SoftLengthPrior":
+            soft_loc  = prior[1]["length_loc"]
+            scale_loc = prior[1]["scale"]
+    fig, ax = plt.subplots()
+    x = np.arange(1, run_config["learning_config"]['max_time_step'], 0.1)
+    ax.plot(x, np.exp(-((x-soft_loc)/scale_loc)**2), 'b-', lw=2, label='Soft Length Prior')
+    ax.set_xlabel("Length")
+    ax.set_ylabel("Prior Probability")
+    ax.set_title("Soft Length Prior (loc=%i, scale=%i)" % (soft_loc, scale_loc))
+    plt.show()
 
     # Running SR task
     expression, logs = physo.SR(X, y,
