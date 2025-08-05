@@ -322,6 +322,10 @@ class Library:
     def spe_free_constants_init_val_sizes(self):
         return np.array([c.shape[0] for c in self.spe_free_constants_init_val])
 
+    @property
+    def vocab_size(self):
+        return self.n_choices
+
     def __repr__(self):
         return str(self.lib_tokens)
 
