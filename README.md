@@ -14,6 +14,7 @@ Documentation: [physo.readthedocs.io](https://physo.readthedocs.io/en/latest/)
 
 ## What's New ✨  
 
+**2025-08** : 📦 PhySO can now be installed via `pip install physo`!  
 **2025-07** : 🐍 Python 3.12 + latest `NumPy`/`PyTorch`/`SymPy` support.  
 **2024-06** : 📚 Full documentation overhaul.  
 **2024-05** : 🔬 **Class SR**: Multi-dataset symbolic regression.  
