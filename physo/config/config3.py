@@ -8,7 +8,7 @@ For doing science, it is recommended to tune hyperparameters to the specific pro
 """
 
 # Maximum length of expressions
-MAX_LENGTH = 60
+MAX_LENGTH = 80
 
 # ---------- REWARD CONFIG ----------
 reward_config = {
@@ -70,7 +70,8 @@ priors_config  = [
                 ("PhysicalUnitsPrior", {"prob_eps": np.finfo(np.float32).eps}), # PHYSICALITY
                 ("NestedFunctions", {"functions":["exp",], "max_nesting" : 1}),
                 ("NestedFunctions", {"functions":["log",], "max_nesting" : 1}),
-                ("NestedTrigonometryPrior", {"max_nesting" : 1}),
+                ("NestedFunctions", {"functions":["inv",], "max_nesting" : 3}),
+                ("NestedTrigonometryPrior", {"max_nesting" : 2}),
                 #("OccurrencesPrior", {"targets" : ["1",], "max" : [3,] }),
                  ]
 
