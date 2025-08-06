@@ -1,10 +1,58 @@
 body {
-  --themecolor: #027581;
+  --themecolor: #005353;
+  --linkcolor: #008F94;
+  --visitedlinkcolor: #3F2C73;
+  --hoverlinkcolor: #1ca9af;
+  --my_grey: #2B2B2B;
+  --my_grey_light: #F2F2F2;
+  --my_red: #C00028;
 }
 
+/*!* Top navigation bar ? *!*/
+.wy-nav-top {
+  background-color: var(--themecolor);
+}
+
+/* Behind logo */
 .wy-side-nav-search {
   background-color: var(--themecolor);
 }
-.wy-nav-top {
-  background-color: var(--themecolor);
+
+/* Left navigation panel background */
+.wy-nav-side {
+  background-color: var(--my_grey);
+}
+
+/* Navigation menu items text color */
+.wy-menu-vertical a {
+  color: var(--my_grey_light);
+}
+
+/* Hover state for menu items */
+.wy-menu-vertical a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Links color */
+a {
+  color: var(--linkcolor);
+}
+
+/* Visited links */
+a:visited {
+  color: var(--visitedlinkcolor);
+}
+
+/* Links hover state */
+a:hover {
+  color: var(--hoverlinkcolor);
+}
+
+/* Default inline code styling */
+.rst-content code.literal,
+.rst-content tt.literal,
+.rst-content code,
+.rst-content tt {
+    color: var(--my_red);
 }
