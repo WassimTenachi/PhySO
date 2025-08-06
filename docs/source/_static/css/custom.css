@@ -39,10 +39,10 @@ a {
   color: var(--linkcolor);
 }
 
-/* Visited links */
-a:visited {
-  color: var(--visitedlinkcolor);
-}
+/*!* Visited links *!*/
+/*a:visited {*/
+/*  color: var(--linkcolor);*/
+/*}*/
 
 /* Links hover state */
 a:hover {
