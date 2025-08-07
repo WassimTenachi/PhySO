@@ -58,6 +58,13 @@ Installing `physo` from PyPI :
 ```bash
 pip install physo
 ```
+
+## Installing with conda
+
+Installing `physo` using conda:
+```bash
+conda install wassimtenachi::physo
+```
 ## Getting started (SR)
 
 In this tutorial, we show how to use `physo` to perform Symbolic Regression (SR).
