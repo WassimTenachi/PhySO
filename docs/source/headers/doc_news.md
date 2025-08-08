@@ -1,6 +1,6 @@
 ## What's New ✨  
 
-**2025-08** : 📦 PhySO can now be installed via `pip install physo` and `conda`!  
+**2025-08** : 📦 Install via `pip install physo` and `conda` now available!  
 **2025-07** : 🐍 Python 3.12 + latest `NumPy`/`PyTorch`/`SymPy` support.  
 **2024-06** : 📚 Full documentation overhaul.  
 **2024-05** : 🔬 **Class SR**: Multi-dataset symbolic regression.  
