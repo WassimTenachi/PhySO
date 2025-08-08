@@ -63,7 +63,7 @@ pip install physo
 
 Installing `physo` using conda:
 ```bash
-conda install wassimtenachi::physo
+conda install -c conda-forge physo
 ```
 ## Getting started (SR)
 
