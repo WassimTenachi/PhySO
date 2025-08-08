@@ -1,7 +1,7 @@
 body {
   --themecolor: #005353;
   --linkcolor: #008F94;
-  --visitedlinkcolor: #3F2C73;
+  --visitedlinkcolor: #016265;
   --hoverlinkcolor: #1ca9af;
   --my_grey: #2B2B2B;
   --my_grey_light: #F2F2F2;
@@ -39,9 +39,14 @@ a {
   color: var(--linkcolor);
 }
 
-/* Visited links */
-a:visited {
+/* Apply visited color ONLY to links in the main content (not sidebar/nav) */
+.rst-content a:visited {
   color: var(--visitedlinkcolor);
+}
+
+/* Remove global :visited rule (if present) */
+a:visited {
+  color: inherit; /* Lets navigation links keep their default behavior */
 }
 
 /* Links hover state */
