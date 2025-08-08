@@ -1,0 +1,57 @@
+{% set name = "physo" %}
+{% set version = "1.1.9" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  url: "https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  sha256: 6b04596052d0180cb18a4f992524f8c71705b6c0c20b560a7ee157054e3955c2
+
+build:
+  noarch: python
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  host:
+    - setuptools
+    - python {{ python_min }}
+    - matplotlib-base
+    - numpy
+    - pandas
+    - pip
+    - scikit-learn
+    - sympy
+    - pytorch >=1.11.0
+  run:
+    - python >={{ python_min }}
+    - matplotlib-base
+    - numpy
+    - pandas
+    - scikit-learn
+    - sympy
+    - pytorch >=1.11.0
+
+test:
+  imports:
+    - physo
+  requires:
+    - python {{ python_min }}
+    - pip
+  commands:
+    - pip check
+
+about:
+  home: "https://github.com/WassimTenachi/PhySO"
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: "Physical Symbolic Optimization"
+  doc_url: "https://physo.readthedocs.io"
+  dev_url: "https://github.com/WassimTenachi/PhySO"
+
+extra:
+  recipe-maintainers:
+    - WassimTenachi
