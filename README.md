@@ -9,11 +9,16 @@ Physical symbolic optimization ( $\Phi$-SO ) - A symbolic optimization package b
 [![Paper](https://img.shields.io/badge/arXiv-2303.03192-b31b1b)](https://arxiv.org/abs/2303.03192)
 [![Paper](https://img.shields.io/badge/arXiv-2312.01816-b31b1b)](https://arxiv.org/abs/2312.01816)
 
+[![PyPI version](https://badge.fury.io/py/physo.svg)](https://badge.fury.io/py/physo)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/physo.svg)](https://anaconda.org/conda-forge/physo)
+
+
 Source code: [WassimTenachi/PhySO](https://github.com/WassimTenachi/PhySO)\
 Documentation: [physo.readthedocs.io](https://physo.readthedocs.io/en/latest/)
 
 ## What's New ✨  
 
+**2025-08** : 📦 Install via `pip install physo` and `conda` now available!  
 **2025-07** : 🐍 Python 3.12 + latest `NumPy`/`PyTorch`/`SymPy` support.  
 **2024-06** : 📚 Full documentation overhaul.  
 **2024-05** : 🔬 **Class SR**: Multi-dataset symbolic regression.  
@@ -56,6 +61,13 @@ If you are still having issues, please refer to the [FAQ](https://physo.readthed
 Installing `physo` from PyPI :
 ```bash
 pip install physo
+```
+
+## Installing with conda
+
+Installing `physo` using conda:
+```bash
+conda install -c conda-forge physo
 ```
 ## Getting started (SR)
 
@@ -366,13 +378,14 @@ Class Symbolic Regression
 @ARTICLE{PhySO_ClassSR,
        author = {{Tenachi}, Wassim and {Ibata}, Rodrigo and {Fran{\c{c}}ois}, Thibaut L. and {Diakogiannis}, Foivos I.},
         title = "{Class Symbolic Regression: Gotta Fit 'Em All}",
-      journal = {arXiv e-prints},
-     keywords = {Computer Science - Machine Learning, Astrophysics - Astrophysics of Galaxies, Astrophysics - Instrumentation and Methods for Astrophysics, Physics - Computational Physics},
-         year = 2023,
-        month = dec,
+      journal = {The Astrophysical Journal Letters},
+         year = {2024},
+        month = {jul},
+       volume = {969},
+       number = {2},
           eid = {arXiv:2312.01816},
-        pages = {arXiv:2312.01816},
-          doi = {10.48550/arXiv.2312.01816},
+        pages = {L26},
+          doi = {10.3847/2041-8213/ad5970},
 archivePrefix = {arXiv},
        eprint = {2312.01816},
  primaryClass = {cs.LG},
