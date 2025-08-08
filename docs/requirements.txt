@@ -10,6 +10,7 @@ sphinx-math-dollar
 
 # For auto-generating API documentation
 # PhySO install
+physo
 
 # Dependencies
 torch
