@@ -58,8 +58,8 @@ class RandomSamplerTest(unittest.TestCase):
                     max_length=30,
 
                     # Soft length prior
-                    soft_length_loc = 12.,
-                    soft_length_scale = 5.,
+                    length_soft_loc= 12.,
+                    length_soft_scale= 5.,
                     # X
                     X_names = ["x1", "x2"],
                     X_units = [[0,],[0,]],
@@ -109,8 +109,8 @@ class RandomSamplerTest(unittest.TestCase):
                     # Max length
                     max_length=None,
                     # Soft length prior
-                    soft_length_loc = None,
-                    soft_length_scale = 5.,
+                    length_soft_loc= None,
+                    length_soft_scale= 5.,
 
                     # X
                     X_names = ["x1", "x2"],
@@ -172,8 +172,8 @@ class RandomSamplerTest(unittest.TestCase):
                     # Max length
                     max_length=45,
                     # Soft length prior
-                    soft_length_loc = 60,
-                    soft_length_scale = 5.,
+                    length_soft_loc= 60,
+                    length_soft_scale= 5.,
 
                     # X
                     X_names = ["x1", "x2"],

@@ -16,8 +16,8 @@ def sample_random_expressions(
             max_length=None,
 
             # Soft length prior
-            soft_length_loc = None,
-            soft_length_scale = 5.,
+            length_soft_loc = None,
+            length_soft_scale = 5.,
 
             # X
             X_names = ["x1", "x2"],
@@ -186,12 +186,12 @@ def sample_random_expressions(
 
     # SoftLengthPrior passed by user through args if any
     user_softlengthprior = None
-    if soft_length_loc is not None:
+    if length_soft_loc is not None:
         # Assert args
-        assert isinstance(soft_length_loc, (float, int)),   "soft_length_loc must be a float or int, got %s." % type(soft_length_loc)
-        assert isinstance(soft_length_scale, (float, int)), "soft_length_scale must be a float or int, got %s." % type(soft_length_scale)
+        assert isinstance(length_soft_loc, (float, int)), "soft_length_loc must be a float or int, got %s." % type(length_soft_loc)
+        assert isinstance(length_soft_scale, (float, int)), "soft_length_scale must be a float or int, got %s." % type(length_soft_scale)
         # SoftLengthPrior
-        user_softlengthprior = ("SoftLengthPrior"  , {"length_loc": soft_length_loc, "scale": soft_length_scale, })
+        user_softlengthprior = ("SoftLengthPrior"  , {"length_loc": length_soft_loc, "scale": length_soft_scale, })
 
     # User not providing priors_config, use default one
     if priors_config is None:
