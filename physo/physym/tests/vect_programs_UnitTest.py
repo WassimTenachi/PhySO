@@ -792,6 +792,24 @@ class VectProgramsTest(unittest.TestCase):
             self.assertTrue(np.array_equal(str(prog.tokens), str(prog_from_iter.tokens)))
             self.assertTrue(np.array_equal(str(prog.tokens), str(prog_from_getitem.tokens)))
 
+        # # Test __getitem__ slicing
+        # try:
+        #     prog_slice = my_programs[1:3]
+        #     self.assertTrue(isinstance(prog_slice, VProg.VectPrograms))
+        #     self.assertTrue(len(prog_slice) == 2)
+        #     for i in range(len(prog_slice)):
+        #         prog = prog_slice[i]
+        #         self.assertTrue(isinstance(prog, Prog.Program))
+        # except:
+        #     self.fail("Could not slice VectPrograms.")
+        #
+        # # Test __getitem__ slicing content
+        # for i, prog in enumerate(my_programs[1:3]):
+        #     prog_from_slicing = prog
+        #     prog              = my_programs.get_prog(i+1)
+        #     # Check that tokens are the same
+        #     self.assertTrue(np.array_equal(str(prog.tokens), str(prog_from_slicing.tokens)))
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
