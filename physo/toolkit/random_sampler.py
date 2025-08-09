@@ -179,7 +179,7 @@ def sample_random_expressions(
 
     # ----- Programs -----
 
-    progs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=lib, n_realizations=1)
+    progs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_time_step, library=lib, n_realizations=n_realizations)
     progs.free_consts.to(device)  # Move free constants to the device
 
     # ----- Priors -----
