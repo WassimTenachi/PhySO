@@ -27,9 +27,9 @@ class RandomSamplerTest(unittest.TestCase):
                     fixed_consts       = [1.],
                     fixed_consts_units = [[0,0]],
                     # Class free constants
-                    class_free_consts_names    = ["c0", "c1",],
-                    class_free_consts_units    = [[0,0], [0,0]],
-                    class_free_consts_init_val = [1., 1.],
+                    free_consts_names    = ["c0", "c1",],
+                    free_consts_units    = [[0,0], [0,0]],
+                    free_consts_init_val = [1., 1.],
                     # Spe Free constants
                     spe_free_consts_names    = ["k0", "k1", "k2"],
                     spe_free_consts_units    = [[0,0], [0,0], [0,0]],
@@ -70,8 +70,8 @@ class RandomSamplerTest(unittest.TestCase):
                     fixed_consts       = [1.],
                     fixed_consts_units = [[0,]],
                     # Class free constants
-                    class_free_consts_names    = ["c0", "c1"],
-                    class_free_consts_units    = [[0,], [0,]],
+                    free_consts_names    = ["c0", "c1"],
+                    free_consts_units    = [[0,], [0,]],
                     # Operations to use
                     op_names          = ["add", "sub", "mul", "div", "pow", "log", "exp", "cos"],
                     # Priors configuration
@@ -122,9 +122,9 @@ class RandomSamplerTest(unittest.TestCase):
                     fixed_consts       = [1.],
                     fixed_consts_units = [[0,]],
                     # Class free constants
-                    class_free_consts_names    = ["c0", "c1"],
-                    class_free_consts_units    = [[0,], [0,]],
-                    class_free_consts_init_val = None,
+                    free_consts_names    = ["c0", "c1"],
+                    free_consts_units    = [[0,], [0,]],
+                    free_consts_init_val = None,
                     # Spe Free constants
                     spe_free_consts_names    = None,
                     spe_free_consts_units    = None,
@@ -185,9 +185,9 @@ class RandomSamplerTest(unittest.TestCase):
                     fixed_consts       = [1.],
                     fixed_consts_units = [[0,]],
                     # Class free constants
-                    class_free_consts_names    = ["c0", "c1"],
-                    class_free_consts_units    = [[0,], [0,]],
-                    class_free_consts_init_val = None,
+                    free_consts_names    = ["c0", "c1"],
+                    free_consts_units    = [[0,], [0,]],
+                    free_consts_init_val = None,
                     # Spe Free constants
                     spe_free_consts_names    = None,
                     spe_free_consts_units    = None,
