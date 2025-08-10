@@ -328,3 +328,5 @@ OPS_UNPROTECTED_DICT = {op.name: op for op in OPS_UNPROTECTED}
 OPS_PROTECTED_DICT = OPS_UNPROTECTED_DICT.copy()
 # Update protected operations when defined
 OPS_PROTECTED_DICT.update( {op.name: op for op in OPS_PROTECTED} )
+# List of all operations names
+OPS_NAMES = list(OPS_PROTECTED_DICT.keys())
