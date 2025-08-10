@@ -115,7 +115,7 @@ Instructions to build and upload to the conda-forge channel:
 1. Forked the [conda-forge/staged-recipes](https://github.com/conda-forge/staged-recipes) repository.
 2. Added the recipe shown in conda-forge-initial-recipe to the `recipes` folder of your forked repository.
 3. Created a pull request to the main conda-forge/staged-recipes repository with title "Add physo recipe".
-4. The pull request is then reviewed and merged by the conda-forge maintainers.
+4. The pull request was then reviewed and merged by the conda-forge maintainers.
  
 `physo`'s [pull request](https://github.com/conda-forge/staged-recipes/pull/30733) was approved and merged on 2025-08-07.
 
@@ -123,7 +123,7 @@ A feedstock repository named [conda-forge/physo-feedstock](https://github.com/co
 
 ## Updating the code
 
-1. A bot detects new releases on PyPI (within 2 hours) and creates a pull request to update the version in the feedstock repository.
+1. A bot detects new releases on PyPI (within ~hours) and creates a pull request to update the version in the feedstock repository.
 2. The pull request is reviewed and merged by `physo`'s maintainers.
 3. CDN (Content Delivery Network) propagation across world servers takes ~15 minutes.
 
