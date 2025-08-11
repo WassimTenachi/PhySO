@@ -139,9 +139,9 @@ def sample_random_expressions(
                 fixed_consts       = fixed_consts,
                 fixed_consts_units = fixed_consts_units,
                 # Class free constants
-                class_free_consts_names    = free_consts_names,
-                class_free_consts_units    = free_consts_units,
-                class_free_consts_init_val = free_consts_init_val,
+                free_consts_names    = free_consts_names,
+                free_consts_units    = free_consts_units,
+                free_consts_init_val = free_consts_init_val,
                 # Spe Free constants
                 spe_free_consts_names    = spe_free_consts_names,
                 spe_free_consts_units    = spe_free_consts_units,

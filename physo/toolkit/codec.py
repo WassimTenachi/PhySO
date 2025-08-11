@@ -19,9 +19,9 @@ def get_library(
                 fixed_consts       = [1.],
                 fixed_consts_units = None,
                 # Class free constants
-                class_free_consts_names    = ["c0", "c1"],
-                class_free_consts_units    = None,
-                class_free_consts_init_val = None,
+                free_consts_names    = ["c0", "c1"],
+                free_consts_units    = None,
+                free_consts_init_val = None,
                 # Spe Free constants
                 spe_free_consts_names    = None,
                 spe_free_consts_units    = None,
@@ -50,11 +50,11 @@ def get_library(
     fixed_consts_units : array_like of shape (?, n_units) of float or None (optional)
         Units vector for each fixed constant (n_units <= 7). By default, assumes dimensionless.
 
-    class_free_consts_names : array_like of shape (?,) of str or None (optional)
+    free_consts_names : array_like of shape (?,) of str or None (optional)
         Names of free constants (for display purposes).
-    class_free_consts_units : array_like of shape (?, n_units) of float or None (optional)
+    free_consts_units : array_like of shape (?, n_units) of float or None (optional)
         Units vector for each free constant (n_units <= 7). By default, assumes dimensionless.
-    class_free_consts_init_val : dict of { str : float } or None (optional)
+    free_consts_init_val : dict of { str : float } or None (optional)
         Dictionary containing free constants names as keys (eg. 'c0', 'c1', 'c2') and corresponding float initial
         values to use during optimization process (eg. 1., 1., 1.). None will result in the usage of
         token.DEFAULT_FREE_CONST_INIT_VAL as initial values. None by default.
@@ -103,9 +103,9 @@ def get_library(
                 fixed_consts       = fixed_consts,
                 fixed_consts_units = fixed_consts_units,
                 # Class free constants
-                class_free_consts_names    = class_free_consts_names,
-                class_free_consts_units    = class_free_consts_units,
-                class_free_consts_init_val = class_free_consts_init_val,
+                class_free_consts_names    = free_consts_names,
+                class_free_consts_units    = free_consts_units,
+                class_free_consts_init_val = free_consts_init_val,
                 # Spe Free constants
                 spe_free_consts_names    = spe_free_consts_names,
                 spe_free_consts_units    = spe_free_consts_units,
