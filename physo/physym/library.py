@@ -263,7 +263,7 @@ class Library:
         self.phy_units                 = self.properties.phy_units                 [0, :]
         # Helper dict
         self.name_to_idx                 = {self.names[i] : i                  for i in range (self.n_library)}
-        self.lib_choosable_name_to_idx   = {self.names[i] : i                  for i in range (self.n_choices)}
+        self.choosable_name_to_idx   = {self.names[i] : i                  for i in range (self.n_choices)}
         self.lib_name_to_token           = {self.names[i] : self.tokens[i] for i in range (self.n_library)}
 
     def append_custom_tokens(self, custom_tokens = None):
@@ -345,12 +345,12 @@ class Library:
                 raise TypeError("All elements in expressions_str should be strings.")
             # Check that all names are in the library
             for name in expr_str:
-                if name not in self.lib_choosable_name_to_idx:
+                if name not in self.choosable_name_to_idx:
                     raise ValueError(f"Token name '{name}' is not in the library.")
         # --- Encoding ---
         res = []
         for expr_str in expressions_str:
-            expr = [self.lib_choosable_name_to_idx[name] for name in expr_str]
+            expr = [self.choosable_name_to_idx[name] for name in expr_str]
             # One-hot
             if one_hot:
                 expr = np.eye(self.n_choices)[expr]

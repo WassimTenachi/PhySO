@@ -200,7 +200,7 @@ def sanity_check_ClassSR (multi_X, multi_y, run_config, multi_y_weights = 1., ca
 
     batch = batch_reseter()
     n_choices = batch.n_choices
-    print(batch.library.lib_choosable_name_to_idx)
+    print(batch.library.choosable_name_to_idx)
     print(batch)
 
     # --------------- Data ---------------
