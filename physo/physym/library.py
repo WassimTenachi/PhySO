@@ -235,9 +235,10 @@ class Library:
         self.dummy_idx       = self.n_choices + 1
         self.invalid_idx     = self.n_choices + 2
         # Token representation
-        self.names               = np.array([token.name for token in self.tokens       ]).astype(str)  # str (<MAX_NAME_SIZE) )
-        self.choosable_names     = np.array([token.name for token in self.choosable_tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
-        self.sympy_repr          = np.array([token.sympy_repr for token in self.tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
+        self.names                = np.array([token.name for token in self.tokens                 ]).astype(str)  # str (<MAX_NAME_SIZE) )
+        self.choosable_names      = np.array([token.name for token in self.choosable_tokens       ]).astype(str)  # str (<MAX_NAME_SIZE) )
+        self.sympy_repr           = np.array([token.sympy_repr for token in self.tokens           ]).astype(str)  # str (<MAX_NAME_SIZE) )
+        self.choosable_sympy_repr = np.array([token.sympy_repr for token in self.choosable_tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
         # Object properties
         self.functions   = np.array([token.function   for token in self.tokens])  # object (callable or None)
         # Vectorized properties
