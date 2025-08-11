@@ -101,8 +101,8 @@ class VectPrograms:
             Uses 1 by default (if None).
         """
         # Assertions
-        assert isinstance(batch_size,    int) and batch_size    > 0, "batch_size    must be a >0 int."
-        assert isinstance(max_time_step, int) and max_time_step > 0, "max_time_step must be a >0 int."
+        assert isinstance(batch_size,    (int, np.integer)) and batch_size    > 0, "batch_size    must be a >0 int."
+        assert isinstance(max_time_step, (int, np.integer)) and max_time_step > 0, "max_time_step must be a >0 int."
 
         # Number of candidate programs
         self.batch_size = batch_size                                        # int
