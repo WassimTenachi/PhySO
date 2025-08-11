@@ -41,7 +41,7 @@ class Library:
             Dictionary containing names and corresponding token index in the library.
 
         names : numpy.array of str
-        lib_choosable_names : numpy.array of str
+        choosable_names : numpy.array of str
         lib_sympy_repr : numpy.array of str
         lib_function : numpy.array of objects (callable or None)
         properties : token.VectTokens
@@ -236,7 +236,7 @@ class Library:
         self.invalid_idx     = self.n_choices + 2
         # Token representation
         self.names               = np.array([token.name for token in self.lib_tokens       ]).astype(str)  # str (<MAX_NAME_SIZE) )
-        self.lib_choosable_names = np.array([token.name for token in self.choosable_tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
+        self.choosable_names     = np.array([token.name for token in self.choosable_tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
         self.lib_sympy_repr      = np.array([token.sympy_repr for token in self.lib_tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
         # Object properties
         self.lib_function   = np.array([token.function   for token in self.lib_tokens])  # object (callable or None)

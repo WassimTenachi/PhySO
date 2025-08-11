@@ -1167,7 +1167,7 @@ class PriorTest(unittest.TestCase):
             if i < len(target_prog_str):
                 # In cases where token is not invalid
                 if target_prog_idx[i] != my_lib.invalid_idx:
-                    favored_tokens = np.tile(my_lib.lib_choosable_names, (batch_size, 1))[mask_prob.astype(bool)]
+                    favored_tokens = np.tile(my_lib.choosable_names, (batch_size, 1))[mask_prob.astype(bool)]
                     # Asserting that all favored tokens are the same
                     self.assertTrue(np.unique(favored_tokens).shape[0] == 1)
                     favored_token = favored_tokens[0]
