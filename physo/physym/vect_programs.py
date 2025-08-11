@@ -117,7 +117,7 @@ class VectPrograms:
         self.dummy_idx       = library.dummy_idx                            # int
         self.invalid_idx     = library.invalid_idx                          # int
         # For display purposes (remove when jit-ing ?)
-        self.lib_names       = library.lib_name                             # (n_library,) of str (<MAX_NAME_SIZE)
+        self.lib_names       = library.lib_names                            # (n_library,) of str (<MAX_NAME_SIZE)
         # Token properties useful for step-by-step operations
         # (only keeping jit-able vectors in VectTokens)
         self.lib_vect        = library.properties                           # VectTokens

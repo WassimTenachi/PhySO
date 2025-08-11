@@ -13,8 +13,8 @@ class LibraryTest(unittest.TestCase):
     def test_library_creation_and_types(self):
         def test_lib_types_and_size(my_lib, expected_n_lib):
             # Idx of superparent
-            self.assertEqual(my_lib.lib_name[my_lib.superparent_idx], my_lib.superparent.name)
-            self.assertEqual(my_lib.lib_name[my_lib.dummy_idx      ], my_lib.dummy.name)
+            self.assertEqual(my_lib.lib_names[my_lib.superparent_idx], my_lib.superparent.name)
+            self.assertEqual(my_lib.lib_names[my_lib.dummy_idx      ], my_lib.dummy.name)
             # Sizes
             self.assertEqual(my_lib.n_library, expected_n_lib + len(my_lib.placeholders))
             self.assertEqual(my_lib.n_choices, expected_n_lib)
