@@ -68,6 +68,8 @@ def check_library_args(
         n_realizations = 1,
         # Device to use
         device = "cpu",
+        # Warn about units
+        warn_about_units = True,
     ):
 
     # Number of dimensions
@@ -91,7 +93,7 @@ def check_library_args(
     # -- X_units --
     # Handling input variables units
     if X_units is None:
-        warnings.warn("No units given for input variables, assuming dimensionless units.")
+        if warn_about_units: warnings.warn("No units given for input variables, assuming dimensionless units.")
         X_units = [[0,0,0] for _ in range(n_dim)]
     X_units = np.array(X_units).astype(float)
     assert X_units.shape[0] == n_dim, "There should be one input variable units per dimension in X."
@@ -103,7 +105,7 @@ def check_library_args(
 
     # --- y_units ---
     if y_units is None:
-        warnings.warn("No units given for root variable, assuming dimensionless units.")
+        if warn_about_units: warnings.warn("No units given for root variable, assuming dimensionless units.")
         y_units = [0,0,0]
     y_units = np.array(y_units).astype(float)
     assert len(y_units.shape) == 1, "y_units must be a 1D units vector"
@@ -123,7 +125,7 @@ def check_library_args(
 
     # --- fixed_consts_units ---
     if fixed_consts_units is None:
-        warnings.warn("No units given for fixed constants, assuming dimensionless units.")
+        if warn_about_units: warnings.warn("No units given for fixed constants, assuming dimensionless units.")
         fixed_consts_units = [[0,0,0] for _ in range(n_fixed_consts)]
     fixed_consts_units = np.array(fixed_consts_units).astype(float)
     assert fixed_consts_units.shape[0] == n_fixed_consts, "There should be one fixed constant units vector per fixed constant in fixed_consts_names"
@@ -150,7 +152,7 @@ def check_library_args(
     # --- class_free_consts_units ---
     if class_free_consts_units is None:
         if n_class_free_consts > 0:
-            warnings.warn("No units given for class free constants, assuming dimensionless units.")
+            if warn_about_units: warnings.warn("No units given for class free constants, assuming dimensionless units.")
         class_free_consts_units = [[0,0,0] for _ in range(n_class_free_consts)]
     class_free_consts_units = np.array(class_free_consts_units).astype(float)
     assert class_free_consts_units.shape[0] == n_class_free_consts, \
@@ -187,7 +189,7 @@ def check_library_args(
     # --- spe_free_consts_units ---
     if spe_free_consts_units is None:
         if n_spe_free_consts > 0:
-            warnings.warn("No units given for spe free constants, assuming dimensionless units.")
+            if warn_about_units: warnings.warn("No units given for spe free constants, assuming dimensionless units.")
         spe_free_consts_units = [[0,0,0] for _ in range(n_spe_free_consts)]
     spe_free_consts_units = np.array(spe_free_consts_units).astype(float)
     assert spe_free_consts_units.shape[0] == n_spe_free_consts, \

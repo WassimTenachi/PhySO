@@ -33,6 +33,8 @@ def get_library(
                 n_realizations = 1,
                 # Device to use
                 device = "cpu",
+                # Warn about units
+                warn_about_units = False,
         ):
     """
     X_names : array_like of shape (n_dim,) of str or None (optional)
@@ -84,6 +86,10 @@ def get_library(
     device : str, optional
         Device on which free constants will be stored and computations will be performed.
 
+    warn_about_units : bool, optional
+        If True, prints warnings about units when they are not provided.
+
+
     Returns
     -------
     library : physym.library.Library
@@ -117,6 +123,8 @@ def get_library(
                 n_realizations = n_realizations,
                 # Device to use
                 device = device,
+                # Warn about units
+                warn_about_units = warn_about_units,
                 )
 
     library = Lib.Library(**library_config)

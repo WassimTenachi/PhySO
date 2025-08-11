@@ -49,7 +49,9 @@ def sample_random_expressions(
             priors_config = None,
 
             # verbose
-            verbose=True
+            verbose=True,
+            # Warn about units
+            warn_about_units = False,
     ):
     """
     batch_size : int
@@ -123,6 +125,8 @@ def sample_random_expressions(
 
     verbose : bool, optional
         If True, prints information about the generation process. True by default.
+    warn_about_units : bool, optional
+        If True, prints warnings about units when they are not provided.
     """
 
     # ----- Library ------
@@ -153,7 +157,9 @@ def sample_random_expressions(
                 n_realizations = n_realizations,
                 # Device to use
                 device = device,
-                )
+                # Warn about units
+                warn_about_units = warn_about_units,
+        )
 
     # ----- max_time_step -----
     # If no max_length is provided, we will use the default max_time_step from the learning_config
