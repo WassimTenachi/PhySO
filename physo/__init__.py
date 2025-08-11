@@ -3,6 +3,7 @@ from . import learn
 from . import task
 from . import config
 from . import benchmark
+from . import toolkit
 
 # Making important interface functions available at root level
 fit = task.fit.fit
