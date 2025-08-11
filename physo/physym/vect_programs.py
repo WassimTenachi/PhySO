@@ -217,7 +217,7 @@ class VectPrograms:
         # Giving access to vectorized properties to user without having to use [0, :] at each property access
         return getattr(self.lib_vect, attr)[0]
 
-    def append (self, new_tokens_idx, forbid_inconsistent_units = False):
+    def append (self, new_tokens_idx, forbid_inconsistent_units = False, allow_invalid_placeholder=False):
         """
         Appends new tokens to batch.
         New tokens appended to already complete programs (ie. out of tree tokens) are ignored.
@@ -233,6 +233,8 @@ class VectPrograms:
             with current units constraints. Consistency of new tokens' physical units vs the current programs is
             checked. To work properly the assign_required_units method should have been called on all previous steps +
             this one before appending.
+        allow_invalid_placeholder : bool
+            If True, allows appending of the invalid placeholder token (ie. the void token) to programs.
         """
         # Assert that new_tokens_idx is a numpy array of dtype = int
         assert isinstance(new_tokens_idx, np.ndarray), "Arg new_tokens_idx must be a numpy array of dtype = int"
@@ -261,7 +263,11 @@ class VectPrograms:
 
         # Min / Max
         assert new_tokens_idx.min() >= 0, "Min value of new_tokens_idx must be >= 0."
-        assert new_tokens_idx.max() < self.n_choices, "Max value of new_tokens_idx must be < %i" % self.n_choices
+        if allow_invalid_placeholder:
+            condition = ((new_tokens_idx < self.n_choices) | (new_tokens_idx == self.library.invalid_idx)).all()
+            assert condition, "Arg new_tokens_idx must contain only valid token indices (ie. < %i) or the invalid placeholder." % self.n_choices
+        else:
+            assert new_tokens_idx.max() < self.n_choices, "Max value of new_tokens_idx must be < %i" % self.n_choices
 
         # ------------------ Assert enough space for new tokens' dummies ------------------
         # Raise error if number of dummies needed to handle new tokens exceeds max_time_step
@@ -606,7 +612,7 @@ class VectPrograms:
         # This responsibility is transferred to the user of append who can use the assign_required_units method.
         return None
 
-    def set_programs (self, tokens_idx, forbid_inconsistent_units = False):
+    def set_programs (self, tokens_idx, forbid_inconsistent_units = False, allow_invalid_placeholder = False):
         """
         Sets all programs in batch by appending tokens_idx step by step.
         Parameters
@@ -617,11 +623,14 @@ class VectPrograms:
             Tokens out of tree will be ignored.
         forbid_inconsistent_units : bool
             Passed to append method.
+        allow_invalid_placeholder : bool
+            Passed to append method.
         """
         # Assertions will be handled by append.
         max_size = tokens_idx.shape[1]
         for i in range(max_size):
-            self.append(tokens_idx[:, i], forbid_inconsistent_units = forbid_inconsistent_units)
+            self.append(tokens_idx[:, i], forbid_inconsistent_units = forbid_inconsistent_units,
+                                          allow_invalid_placeholder = allow_invalid_placeholder)
 
     # -----------------------------------------------------------------------------------------------------------------
     # ----------------------------------------------------- UNITS -----------------------------------------------------
