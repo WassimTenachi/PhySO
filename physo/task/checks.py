@@ -254,7 +254,7 @@ def sanity_check_ClassSR (multi_X, multi_y, run_config, multi_y_weights = 1., ca
         # values from library as this is what we want to do here.
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            target_program = program.Program(tokens  = [batch.library.lib_name_to_token[name] for name in target_program_str],
+            target_program = program.Program(tokens  = [batch.library.name_to_token[name] for name in target_program_str],
                                              library = batch.library,
                                              is_physical = True,
                                              candidate_wrapper = candidate_wrapper,

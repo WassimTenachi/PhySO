@@ -262,9 +262,9 @@ class Library:
         self.is_constraining_phy_units = self.properties.is_constraining_phy_units [0, :]
         self.phy_units                 = self.properties.phy_units                 [0, :]
         # Helper dict
-        self.name_to_idx                 = {self.names[i] : i                  for i in range (self.n_library)}
+        self.name_to_idx             = {self.names[i] : i                  for i in range (self.n_library)}
         self.choosable_name_to_idx   = {self.names[i] : i                  for i in range (self.n_choices)}
-        self.lib_name_to_token           = {self.names[i] : self.tokens[i] for i in range (self.n_library)}
+        self.name_to_token           = {self.names[i] : self.tokens[i]     for i in range (self.n_library)}
 
     def append_custom_tokens(self, custom_tokens = None):
         # ----- Handling custom tokens -----
