@@ -282,8 +282,8 @@ class RelationshipConstraintPrior (Prior):
 
         # targets and effectors ---
         # Working with tokens' idx in the library instead of their name
-        self.effectors     = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in effectors])
-        self.targets       = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in targets  ])
+        self.effectors     = np.array([self.lib.name_to_idx[tok_name] for tok_name in effectors])
+        self.targets       = np.array([self.lib.name_to_idx[tok_name] for tok_name in targets  ])
         self.n_constraints = len(self.targets)
 
         # max_nb_violations argument ---
@@ -465,7 +465,7 @@ class NestedFunctions (Prior):
 
         # functions ---
         # Working with tokens' idx in the library instead of their name
-        self.functions = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in functions])
+        self.functions = np.array([self.lib.name_to_idx[tok_name] for tok_name in functions])
         self.n_functions = len(self.functions)
 
         # max_nesting ---
@@ -617,7 +617,7 @@ class OccurrencesPrior (Prior):
 
         self.targets_str   = targets                                                                             # (n_constraints,)
         self.n_constraints = len(self.targets_str)   # n_constraints <= n_choices
-        self.targets       = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in self.targets_str])     # (n_constraints,)
+        self.targets       = np.array([self.lib.name_to_idx[tok_name] for tok_name in self.targets_str])     # (n_constraints,)
 
         # Max number of occurrences allowed for each target
         self.max = max                                                                                           # (n_constraints,)
@@ -670,7 +670,7 @@ class SymbolicPrior (Prior):
         # Padding expression with library.invalid.name up to max_time_step
         expression = np.pad(expression, pad_width=(0, programs.max_time_step - len(expression)), constant_values=library.invalid.name) # (max_time_step,)
         self.expression_str = expression                                                                         # (max_time_step,)
-        self.expression     = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in self.expression_str]) # (max_time_step,)
+        self.expression     = np.array([self.lib.name_to_idx[tok_name] for tok_name in self.expression_str]) # (max_time_step,)
 
         # -------- BUILDING REF MASK --------
 

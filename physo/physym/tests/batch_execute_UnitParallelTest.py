@@ -85,7 +85,7 @@ class ExecuteProgramTest(unittest.TestCase):
     #     # TEST PROGRAM
     #     batch_size = 10000
     #     test_program_str = ["mul", "a", "sin", "mul", "x", "b"]
-    #     test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+    #     test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
     #     test_program_length = len(test_program_str)
     #     test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
     #
@@ -285,7 +285,7 @@ class ExecuteProgramTest(unittest.TestCase):
     #     # TEST PROGRAM
     #     batch_size = 10000
     #     test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-    #     test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+    #     test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
     #     test_program_length = len(test_program_str)
     #     test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
     #
@@ -413,7 +413,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "x",]
         # test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "add", "x", "sub", "1", "1"]
         # -> using a*sin(x*b) + exp(log(x+1-1)) may produce NaN resulting in error
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -572,7 +572,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # test_program_str = ["mul", "a", "sin", "mul", "x", "b",]
         # test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "x",]
         test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "add", "x", "sub", "1", "1"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -740,7 +740,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # test_program_str = ["mul", "a", "sin", "mul", "x", "b",]
         # test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "x",]
         test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "add", "x", "sub", "1", "1"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -1005,7 +1005,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # TEST PROGRAM
         batch_size = 10000
         test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -1243,7 +1243,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # TEST PROGRAM
         batch_size = 10000
         test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -1492,7 +1492,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # TEST PROGRAM
         batch_size = 256 # 32 tasks per CPU with 8 CPUs
         test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -1760,7 +1760,7 @@ class ExecuteProgramTest(unittest.TestCase):
     #     # TEST PROGRAM
     #     batch_size = 256 # 32 tasks per CPU with 8 CPUs
     #     test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-    #     test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+    #     test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
     #     test_program_length = len(test_program_str)
     #     test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
     #

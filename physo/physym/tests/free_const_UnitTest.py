@@ -449,7 +449,7 @@ class FreeConstantsTableTest(unittest.TestCase):
 
         # Converting into idx
         for test_program_str in test_programs_str :
-            test_programs_idx.append(np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str]))
+            test_programs_idx.append(np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str]))
         test_programs_idx = np.array(test_programs_idx)
 
         # Initializing programs
@@ -666,7 +666,7 @@ class FreeConstantsTableTest(unittest.TestCase):
 
         # Converting into idx
         for test_program_str in test_programs_str :
-            test_programs_idx.append(np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str]))
+            test_programs_idx.append(np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str]))
         test_programs_idx = np.array(test_programs_idx)
 
         # Initializing programs

@@ -114,7 +114,7 @@ class PriorTest(unittest.TestCase):
         for i in range (n_progs):
             for j in range (n_steps):
                 tok_str = test_case_str[i,j]
-                test_case[i,j] = my_lib.lib_name_to_idx[tok_str]
+                test_case[i,j] = my_lib.name_to_idx[tok_str]
 
         # VectPrograms
         my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib, n_realizations=1)
@@ -224,7 +224,7 @@ class PriorTest(unittest.TestCase):
         for i in range (n_progs):
             for j in range (n_steps):
                 tok_str = test_case_str[i,j]
-                test_case[i,j] = my_lib.lib_name_to_idx[tok_str]
+                test_case[i,j] = my_lib.name_to_idx[tok_str]
 
         # VectPrograms
         my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib, n_realizations=1)
@@ -398,7 +398,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -438,7 +438,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -479,7 +479,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -524,7 +524,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -606,7 +606,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -710,7 +710,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -754,7 +754,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -834,7 +834,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -877,7 +877,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -983,7 +983,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -1050,7 +1050,7 @@ class PriorTest(unittest.TestCase):
 
         # Converting into idx
         for test_program_str in test_programs_str :
-            test_programs_idx.append(np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str]))
+            test_programs_idx.append(np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str]))
         test_programs_idx = np.array(test_programs_idx)
 
         # ------------------------- TEST PROGRAMS : EXPECTED BEHAVIOR -------------------------
@@ -1138,10 +1138,10 @@ class PriorTest(unittest.TestCase):
 
         # ------------------------- TEST PROGRAMS -------------------------
         test_prog_str = ["add", "E_t", "mul", "A", "mul", "div", "R", "r", "log", "add", "1", "div", "r", "R"]
-        test_prog_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_prog_str])
+        test_prog_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_prog_str])
 
         target_prog_str = ["add", "E_t", "mul", "A", "mul", "div", "R", "r", "log", "add", "1", "div", "-", "R"]
-        target_prog_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in target_prog_str])
+        target_prog_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in target_prog_str])
 
         max_time_step = len(target_prog_str) + 10 # Extra steps to check behavior outside target
         batch_size    = 128
@@ -1253,7 +1253,7 @@ class PriorTest(unittest.TestCase):
         for i in range (n_progs):
             for j in range (n_steps):
                 tok_str = test_case_str[i,j]
-                test_case[i,j] = my_lib.lib_name_to_idx[tok_str]
+                test_case[i,j] = my_lib.name_to_idx[tok_str]
 
         # VectPrograms
         my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib, n_realizations=1)

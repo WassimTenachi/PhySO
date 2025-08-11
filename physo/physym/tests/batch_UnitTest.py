@@ -497,7 +497,7 @@ class BatchTest(unittest.TestCase):
 
         target_prog_str = ["add", "mul", "mul", "k0", "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t",
                            "k2", "mul", "c1", "l", ]
-        target_prog_idx = [my_batch.library.lib_name_to_idx[name] for name in target_prog_str]
+        target_prog_idx = [my_batch.library.name_to_idx[name] for name in target_prog_str]
         target_prog_idx += [0]*(max_time_step-len(target_prog_idx)) # Padding with zeros to max_time_step
         target_prog_idx = np.array(target_prog_idx)
 

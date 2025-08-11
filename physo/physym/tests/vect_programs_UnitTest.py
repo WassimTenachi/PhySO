@@ -200,7 +200,7 @@ class VectProgramsTest(unittest.TestCase):
         # TEST PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "c1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = test_program_idx[np.newaxis, :]
 
@@ -242,7 +242,7 @@ class VectProgramsTest(unittest.TestCase):
         # TEST PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = test_program_idx[np.newaxis, :]
 
@@ -321,7 +321,7 @@ class VectProgramsTest(unittest.TestCase):
 
         # Converting into idx
         for test_program_str in test_programs_str :
-            test_programs_idx.append(np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str]))
+            test_programs_idx.append(np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str]))
         test_programs_idx = np.array(test_programs_idx)
 
         # Initializing programs
@@ -366,7 +366,7 @@ class VectProgramsTest(unittest.TestCase):
         # TEST PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = test_program_idx[np.newaxis, :]
 
@@ -535,7 +535,7 @@ class VectProgramsTest(unittest.TestCase):
         # TEST PROGRAM
         batch_size = 10000
         test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -689,7 +689,7 @@ class VectProgramsTest(unittest.TestCase):
         # TEST PROGRAM
         batch_size = 10000
         test_program_str = ["add", "mul", "mul", "k0", "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -753,9 +753,9 @@ class VectProgramsTest(unittest.TestCase):
         max_length = len(test_program_str_1)
         test_program_idx = []
         for test_program_str in [test_program_str_1, test_program_str_2, test_program_str_3]:
-            prog_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+            prog_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
             # Pad prog idx to max_length filling with "c2" token
-            prog_idx = np.pad(prog_idx, (0, max_length - len(prog_idx)), mode='constant', constant_values=my_lib.lib_name_to_idx['c2'])
+            prog_idx = np.pad(prog_idx, (0, max_length - len(prog_idx)), mode='constant', constant_values=my_lib.name_to_idx['c2'])
             test_program_idx.append(prog_idx)
         test_program_idx = np.array(test_program_idx)
 

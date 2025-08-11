@@ -37,13 +37,13 @@ class Library:
             Placeholder token to complete program trees during program generation.
         invalid : token.Token
             Placeholder for tokens that are not yet generated.
-        lib_name_to_idx : dict of {str : int}
+        name_to_idx : dict of {str : int}
             Dictionary containing names and corresponding token index in the library.
 
         names : numpy.array of str
         choosable_names : numpy.array of str
         sympy_repr : numpy.array of str
-        lib_function : numpy.array of objects (callable or None)
+        functions : numpy.array of objects (callable or None)
         properties : token.VectTokens
 
         arity                     :  int
@@ -239,7 +239,7 @@ class Library:
         self.choosable_names     = np.array([token.name for token in self.choosable_tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
         self.sympy_repr          = np.array([token.sympy_repr for token in self.tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
         # Object properties
-        self.lib_function   = np.array([token.function   for token in self.tokens])  # object (callable or None)
+        self.functions   = np.array([token.function   for token in self.tokens])  # object (callable or None)
         # Vectorized properties
         self.properties = Tok.VectTokens(shape = (1, self.n_library,), invalid_token_idx = self.invalid_idx) # not using positional properties
         self.properties.arity                     [0, :] = np.array([token.arity                     for token in self.tokens]).astype(int  )  # int
@@ -262,7 +262,7 @@ class Library:
         self.is_constraining_phy_units = self.properties.is_constraining_phy_units [0, :]
         self.phy_units                 = self.properties.phy_units                 [0, :]
         # Helper dict
-        self.lib_name_to_idx             = {self.names[i] : i                  for i in range (self.n_library)}
+        self.name_to_idx                 = {self.names[i] : i                  for i in range (self.n_library)}
         self.lib_choosable_name_to_idx   = {self.names[i] : i                  for i in range (self.n_choices)}
         self.lib_name_to_token           = {self.names[i] : self.tokens[i] for i in range (self.n_library)}
 

@@ -24,7 +24,7 @@ class LibraryTest(unittest.TestCase):
             bool_works = np.array_equal(my_lib.arity, my_lib.properties.arity[0, :], equal_nan=True)
             self.assertEqual(bool_works, True)
             # Test properties vectors types # https://numpy.org/doc/stable/reference/arrays.scalars.html
-            self.assertEqual(                my_lib            .lib_function                 .dtype , np.object_ )
+            self.assertEqual(                my_lib            .functions                 .dtype , np.object_ )
             self.assertTrue( np.issubdtype ( my_lib.properties .arity                        .dtype , np.integer    ))
             self.assertTrue( np.issubdtype ( my_lib.properties .complexity                   .dtype , np.floating   ))
             self.assertTrue( np.issubdtype ( my_lib.properties .var_type                     .dtype , np.integer    ))
@@ -100,7 +100,7 @@ class LibraryTest(unittest.TestCase):
         bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.nan), equal_nan=True)
         self.assertEqual(bool_works, True)
         # Test sample token units
-        bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["v"]][0:3],
+        bool_works = np.array_equal(my_lib.phy_units[my_lib.name_to_idx["v"]][0:3],
                                     args_make_tokens["input_var_units"]["v"])
         self.assertEqual(bool_works, True)
         # Test initial values
@@ -126,7 +126,7 @@ class LibraryTest(unittest.TestCase):
         bool_works = np.array_equal(my_lib.superparent.phy_units, np.full(Tok.UNITS_VECTOR_SIZE, np.nan), equal_nan=True)
         self.assertEqual(bool_works, True)
         # Test sample token units
-        bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["x0"]][0:3],
+        bool_works = np.array_equal(my_lib.phy_units[my_lib.name_to_idx["x0"]][0:3],
                                     custom_tokens[0].phy_units[0:3])
         self.assertEqual(bool_works, True)
 
@@ -143,10 +143,10 @@ class LibraryTest(unittest.TestCase):
                                     equal_nan=True)
         self.assertEqual(bool_works, True)
         # Test sample token units
-        bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["x0"]][0:3],
+        bool_works = np.array_equal(my_lib.phy_units[my_lib.name_to_idx["x0"]][0:3],
                                     custom_tokens[0].phy_units[0:3])
         self.assertEqual(bool_works, True)
-        bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["v"]][0:3],
+        bool_works = np.array_equal(my_lib.phy_units[my_lib.name_to_idx["v"]][0:3],
                                     args_make_tokens["input_var_units"]["v"])
         self.assertEqual(bool_works, True)
 
@@ -163,10 +163,10 @@ class LibraryTest(unittest.TestCase):
                                     equal_nan=True)
         self.assertEqual(bool_works, True)
         # Test sample token units
-        bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["x0"]][0:3],
+        bool_works = np.array_equal(my_lib.phy_units[my_lib.name_to_idx["x0"]][0:3],
                                     custom_tokens[0].phy_units[0:3])
         self.assertEqual(bool_works, True)
-        bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["v"]][0:3],
+        bool_works = np.array_equal(my_lib.phy_units[my_lib.name_to_idx["v"]][0:3],
                                     args_make_tokens["input_var_units"]["v"])
         self.assertEqual(bool_works, True)
 
@@ -185,10 +185,10 @@ class LibraryTest(unittest.TestCase):
                                     equal_nan=True)
         self.assertEqual(bool_works, True)
         # Test sample token units
-        bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["x0"]][0:3],
+        bool_works = np.array_equal(my_lib.phy_units[my_lib.name_to_idx["x0"]][0:3],
                                     custom_tokens[0].phy_units[0:3])
         self.assertEqual(bool_works, True)
-        bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["v"]][0:3],
+        bool_works = np.array_equal(my_lib.phy_units[my_lib.name_to_idx["v"]][0:3],
                                     args_make_tokens["input_var_units"]["v"])
         self.assertEqual(bool_works, True)
 
@@ -207,10 +207,10 @@ class LibraryTest(unittest.TestCase):
         bool_works = np.array_equal(my_lib.superparent.phy_units[0:3], [1, -1, 0], equal_nan=True)
         self.assertEqual(bool_works, True)
         # Test sample token units
-        bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["x0"]][0:3],
+        bool_works = np.array_equal(my_lib.phy_units[my_lib.name_to_idx["x0"]][0:3],
                                     custom_tokens[0].phy_units[0:3])
         self.assertEqual(bool_works, True)
-        bool_works = np.array_equal(my_lib.phy_units[my_lib.lib_name_to_idx["v"]][0:3],
+        bool_works = np.array_equal(my_lib.phy_units[my_lib.name_to_idx["v"]][0:3],
                                     args_make_tokens["input_var_units"]["v"])
         self.assertEqual(bool_works, True)
         # Superparent name
