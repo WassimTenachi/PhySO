@@ -360,18 +360,19 @@ class LibraryTest(unittest.TestCase):
 
         # Encoding
         try:
-            expr1_enc = my_library.encode(expr1_str)
-            expr2_enc = my_library.encode(expr2_str)
+            exprs_enc = my_library.encode([expr1_str, expr2_str])
+            expr1_enc = exprs_enc[0]
+            expr2_enc = exprs_enc[1]
         except Exception as e:
             self.fail(f"Encoding failed: {e}")
 
         # Assertions test : check that errors are raised (any type of error is OK)
         with self.assertRaises(Exception):
-            my_library.encode(["add", "a", "cos", "invalid_token"] )
+            my_library.encode(["add", "a", "b", "invalid_token"],  ["add", "a", "b",])
         with self.assertRaises(Exception):
-            my_library.encode([expr1_str, expr2_str])
+            my_library.encode(expr1_str)
         with self.assertRaises(Exception):
-            my_library.encode("add a cos b")
+            my_library.encode(["add a cos b"])
 
         # Result
         expr1_enc_expected = np.array([0, 9, 7, 10])
@@ -392,8 +393,13 @@ class LibraryTest(unittest.TestCase):
                                           [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0.,],
                                           [0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,],
                                           [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.,],])
-        expr1_onehot = my_library.encode(expr1_str, one_hot=True)
-        expr2_onehot = my_library.encode(expr2_str, one_hot=True)
+        try:
+            exprs_onehot = my_library.encode([expr1_str, expr2_str], one_hot=True)
+            expr1_onehot = exprs_onehot[0]
+            expr2_onehot = exprs_onehot[1]
+        except Exception as e:
+            self.fail(f"One-hot encoding failed: {e}")
+
         self.assertTrue(np.array_equal(expr1_onehot, expr1_onehot_expected), "Expression 1 one-hot encoding mismatch")
         self.assertTrue(np.array_equal(expr2_onehot, expr2_onehot_expected), "Expression 2 one-hot encoding mismatch")
 

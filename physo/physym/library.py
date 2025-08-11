@@ -315,41 +315,47 @@ class Library:
         """
         return getattr(self.properties, attr)[0][:self.n_choices]
 
-    def encode(self, expr_str, one_hot=False):
+    def encode(self, exprs_str, one_hot=False):
         """
-        Encodes a list of token names into a list of token indices.
+        Encodes a list of expressions made up of str token names into token indices.
         Parameters
         ----------
-        expr_str : array_like of str of shape (?,)
-            List of token names to encode in prefix notation.
+        exprs_str : array_like of str of shape (?, [n_tokens depends on the expression])
+            List of expressions to encode, where each expression is a list of token names str.
         one_hot : bool
             If True, returns a one-hot encoded array of shape (n_choices,). If False, returns a list of indices.
             Default is False.
         Returns
         -------
-        expr : numpy.array of int of shape (?)
-            List of token indices corresponding to the input names.
-            OR numpy.array of shape (?, n_choices,) of int if one_hot is True.
-                List of token probability distributions corresponding to the input names (1. probability for the
-                token, 0. for the others).
+        expr : numpy.array of int of shape (?, [n_tokens depends on the expression])
+            List of expressions, where each expression contains token indices corresponding to the input names.
+            OR numpy.array of shape (?, [n_tokens depends on the expression], n_choices,) of int if one_hot is True.
+                List of expressions, where each expression contains token probability distributions corresponding to
+                 the input names (1. probability for the token, 0. for the others).
 
         """
         # --- Assertions ---
         # Check that expr_str contains valid token names
-        if not isinstance(expr_str, (list, np.ndarray)):
+        if not isinstance(exprs_str, (list, np.ndarray)):
             raise TypeError("expr_str should be a list or numpy array of strings.")
-        if not all(isinstance(name, str) for name in expr_str):
-            raise TypeError("All elements in expr_str should be strings.")
-        # Check that all names are in the library
-        for name in expr_str:
-            if name not in self.lib_choosable_name_to_idx:
-                raise ValueError(f"Token name '{name}' is not in the library.")
-        # --- Encoding ---
-        expr = [self.lib_choosable_name_to_idx[name] for name in expr_str]
-        # --- One-hot encoding ---
-        if one_hot:
-            expr = np.eye(self.n_choices)[expr]
-        return expr
+        for expr_str in exprs_str:
+            if not isinstance(expr_str, (list, np.ndarray)):
+                raise TypeError("Each expression in expr_str should be a list or numpy array of strings.")
+            if not all(isinstance(name, str) for name in expr_str):
+                raise TypeError("All elements in expr should be strings.")
+            # Check that all names are in the library
+            for name in expr_str:
+                if name not in self.lib_choosable_name_to_idx:
+                    raise ValueError(f"Token name '{name}' is not in the library.")
+        res = []
+        for expr_str in exprs_str:
+            # --- Encoding ---
+            expr = [self.lib_choosable_name_to_idx[name] for name in expr_str]
+            # --- One-hot encoding ---
+            if one_hot:
+                expr = np.eye(self.n_choices)[expr]
+            res.append(expr)
+        return res
 
     def decode(self, expressions_enc, n_realizations=1):
         """
