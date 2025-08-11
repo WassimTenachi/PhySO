@@ -40,7 +40,7 @@ class Library:
         lib_name_to_idx : dict of {str : int}
             Dictionary containing names and corresponding token index in the library.
 
-        lib_names : numpy.array of str
+        names : numpy.array of str
         lib_choosable_names : numpy.array of str
         lib_sympy_repr : numpy.array of str
         lib_function : numpy.array of objects (callable or None)
@@ -157,7 +157,7 @@ class Library:
         # Ids of input variables available
         self.input_var_ids      = self.var_id[self.var_type == Tok.VAR_TYPE_INPUT_VAR]   # (n_input_var,) of int
         # Input variables names
-        self.input_var_name_from_id = {self.var_id[i]: self.lib_names[i] for i in range(self.n_library) if
+        self.input_var_name_from_id = {self.var_id[i]: self.names[i] for i in range(self.n_library) if
                                        self.var_type[i] == Tok.VAR_TYPE_INPUT_VAR}       # (n_input_var,) of {int : str}
 
         # ------------------------------ CLASS FREE CONSTANTS ------------------------------
@@ -167,7 +167,7 @@ class Library:
         # Free constants tokens
         self.class_free_constants_tokens   = self.lib_tokens[self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of token.Token
         # Free constants names
-        self.class_free_constants_names    = self.lib_names [self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of str
+        self.class_free_constants_names    = self.names     [self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of str
         # Ids of free constants available
         self.class_free_constants_ids      = self.var_id    [self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of int
         # Initial values of free constants
@@ -180,7 +180,7 @@ class Library:
         # Free constants tokens
         self.spe_free_constants_tokens   = self.lib_tokens[self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of token.Token
         # Free constants names
-        self.spe_free_constants_names    = self.lib_names [self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of str
+        self.spe_free_constants_names    = self.names     [self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of str
         # Ids of free constants available
         self.spe_free_constants_ids      = self.var_id    [self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of int
         # Initial values of free constants
@@ -235,7 +235,7 @@ class Library:
         self.dummy_idx       = self.n_choices + 1
         self.invalid_idx     = self.n_choices + 2
         # Token representation
-        self.lib_names           = np.array([token.name for token in self.lib_tokens       ]).astype(str)  # str (<MAX_NAME_SIZE) )
+        self.names               = np.array([token.name for token in self.lib_tokens       ]).astype(str)  # str (<MAX_NAME_SIZE) )
         self.lib_choosable_names = np.array([token.name for token in self.choosable_tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
         self.lib_sympy_repr      = np.array([token.sympy_repr for token in self.lib_tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
         # Object properties
@@ -262,9 +262,9 @@ class Library:
         self.is_constraining_phy_units = self.properties.is_constraining_phy_units [0, :]
         self.phy_units                 = self.properties.phy_units                 [0, :]
         # Helper dict
-        self.lib_name_to_idx             = {self.lib_names[i] : i                  for i in range (self.n_library)}
-        self.lib_choosable_name_to_idx   = {self.lib_names[i] : i                  for i in range (self.n_choices)}
-        self.lib_name_to_token           = {self.lib_names[i] : self.lib_tokens[i] for i in range (self.n_library)}
+        self.lib_name_to_idx             = {self.names[i] : i                  for i in range (self.n_library)}
+        self.lib_choosable_name_to_idx   = {self.names[i] : i                  for i in range (self.n_choices)}
+        self.lib_name_to_token           = {self.names[i] : self.lib_tokens[i] for i in range (self.n_library)}
 
     def append_custom_tokens(self, custom_tokens = None):
         # ----- Handling custom tokens -----

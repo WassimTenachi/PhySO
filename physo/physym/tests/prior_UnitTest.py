@@ -164,7 +164,7 @@ class PriorTest(unittest.TestCase):
 
             # NEXT STEP
             my_programs.append(test_case[:, step])
-            display = my_lib.lib_names[my_programs.tokens.idx]
+            display = my_lib.names[my_programs.tokens.idx]
             prior = my_prior()
 
     def test_SoftLengthPrior(self):
@@ -266,7 +266,7 @@ class PriorTest(unittest.TestCase):
 
             # NEXT STEP
             my_programs.append(test_case[:, step])
-            display = my_lib.lib_names[my_programs.tokens.idx]
+            display = my_lib.names[my_programs.tokens.idx]
             prior = my_prior()
 
     def test_RelationshipConstraintPrior(self):
@@ -423,9 +423,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_names[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_names[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_names[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -459,9 +459,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_names[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_names[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_names[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -504,9 +504,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_names[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_names[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_names[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -552,9 +552,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_names[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_names[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_names[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -632,9 +632,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_names[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_names[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_names[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -734,9 +734,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_names[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_names[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_names[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -779,9 +779,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_names[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_names[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_names[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -857,9 +857,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_names[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_names[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_names[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -901,9 +901,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_names[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_names[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_names[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -1007,9 +1007,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_names[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_names[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_names[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -1101,7 +1101,7 @@ class PriorTest(unittest.TestCase):
              mask_prob = my_prior()
              for prog_i in range(len(expected_allowed)):
                 # observed
-                prog_step_obs_allowed = my_lib.lib_names[:my_lib.n_choices][mask_prob.astype(bool)[prog_i]]
+                prog_step_obs_allowed = my_lib.names[:my_lib.n_choices][mask_prob.astype(bool)[prog_i]]
                 # expected
                 prog_step_exp_allowed = np.array(expected_allowed[prog_i][i])
                 #print("observed legal tokens for prog %i, step = %i:" % (prog_i, i), prog_step_obs_allowed.tolist())

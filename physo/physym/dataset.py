@@ -210,7 +210,7 @@ class Dataset:
             mask_wrong_id = np.logical_and(library.var_type == Tok.VAR_TYPE_INPUT_VAR, library.var_id >= n_dim)
             assert mask_wrong_id.sum() == 0, "Can not access input variable data X by X[var_id] of tokens :" \
                                              "\n %s\n as they have out of range var_id >= X.shape[0] = n_dim = %i," \
-                                             " var_id :\n %s" % (library.lib_names[mask_wrong_id], n_dim, library.var_id [mask_wrong_id])
+                                             " var_id :\n %s" % (library.names[mask_wrong_id], n_dim, library.var_id [mask_wrong_id])
         # Saving the number of input variables
         self.n_dim = n_dim
 
