@@ -70,7 +70,7 @@ def dummy_epoch_ClassSR (multi_X, multi_y, run_config, multi_y_weights=1.):
 
         # Sampled actions
         actions = torch.multinomial(probs*prior, num_samples=1)[:, 0]                                              # (batch_size,)
-        #print("Choosing actions:\n", batch.library.lib_tokens[actions])
+        #print("Choosing actions:\n", batch.library.tokens[actions])
 
         # # ---- Display ----
         # ax0.clear()

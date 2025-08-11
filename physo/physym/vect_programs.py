@@ -1594,7 +1594,7 @@ class VectPrograms:
         -------
         tokens : numpy.array of shape (?,) of token.Token
         """
-        return self.library.lib_tokens[self.tokens.idx[tuple(coords)]]
+        return self.library.tokens[self.tokens.idx[tuple(coords)]]
 
     def as_tokens(self):
         """
@@ -1603,7 +1603,7 @@ class VectPrograms:
         -------
         tokens : numpy.array of shape (batch_size,max_time_step,) of token.Token
         """
-        return self.library.lib_tokens[self.tokens.idx]
+        return self.library.tokens[self.tokens.idx]
 
     def get_prog_tokens(self, prog_idx=0):
         """
@@ -1622,7 +1622,7 @@ class VectPrograms:
         # Keeping only tokens before actual length of program
         # taking dummies via n_completed rather than n_lengths so tree is complete
         idx    = self.tokens.idx         [prog_idx, 0:length]
-        tokens = self.library.lib_tokens [idx]
+        tokens = self.library.tokens [idx]
         return tokens
 
     def get_prog(self, prog_idx=0, skeleton = False, detach = False):

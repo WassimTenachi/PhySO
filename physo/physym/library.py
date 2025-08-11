@@ -22,7 +22,7 @@ class Library:
 
         Attributes
         ----------
-        lib_tokens : numpy.array of token.Token
+        tokens : numpy.array of token.Token
             List of tokens in the library.
         terminal_units_provided : bool
             Were all terminal tokens (arity = 0) units constraints (choosable and parents only) provided ?, ie is it
@@ -42,7 +42,7 @@ class Library:
 
         names : numpy.array of str
         choosable_names : numpy.array of str
-        lib_sympy_repr : numpy.array of str
+        sympy_repr : numpy.array of str
         lib_function : numpy.array of objects (callable or None)
         properties : token.VectTokens
 
@@ -61,7 +61,7 @@ class Library:
         -------
 
         reset_library
-            Resets token properties vectors based on current library of tokens list (lib_tokens).
+            Resets token properties vectors based on current library of tokens list (tokens).
         append_custom_tokens
             Adding list of custom Tokens to library.
         append_from_tokenize
@@ -165,20 +165,20 @@ class Library:
         # Number of free constants
         self.n_class_free_const = (self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST).sum()
         # Free constants tokens
-        self.class_free_constants_tokens   = self.lib_tokens[self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of token.Token
+        self.class_free_constants_tokens   = self.tokens [self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of token.Token
         # Free constants names
-        self.class_free_constants_names    = self.names     [self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of str
+        self.class_free_constants_names    = self.names  [self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of str
         # Ids of free constants available
-        self.class_free_constants_ids      = self.var_id    [self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of int
+        self.class_free_constants_ids      = self.var_id [self.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST]                                             # (n_class_free_const,) of int
         # Initial values of free constants
-        self.class_free_constants_init_val = np.array([token.init_val for token in self.lib_tokens if token.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST])  # (n_class_free_const,) of float
+        self.class_free_constants_init_val = np.array([token.init_val for token in self.tokens if token.var_type == Tok.VAR_TYPE_CLASS_FREE_CONST])  # (n_class_free_const,) of float
 
         # ------------------------------ SPE FREE CONSTANTS ------------------------------
 
         # Number of free constants
         self.n_spe_free_const = (self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST).sum()
         # Free constants tokens
-        self.spe_free_constants_tokens   = self.lib_tokens[self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of token.Token
+        self.spe_free_constants_tokens   = self.tokens[self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of token.Token
         # Free constants names
         self.spe_free_constants_names    = self.names     [self.var_type == Tok.VAR_TYPE_SPE_FREE_CONST]                                                              # (n_spe_free_const,) of str
         # Ids of free constants available
@@ -186,7 +186,7 @@ class Library:
         # Initial values of free constants
         # May contain mixed shapes (as user can provide a single float or an array_like of floats depending on the
         # token), using object dtype
-        self.spe_free_constants_init_val = np.array([token.init_val for token in self.lib_tokens if token.var_type == Tok.VAR_TYPE_SPE_FREE_CONST], dtype=object)  # (n_spe_free_const,) of array_like of floats
+        self.spe_free_constants_init_val = np.array([token.init_val for token in self.tokens if token.var_type == Tok.VAR_TYPE_SPE_FREE_CONST], dtype=object)  # (n_spe_free_const,) of array_like of floats
         # -> (n_spe_free_const, n_realizations,) of float after check_and_pad_spe_free_const_init_val
 
         # ------------------------------ FREE CONSTANTS ------------------------------
@@ -225,32 +225,32 @@ class Library:
         return None
 
     def reset_library(self):
-        self.lib_tokens = np.array(self.choosable_tokens + self.placeholders)
+        self.tokens = np.array(self.choosable_tokens + self.placeholders)
         self.assert_units()
         # Number of tokens in the library
-        self.n_library = len(self.lib_tokens)
+        self.n_library = len(self.tokens)
         self.n_choices = len(self.choosable_tokens)
         # Idx of placeholders
         self.superparent_idx = self.n_choices + 0
         self.dummy_idx       = self.n_choices + 1
         self.invalid_idx     = self.n_choices + 2
         # Token representation
-        self.names               = np.array([token.name for token in self.lib_tokens       ]).astype(str)  # str (<MAX_NAME_SIZE) )
+        self.names               = np.array([token.name for token in self.tokens       ]).astype(str)  # str (<MAX_NAME_SIZE) )
         self.choosable_names     = np.array([token.name for token in self.choosable_tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
-        self.lib_sympy_repr      = np.array([token.sympy_repr for token in self.lib_tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
+        self.sympy_repr          = np.array([token.sympy_repr for token in self.tokens ]).astype(str)  # str (<MAX_NAME_SIZE) )
         # Object properties
-        self.lib_function   = np.array([token.function   for token in self.lib_tokens])  # object (callable or None)
+        self.lib_function   = np.array([token.function   for token in self.tokens])  # object (callable or None)
         # Vectorized properties
         self.properties = Tok.VectTokens(shape = (1, self.n_library,), invalid_token_idx = self.invalid_idx) # not using positional properties
-        self.properties.arity                     [0, :] = np.array([token.arity                     for token in self.lib_tokens]).astype(int  )  # int
-        self.properties.complexity                [0, :] = np.array([token.complexity                for token in self.lib_tokens]).astype(float)  # float
-        self.properties.var_type                  [0, :] = np.array([token.var_type                  for token in self.lib_tokens]).astype(int  )  # int
-        self.properties.var_id                    [0, :] = np.array([token.var_id                    for token in self.lib_tokens]).astype(int  )  # int
-        self.properties.behavior_id               [0, :] = np.array([token.behavior_id               for token in self.lib_tokens]).astype(int  )  # int
-        self.properties.is_power                  [0, :] = np.array([token.is_power                  for token in self.lib_tokens]).astype(bool )  # bool
-        self.properties.power                     [0, :] = np.array([token.power                     for token in self.lib_tokens]).astype(float)  # float
-        self.properties.is_constraining_phy_units [0, :] = np.array([token.is_constraining_phy_units for token in self.lib_tokens]).astype(bool )  # bool
-        self.properties.phy_units                 [0, :] = np.array([token.phy_units                 for token in self.lib_tokens]).astype(float)  # float
+        self.properties.arity                     [0, :] = np.array([token.arity                     for token in self.tokens]).astype(int  )  # int
+        self.properties.complexity                [0, :] = np.array([token.complexity                for token in self.tokens]).astype(float)  # float
+        self.properties.var_type                  [0, :] = np.array([token.var_type                  for token in self.tokens]).astype(int  )  # int
+        self.properties.var_id                    [0, :] = np.array([token.var_id                    for token in self.tokens]).astype(int  )  # int
+        self.properties.behavior_id               [0, :] = np.array([token.behavior_id               for token in self.tokens]).astype(int  )  # int
+        self.properties.is_power                  [0, :] = np.array([token.is_power                  for token in self.tokens]).astype(bool )  # bool
+        self.properties.power                     [0, :] = np.array([token.power                     for token in self.tokens]).astype(float)  # float
+        self.properties.is_constraining_phy_units [0, :] = np.array([token.is_constraining_phy_units for token in self.tokens]).astype(bool )  # bool
+        self.properties.phy_units                 [0, :] = np.array([token.phy_units                 for token in self.tokens]).astype(float)  # float
         # Giving access to vectorized properties to user without having to use [0, :] at each property access
         self.arity                     = self.properties.arity                     [0, :]
         self.complexity                = self.properties.complexity                [0, :]
@@ -264,7 +264,7 @@ class Library:
         # Helper dict
         self.lib_name_to_idx             = {self.names[i] : i                  for i in range (self.n_library)}
         self.lib_choosable_name_to_idx   = {self.names[i] : i                  for i in range (self.n_choices)}
-        self.lib_name_to_token           = {self.names[i] : self.lib_tokens[i] for i in range (self.n_library)}
+        self.lib_name_to_token           = {self.names[i] : self.tokens[i] for i in range (self.n_library)}
 
     def append_custom_tokens(self, custom_tokens = None):
         # ----- Handling custom tokens -----
@@ -417,7 +417,7 @@ class Library:
         return self.n_choices
 
     def __repr__(self):
-        return str(self.lib_tokens)
+        return str(self.tokens)
 
     def __getitem__(self, item):
-        return self.lib_tokens[item]
+        return self.tokens[item]

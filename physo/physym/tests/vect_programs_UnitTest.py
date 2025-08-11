@@ -379,13 +379,13 @@ class VectProgramsTest(unittest.TestCase):
         # parent of token at step = last step (c) should be a div
         test_step = len(test_program_str) - 1
         parent_idx   = my_programs.get_parent_idx(my_programs.coords_of_step(test_step))
-        parent_token = my_lib.lib_tokens[parent_idx][0]
+        parent_token = my_lib.tokens[parent_idx][0]
         works_bool = parent_token.name == "div"
         self.assertTrue(works_bool)
         # parent of token at step = 1 (mul) should be a mul
         test_step = 1
         parent_idx   = my_programs.get_parent_idx(my_programs.coords_of_step(test_step))
-        parent_token = my_lib.lib_tokens[parent_idx][0]
+        parent_token = my_lib.tokens[parent_idx][0]
         works_bool = parent_token.name == "mul"
         self.assertTrue(works_bool)
         # parent of token at step = 0 (mul) should no exit (superparent)
@@ -400,7 +400,7 @@ class VectProgramsTest(unittest.TestCase):
         # sibling of token at step = last step (c) should be a v
         test_step = len(test_program_str) - 1
         sibling_idx   = my_programs.get_sibling_idx(my_programs.coords_of_step(test_step))
-        sibling_token = my_lib.lib_tokens[sibling_idx][0]
+        sibling_token = my_lib.tokens[sibling_idx][0]
         works_bool = sibling_token.name == "v"
         self.assertTrue(works_bool)
         # sibling of token at step = 0 should not exist
