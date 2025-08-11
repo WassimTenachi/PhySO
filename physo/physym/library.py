@@ -315,76 +315,77 @@ class Library:
         """
         return getattr(self.properties, attr)[0][:self.n_choices]
 
-    def encode(self, exprs_str, one_hot=False):
+    def encode(self, expressions_str, one_hot=False):
         """
         Encodes a list of expressions made up of str token names into token indices.
         Parameters
         ----------
-        exprs_str : array_like of str of shape (?, [n_tokens depends on the expression])
-            List of expressions to encode, where each expression is a list of token names str.
+        expressions_str : array_like of str of shape (batch_size, [n_tokens depends on the expression])
+            List of (batch_size,) expressions to encode, where each expression is a list of str token names.
         one_hot : bool
-            If True, returns a one-hot encoded array of shape (n_choices,). If False, returns a list of indices.
-            Default is False.
+            If True, returns a one-hot encoded array of shape (n_choices,) as token representation.
         Returns
         -------
-        expr : numpy.array of int of shape (?, [n_tokens depends on the expression])
-            List of expressions, where each expression contains token indices corresponding to the input names.
-            OR numpy.array of shape (?, [n_tokens depends on the expression], n_choices,) of int if one_hot is True.
-                List of expressions, where each expression contains token probability distributions corresponding to
-                 the input names (1. probability for the token, 0. for the others).
+        expressions_idx : numpy.array of int of shape (batch_size, [n_tokens depends on the expression])
+                List of (batch_size,) expressions, where each expression is a list of token indices.
+        OR expressions_one_hot (if one_hot is True) : numpy.array of shape (batch_size, [n_tokens depends on the expression], n_choices,) of int
+                List of (batch_size,) expressions, where each expression is a list of token represented as probability
+                distributions across choosable tokens (1. probability for the actual token, 0. for the others).
 
         """
         # --- Assertions ---
-        # Check that expr_str contains valid token names
-        if not isinstance(exprs_str, (list, np.ndarray)):
-            raise TypeError("expr_str should be a list or numpy array of strings.")
-        for expr_str in exprs_str:
+        # Asserting that expressions_str is a list or numpy array of strings
+        if not isinstance(expressions_str, (list, np.ndarray)):
+            raise TypeError("expressions_str should be a list or numpy array of strings.")
+        for expr_str in expressions_str:
+            # Asserting that each expression is a list or numpy array of strings
             if not isinstance(expr_str, (list, np.ndarray)):
-                raise TypeError("Each expression in expr_str should be a list or numpy array of strings.")
+                raise TypeError("Each expression in expressions_str should be a list or numpy array of strings.")
             if not all(isinstance(name, str) for name in expr_str):
-                raise TypeError("All elements in expr should be strings.")
+                raise TypeError("All elements in expressions_str should be strings.")
             # Check that all names are in the library
             for name in expr_str:
                 if name not in self.lib_choosable_name_to_idx:
                     raise ValueError(f"Token name '{name}' is not in the library.")
+        # --- Encoding ---
         res = []
-        for expr_str in exprs_str:
-            # --- Encoding ---
+        for expr_str in expressions_str:
             expr = [self.lib_choosable_name_to_idx[name] for name in expr_str]
-            # --- One-hot encoding ---
+            # One-hot
             if one_hot:
                 expr = np.eye(self.n_choices)[expr]
+            # Appending to the result
             res.append(expr)
         return res
 
-    def decode(self, expressions_enc, n_realizations=1):
+    def decode(self, expressions_idx, n_realizations=1):
         """
         Decodes a list of expressions represented as token indices (in prefix notation) into symbolic expressions in a
         physo.physym.vect_programs.VectPrograms object.
         Parameters
         ----------
-        expressions_enc : array_like of int of shape (batch_size, [n_tokens depends on the expression])
-            List of token indices to decode.
+        expressions_idx : array_like of int of shape (batch_size, [n_tokens depends on the expression])
+            List of expressions to decode, where each expression is a list of token indices.
         n_realizations : int or None, optional
-            Number of realizations for each program, ie. number of datasets each program has to fit.
+            Number of realizations for each expression, ie. number of datasets each expression has to fit.
             Dataset specific free constants will have different values different for each realization.
             Uses 1 by default.
         Returns
         -------
-        expressions : physo.physym.vect_programs.VectPrograms
+        expressions : physo.physym.vect_programs.VectPrograms of shape (batch_size, max_len,)
             Symbolic expressions corresponding to the input expressions.
         """
         # --- Assertions ---
-
-        assert isinstance(expressions_enc, (list, np.ndarray)), "expressions_enc should be a list or numpy array."
-        for expr in expressions_enc:
+        # Asserting that expressions_idx is a list or numpy array of lists or numpy arrays of integers
+        assert isinstance(expressions_idx, (list, np.ndarray)), "expressions_enc should be a list or numpy array."
+        for expr in expressions_idx:
             assert isinstance(expr, (list, np.ndarray)), "expr should be a list or numpy array of integers."
             assert all(isinstance(tok, int) for tok in expr), "All elements in expr should be integers."
 
         # --- Decoding ---
-
+        
         # Length
-        lengths = np.array([len(expr) for expr in expressions_enc])
+        lengths = np.array([len(expr) for expr in expressions_idx])                             # (batch_size,)
         max_len = lengths.max()
 
         # Batch size
@@ -392,12 +393,12 @@ class Library:
 
         # Padding
         pad_idx = self.invalid_idx
-        padded_expr = np.full((batch_size, max_len), pad_idx, dtype=int)
-        for i, expr in enumerate(expressions_enc):
+        padded_expr = np.full((batch_size, max_len), pad_idx, dtype=int)                 # (batch_size, max_len)
+        for i, expr in enumerate(expressions_idx):
             padded_expr[i, :len(expr)] = expr
 
         # Creating VectPrograms object
-        progs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_len, library=self, n_realizations=n_realizations)
+        progs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_len, library=self, n_realizations=n_realizations) # (batch_size, max_len)
         progs.set_programs(padded_expr, allow_invalid_placeholder = True)
 
         return progs
