@@ -5,7 +5,7 @@ import warnings
 # Internal imports
 from physo.physym import library as Lib
 from physo.physym import token as Tok
-
+import physo.toolkit as tl
 
 class LibraryTest(unittest.TestCase):
 
@@ -340,6 +340,82 @@ class LibraryTest(unittest.TestCase):
             my_lib.check_and_pad_spe_free_const_init_val(n_realizations=5)
 
         return None
+
+    def test_toolkit_interfaces (self):
+        my_library = tl.get_library(
+        X_names = ["x1", "x2", "x3", "x4", "x5", "x6",],
+        # y
+        y_name = "y",
+        # Fixed constants
+        fixed_consts       = [1.],
+        # Free constants
+        free_consts_names = ["a", "b"],
+        # Operations to use
+        op_names = ["add", "sub", "mul", "div", "pow", "log", "exp", "cos"],
+            )
+        # a+cos(b) in prefix notation
+        expr1_str = ["add", "a", "cos", "b"]
+        # log(x1+x2)+exp(x3) in prefix notation
+        expr2_str = ["add", "log", "add", "x1", "x2", "exp", "x3"]
+
+        # Encoding
+        try:
+            expr1_enc = my_library.encode(expr1_str)
+            expr2_enc = my_library.encode(expr2_str)
+        except Exception as e:
+            self.fail(f"Encoding failed: {e}")
+
+        # Assertions test : check that errors are raised (any type of error is OK)
+        with self.assertRaises(Exception):
+            my_library.encode(["add", "a", "cos", "invalid_token"] )
+        with self.assertRaises(Exception):
+            my_library.encode([expr1_str, expr2_str])
+        with self.assertRaises(Exception):
+            my_library.encode("add a cos b")
+
+        # Result
+        expr1_enc_expected = np.array([0, 9, 7, 10])
+        expr2_enc_expected = np.array([0, 5, 0, 11, 12, 6, 13])
+        self.assertTrue(np.array_equal(expr1_enc, expr1_enc_expected), "Expression 1 encoding mismatch")
+        self.assertTrue(np.array_equal(expr2_enc, expr2_enc_expected), "Expression 2 encoding mismatch")
+
+        # Result one hot
+        expr1_onehot_expected = np.array([[1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,],
+                                          [0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0.,],
+                                          [0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0.,],
+                                          [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.,],])
+
+        expr2_onehot_expected = np.array([[1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,],
+                                          [0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,],
+                                          [1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,],
+                                          [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0.,],
+                                          [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0.,],
+                                          [0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,],
+                                          [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.,],])
+        expr1_onehot = my_library.encode(expr1_str, one_hot=True)
+        expr2_onehot = my_library.encode(expr2_str, one_hot=True)
+        self.assertTrue(np.array_equal(expr1_onehot, expr1_onehot_expected), "Expression 1 one-hot encoding mismatch")
+        self.assertTrue(np.array_equal(expr2_onehot, expr2_onehot_expected), "Expression 2 one-hot encoding mismatch")
+
+        # Decoding
+        try:
+            exprs = my_library.decode([expr1_enc, expr2_enc])
+        except Exception as e:
+            self.fail(f"Decoding failed: {e}")
+
+        # Assertions test : check that errors are raised (any type of error is OK)
+        with self.assertRaises(Exception):
+            my_library.decode(expr1_enc)
+        with self.assertRaises(Exception):
+            my_library.decode([expr1_str, expr2_str])
+
+        # Result
+        exprs_str_expected = np.array([['add', 'a', 'cos', 'b', '-', '-', '-'],
+                                     ['add', 'log', 'add', 'x1', 'x2', 'exp', 'x3']])
+        assert np.array_equal(exprs.status(), exprs_str_expected), "Expressions mismatch"
+
+        return  None
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

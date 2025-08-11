@@ -4,6 +4,7 @@ import numpy as np
 # Internal imports
 from physo.physym import token as Tok
 from physo.physym import tokenize as tokenize
+from physo.physym import vect_programs as VProg
 
 # Defining these function at upper level to make library pickable
 def SUPERPARENT_FUNC():
@@ -313,6 +314,88 @@ class Library:
             ? depends on the property
         """
         return getattr(self.properties, attr)[0][:self.n_choices]
+
+    def encode(self, expr_str, one_hot=False):
+        """
+        Encodes a list of token names into a list of token indices.
+        Parameters
+        ----------
+        expr_str : array_like of str of shape (?,)
+            List of token names to encode in prefix notation.
+        one_hot : bool
+            If True, returns a one-hot encoded array of shape (n_choices,). If False, returns a list of indices.
+            Default is False.
+        Returns
+        -------
+        expr : numpy.array of int of shape (?)
+            List of token indices corresponding to the input names.
+            OR numpy.array of shape (?, n_choices,) of int if one_hot is True.
+                List of token probability distributions corresponding to the input names (1. probability for the
+                token, 0. for the others).
+
+        """
+        # --- Assertions ---
+        # Check that expr_str contains valid token names
+        if not isinstance(expr_str, (list, np.ndarray)):
+            raise TypeError("expr_str should be a list or numpy array of strings.")
+        if not all(isinstance(name, str) for name in expr_str):
+            raise TypeError("All elements in expr_str should be strings.")
+        # Check that all names are in the library
+        for name in expr_str:
+            if name not in self.lib_choosable_name_to_idx:
+                raise ValueError(f"Token name '{name}' is not in the library.")
+        # --- Encoding ---
+        expr = [self.lib_choosable_name_to_idx[name] for name in expr_str]
+        # --- One-hot encoding ---
+        if one_hot:
+            expr = np.eye(self.n_choices)[expr]
+        return expr
+
+    def decode(self, expressions_enc, n_realizations=1):
+        """
+        Decodes a list of expressions represented as token indices (in prefix notation) into symbolic expressions in a
+        physo.physym.vect_programs.VectPrograms object.
+        Parameters
+        ----------
+        expressions_enc : array_like of int of shape (batch_size, [n_tokens depends on the expression])
+            List of token indices to decode.
+        n_realizations : int or None, optional
+            Number of realizations for each program, ie. number of datasets each program has to fit.
+            Dataset specific free constants will have different values different for each realization.
+            Uses 1 by default.
+        Returns
+        -------
+        expressions : physo.physym.vect_programs.VectPrograms
+            Symbolic expressions corresponding to the input expressions.
+        """
+        # --- Assertions ---
+
+        assert isinstance(expressions_enc, (list, np.ndarray)), "expressions_enc should be a list or numpy array."
+        for expr in expressions_enc:
+            assert isinstance(expr, (list, np.ndarray)), "expr should be a list or numpy array of integers."
+            assert all(isinstance(tok, int) for tok in expr), "All elements in expr should be integers."
+
+        # --- Decoding ---
+
+        # Length
+        lengths = np.array([len(expr) for expr in expressions_enc])
+        max_len = lengths.max()
+
+        # Batch size
+        batch_size = len(lengths)
+
+        # Padding
+        pad_idx = self.invalid_idx
+        padded_expr = np.full((batch_size, max_len), pad_idx, dtype=int)
+        for i, expr in enumerate(expressions_enc):
+            padded_expr[i, :len(expr)] = expr
+
+        # Creating VectPrograms object
+        progs = VProg.VectPrograms(batch_size=batch_size, max_time_step=max_len, library=self, n_realizations=n_realizations)
+        progs.set_programs(padded_expr, allow_invalid_placeholder = True)
+
+        return progs
+
 
     @property
     def free_const_names(self):
