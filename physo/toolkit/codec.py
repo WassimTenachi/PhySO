@@ -167,7 +167,7 @@ def get_prior(priors_config,
 
     return prior
 
-def get_expressions (batch_size, max_length, library, candidate_wrapper=None, n_realizations=None):
+def get_expressions (batch_size, max_length, library, candidate_wrapper=None, n_realizations=1):
     """
     Builds an empty batch of candidate expressions.
 
@@ -185,7 +185,7 @@ def get_expressions (batch_size, max_length, library, candidate_wrapper=None, n_
     n_realizations : int or None, optional
         Number of realizations for each expression, ie. number of datasets each expression has to fit.
         Dataset specific free constants will have different values different for each realization.
-        Uses 1 by default (if None).
+        Uses 1 by default.
 
     Returns
     -------
