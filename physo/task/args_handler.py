@@ -41,6 +41,8 @@ def check_priors_config(priors_config, max_time_step):
             assert max_time_step >= prior_config[1]["max_length"], \
                 "max_time_step should be greater than or equal to HardLengthPrior's max_length."
 
+    return None
+
 def check_library_args(
         # X
         X_names,
@@ -238,6 +240,23 @@ def check_library_args(
                     }
     return library_config
 
+def check_vectprogams_args  (batch_size,
+                             max_time_step,
+                             candidate_wrapper,
+                             n_realizations):
+    # Check that batch_size is a positive integer
+    assert isinstance(batch_size, int) and batch_size > 0, "batch_size should be a positive integer."
+    # Check that max_time_step is a positive integer
+    assert isinstance(max_time_step, int) and max_time_step > 0, "max_time_step should be a positive integer."
+    # candidate_wrapper should be callable or None
+    assert candidate_wrapper is None or callable(candidate_wrapper), "candidate_wrapper should be callable or None."
+    # n_realizations should be a positive integer
+    assert isinstance(n_realizations, int) and n_realizations > 0, "n_realizations should be a positive integer."
+
+    return None
+
+
+
 def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
             # X
             X_names,
@@ -389,9 +408,11 @@ def check_args_and_build_run_config(multi_X, multi_y, multi_y_weights,
         raise ValueError("entropy_weight should be castable to a float.")
     assert isinstance(entropy_weight, float), "entropy_weight should be a float."
 
-    # ------------------------------- CANDIDATE_WRAPPER -------------------------------
-    # candidate_wrapper should be callable or None
-    assert candidate_wrapper is None or callable(candidate_wrapper), "candidate_wrapper should be callable or None."
+    # ------------------------------- VectPrograms args -------------------------------
+    check_vectprogams_args  (batch_size    = run_config["learning_config"]["batch_size"],
+                             max_time_step = run_config["learning_config"]["max_time_step"],
+                             candidate_wrapper = candidate_wrapper,
+                             n_realizations    = n_realizations)
 
     # ------------------------------- RETURN -------------------------------
     # Returning
