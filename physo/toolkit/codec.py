@@ -130,3 +130,80 @@ def get_library(
     library = Lib.Library(**library_config)
 
     return library
+
+def get_prior(priors_config,
+              max_length,
+              expressions,
+              library):
+    """
+    Builds a prior collection based on the provided priors configurations.
+
+    Parameters
+    ----------
+    priors_config : list of tuples (str : dict)
+        List of priors. List containing tuples with prior name as first item in couple (see prior.PRIORS_DICT for list
+        of available priors) and additional arguments to be passed to priors as second item of couple, leave None
+        for priors that do not require arguments.
+    max_length : int
+        Max number of tokens expressions can contain.
+    expressions : physo.physym.vect_programs.VectPrograms
+        Expressions in the batch.
+    library : physo.physym.library.Library
+        Library of choosable tokens.
+
+    Returns
+    -------
+    prior : physo.physym.prior.PriorCollection
+        Prior collection built from the provided priors configurations.
+    """
+
+    # Check priors configuration
+    args_handler.check_priors_config(priors_config=priors_config, max_time_step=max_length)
+
+    # Prior
+    prior = Prior.make_PriorCollection( programs=expressions,
+                                        library=library,
+                                        priors_config=priors_config, )
+
+    return prior
+
+def get_expressions (batch_size, max_length, library, candidate_wrapper=None, n_realizations=None):
+    """
+    Builds an empty batch of candidate expressions.
+
+    Parameters
+    ----------
+    batch_size : int
+        Number of expressions in batch.
+    max_length : int
+        Max number of tokens expressions can contain.
+    library : physo.physym.library.Library
+        Library of choosable tokens.
+    candidate_wrapper : callable or None, optional
+        Wrapper to apply to candidate expression's output, candidate_wrapper taking func, X as arguments where func is
+        a candidate expression callable (taking X as arg). By default = None, no wrapper is applied (identity).
+    n_realizations : int or None, optional
+        Number of realizations for each expression, ie. number of datasets each expression has to fit.
+        Dataset specific free constants will have different values different for each realization.
+        Uses 1 by default (if None).
+
+    Returns
+    -------
+    expressions : physo.physym.vect_programs.VectPrograms
+        Batch of empty candidate expressions.
+    """
+    # Check arguments
+    args_handler.check_vectprogams_args  (batch_size    = batch_size,
+                                          max_time_step = max_length,
+                                          candidate_wrapper = candidate_wrapper,
+                                          n_realizations    = n_realizations)
+
+    # Expressions
+    expressions = VProg.VectPrograms(batch_size    = batch_size,
+                                     max_time_step = max_length,
+                                     library       = library,
+                                     candidate_wrapper = candidate_wrapper,
+                                     n_realizations    = n_realizations,
+                                     )
+
+    return expressions
