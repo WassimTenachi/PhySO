@@ -28,7 +28,7 @@ INVALID_TOKEN_NAME = "-"
 INVALID_POS   = 9999999
 INVALID_DEPTH = 9999999
 # Dummy tokens, n_lengths <= pos < (n_lengths + n_dangling)
-DUMMY_TOKEN_NAME = "dummy"
+DUMMY_TOKEN_NAME = "◻️" #EMOJI # "dummy"
 
 # --------------------- TOKEN VAR TYPES IDs ---------------------
 # Token representing an operation / function
