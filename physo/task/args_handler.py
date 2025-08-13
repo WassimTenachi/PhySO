@@ -250,9 +250,9 @@ def check_vectprogams_args  (batch_size,
     assert isinstance(max_time_step, int) and max_time_step > 0, "max_time_step should be a positive integer."
     # candidate_wrapper should be callable or None
     assert candidate_wrapper is None or callable(candidate_wrapper), "candidate_wrapper should be callable or None."
-    # n_realizations should be a positive integer
-    assert isinstance(n_realizations, int) and n_realizations > 0, "n_realizations should be a positive integer."
-
+    # n_realizations should be a positive integer or None
+    if n_realizations is not None:
+        assert isinstance(n_realizations, int) and n_realizations > 0, "n_realizations should be a positive integer or None."
     return None
 
 
