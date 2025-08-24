@@ -21,6 +21,7 @@ Contents
    r_sr
    r_class_sr
    r_features
+   r_toolkit
    r_performances
    r_benchmarks
    r_reproducibility
