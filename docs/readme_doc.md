@@ -1,6 +1,7 @@
 # Generating documentation
 
 Documentation can be found [here](https://physo.readthedocs.io/en/latest/).\
+Read the docs automatically builds the documentation on each push to the main branch.\
 It can be generated locally using the following instructions.
 
 ## Requirements
