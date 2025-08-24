@@ -114,7 +114,7 @@ class PriorTest(unittest.TestCase):
         for i in range (n_progs):
             for j in range (n_steps):
                 tok_str = test_case_str[i,j]
-                test_case[i,j] = my_lib.lib_name_to_idx[tok_str]
+                test_case[i,j] = my_lib.name_to_idx[tok_str]
 
         # VectPrograms
         my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib, n_realizations=1)
@@ -164,7 +164,7 @@ class PriorTest(unittest.TestCase):
 
             # NEXT STEP
             my_programs.append(test_case[:, step])
-            display = my_lib.lib_name[my_programs.tokens.idx]
+            display = my_lib.names[my_programs.tokens.idx]
             prior = my_prior()
 
     def test_SoftLengthPrior(self):
@@ -224,7 +224,7 @@ class PriorTest(unittest.TestCase):
         for i in range (n_progs):
             for j in range (n_steps):
                 tok_str = test_case_str[i,j]
-                test_case[i,j] = my_lib.lib_name_to_idx[tok_str]
+                test_case[i,j] = my_lib.name_to_idx[tok_str]
 
         # VectPrograms
         my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib, n_realizations=1)
@@ -266,7 +266,7 @@ class PriorTest(unittest.TestCase):
 
             # NEXT STEP
             my_programs.append(test_case[:, step])
-            display = my_lib.lib_name[my_programs.tokens.idx]
+            display = my_lib.names[my_programs.tokens.idx]
             prior = my_prior()
 
     def test_RelationshipConstraintPrior(self):
@@ -398,7 +398,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -423,9 +423,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_name[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_name[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_name[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -438,7 +438,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -459,9 +459,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_name[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_name[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_name[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -479,7 +479,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -504,9 +504,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_name[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_name[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_name[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -524,7 +524,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -552,9 +552,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_name[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_name[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_name[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -606,7 +606,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -632,9 +632,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_name[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_name[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_name[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -710,7 +710,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -734,9 +734,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_name[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_name[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_name[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -754,7 +754,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -779,9 +779,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_name[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_name[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_name[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -834,7 +834,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -857,9 +857,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_name[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_name[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_name[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -877,7 +877,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -901,9 +901,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_name[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_name[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_name[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -983,7 +983,7 @@ class PriorTest(unittest.TestCase):
         # max_time_steps at least must be at least 6 as some of these test programs require 3 dummies
         test_progs = []
         for prog_str in test_progs_str:
-            prog = [my_lib.lib_name_to_idx[tok_str] for tok_str in prog_str]
+            prog = [my_lib.name_to_idx[tok_str] for tok_str in prog_str]
             test_progs.append(prog)
         test_progs = np.array(test_progs)
         my_programs = VProg.VectPrograms(batch_size=test_progs_str.shape[0], max_time_step=10, library=my_lib, n_realizations=1)
@@ -1007,9 +1007,9 @@ class PriorTest(unittest.TestCase):
         for i, mask_prob_i in enumerate(mask_prob):
             mask_is_forbidden = np.logical_not(mask_prob_i)
             idx = np.arange(my_lib.n_choices)[mask_is_forbidden]
-            # print("prog", my_lib.lib_name[my_programs.tokens.idx][i])
-            # print("forbidding:", my_lib.lib_name[idx])
-            found_forbidden_tokens = np.sort(my_lib.lib_name[idx]).astype(str)
+            # print("prog", my_lib.names[my_programs.tokens.idx][i])
+            # print("forbidding:", my_lib.names[idx])
+            found_forbidden_tokens = np.sort(my_lib.names[idx]).astype(str)
             expected = np.sort(expected_forbidden_tokens[i]).astype(str)
             bool_works = np.array_equal(found_forbidden_tokens, expected)
             self.assertEqual(bool_works, True)
@@ -1050,7 +1050,7 @@ class PriorTest(unittest.TestCase):
 
         # Converting into idx
         for test_program_str in test_programs_str :
-            test_programs_idx.append(np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str]))
+            test_programs_idx.append(np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str]))
         test_programs_idx = np.array(test_programs_idx)
 
         # ------------------------- TEST PROGRAMS : EXPECTED BEHAVIOR -------------------------
@@ -1101,7 +1101,7 @@ class PriorTest(unittest.TestCase):
              mask_prob = my_prior()
              for prog_i in range(len(expected_allowed)):
                 # observed
-                prog_step_obs_allowed = my_lib.lib_name[:my_lib.n_choices][mask_prob.astype(bool)[prog_i]]
+                prog_step_obs_allowed = my_lib.names[:my_lib.n_choices][mask_prob.astype(bool)[prog_i]]
                 # expected
                 prog_step_exp_allowed = np.array(expected_allowed[prog_i][i])
                 #print("observed legal tokens for prog %i, step = %i:" % (prog_i, i), prog_step_obs_allowed.tolist())
@@ -1138,10 +1138,10 @@ class PriorTest(unittest.TestCase):
 
         # ------------------------- TEST PROGRAMS -------------------------
         test_prog_str = ["add", "E_t", "mul", "A", "mul", "div", "R", "r", "log", "add", "1", "div", "r", "R"]
-        test_prog_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_prog_str])
+        test_prog_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_prog_str])
 
         target_prog_str = ["add", "E_t", "mul", "A", "mul", "div", "R", "r", "log", "add", "1", "div", "-", "R"]
-        target_prog_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in target_prog_str])
+        target_prog_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in target_prog_str])
 
         max_time_step = len(target_prog_str) + 10 # Extra steps to check behavior outside target
         batch_size    = 128
@@ -1167,7 +1167,7 @@ class PriorTest(unittest.TestCase):
             if i < len(target_prog_str):
                 # In cases where token is not invalid
                 if target_prog_idx[i] != my_lib.invalid_idx:
-                    favored_tokens = np.tile(my_lib.lib_choosable_name, (batch_size, 1))[mask_prob.astype(bool)]
+                    favored_tokens = np.tile(my_lib.choosable_names, (batch_size, 1))[mask_prob.astype(bool)]
                     # Asserting that all favored tokens are the same
                     self.assertTrue(np.unique(favored_tokens).shape[0] == 1)
                     favored_token = favored_tokens[0]
@@ -1253,7 +1253,7 @@ class PriorTest(unittest.TestCase):
         for i in range (n_progs):
             for j in range (n_steps):
                 tok_str = test_case_str[i,j]
-                test_case[i,j] = my_lib.lib_name_to_idx[tok_str]
+                test_case[i,j] = my_lib.name_to_idx[tok_str]
 
         # VectPrograms
         my_programs = VProg.VectPrograms(batch_size = n_progs, max_time_step=n_steps, library=my_lib, n_realizations=1)

@@ -200,7 +200,7 @@ class VectProgramsTest(unittest.TestCase):
         # TEST PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "c1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = test_program_idx[np.newaxis, :]
 
@@ -242,7 +242,7 @@ class VectProgramsTest(unittest.TestCase):
         # TEST PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = test_program_idx[np.newaxis, :]
 
@@ -321,7 +321,7 @@ class VectProgramsTest(unittest.TestCase):
 
         # Converting into idx
         for test_program_str in test_programs_str :
-            test_programs_idx.append(np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str]))
+            test_programs_idx.append(np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str]))
         test_programs_idx = np.array(test_programs_idx)
 
         # Initializing programs
@@ -366,7 +366,7 @@ class VectProgramsTest(unittest.TestCase):
         # TEST PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = test_program_idx[np.newaxis, :]
 
@@ -379,13 +379,13 @@ class VectProgramsTest(unittest.TestCase):
         # parent of token at step = last step (c) should be a div
         test_step = len(test_program_str) - 1
         parent_idx   = my_programs.get_parent_idx(my_programs.coords_of_step(test_step))
-        parent_token = my_lib.lib_tokens[parent_idx][0]
+        parent_token = my_lib.tokens[parent_idx][0]
         works_bool = parent_token.name == "div"
         self.assertTrue(works_bool)
         # parent of token at step = 1 (mul) should be a mul
         test_step = 1
         parent_idx   = my_programs.get_parent_idx(my_programs.coords_of_step(test_step))
-        parent_token = my_lib.lib_tokens[parent_idx][0]
+        parent_token = my_lib.tokens[parent_idx][0]
         works_bool = parent_token.name == "mul"
         self.assertTrue(works_bool)
         # parent of token at step = 0 (mul) should no exit (superparent)
@@ -400,7 +400,7 @@ class VectProgramsTest(unittest.TestCase):
         # sibling of token at step = last step (c) should be a v
         test_step = len(test_program_str) - 1
         sibling_idx   = my_programs.get_sibling_idx(my_programs.coords_of_step(test_step))
-        sibling_token = my_lib.lib_tokens[sibling_idx][0]
+        sibling_token = my_lib.tokens[sibling_idx][0]
         works_bool = sibling_token.name == "v"
         self.assertTrue(works_bool)
         # sibling of token at step = 0 should not exist
@@ -535,7 +535,7 @@ class VectProgramsTest(unittest.TestCase):
         # TEST PROGRAM
         batch_size = 10000
         test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -688,8 +688,8 @@ class VectProgramsTest(unittest.TestCase):
 
         # TEST PROGRAM
         batch_size = 10000
-        test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_str = ["add", "mul", "mul", "k0", "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -724,6 +724,91 @@ class VectProgramsTest(unittest.TestCase):
         self.assertTrue(file_size < size_1MB, "File size is too big. Prog has not detached its const data.")
 
         return None
+
+    def test_getitem_and_iter(self):
+        # LIBRARY CONFIG
+        args_make_tokens = {
+                        # operations
+                        "op_names"             : "all",  # or ["mul", "neg", "inv", "sin"]
+                        "use_protected_ops"    : True,
+                        # input variables
+                        "input_var_ids"        : {"x" : 0         , "v" : 1          , "t" : 2,        },
+                        "input_var_units"      : {"x" : [0, 0, 0] , "v" : [0, 0, 0]  , "t" : [0, 0, 0] },
+                        # constants
+                        "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       , "const1" : 1         },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [0, 0, 0] , "M" : [0, 0, 0] , "const1" : [0, 0, 0] },
+                        # free constants
+                        "free_constants"            : {"c0"             , "c1"               , "c2"             },
+                        "free_constants_units"      : {"c0" : [0, 0, 0] , "c1"  : [0, 0, 0], "c2"  : [0, 0, 0] },
+                           }
+        my_lib = Lib.Library(args_make_tokens = args_make_tokens,
+                             superparent_units = [1, -2, 1], superparent_name = "y")
+
+        # TEST PROGRAM
+        test_program_str_1 = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "c1", "div", "n2", "v", "n2",
+                            "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
+        test_program_str_2 = ["mul", "x", "t"]
+        test_program_str_3 = ["add", "c0", "c1",]
+
+        max_length = len(test_program_str_1)
+        test_program_idx = []
+        for test_program_str in [test_program_str_1, test_program_str_2, test_program_str_3]:
+            prog_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
+            # Pad prog idx to max_length filling with "c2" token
+            prog_idx = np.pad(prog_idx, (0, max_length - len(prog_idx)), mode='constant', constant_values=my_lib.name_to_idx['c2'])
+            test_program_idx.append(prog_idx)
+        test_program_idx = np.array(test_program_idx)
+
+        # BATCH
+        my_programs = VProg.VectPrograms(batch_size=3, max_time_step=max_length, library=my_lib, n_realizations=1)
+        my_programs.set_programs(test_program_idx)
+
+        # Test __iter__
+        try:
+            for prog in my_programs:
+                self.assertTrue(isinstance(prog, Prog.Program))
+        except:
+            self.fail("Could not iterate over VectPrograms.")
+
+        # Test __getitem__
+        try:
+            for i in range(len(my_programs)):
+                prog = my_programs[i]
+                self.assertTrue(isinstance(prog, Prog.Program))
+        except:
+            self.fail("Could not get item from VectPrograms.")
+
+        # Test __getitem__ and __iter__ content
+        for i, prog in enumerate(my_programs):
+            prog_from_iter    = prog
+            prog_from_getitem = my_programs[i]
+            prog              = my_programs.get_prog(i)
+
+            assert(isinstance(prog, Prog.Program))
+            assert(isinstance(prog_from_iter, Prog.Program))
+            assert(isinstance(prog_from_getitem, Prog.Program))
+
+            # Check that tokens are the same
+            self.assertTrue(np.array_equal(str(prog.tokens), str(prog_from_iter.tokens)))
+            self.assertTrue(np.array_equal(str(prog.tokens), str(prog_from_getitem.tokens)))
+
+        # # Test __getitem__ slicing
+        # try:
+        #     prog_slice = my_programs[1:3]
+        #     self.assertTrue(isinstance(prog_slice, VProg.VectPrograms))
+        #     self.assertTrue(len(prog_slice) == 2)
+        #     for i in range(len(prog_slice)):
+        #         prog = prog_slice[i]
+        #         self.assertTrue(isinstance(prog, Prog.Program))
+        # except:
+        #     self.fail("Could not slice VectPrograms.")
+        #
+        # # Test __getitem__ slicing content
+        # for i, prog in enumerate(my_programs[1:3]):
+        #     prog_from_slicing = prog
+        #     prog              = my_programs.get_prog(i+1)
+        #     # Check that tokens are the same
+        #     self.assertTrue(np.array_equal(str(prog.tokens), str(prog_from_slicing.tokens)))
 
 
 if __name__ == '__main__':

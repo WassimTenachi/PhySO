@@ -101,8 +101,8 @@ class VectPrograms:
             Uses 1 by default (if None).
         """
         # Assertions
-        assert isinstance(batch_size,    int) and batch_size    > 0, "batch_size    must be a >0 int."
-        assert isinstance(max_time_step, int) and max_time_step > 0, "max_time_step must be a >0 int."
+        assert isinstance(batch_size,    (int, np.integer)) and batch_size    > 0, "batch_size    must be a >0 int."
+        assert isinstance(max_time_step, (int, np.integer)) and max_time_step > 0, "max_time_step must be a >0 int."
 
         # Number of candidate programs
         self.batch_size = batch_size                                        # int
@@ -117,7 +117,7 @@ class VectPrograms:
         self.dummy_idx       = library.dummy_idx                            # int
         self.invalid_idx     = library.invalid_idx                          # int
         # For display purposes (remove when jit-ing ?)
-        self.lib_names       = library.lib_name                             # (n_library,) of str (<MAX_NAME_SIZE)
+        self.lib_names       = library.names                                # (n_library,) of str (<MAX_NAME_SIZE)
         # Token properties useful for step-by-step operations
         # (only keeping jit-able vectors in VectTokens)
         self.lib_vect        = library.properties                           # VectTokens
@@ -217,7 +217,7 @@ class VectPrograms:
         # Giving access to vectorized properties to user without having to use [0, :] at each property access
         return getattr(self.lib_vect, attr)[0]
 
-    def append (self, new_tokens_idx, forbid_inconsistent_units = False):
+    def append (self, new_tokens_idx, forbid_inconsistent_units = False, allow_invalid_placeholder=False):
         """
         Appends new tokens to batch.
         New tokens appended to already complete programs (ie. out of tree tokens) are ignored.
@@ -233,6 +233,8 @@ class VectPrograms:
             with current units constraints. Consistency of new tokens' physical units vs the current programs is
             checked. To work properly the assign_required_units method should have been called on all previous steps +
             this one before appending.
+        allow_invalid_placeholder : bool
+            If True, allows appending of the invalid placeholder token (ie. the void token) to programs.
         """
         # Assert that new_tokens_idx is a numpy array of dtype = int
         assert isinstance(new_tokens_idx, np.ndarray), "Arg new_tokens_idx must be a numpy array of dtype = int"
@@ -261,7 +263,11 @@ class VectPrograms:
 
         # Min / Max
         assert new_tokens_idx.min() >= 0, "Min value of new_tokens_idx must be >= 0."
-        assert new_tokens_idx.max() < self.n_choices, "Max value of new_tokens_idx must be < %i" % self.n_choices
+        if allow_invalid_placeholder:
+            condition = ((new_tokens_idx < self.n_choices) | (new_tokens_idx == self.library.invalid_idx)).all()
+            assert condition, "Arg new_tokens_idx must contain only valid token indices (ie. < %i) or the invalid placeholder." % self.n_choices
+        else:
+            assert new_tokens_idx.max() < self.n_choices, "Max value of new_tokens_idx must be < %i" % self.n_choices
 
         # ------------------ Assert enough space for new tokens' dummies ------------------
         # Raise error if number of dummies needed to handle new tokens exceeds max_time_step
@@ -606,7 +612,7 @@ class VectPrograms:
         # This responsibility is transferred to the user of append who can use the assign_required_units method.
         return None
 
-    def set_programs (self, tokens_idx, forbid_inconsistent_units = False):
+    def set_programs (self, tokens_idx, forbid_inconsistent_units = False, allow_invalid_placeholder = False):
         """
         Sets all programs in batch by appending tokens_idx step by step.
         Parameters
@@ -617,11 +623,14 @@ class VectPrograms:
             Tokens out of tree will be ignored.
         forbid_inconsistent_units : bool
             Passed to append method.
+        allow_invalid_placeholder : bool
+            Passed to append method.
         """
         # Assertions will be handled by append.
         max_size = tokens_idx.shape[1]
         for i in range(max_size):
-            self.append(tokens_idx[:, i], forbid_inconsistent_units = forbid_inconsistent_units)
+            self.append(tokens_idx[:, i], forbid_inconsistent_units = forbid_inconsistent_units,
+                                          allow_invalid_placeholder = allow_invalid_placeholder)
 
     # -----------------------------------------------------------------------------------------------------------------
     # ----------------------------------------------------- UNITS -----------------------------------------------------
@@ -1585,7 +1594,7 @@ class VectPrograms:
         -------
         tokens : numpy.array of shape (?,) of token.Token
         """
-        return self.library.lib_tokens[self.tokens.idx[tuple(coords)]]
+        return self.library.tokens[self.tokens.idx[tuple(coords)]]
 
     def as_tokens(self):
         """
@@ -1594,7 +1603,7 @@ class VectPrograms:
         -------
         tokens : numpy.array of shape (batch_size,max_time_step,) of token.Token
         """
-        return self.library.lib_tokens[self.tokens.idx]
+        return self.library.tokens[self.tokens.idx]
 
     def get_prog_tokens(self, prog_idx=0):
         """
@@ -1613,7 +1622,7 @@ class VectPrograms:
         # Keeping only tokens before actual length of program
         # taking dummies via n_completed rather than n_lengths so tree is complete
         idx    = self.tokens.idx         [prog_idx, 0:length]
-        tokens = self.library.lib_tokens [idx]
+        tokens = self.library.tokens [idx]
         return tokens
 
     def get_prog(self, prog_idx=0, skeleton = False, detach = False):
@@ -2551,3 +2560,7 @@ class VectPrograms:
 
     def __len__(self):
         return self.batch_size
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]

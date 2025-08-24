@@ -84,8 +84,8 @@ class ProgramTest(unittest.TestCase):
         test_prog_str_1 = ["mul", "n2" , "c0" , "cos" , "div", "t"  , "c1" ,]
 
         # Converting into idx
-        test_prog_tokens_0 = np.array([my_lib.lib_name_to_token[tok_str] for tok_str in test_prog_str_0])
-        test_prog_tokens_1 = np.array([my_lib.lib_name_to_token[tok_str] for tok_str in test_prog_str_1])
+        test_prog_tokens_0 = np.array([my_lib.name_to_token[tok_str] for tok_str in test_prog_str_0])
+        test_prog_tokens_1 = np.array([my_lib.name_to_token[tok_str] for tok_str in test_prog_str_1])
 
         # Creating programs wo free constants
         try:
@@ -223,7 +223,7 @@ class ProgramTest(unittest.TestCase):
         # TEST PROGRAMS
         test_programs_idx = []
         test_prog_str_0 = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_tokens_0 = [my_lib.lib_name_to_token[name] for name in test_prog_str_0]
+        test_tokens_0 = [my_lib.name_to_token[name] for name in test_prog_str_0]
 
         free_const_table = free_const.FreeConstantsTable(batch_size=1, library=my_lib, n_realizations=n_realizations)
         free_const_table.class_values[0] = ideal_class_params
@@ -301,7 +301,7 @@ class ProgramTest(unittest.TestCase):
         # PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "1", "div", "v", "c", "div", "div", "x", "t", "c"]
-        test_program     = [my_lib.lib_name_to_token[name] for name in test_program_str]
+        test_program     = [my_lib.name_to_token[name] for name in test_program_str]
         free_const_table = free_const.FreeConstantsTable(batch_size=1, library=my_lib, n_realizations=1)
         prog = Prog.Program(tokens=test_program, library=my_lib, free_consts=free_const_table, n_realizations=1)
         # EXPECTED RES
@@ -378,7 +378,7 @@ class ProgramTest(unittest.TestCase):
         # PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "1", "div", "v", "c", "div", "div", "x", "t", "c"]
-        test_program     = [my_lib.lib_name_to_token[name] for name in test_program_str]
+        test_program     = [my_lib.name_to_token[name] for name in test_program_str]
         free_const_table = free_const.FreeConstantsTable(batch_size=1, library=my_lib, n_realizations=1)
         free_const_table.class_values[0] = free_const_values
         prog = Prog.Program(tokens=test_program, library=my_lib, free_consts=free_const_table, n_realizations=1)
@@ -523,7 +523,7 @@ class ProgramTest(unittest.TestCase):
         # TEST PROGRAMS
         test_programs_idx = []
         test_prog_str_0 = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_tokens_0 = [my_lib.lib_name_to_token[name] for name in test_prog_str_0]
+        test_tokens_0 = [my_lib.name_to_token[name] for name in test_prog_str_0]
 
         free_const_table = free_const.FreeConstantsTable(batch_size=1, library=my_lib, n_realizations=n_realizations)
         free_const_table.class_values[0] = ideal_class_params
@@ -619,7 +619,7 @@ class ProgramTest(unittest.TestCase):
 
         # PROGRAM
         test_program_str = ["add", "add", "mul", "a", "x0", "b", "x1",]
-        test_program     = [my_lib.lib_name_to_token[name] for name in test_program_str]
+        test_program     = [my_lib.name_to_token[name] for name in test_program_str]
         free_const_table = free_const.FreeConstantsTable(batch_size=1, library=my_lib, n_realizations=1)
         prog = Prog.Program(tokens=test_program, library=my_lib, free_consts=free_const_table, n_realizations=1)
 
@@ -686,7 +686,7 @@ class ProgramTest(unittest.TestCase):
 
         # PROGRAM
         test_program_str = ["add", "x0", "x1",]
-        test_program     = [my_lib.lib_name_to_token[name] for name in test_program_str]
+        test_program     = [my_lib.name_to_token[name] for name in test_program_str]
         free_const_table = free_const.FreeConstantsTable(batch_size=1, library=my_lib, n_realizations=1)
         prog = Prog.Program(tokens=test_program, library=my_lib, free_consts=free_const_table, n_realizations=1)
 
@@ -828,7 +828,7 @@ class ProgramTest(unittest.TestCase):
         # TEST PROGRAM
         test_programs_idx = []
         test_prog_str_0 = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_tokens_0 = [my_lib.lib_name_to_token[name] for name in test_prog_str_0]
+        test_tokens_0 = [my_lib.name_to_token[name] for name in test_prog_str_0]
         free_const_table = free_const.FreeConstantsTable(batch_size=1, library=my_lib, n_realizations=n_realizations)
         prog = Prog.Program(tokens=test_tokens_0, library=my_lib, free_consts=free_const_table, n_realizations=n_realizations)
 
@@ -1045,7 +1045,7 @@ class ProgramTest(unittest.TestCase):
         # TEST PROGRAM
         test_programs_idx = []
         test_prog_str_0 = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_tokens_0 = [my_lib.lib_name_to_token[name] for name in test_prog_str_0]
+        test_tokens_0 = [my_lib.name_to_token[name] for name in test_prog_str_0]
         free_const_table = free_const.FreeConstantsTable(batch_size=1, library=my_lib, n_realizations=n_realizations)
         prog = Prog.Program(tokens=test_tokens_0, library=my_lib, free_consts=free_const_table, n_realizations=n_realizations)
 

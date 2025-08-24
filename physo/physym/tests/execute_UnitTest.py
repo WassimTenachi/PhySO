@@ -53,7 +53,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "1", "div", "v", "c", "div", "div", "x", "t", "c"]
-        test_program     = [my_lib.lib_name_to_token[name] for name in test_program_str]
+        test_program     = [my_lib.name_to_token[name] for name in test_program_str]
         # EXPECTED RES
         expected_res     = M*(c**2)*(1./torch.sqrt(1.-(v**2)/(c**2))-torch.cos((1.-(v/c))/((x/t)/c)))
 
@@ -128,7 +128,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "1", "div", "v", "c", "div", "div", "x", "t", "c"]
-        test_program     = [my_lib.lib_name_to_token[name] for name in test_program_str]
+        test_program     = [my_lib.name_to_token[name] for name in test_program_str]
         # EXPECTED RES
         expected_res     = M*(c**2)*(1./torch.sqrt(1.-(v**2)/(c**2))-torch.cos((1.-(v/c))/((x/t)/c)))
 
@@ -270,7 +270,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # TEST PROGRAMS
         test_programs_idx = []
         test_prog_str_0 = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_tokens_0 = [my_lib.lib_name_to_token[name] for name in test_prog_str_0]
+        test_tokens_0 = [my_lib.name_to_token[name] for name in test_prog_str_0]
 
         # Test execution on all datasets in flattened form
         N = 1000
@@ -339,7 +339,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # TEST PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "1", "div", "v", "c", "pi"]
-        test_program     = np.array([my_lib.lib_name_to_token[tok_str] for tok_str in test_program_str])
+        test_program     = np.array([my_lib.name_to_token[tok_str] for tok_str in test_program_str])
         # Infix output
         t0 = time.perf_counter()
         N = 100

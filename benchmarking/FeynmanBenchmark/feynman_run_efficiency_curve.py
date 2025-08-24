@@ -83,7 +83,7 @@ if __name__ == '__main__':
     # test_program_str = ["mul", "a", "sin", "mul", "x", "b",]
     # test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "x",]
     test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "add", "x", "sub", "1", "1"]
-    test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+    test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
     test_program_length = len(test_program_str)
     test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 

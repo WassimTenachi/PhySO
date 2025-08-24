@@ -242,16 +242,16 @@ class RelationshipConstraintPrior (Prior):
         err_msg = "Argument effectors should be a list of strings, not %s."%(effectors)
         assert len(effectors.shape) == 1 and effectors.dtype.char == "U", err_msg
         err_msg = "Some tokens given in argument effectors: %s are not in the library of tokens: %s" \
-                  % (effectors, library.lib_name)
-        assert np.isin(effectors, library.lib_name).all(), err_msg
+                  % (effectors, library.names)
+        assert np.isin(effectors, library.names).all(), err_msg
 
         # targets argument ---
         targets = np.array(targets)
         err_msg = "Argument targets should be a list of strings."
         assert len(targets.shape) == 1 and targets.dtype.char == "U", err_msg
         err_msg = "Some tokens given in argument targets: %s are not in the library of tokens: %s" \
-                  % (targets, library.lib_name)
-        assert np.isin(targets, library.lib_name).all(), err_msg
+                  % (targets, library.names)
+        assert np.isin(targets, library.names).all(), err_msg
 
         # targets and effectors arguments ---
         assert len(effectors) == len(targets), "List of targets and effectors must have the same size as constraints " \
@@ -282,8 +282,8 @@ class RelationshipConstraintPrior (Prior):
 
         # targets and effectors ---
         # Working with tokens' idx in the library instead of their name
-        self.effectors     = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in effectors])
-        self.targets       = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in targets  ])
+        self.effectors     = np.array([self.lib.name_to_idx[tok_name] for tok_name in effectors])
+        self.targets       = np.array([self.lib.name_to_idx[tok_name] for tok_name in targets  ])
         self.n_constraints = len(self.targets)
 
         # max_nb_violations argument ---
@@ -367,11 +367,11 @@ class RelationshipConstraintPrior (Prior):
     def __repr__(self):
         if self.max_n_relatives > 1:
             repr = "RelationshipConstraintPrior (%s can have up to %s %s of type %s)" \
-               % (self.lib.lib_name[self.targets], self.max_nb_violations, self.effectors_role+"(s)",
-                  self.lib.lib_name[self.effectors])
+               % (self.lib.names[self.targets], self.max_nb_violations, self.effectors_role+"(s)",
+                  self.lib.names[self.effectors])
         else:
             repr = "RelationshipConstraintPrior (%s can not be %s of %s)" \
-               % (self.lib.lib_name[self.targets], self.targets_role, self.lib.lib_name[self.effectors])
+               % (self.lib.names[self.targets], self.targets_role, self.lib.names[self.effectors])
         return repr
 
 class NoUselessInversePrior(Prior):
@@ -393,7 +393,7 @@ class NoUselessInversePrior(Prior):
         effectors = []
         targets   = []
         for func_name, inverse_func_name in Func.INVERSE_OP_DICT.items():
-            if func_name in self.lib.lib_name and inverse_func_name in self.lib.lib_name:
+            if func_name in self.lib.names and inverse_func_name in self.lib.names:
                 effectors.append (func_name       )
                 targets  .append (inverse_func_name )
         self.effectors    = effectors
@@ -452,8 +452,8 @@ class NestedFunctions (Prior):
         err_msg = "Argument functions should be a list of strings, not %s."%(functions)
         assert len(functions.shape) == 1 and functions.dtype.char == "U", err_msg
         err_msg = "Some tokens given in argument functions: %s are not in the library of tokens: %s" \
-                  % (functions, library.lib_name)
-        assert np.isin(functions, library.lib_name).all(), err_msg
+                  % (functions, library.names)
+        assert np.isin(functions, library.names).all(), err_msg
 
         # max_nesting argument ---
         err_msg = "Argument max_nesting should be an int >= 1."
@@ -465,7 +465,7 @@ class NestedFunctions (Prior):
 
         # functions ---
         # Working with tokens' idx in the library instead of their name
-        self.functions = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in functions])
+        self.functions = np.array([self.lib.name_to_idx[tok_name] for tok_name in functions])
         self.n_functions = len(self.functions)
 
         # max_nesting ---
@@ -515,10 +515,10 @@ class NestedFunctions (Prior):
     def __repr__(self):
         if self.max_nesting == 1:
             repr = "NestedFunctions (tokens = %s, nesting forbidden)" \
-               % (self.lib.lib_name[self.functions],)
+               % (self.lib.names[self.functions],)
         else:
             repr = "NestedFunctions (tokens = %s, max nesting level = %i)" \
-               % (self.lib.lib_name[self.functions], self.max_nesting,)
+               % (self.lib.names[self.functions], self.max_nesting,)
         return repr
 
 
@@ -541,7 +541,7 @@ class NestedTrigonometryPrior(Prior):
 
         # Considering tokens in library that are declared as trigonometric functions in Func.TRIGONOMETRIC_OP
         trigonometric_functions = []
-        for name in self.lib.lib_name:
+        for name in self.lib.names:
             if name in Func.TRIGONOMETRIC_OP:
                 trigonometric_functions.append(name)
         self.trigonometric_functions = np.array(trigonometric_functions)
@@ -600,8 +600,8 @@ class OccurrencesPrior (Prior):
         err_msg = "Argument targets should be a list of strings."
         assert len(targets.shape) == 1 and targets.dtype.char == "U", err_msg
         err_msg = "Some tokens given in argument targets: %s are not in the library of tokens: %s" \
-                  % (targets, library.lib_name)
-        assert np.isin(targets, library.lib_name).all(), err_msg
+                  % (targets, library.names)
+        assert np.isin(targets, library.names).all(), err_msg
 
         # --- max argument ---
         max = np.array(max)
@@ -617,7 +617,7 @@ class OccurrencesPrior (Prior):
 
         self.targets_str   = targets                                                                             # (n_constraints,)
         self.n_constraints = len(self.targets_str)   # n_constraints <= n_choices
-        self.targets       = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in self.targets_str])     # (n_constraints,)
+        self.targets       = np.array([self.lib.name_to_idx[tok_name] for tok_name in self.targets_str])     # (n_constraints,)
 
         # Max number of occurrences allowed for each target
         self.max = max                                                                                           # (n_constraints,)
@@ -656,8 +656,8 @@ class SymbolicPrior (Prior):
         err_msg = "Argument expression should be a list of strings."
         assert len(expression.shape) == 1 and expression.dtype.char == "U", err_msg
         err_msg = "Some tokens given in argument expression: %s are not in the library of tokens: %s" \
-                  % (expression, library.lib_name)
-        assert np.isin(expression, library.lib_name).all(), err_msg
+                  % (expression, library.names)
+        assert np.isin(expression, library.names).all(), err_msg
         err_msg = "Argument expression is longer than the maximum number of steps allowed by programs.(%i > %i)" \
                     % (len(expression), programs.max_time_step)
         assert len(expression) <= programs.max_time_step, err_msg
@@ -670,7 +670,7 @@ class SymbolicPrior (Prior):
         # Padding expression with library.invalid.name up to max_time_step
         expression = np.pad(expression, pad_width=(0, programs.max_time_step - len(expression)), constant_values=library.invalid.name) # (max_time_step,)
         self.expression_str = expression                                                                         # (max_time_step,)
-        self.expression     = np.array([self.lib.lib_name_to_idx[tok_name] for tok_name in self.expression_str]) # (max_time_step,)
+        self.expression     = np.array([self.lib.name_to_idx[tok_name] for tok_name in self.expression_str]) # (max_time_step,)
 
         # -------- BUILDING REF MASK --------
 
