@@ -12,7 +12,7 @@ Features include:
 - ⚖️ __Physical Units information__: Physical units of each token is dynamically computed and stored in the expression tree.
 - 📚 __One equation, multiple datasets__: Expressions can contain dataset-specific free constant values through, allowing for a single equation to be evaluated and fitted across multiple datasets.
 
-### Video tutorial
+### Video tutorial (Expressions)
 
 (Coming soon)
 

@@ -15,7 +15,7 @@ Key features include:
 - 📚 __One equation, multiple datasets__: Expressions can contain dataset-specific free constant values through, allowing for a single equation to be evaluated and fitted across multiple datasets.
 
 
-### Video tutorial
+### Video tutorial (Decoding)
 
 (Coming soon)
 
