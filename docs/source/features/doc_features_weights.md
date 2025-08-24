@@ -1,4 +1,4 @@
-## Weighting Data Points / Uncertainty Quantification in SR
+## Weighting points & uncertainty
 
 ### About weights
 
