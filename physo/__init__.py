@@ -15,7 +15,7 @@ read_pareto_csv = benchmark.utils.read_logs.read_pareto_csv
 read_pareto_pkl = learn.monitoring.read_pareto_pkl
 
 # User level prog loading tools
-load_program_pkl = physym.program.load_program_pkl
+load_expr = physym.program.load_program_pkl
 
 # Exposed version
 from ._version import __version__
