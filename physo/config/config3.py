@@ -22,7 +22,7 @@ reward_config = {
 
 # ---------- LEARNING CONFIG ----------
 # Number of trial expressions to try at each epoch
-BATCH_SIZE = 500
+BATCH_SIZE = 1000
 # Function returning the torch optimizer given a model
 GET_OPTIMIZER = lambda model : torch.optim.Adam(
                                     model.parameters(),
