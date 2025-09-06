@@ -15,7 +15,7 @@ if __name__ == '__main__':
     torch.manual_seed(seed)
 
     # Dataset
-    PATH_DATA = "data/10k_curves_physical.csv"
+    PATH_DATA = "data/4096_curves.csv"
     data = pd.read_csv(PATH_DATA)
     # Subsample data to 10k
     data = data.sample(n=10000, random_state=seed).reset_index(drop=True)
@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     X_names = [shorter_names[name] for name in var_names]
     y_name = shorter_names["Ts"]
-    free_consts_names = ["c%i" % i for i in range(8)]
+    free_consts_names = ["c%i" % i for i in range(10)]
 
     # Dataset plot
     n_dim = X.shape[0]
@@ -52,12 +52,10 @@ if __name__ == '__main__':
         curr_ax.set_ylabel("y")
     plt.show()
 
-
-
     # Logging config
 
-    save_path_training_curves = 'run0_Ts_curves.png'
-    save_path_log             = 'run0_Ts.log'
+    save_path_training_curves = 'run2_Ts_curves.png'
+    save_path_log             = 'run2_Ts.log'
 
     run_logger     = lambda : monitoring.RunLogger(save_path = save_path_log,
                                                     do_save = True)
@@ -73,18 +71,7 @@ if __name__ == '__main__':
     physo.physym.batch_execute.SHOW_PROGRESS_BAR = True
     run_config = physo.config.config3.config3
 
-    # Soft Length Prior
-    for prior in run_config["priors_config"]:
-        if prior[0] == "SoftLengthPrior":
-            soft_loc  = prior[1]["length_loc"]
-            scale_loc = prior[1]["scale"]
-    fig, ax = plt.subplots()
-    x = np.arange(1, run_config["learning_config"]['max_time_step'], 0.1)
-    ax.plot(x, np.exp(-((x-soft_loc)/scale_loc)**2), 'b-', lw=2, label='Soft Length Prior')
-    ax.set_xlabel("Length")
-    ax.set_ylabel("Prior Probability")
-    ax.set_title("Soft Length Prior (loc=%i, scale=%i)" % (soft_loc, scale_loc))
-    plt.show()
+    physo.config.utils.soft_length_plot(run_config, do_show=True, save_path="run2_Ts_soft_length_prior.png")
 
     # Running SR task
     expression, logs = physo.SR(X, y,
