@@ -644,7 +644,7 @@ class RunVisualiser:
 
     def save_pareto_fig(self):
         def plot_pareto_front(run_logger,
-                              do_simplify                   = True,
+                              do_simplify                   = False, # True is better but too dangerous because sympy simplification can be stuck
                               show_superparent_at_beginning = True,
                               eq_text_size                  = 18,
                               delta_xlim                    = [0, 5 ],
