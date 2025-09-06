@@ -1,11 +1,4 @@
-# Installation
-
-The package has been tested on:
-- Linux
-- OSX (ARM & Intel)
-- Windows
-
-## Install procedure
+## Source Install
 
 ### Virtual environment
 
@@ -19,25 +12,6 @@ And activate it:
 ```
 conda activate PhySO
 ```
-
----
-
-**Without Conda (Alternative)** : 
-
-If you are unable to use conda or prefer to use another environment manager, you can install the dependencies manually using `pip`:  
-``` bash
-pip install --no-index --upgrade pip
-pip install torch >= 1.11.0
-pip install numpy
-pip install sympy
-pip install pandas
-pip install matplotlib
-pip install scikit-learn
-```
-This approach is especially useful on some HPC systems, see the [HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
-
----
-
 
 ### Downloading
 
@@ -56,7 +30,25 @@ Installing dependencies :
 conda install --file requirements.txt
 ```
 
-In order to simplify the installation process, since its first version, `physo` has been updated to have minimal very standard dependencies.
+In order to simplify the installation process, `physo` has very few and standard dependencies, which are listed in the `requirements.txt` file.
+
+---
+
+**Without Conda (Alternative)** : 
+
+If you are unable to use conda or prefer to use another environment manager, you can install the dependencies manually using `pip`:  
+``` bash
+pip install --no-index --upgrade pip
+pip install torch >= 1.11.0
+pip install numpy
+pip install sympy
+pip install pandas
+pip install matplotlib
+pip install scikit-learn
+```
+This approach is especially useful on some HPC systems, see the [HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
+
+---
 
 ---
 
@@ -93,14 +85,3 @@ Running all unit tests (from the repository root):
 python -m unittest discover -p "*Test.py"
 ```
 This  should take 5-15 min depending on your system (as if you have a lot of CPU cores, it will take longer to make the efficiency curves).
-
-## Uninstalling
-Uninstalling the package:
-```
-pip uninstall physo
-```
-Removing the conda environment:
-```
-conda deactivate
-conda env remove -n PhySO --yes
-```

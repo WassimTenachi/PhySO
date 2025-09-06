@@ -11,6 +11,7 @@ Then, create and activate a virtual environment for `physo`:
 virtualenv --no-download PhySO
 source PhySO/bin/activate
 ```
+
 Install the required dependencies:
 ```
 pip install --no-index --upgrade pip

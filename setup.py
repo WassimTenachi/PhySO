@@ -1,9 +1,7 @@
 import setuptools
 from pathlib import Path
 import os
-
-VERSION = '1.1.7'
-DESCRIPTION = 'Physical Symbolic Optimization'
+import re
 
 def get_long_description():
     here = Path(__file__).parent
@@ -19,6 +17,16 @@ def parse_requirements():
     # Replace pytorch by torch (pip name for PyTorch)
     reqs = [req.replace('pytorch', 'torch') for req in reqs]
     return reqs
+
+def get_version():
+    version_file = Path(__file__).parent / "physo" / "_version.py"
+    version_match = re.search(r'^__version__ = ["\']([^"\']*)["\']', version_file.read_text(), re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
+VERSION = get_version()
+DESCRIPTION = 'Physical Symbolic Optimization'
 
 PATH_FEYNMAN_CSVs = os.path.join("benchmark", "FeynmanDataset", "*.csv")
 PATH_CLASS_CSVs   = os.path.join("benchmark", "ClassDataset"  , "*.csv")

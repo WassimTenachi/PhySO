@@ -107,8 +107,7 @@ class RunLogger:
         self.lengths_of_unphysical        = []
 
         if not psutil_available:
-            warnings.warn(
-                "psutil not available, RAM usage can not be displayed. You can install it with `pip install psutil`")
+            print("psutil not available, RAM usage can not be displayed. You can install it with `pip install psutil`")
 
     def log(self, epoch, batch, model, rewards, keep, notkept, loss_val):
 

@@ -9,11 +9,16 @@ Physical symbolic optimization ( $\Phi$-SO ) - A symbolic optimization package b
 [![Paper](https://img.shields.io/badge/arXiv-2303.03192-b31b1b)](https://arxiv.org/abs/2303.03192)
 [![Paper](https://img.shields.io/badge/arXiv-2312.01816-b31b1b)](https://arxiv.org/abs/2312.01816)
 
+[![PyPI version](https://badge.fury.io/py/physo.svg)](https://badge.fury.io/py/physo)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/physo.svg)](https://anaconda.org/conda-forge/physo)
+
+
 Source code: [WassimTenachi/PhySO](https://github.com/WassimTenachi/PhySO)\
 Documentation: [physo.readthedocs.io](https://physo.readthedocs.io/en/latest/)
 
 ## What's New ✨  
 
+**2025-08** : 📦 Install via `pip install physo` and `conda` now available!  
 **2025-07** : 🐍 Python 3.12 + latest `NumPy`/`PyTorch`/`SymPy` support.  
 **2024-06** : 📚 Full documentation overhaul.  
 **2024-05** : 🔬 **Class SR**: Multi-dataset symbolic regression.  
@@ -48,104 +53,21 @@ The package has been tested on:
 - OSX (ARM & Intel)
 - Windows
 
-## Install procedure
+If you are encountering issues with the installation, [installing from the source](https://physo.readthedocs.io/en/latest/r_installation.html#source-install) should help.
+If you are still having issues, please refer to the [FAQ](https://physo.readthedocs.io/en/latest/r_faq.html) or raise an issue on the [GitHub repository](https://github.com/WassimTenachi/PhySO/issues).
 
-### Virtual environment
+## Installing with pip
 
-To install the package it is recommended to first create a conda virtual environment:
-```
-conda create -n PhySO python=3.12 --yes
-```
-Supporting Python 3.8 - 3.12; other versions may also work.
-
-And activate it:
-```
-conda activate PhySO
+Installing `physo` from PyPI :
+```bash
+pip install physo
 ```
 
----
+## Installing with conda
 
-**Without Conda (Alternative)** : 
-
-If you are unable to use conda or prefer to use another environment manager, you can install the dependencies manually using `pip`:  
-``` bash
-pip install --no-index --upgrade pip
-pip install torch >= 1.11.0
-pip install numpy
-pip install sympy
-pip install pandas
-pip install matplotlib
-pip install scikit-learn
-```
-This approach is especially useful on some HPC systems, see the [HPC installation guide](https://physo.readthedocs.io/en/latest/r_installation.html#hpc-compute-canada-users).
-
----
-
-
-### Downloading
-
-`physo` can be downloaded using git:
-```
-git clone https://github.com/WassimTenachi/PhySO
-```
-
-Or by direct downloading a zip of the repository: [here](https://github.com/WassimTenachi/PhySO/zipball/master)
-
-### Dependencies
-From the repository root:
-
-Installing dependencies :
-```
-conda install --file requirements.txt
-```
-
-In order to simplify the installation process, since its first version, `physo` has been updated to have minimal very standard dependencies.
-
----
-
-**NOTE** : `physo` supports CUDA but it should be noted that since the bottleneck of the code is free constant optimization, using CUDA (even on a very high-end GPU) does not improve performances over a CPU and tends to actually hinder performances.
-
----
-
-### Installing PhySO
-
-Installing `physo` to the environment (from the repository root):
-```
-python -m pip install -e . --no-deps
-```
-
-### Testing install
-
-Import test:
-```
-python3
->>> import physo
-```
-This should result in `physo` being successfully imported.
-
-Unit tests:
-
-Running all unit tests except parallel mode ones (from the repository root):
-```
-python -m unittest discover -p "*UnitTest.py"
-```
-This should result in all tests being successfully passed.
-
-Running all unit tests (from the repository root):
-```
-python -m unittest discover -p "*Test.py"
-```
-This  should take 5-15 min depending on your system (as if you have a lot of CPU cores, it will take longer to make the efficiency curves).
-
-## Uninstalling
-Uninstalling the package:
-```
-pip uninstall physo
-```
-Removing the conda environment:
-```
-conda deactivate
-conda env remove -n PhySO --yes
+Installing `physo` using conda:
+```bash
+conda install -c conda-forge physo
 ```
 ## Getting started (SR)
 
@@ -456,13 +378,14 @@ Class Symbolic Regression
 @ARTICLE{PhySO_ClassSR,
        author = {{Tenachi}, Wassim and {Ibata}, Rodrigo and {Fran{\c{c}}ois}, Thibaut L. and {Diakogiannis}, Foivos I.},
         title = "{Class Symbolic Regression: Gotta Fit 'Em All}",
-      journal = {arXiv e-prints},
-     keywords = {Computer Science - Machine Learning, Astrophysics - Astrophysics of Galaxies, Astrophysics - Instrumentation and Methods for Astrophysics, Physics - Computational Physics},
-         year = 2023,
-        month = dec,
+      journal = {The Astrophysical Journal Letters},
+         year = {2024},
+        month = {jul},
+       volume = {969},
+       number = {2},
           eid = {arXiv:2312.01816},
-        pages = {arXiv:2312.01816},
-          doi = {10.48550/arXiv.2312.01816},
+        pages = {L26},
+          doi = {10.3847/2041-8213/ad5970},
 archivePrefix = {arXiv},
        eprint = {2312.01816},
  primaryClass = {cs.LG},
