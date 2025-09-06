@@ -8,7 +8,7 @@ For doing science, it is recommended to tune hyperparameters to the specific pro
 """
 
 # Maximum length of expressions
-MAX_LENGTH = 80
+MAX_LENGTH = 120
 
 # ---------- REWARD CONFIG ----------
 reward_config = {
@@ -64,7 +64,7 @@ priors_config  = [
                 #("UniformArityPrior", None),
                 # LENGTH RELATED
                 ("HardLengthPrior"  , {"min_length": 4, "max_length": MAX_LENGTH, }),
-                ("SoftLengthPrior"  , {"length_loc": 40, "scale": 10, }),
+                ("SoftLengthPrior"  , {"length_loc": 60, "scale": 10, }),
                 # RELATIONSHIPS RELATED
                 ("NoUselessInversePrior"  , None),
                 ("PhysicalUnitsPrior", {"prob_eps": np.finfo(np.float32).eps}), # PHYSICALITY
