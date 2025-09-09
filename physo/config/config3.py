@@ -72,7 +72,7 @@ priors_config  = [
                 ("NestedFunctions", {"functions":["log",], "max_nesting" : 1}),
                 ("NestedFunctions", {"functions":["inv",], "max_nesting" : 3}),
                 ("NestedTrigonometryPrior", {"max_nesting" : 2}),
-                #("OccurrencesPrior", {"targets" : ["1",], "max" : [3,] }),
+                ("OccurrencesPrior", {"targets" : ["z",], "max" : [5,] }),
                  ]
 
 # ---------- RNN CELL CONFIG ----------
