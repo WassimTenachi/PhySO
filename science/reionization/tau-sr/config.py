@@ -9,11 +9,14 @@ For doing science, it is recommended to tune hyperparameters to the specific pro
 
 # Maximum length of expressions
 MAX_LENGTH = 200
+# Soft length prior
+LENGTH_LOC   = 100
+LENGTH_SCALE = 12
 
 # ---------- REWARD CONFIG ----------
 reward_config = {
                  "reward_function"     : physo.physym.reward.SquashedNRMSE,
-                 "zero_out_unphysical" : True,
+                 "zero_out_unphysical" : False,
                  "zero_out_duplicates" : False,
                  "keep_lowest_complexity_duplicate" : False,
                  # "parallel_mode" : True,
@@ -64,15 +67,14 @@ priors_config  = [
                 ("UniformArityPrior", None),
                 # LENGTH RELATED
                 ("HardLengthPrior"  , {"min_length": 4, "max_length": MAX_LENGTH, }),
-                ("SoftLengthPrior"  , {"length_loc": 100, "scale": 12, }),
+                ("SoftLengthPrior"  , {"length_loc": LENGTH_LOC, "scale": LENGTH_SCALE, }),
                 # RELATIONSHIPS RELATED
                 ("NoUselessInversePrior"  , None),
-                ("PhysicalUnitsPrior", {"prob_eps": np.finfo(np.float32).eps}), # PHYSICALITY
+                #("PhysicalUnitsPrior", {"prob_eps": np.finfo(np.float32).eps}), # PHYSICALITY
                 ("NestedFunctions", {"functions":["exp",], "max_nesting" : 1}),
                 ("NestedFunctions", {"functions":["log",], "max_nesting" : 1}),
                 ("NestedFunctions", {"functions":["inv",], "max_nesting" : 3}),
                 ("NestedTrigonometryPrior", {"max_nesting" : 2}),
-                ("OccurrencesPrior", {"targets" : ["z",], "max" : [5,] }),
                  ]
 
 # ---------- RNN CELL CONFIG ----------
@@ -83,7 +85,7 @@ cell_config = {
 }
 
 # ---------- RUN CONFIG ----------
-config3 = {
+custom_config = {
     "learning_config"      : learning_config,
     "reward_config"        : reward_config,
     "free_const_opti_args" : free_const_opti_args,

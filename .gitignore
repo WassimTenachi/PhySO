@@ -50,8 +50,8 @@ science/galaxy_profile/nihaoap_class_sr_v*/**
 science/galaxy_profile/nihaoap_class_sr_v*/equations_*.png
 # Science : Reionization
 science/reionization/data/**.csv
-science/reionization/**.log
-science/reionization/**.csv
-science/reionization/**.png
-science/reionization/**.pkl
-science/reionization/**.pdf
+science/reionization/**/*.log
+science/reionization/**/*.csv
+science/reionization/**/*.png
+science/reionization/**/*.pkl
+science/reionization/**/*.pdf
