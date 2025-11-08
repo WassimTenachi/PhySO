@@ -4,7 +4,6 @@ from benchmarking import utils as bu
 # Output jobfile name
 PATH_OUT_JOBFILE = "jobfile"
 
-
 # GRID SEARCH RANGES
 # Seed
 SEED = [0, 1, 2, 3]
@@ -24,7 +23,6 @@ for xe in X_ESSENTIAL_ONLY:
             for s in SEED:
                 command = "python tau_sr.py -xe %i -fp %d -ll %d -ls %d -s %d"%(int(xe), fp, ll, ls, s)
                 commands.append(command)
-
 
 bu.make_jobfile_from_command_list(PATH_OUT_JOBFILE, commands)
 
