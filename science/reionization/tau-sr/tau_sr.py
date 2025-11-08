@@ -4,6 +4,7 @@ import torch
 import pandas as pd
 import argparse
 import os
+from sklearn.feature_selection import mutual_info_regression
 
 # Package imports
 import physo
@@ -19,16 +20,18 @@ PARALLEL_MODE_DEFAULT = False
 N_CPUS_DEFAULT        = 1
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
-parser = argparse.ArgumentParser (description     = "Runs a tau SR job.",
+parser = argparse.ArgumentParser (description     = "Runs a tau SR job.", # TAU SPECIFIC
                                   formatter_class = argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-s", "--seed", default = 0,
-                    help = "Seed to use.")
+parser.add_argument("-xe", "--x_essential", default = False,
+                    help = "Whether to only use essential x variables.")
 parser.add_argument("-fp", "--parameters", default = 5,
                     help = "Number of free parameters set to use.")
 parser.add_argument("-ll", "--length_loc", default = custom_config.LENGTH_LOC,
                     help = "Soft length prior location.")
 parser.add_argument("-ls", "--length_scale", default = custom_config.LENGTH_SCALE,
                     help = "Soft length prior scale.")
+parser.add_argument("-s", "--seed", default = 0,
+                    help = "Seed to use.")
 parser.add_argument("-p", "--parallel_mode", default = PARALLEL_MODE_DEFAULT,
                     help = "Should parallel mode be used.")
 parser.add_argument("-ncpus", "--ncpus", default = N_CPUS_DEFAULT,
@@ -42,6 +45,8 @@ N_FREE_PARAMS = int(config["parameters"])
 # Soft length prior params
 LENGTH_LOC_ARG   = int(config["length_loc"])
 LENGTH_SCALE_ARG = int(config["length_scale"])
+# Whether to only use essential x variables
+X_ESSENTIAL_ONLY = bool(config["x_essential"])
 # Parallel config
 PARALLEL_MODE = bool(config["parallel_mode"])
 N_CPUS        = int(config["ncpus"])
@@ -49,7 +54,6 @@ N_CPUS        = int(config["ncpus"])
 
 
 if __name__ == '__main__':
-
 
     # region  ## Fixing seed
     seed = SEED
@@ -63,8 +67,9 @@ if __name__ == '__main__':
 
     # region ## Run name and paths
     # Paths
-    RUN_NAME = ("TAU_SR_s%d_fp%d_lloc%d_lscale%d" % (SEED, N_FREE_PARAMS, LENGTH_LOC_ARG, LENGTH_SCALE_ARG)) # TAU SPECIFIC
+    RUN_NAME = ("TAU_SR_xe%i_fp%d_lloc%d_lscale%d_s%d" % (int(X_ESSENTIAL_ONLY), N_FREE_PARAMS, LENGTH_LOC_ARG, LENGTH_SCALE_ARG, SEED)) # TAU SPECIFIC
     PATH_DATA      = "%s_data.csv" % (RUN_NAME)
+    PATH_DATA_CORR = "%s_data_features.csv" % (RUN_NAME)
     PATH_DATA_PLOT = "%s_data.png" % (RUN_NAME)
 
     # Making a directory for this run and run in it
@@ -77,6 +82,10 @@ if __name__ == '__main__':
     # region ## Dataset
 
     X_names = ["OMm","OMb","h","sigma_8", "n_s", "F_STAR10","F_ESC10","ALPHA_STAR","ALPHA_ESC","M_TURN","L_X","t_STAR","R_BUBBLE_MAX"] # TAU SPECIFIC
+    X_names_essential = ["F_ESC10","M_TURN","F_STAR10","ALPHA_ESC"]
+    if X_ESSENTIAL_ONLY:
+        X_names = X_names_essential
+
     n_dim = len(X_names)
     X = df[X_names].to_numpy().T                # (n_dim, n_samples)
     y_name = 'tau' # TAU SPECIFIC
@@ -98,9 +107,23 @@ if __name__ == '__main__':
     # Save plot
     fig.savefig(PATH_DATA_PLOT)
 
+    # region ## Dataset feature importance
+
+    # Compute Pearson correlation coefficients
+    pearsons = np.array([np.corrcoef(X.T[:, i], y)[0, 1] for i in range(X.T.shape[1])])
+    # Compute Mutual Information (nonlinear dependence)
+    mi = mutual_info_regression(X.T, y, random_state=0)
+
+    # Build combined DataFrame
+    df_features = pd.DataFrame({
+        'Variable': X_names,
+        'Pearson_r': pearsons,
+        'Abs_r': np.abs(pearsons),
+        'Mutual_Info': mi
+    }).sort_values('Mutual_Info', ascending=False)
+    df_features.to_csv(PATH_DATA_CORR, sep=";")
+
     # endregion
-
-
 
     # region ## SR config
 
