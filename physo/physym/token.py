@@ -2,7 +2,7 @@ import numpy as np
 
 # --------------------- TOKEN DEFAULT VALUES ---------------------
 # Max size for token names
-MAX_NAME_SIZE = 10
+MAX_NAME_SIZE = 20
 # Number of units in SI system
 UNITS_VECTOR_SIZE = 7
 # Default behavior ID in dimensional analysis
