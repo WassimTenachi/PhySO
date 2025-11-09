@@ -16,7 +16,7 @@ import config as custom_config
 # Parallel config :
 # Parallel mode may cause issues due to the number of samples, non-parallel mode is recommended
 # Single core with so many samples will actually use up to 10 cores via pytorch parallelization along sample dim
-PARALLEL_MODE_DEFAULT = False
+PARALLEL_MODE_DEFAULT = True
 N_CPUS_DEFAULT        = 1
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
@@ -52,6 +52,9 @@ PARALLEL_MODE = bool(config["parallel_mode"])
 N_CPUS        = int(config["ncpus"])
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 
+# Avoid race conditions with multiprocessing:
+import matplotlib
+matplotlib.rcParams['text.usetex'] = False  # avoid TeX rendering
 
 if __name__ == '__main__':
 
