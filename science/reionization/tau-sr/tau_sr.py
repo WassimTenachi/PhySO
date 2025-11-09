@@ -46,7 +46,7 @@ N_FREE_PARAMS = int(config["parameters"])
 LENGTH_LOC_ARG   = int(config["length_loc"])
 LENGTH_SCALE_ARG = int(config["length_scale"])
 # Whether to only use essential x variables
-X_ESSENTIAL_ONLY = bool(config["x_essential"])
+X_ESSENTIAL_ONLY = bool(int(config["x_essential"]))
 # Parallel config
 PARALLEL_MODE = bool(config["parallel_mode"])
 N_CPUS        = int(config["ncpus"])
