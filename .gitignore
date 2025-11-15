@@ -55,3 +55,5 @@ science/reionization/**/*.csv
 science/reionization/**/*.png
 science/reionization/**/*.pkl
 science/reionization/**/*.pdf
+science/reionization/**/jobfile
+science/reionization/**/*.slurm
