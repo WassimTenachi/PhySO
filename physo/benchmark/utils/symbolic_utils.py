@@ -414,6 +414,33 @@ def expression_size(expr):
         c += 1
     return c
 
+
+def expression_n_floats(expr):
+    """
+
+    Parameters
+    ----------
+    expr : Sympy Expression
+    Returns
+    -------
+    ex2 : Sympy Expression
+    """
+
+    n_floats = 0
+
+    # Other sympy numbers to convert to floats that evalf does not handle
+    ex1 = expr
+    sympy_numbers_to_float = [sympy.core.numbers.Exp1,]#[sympy.core.numbers.Pi]
+    for a in sympy.preorder_traversal(expr):
+        if (type(a) in sympy_numbers_to_float):
+            n_floats += 1
+    ex2 = ex1
+    for a in sympy.preorder_traversal(ex1):
+        if isinstance(a, sympy.Float):
+            n_floats += 1
+    return n_floats
+
+
 def sympy_to_prefix(sympy_expr):
     """
     Converts a sympy expression to prefix notation.
