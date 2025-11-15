@@ -29,15 +29,18 @@ for run_folder in run_folders:
     # Paths to results
     result_pkl    = os.path.join(run_path, "sr_curves_pareto.pkl")
     data_used_csv = os.path.join(run_path, f"{run_folder}_data.csv")
+    run_curves_csv = os.path.join(run_path, "sr_curves_data.csv")
     # Resulting expressions and vars used
     exprs      = physo.read_pareto_pkl(result_pkl)
+    run_curves_df = pd.read_csv(run_curves_csv)
     vars_used  = pd.read_csv(data_used_csv, sep=';').columns.tolist()[2:]  # skip index and y cols
     # Append to df
     for expr in exprs:
         all_exprs_df = all_exprs_df._append({
             "expression": expr,
             "vars_used": vars_used,
-            "run_name": run_folder
+            "run_name": run_folder,
+            "n_evals": run_curves_df['n_rewarded'].sum(),
         }, ignore_index=True)
 
 # endregion
@@ -52,12 +55,13 @@ df_test  = pd.read_csv(path_data_test)
 
 t00 = time.perf_counter()
 
-path_all_exprs = os.path.join(RUNS_PATH, "all_exprs_eval.pkl")
+path_all_exprs_pkl = os.path.join(RUNS_PATH, "all_exprs_eval.pkl")
+path_all_exprs_csv = os.path.join(RUNS_PATH, "all_exprs_eval.csv")
 
 # If .pkl exists load it
 found_all_exprs = False
-if os.path.exists(path_all_exprs):
-    all_exprs_df = pd.read_pickle(path_all_exprs)
+if os.path.exists(path_all_exprs_pkl):
+    all_exprs_df = pd.read_pickle(path_all_exprs_pkl)
     found_all_exprs = True
 
 
@@ -116,15 +120,19 @@ if not found_all_exprs:
 else:
     print("Loaded pre-evaluated expressions from pickle.")
 
-# Save evaluated expressions to .pkl
-all_exprs_df.to_pickle(path_all_exprs)
+# Change dtype to int for length and n_free_params
+all_exprs_df["length"]        = all_exprs_df["length"]       .astype(int)
+all_exprs_df["n_free_params"] = all_exprs_df["n_free_params"].astype(int)
+all_exprs_df["n_evals"]       = all_exprs_df["n_evals"]      .astype(int)
+
+# Save evaluated expressions to .pkl and csv
+all_exprs_df.to_pickle(path_all_exprs_pkl)
+all_exprs_df.to_csv   (path_all_exprs_csv, index=False)
+print('Saved evaluated expressions to:', path_all_exprs_csv)
 
 t11 = time.perf_counter()
 print(f"Evaluated all expressions in {t11 - t00:0.4f} seconds")
 
-# Change dtype to int for length and n_free_params
-all_exprs_df["length"]        = all_exprs_df["length"]       .astype(int)
-all_exprs_df["n_free_params"] = all_exprs_df["n_free_params"].astype(int)
 
 # endregion
 
