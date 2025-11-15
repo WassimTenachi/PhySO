@@ -1,8 +1,13 @@
 import numpy as np
 
 # Metrics
-def r2(y_target, y_pred):
-    return 1 - ((y_target - y_pred) ** 2).sum() / ((y_target - y_target.mean()) ** 2).sum()
+def r2(y_target, y_pred, weights=None):
+    if weights is None:
+        r2 = 1 - ((y_target - y_pred) ** 2).sum() / ((y_target - y_target.mean()) ** 2).sum()
+    else:
+        mean = np.sum(weights * y_target) / np.sum(weights)
+        r2 = 1 - np.sum(weights * (y_target - y_pred) ** 2) / np.sum(weights * (y_target - mean) ** 2)
+    return r2
 
 def r2_zero(y_target, y_pred):
     res = r2(y_target, y_pred)
