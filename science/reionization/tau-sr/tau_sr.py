@@ -17,7 +17,7 @@ import config as custom_config
 # Parallel mode may cause issues due to the number of samples, non-parallel mode is recommended
 # Single core with so many samples will actually use up to 10 cores via pytorch parallelization along sample dim
 PARALLEL_MODE_DEFAULT = True
-N_CPUS_DEFAULT        = 1
+N_CPUS_DEFAULT        = 8
 
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Runs a tau SR job.", # TAU SPECIFIC
