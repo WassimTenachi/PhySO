@@ -192,17 +192,17 @@ pareto_df_mae_fp = pareto_df_mae_fp[pareto_df_mae_fp["n_free_params"] >= 2].rese
 
 # region # ------- PARETO FRONT PLOT ------- #
 
-fig, ax = plt.subplots(figsize=(7,5))
-ax.plot(pareto_df_mae_length["length"], pareto_df_mae_length["MAE_test"], 'r-', alpha=1.)
-plt.xlabel("Length")
-plt.ylabel("MAE (test)")
-plt.show()
-
-fig, ax = plt.subplots(figsize=(7,5))
-ax.plot(pareto_df_mae_fp["n_free_params"], pareto_df_mae_fp["MAE_test"], 'r-', alpha=1.)
-plt.xlabel("Number of free parameters")
-plt.ylabel("MAE (test)")
-plt.show()
+# fig, ax = plt.subplots(figsize=(7,5))
+# ax.plot(pareto_df_mae_length["length"], pareto_df_mae_length["MAE_test"], 'r-', alpha=1.)
+# plt.xlabel("Length")
+# plt.ylabel("MAE (test)")
+# plt.show()
+#
+# fig, ax = plt.subplots(figsize=(7,5))
+# ax.plot(pareto_df_mae_fp["n_free_params"], pareto_df_mae_fp["MAE_test"], 'r-', alpha=1.)
+# plt.xlabel("Number of free parameters")
+# plt.ylabel("MAE (test)")
+# plt.show()
 
 # endregion
 
@@ -293,16 +293,18 @@ baseline_row = {
 
 pareto_df_mae_length_w_baseline = pareto_df_mae_length._append(baseline_row, ignore_index=True
                                 ).sort_values(by="MAE_test", ascending=False).reset_index(drop=True)
+pareto_df_mae_length_w_baseline.to_csv(RUNS_PATH+"pareto_mae_vs_length.csv", index=False)
 
 pareto_df_mae_fp_w_baseline = pareto_df_mae_fp._append(baseline_row, ignore_index=True
                                 ).sort_values(by="MAE_test", ascending=False).reset_index(drop=True)
-
+pareto_df_mae_fp_w_baseline.to_csv(RUNS_PATH+"pareto_mae_vs_n_free_params.csv", index=False)
 
 fig, ax = plt.subplots(figsize=(7,5))
 ax.plot(pareto_df_mae_length_w_baseline["length"], pareto_df_mae_length_w_baseline["MAE_test"], 'b--', alpha=1.)
 ax.plot(pareto_df_mae_length["length"], pareto_df_mae_length["MAE_test"], 'r-', alpha=1.)
 plt.xlabel("Length")
 plt.ylabel("MAE (test)")
+plt.savefig(RUNS_PATH+"pareto_mae_vs_length.png")
 plt.show()
 
 fig, ax = plt.subplots(figsize=(7,5))
@@ -310,6 +312,7 @@ ax.plot(pareto_df_mae_fp_w_baseline["n_free_params"], pareto_df_mae_fp_w_baselin
 ax.plot(pareto_df_mae_fp["n_free_params"], pareto_df_mae_fp["MAE_test"], 'r-', alpha=1.)
 plt.xlabel("Number of free parameters")
 plt.ylabel("MAE (test)")
+plt.savefig(RUNS_PATH+"pareto_mae_vs_n_free_params.png")
 plt.show()
 
 # endregion
