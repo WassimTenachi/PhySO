@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     # region ## Dataset
 
-    X_names = ["OMm","OMb","h","sigma_8", "n_s", "F_STAR10","F_ESC10","ALPHA_STAR","ALPHA_ESC","M_TURN","L_X","t_STAR","R_BUBBLE_MAX"] # TAU SPECIFIC
+    X_names = ["OMm","OMb","h","sigma_8", "n_s", "F_STAR10","F_ESC10","ALPHA_STAR","ALPHA_ESC","M_TURN","R_BUBBLE_MAX"] # TAU SPECIFIC
     X_names_essential = ["F_ESC10","M_TURN","F_STAR10","ALPHA_ESC"]
     if X_ESSENTIAL_ONLY:
         X_names = X_names_essential
@@ -142,8 +142,8 @@ if __name__ == '__main__':
     FREE_CONSTS_NAMES = ["c%d"%(i) for i in range(N_FREE_PARAMS)]
     FIXED_CONSTS = [1.]
 
-    OP_NAMES = ["mul", "add", "sub", "div", "inv", "neg", "n2", "sqrt", "exp", "log", "sin", "tanh"] # TAU SPECIFIC
-    # pow
+    OP_NAMES = ["mul", "add", "sub", "div", "inv", "neg", "n2", "sqrt", "exp", "log",] # TAU SPECIFIC
+    # pow, sin, tanh
     MAX_N_EVALUATIONS = int(1e99) # Will stop the run regardless of N_EPOCHS
     N_EPOCHS = int(1e99)
 
