@@ -88,11 +88,11 @@ if __name__ == '__main__':
 
     # region ## Dataset
 
-    X_names = ['OMm', 'OMb', 'h', 'sigma_8', 'n_s', 'F_STAR10', 'F_ESC10', 'ALPHA_STAR', 'ALPHA_ESC', 'M_TURN', 'L_X', 't_STAR', 'R_BUBBLE_MAX'] # z_reion SPECIFIC
+    X_names = ['OMm', 'OMb', 'h', 'sigma_8', 'n_s', 'F_STAR10', 'F_ESC10', 'ALPHA_STAR', 'ALPHA_ESC', 'M_TURN', 'R_BUBBLE_MAX'] # z_reion SPECIFIC
 
     X_names_essential_dict = {
     'z_asy': ['R_BUBBLE_MAX', 'ALPHA_ESC', 'M_TURN', 'OMm', 'F_ESC10', ],
-    'z_dur': ['ALPHA_ESC', 'R_BUBBLE_MAX', 'M_TURN', 'F_ESC10', 'L_X', 'F_STAR10'],
+    'z_dur': ['ALPHA_ESC', 'R_BUBBLE_MAX', 'M_TURN', 'F_ESC10', 'F_STAR10'],
     'z_mid': ['F_ESC10', 'F_STAR10', 'ALPHA_ESC', 'M_TURN']
         } # z_reion SPECIFIC
     X_names_essential = X_names_essential_dict[ZTASK] # z_reion SPECIFIC
@@ -152,8 +152,8 @@ if __name__ == '__main__':
     FREE_CONSTS_NAMES = ["c%d"%(i) for i in range(N_FREE_PARAMS)]
     FIXED_CONSTS = [1.]
 
-    OP_NAMES = ["mul", "add", "sub", "div", "inv", "neg", "n2", "sqrt", "exp", "log", "sin", "tanh"] # z_reion SPECIFIC
-    # pow
+    OP_NAMES = ["mul", "add", "sub", "div", "inv", "neg", "n2", "sqrt", "exp", "log",] # z_reion SPECIFIC
+    # pow, "sin", "tanh"
     MAX_N_EVALUATIONS = int(1e99) # Will stop the run regardless of N_EPOCHS
     N_EPOCHS = int(1e99)
 
