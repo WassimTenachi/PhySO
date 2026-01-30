@@ -11,9 +11,10 @@ import time
 import physo
 import physo.benchmark.utils.metrics_utils as metrics_utils
 import physo.benchmark.utils as benchmark_utils
+import physo.benchmark.utils.symbolic_utils as su
 
-RUNS_PATH = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season4/run-results/TAU_SR-RUNS-APLHA/"
-PATH_DATA = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season4/data/"
+RUNS_PATH = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/run-results/TAU_SR-RUNS-APLHA/"
+PATH_DATA = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/data/"
 
 
 # region # ------- COLLECTING ALL EXPRESSIONS ACROSS RUNS ------- #
@@ -25,24 +26,28 @@ run_folders = [f for f in os.listdir(RUNS_PATH) if f.startswith("TAU_SR")]
 all_exprs_df = pd.DataFrame(columns=["expression", "vars_used",  "run_name"])
 
 for run_folder in run_folders:
+    print('Collecting expressions from run folder:', run_folder)
     run_path = os.path.join(RUNS_PATH, run_folder) # my_path/run_folder
-    # Paths to results
-    result_pkl    = os.path.join(run_path, "sr_curves_pareto.pkl")
-    data_used_csv = os.path.join(run_path, f"{run_folder}_data.csv")
-    run_curves_csv = os.path.join(run_path, "sr_curves_data.csv")
-    # Resulting expressions and vars used
-    exprs      = physo.read_pareto_pkl(result_pkl)
-    run_curves_df = pd.read_csv(run_curves_csv)
-    vars_used  = pd.read_csv(data_used_csv, sep=';').columns.tolist()[2:]  # skip index and y cols
-    # Append to df
-    for expr in exprs:
-        all_exprs_df = all_exprs_df._append({
-            "expression": expr,
-            "vars_used": vars_used,
-            "run_name": run_folder,
-            "n_evals": run_curves_df['n_rewarded'].sum(),
-        }, ignore_index=True)
-
+    try:
+        # Paths to results
+        result_pkl    = os.path.join(run_path, "sr_curves_pareto.pkl")
+        data_used_csv = os.path.join(run_path, f"{run_folder}_data.csv")
+        run_curves_csv = os.path.join(run_path, "sr_curves_data.csv")
+        # Resulting expressions and vars used
+        exprs      = physo.read_pareto_pkl(result_pkl)
+        run_curves_df = pd.read_csv(run_curves_csv)
+        vars_used  = pd.read_csv(data_used_csv, sep=';').columns.tolist()[2:]  # skip index and y cols
+        # Append to df
+        for expr in exprs:
+            all_exprs_df = all_exprs_df._append({
+                "expression": expr,
+                "vars_used": vars_used,
+                "run_name": run_folder,
+                "n_evals": run_curves_df['n_rewarded'].sum(), # makes no sense as the same run can appear twice in the df #todo: remove metric
+            }, ignore_index=True)
+    except:
+        print('❌ Could not collect expressions from run folder:', run_folder)
+        continue
 # endregion
 
 # region # ------- EVALUATING ALL EXPRESSIONS ------- #
@@ -258,11 +263,6 @@ nn_r2_test  = metrics.r2_score(y_test, y_pred_nn)
 print(f"NN Baseline MAE (test): {nn_mae_test:0.6f}")
 print(f"NN Baseline R2  (test): {nn_r2_test:0.6f}")
 
-
-
-
-
-
 # endregion
 
 # region # ------- COMPARISON WITH BASELINE ------- #
@@ -376,10 +376,21 @@ plt.ylabel("MAE (test)")
 plt.savefig(RUNS_PATH+"pareto_mae_vs_n_free_params.png")
 plt.show()
 
+# IN S4 results:
 # Nice optimum at mae = 0.001796
 # print(sympy.pretty(pareto_df_mae_length.iloc[11]['expression'].get_infix_sympy(evaluate_consts=True)[0].simplify()))
 
-#
+for i_expr in range (len(pareto_df_mae_length)):
+    df_line = pareto_df_mae_length.iloc[i_expr]
+    nparams = df_line["n_free_params"]
+    acc     = df_line["MAE_test"]
+    sympy_expr = df_line['expression'].get_infix_sympy(evaluate_consts=True)[0].simplify()
+    sympy_expr = su.clean_sympy_expr(sympy_expr, round_decimal = 3)
+    print("\n--------------------------")
+    print(f"Expression index {i_expr} | n_free_params = {nparams}")
+    print(sympy.pretty(sympy_expr))
+    print(f"MAE (test) = {acc:0.6f}")
+
 
 # endregion
 print(None)
