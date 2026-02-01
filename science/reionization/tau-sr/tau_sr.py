@@ -22,6 +22,8 @@ N_CPUS_DEFAULT        = 8
 # ---------------------------------------------------- SCRIPT ARGS -----------------------------------------------------
 parser = argparse.ArgumentParser (description     = "Runs a tau SR job.", # TAU SPECIFIC
                                   formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("-sim", "--simulation", default = "amber",
+                    help = "Whether to use data from 21cmFast (21f) sim or Amber (amber).")
 parser.add_argument("-xe", "--x_essential", default = False,
                     help = "Whether to only use essential x variables.")
 parser.add_argument("-fp", "--parameters", default = 5,
@@ -38,6 +40,8 @@ parser.add_argument("-ncpus", "--ncpus", default = N_CPUS_DEFAULT,
                     help = "Nb. of CPUs to use")
 config = vars(parser.parse_args())
 
+# Simulation name
+SIMULATION = str(config["simulation"])
 # Seed
 SEED = int(config["seed"])
 # Number of free parameters
@@ -65,12 +69,12 @@ if __name__ == '__main__':
     # endregion
 
     # region ## Loading dataset
-    df = pd.read_csv('../data/tau_training_data.csv') # TAU SPECIFIC
+    df = pd.read_csv(f'../data/{SIMULATION}/tau_training_data.csv') # TAU SPECIFIC
     # endregion
 
     # region ## Run name and paths
     # Paths
-    RUN_NAME = ("TAU_SR_xe%i_fp%d_lloc%d_lscale%d_s%d" % (int(X_ESSENTIAL_ONLY), N_FREE_PARAMS, LENGTH_LOC_ARG, LENGTH_SCALE_ARG, SEED)) # TAU SPECIFIC
+    RUN_NAME = ("TAU_SR_%s_xe%i_fp%d_lloc%d_lscale%d_s%d" % (SIMULATION, int(X_ESSENTIAL_ONLY), N_FREE_PARAMS, LENGTH_LOC_ARG, LENGTH_SCALE_ARG, SEED)) # TAU SPECIFIC
     PATH_DATA      = "%s_data.csv" % (RUN_NAME)
     PATH_DATA_CORR = "%s_data_features.csv" % (RUN_NAME)
     PATH_DATA_PLOT = "%s_data.png" % (RUN_NAME)
@@ -84,8 +88,19 @@ if __name__ == '__main__':
 
     # region ## Dataset
 
-    X_names = ["OMm","OMb","h","sigma_8", "n_s", "F_STAR10","F_ESC10","ALPHA_STAR","ALPHA_ESC","M_TURN","R_BUBBLE_MAX"] # TAU SPECIFIC
-    X_names_essential = ["F_ESC10","M_TURN","F_STAR10","ALPHA_ESC"]
+    # TAU SPECIFIC
+    X_names_dict = {
+        "21f": {
+            "X_names"           : ["OMm","OMb","h","sigma_8", "n_s", "F_STAR10","F_ESC10","ALPHA_STAR","ALPHA_ESC","M_TURN","R_BUBBLE_MAX"],
+            "X_names_essential" : ["F_ESC10","M_TURN","F_STAR10","ALPHA_ESC"],},
+        "amber": {
+            "X_names"           : ['OMm', 'OMb', 'h', 'sigma_8', 'n_s', 'z_mid', 'z_dur', 'z_asy'],
+            "X_names_essential" : ['OMb', 'h', 'z_mid', 'z_dur', 'z_asy'], },
+            }
+
+    X_names           = X_names_dict[SIMULATION]["X_names"]
+    X_names_essential = X_names_dict[SIMULATION]["X_names_essential"]
+
     if X_ESSENTIAL_ONLY:
         X_names = X_names_essential
 

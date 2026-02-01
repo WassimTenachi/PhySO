@@ -17,12 +17,13 @@ X_ESSENTIAL_ONLY = [False, True]
 
 # GENERATING COMMANDS
 commands = []
-for xe in X_ESSENTIAL_ONLY:
-    for fp in N_FREE_PARAMS:
-        for ll, ls in zip (LENGTH_LOC_ARG, LENGTH_SCALE_ARG):
-            for s in SEED:
-                command = "python tau_sr.py -xe %i -fp %d -ll %d -ls %d -s %d"%(int(xe), fp, ll, ls, s)
-                commands.append(command)
+for sim in ['21f', 'amber']:
+    for xe in X_ESSENTIAL_ONLY:
+        for fp in N_FREE_PARAMS:
+            for ll, ls in zip (LENGTH_LOC_ARG, LENGTH_SCALE_ARG):
+                for s in SEED:
+                    command = "python tau_sr.py -sim %s -xe %i -fp %d -ll %d -ls %d -s %d"%(sim, int(xe), fp, ll, ls, s)
+                    commands.append(command)
 
 bu.make_jobfile_from_command_list(PATH_OUT_JOBFILE, commands)
 
