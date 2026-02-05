@@ -12,8 +12,10 @@ import physo
 import physo.benchmark.utils.metrics_utils as metrics_utils
 import physo.benchmark.utils as benchmark_utils
 import physo.benchmark.utils.symbolic_utils as su
+from science.reionization.analysis.xHI_analysis import baseline_str
 
-RUNS_PATH = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/run-results/TAU_SR-RUNS-APLHA/"
+SIMULATION = "amber" # "21f" or "amber"
+RUNS_PATH = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/run-results/TAU_SR-RUNS-AMBER/" # APLHA or AMBER
 PATH_DATA = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/data/"
 
 
@@ -53,8 +55,8 @@ for run_folder in run_folders:
 # region # ------- EVALUATING ALL EXPRESSIONS ------- #
 
 # Load training and test data
-path_data_train = os.path.join(PATH_DATA, "tau_training_data.csv") # Tau specific
-path_data_test  = os.path.join(PATH_DATA, "tau_test_data.csv")     # Tau specific
+path_data_train = os.path.join(PATH_DATA, SIMULATION, "tau_training_data.csv") # Tau specific
+path_data_test  = os.path.join(PATH_DATA, SIMULATION, "tau_test_data.csv")     # Tau specific
 df_train = pd.read_csv(path_data_train)
 df_test  = pd.read_csv(path_data_test)
 
@@ -209,7 +211,12 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
 
 # Preparing data
-astro_cols = ["OMm", "OMb", "h", "sigma_8", "n_s", "F_STAR10","F_ESC10","ALPHA_STAR","ALPHA_ESC","M_TURN","L_X","t_STAR","R_BUBBLE_MAX"]
+astro_cols_dict = {
+    "21f"   : ["OMm", "OMb", "h", "sigma_8", "n_s", "F_STAR10","F_ESC10","ALPHA_STAR","ALPHA_ESC","M_TURN","L_X","t_STAR","R_BUBBLE_MAX"],
+    "amber" : ['OMm', 'OMb', 'h', 'sigma_8', 'n_s', 'z_mid', 'z_dur', 'z_asy'],
+}
+astro_cols = astro_cols_dict[SIMULATION]
+
 X_train = df_train[astro_cols].to_numpy()   # (n_samples, n_dim)
 y_train = df_train["tau"].to_numpy()        # (n_samples,)
 X_test  = df_test[astro_cols].to_numpy()    # (n_samples, n_dim)
@@ -267,7 +274,7 @@ print(f"NN Baseline R2  (test): {nn_r2_test:0.6f}")
 
 # region # ------- COMPARISON WITH BASELINE ------- #
 
-astro_cols = ["OMm", "OMb", "h", "sigma_8", "n_s", "F_STAR10","F_ESC10","ALPHA_STAR","ALPHA_ESC","M_TURN","L_X","t_STAR","R_BUBBLE_MAX"]
+astro_cols = astro_cols_dict[SIMULATION]
 
 # Functions
 def make_callable_equation(eq_str: str, all_var_names: list[str]):
@@ -307,7 +314,12 @@ def make_callable_equation(eq_str: str, all_var_names: list[str]):
     f.used_vars = used_vars
     return f
 
-baseline_str = "((((-0.059858155 / ((R_BUBBLE_MAX - safe_log((t_STAR + safe_sin(L_X)) + 0.31493956)) - (safe_sin(M_TURN / exp(-1.2960565 - tanh(F_ESC10))) / exp((((R_BUBBLE_MAX - exp(safe_sin(((0.26600757 / (OMb * F_ESC10)) + (M_TURN ^ 1.5187011)) + M_TURN))) - exp(safe_sin(F_STAR10 + ((F_ESC10 + (M_TURN ^ 0.90847105)) - (R_BUBBLE_MAX * OMm))) - safe_log(h))) ^ 1.2344037) * (F_ESC10 * OMb))))) - -0.018643435) + ((OMb * (((n_s * h) * (sigma_8 * 1.4563627)) + -0.35222226)) * exp(n_s))) * ((exp(F_STAR10) + exp(F_ESC10)) + tanh(exp((F_STAR10 + tanh(((ALPHA_STAR - OMm) + safe_sin(ALPHA_ESC)) * ((((safe_sin(M_TURN) + ((R_BUBBLE_MAX ^ (n_s + -0.91018784)) / (R_BUBBLE_MAX ^ ALPHA_STAR))) * -1.8453525) - ((n_s - 1.9665523) * (F_STAR10 * F_ESC10))) + (((OMm * ALPHA_ESC) / -0.25400874) * (F_STAR10 + (F_ESC10 + 0.7730384)))))) + tanh(safe_log(safe_sin(M_TURN))))))) + -0.0043368875"
+baseline_str_dict = {
+    "21f"   : "((((-0.059858155 / ((R_BUBBLE_MAX - safe_log((t_STAR + safe_sin(L_X)) + 0.31493956)) - (safe_sin(M_TURN / exp(-1.2960565 - tanh(F_ESC10))) / exp((((R_BUBBLE_MAX - exp(safe_sin(((0.26600757 / (OMb * F_ESC10)) + (M_TURN ^ 1.5187011)) + M_TURN))) - exp(safe_sin(F_STAR10 + ((F_ESC10 + (M_TURN ^ 0.90847105)) - (R_BUBBLE_MAX * OMm))) - safe_log(h))) ^ 1.2344037) * (F_ESC10 * OMb))))) - -0.018643435) + ((OMb * (((n_s * h) * (sigma_8 * 1.4563627)) + -0.35222226)) * exp(n_s))) * ((exp(F_STAR10) + exp(F_ESC10)) + tanh(exp((F_STAR10 + tanh(((ALPHA_STAR - OMm) + safe_sin(ALPHA_ESC)) * ((((safe_sin(M_TURN) + ((R_BUBBLE_MAX ^ (n_s + -0.91018784)) / (R_BUBBLE_MAX ^ ALPHA_STAR))) * -1.8453525) - ((n_s - 1.9665523) * (F_STAR10 * F_ESC10))) + (((OMm * ALPHA_ESC) / -0.25400874) * (F_STAR10 + (F_ESC10 + 0.7730384)))))) + tanh(safe_log(safe_sin(M_TURN))))))) + -0.0043368875",
+    "amber" : "safe_sin(((((safe_log((z_asy + (z_dur * 0.058795158)) + ((safe_sin(z_asy - -0.6556461) + ((z_dur * 0.4423596) + (safe_sin((z_mid * 0.35473278) - z_dur) + tanh(safe_sin(z_mid))))) / (n_s / (z_mid ^ -2.1271157)))) * (z_dur * 0.12831703)) + z_mid) * h) + ((((((safe_sin(((z_mid + 0.23383847) - ((-1.2752907 / (OMm + -0.37744355)) * OMm)) * 0.41520354) * exp(n_s)) + ((0.558983 ^ safe_sin(z_mid * -2.4041102)) + (((z_dur + (((z_dur / z_mid) ^ z_mid) / ((z_asy - safe_sin(safe_log(z_mid))) * (z_asy * z_asy)))) / (z_asy ^ (z_asy * 0.78929085))) ^ 1.755196))) + ((safe_sin((((z_asy - 0.9723719) ^ -0.45273873) - (z_dur ^ (0.95459366 ^ (z_mid - (z_asy - 0.95904595))))) + z_asy) + z_asy) ^ safe_log(z_asy * tanh(z_dur + 0.17245625)))) * -0.19152147) + safe_sin(z_mid - (0.8673456 ^ (1.3720335 ^ (z_dur + -1.3377167))))) * 0.018885406)) * (safe_sin(tanh(((z_mid * 0.01888868) + 0.21826385) * (0.19799352 ^ OMm))) * OMb))",
+}
+baseline_str = baseline_str_dict[SIMULATION]
+
 
 # ---- Metrics : accuracy ----
 baseline_func = make_callable_equation(baseline_str, astro_cols)
@@ -380,6 +392,7 @@ plt.show()
 # Nice optimum at mae = 0.001796
 # print(sympy.pretty(pareto_df_mae_length.iloc[11]['expression'].get_infix_sympy(evaluate_consts=True)[0].simplify()))
 
+# IN S5 results:
 for i_expr in range (len(pareto_df_mae_length)):
     df_line = pareto_df_mae_length.iloc[i_expr]
     nparams = df_line["n_free_params"]

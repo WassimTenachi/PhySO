@@ -11,8 +11,9 @@ import time
 import physo
 import physo.benchmark.utils.metrics_utils as metrics_utils
 import physo.benchmark.utils as benchmark_utils
+import physo.benchmark.utils.symbolic_utils as su
 
-RUNS_PATH = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season4/run-results/Z_SR-RUNS-APLHA/"
+RUNS_PATH = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/run-results/Z_SR-RUNS-APLHA/"
 PATH_DATA = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season4/data/"
 ZTASK = 'z_asy' #z_asy, z_dur or z_mid
 
@@ -312,6 +313,19 @@ plt.xlabel("Number of free parameters")
 plt.ylabel("MAE (test)")
 plt.savefig(RUNS_PATH+"pareto_mae_vs_n_free_params_%s.png"%(ZTASK))
 plt.show()
+
+# IN S5 results:
+for i_expr in range (len(pareto_df_mae_length)):
+    df_line = pareto_df_mae_length.iloc[i_expr]
+    nparams = df_line["n_free_params"]
+    acc     = df_line["MAE_test"]
+    sympy_expr = df_line['expression'].get_infix_sympy(evaluate_consts=True)[0].simplify()
+    sympy_expr = su.clean_sympy_expr(sympy_expr, round_decimal = 3)
+    print("\n--------------------------")
+    print(f"Expression index {i_expr} | n_free_params = {nparams}")
+    print(sympy.pretty(sympy_expr))
+    print(f"MAE (test) = {acc:0.6f}")
+
 
 # endregion
 print(None)
