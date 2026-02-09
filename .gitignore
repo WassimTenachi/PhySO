@@ -57,3 +57,4 @@ science/reionization/**/*.pkl
 science/reionization/**/*.pdf
 science/reionization/**/jobfile
 science/reionization/**/*.slurm
+science/reionization/**/jobfile
