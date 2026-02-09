@@ -14,8 +14,8 @@ import physo.benchmark.utils as benchmark_utils
 import physo.benchmark.utils.symbolic_utils as su
 from science.reionization.analysis.xHI_analysis import baseline_str
 
-SIMULATION = "amber" # "21f" or "amber"
-RUNS_PATH = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/run-results/TAU_SR-RUNS-AMBER/" # APLHA or AMBER
+SIMULATION = "21f" # "21f" or "amber"
+RUNS_PATH = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/run-results/TAU_SR-RUNS-APLHA/" # APLHA or AMBER
 PATH_DATA = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/data/"
 
 
@@ -79,6 +79,17 @@ if not found_all_exprs:
         vars_used = row["vars_used"]
 
         df_dict = {"train": df_train, "test": df_test}
+
+        # -- Logging expression in plain text --
+        try:
+            @benchmark_utils.timeout_generic.timeout(1)
+            def get_infix_str(expr):
+                return str(expr.get_infix_sympy(evaluate_consts=True)[0])
+            infix_str = get_infix_str(expr)
+        except Exception as e:
+            print('Could not convert to sympy for expr index %d due to: %s' % (index, str(e)))
+            infix_str = ""
+        all_exprs_df.at[index, "equation"] = infix_str
 
         # -- Logging complexity metrics --
 
