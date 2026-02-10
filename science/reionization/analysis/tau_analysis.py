@@ -14,8 +14,8 @@ import physo.benchmark.utils as benchmark_utils
 import physo.benchmark.utils.symbolic_utils as su
 from science.reionization.analysis.xHI_analysis import baseline_str
 
-SIMULATION = "21f" # "21f" or "amber"
-RUNS_PATH = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/run-results/TAU_SR-RUNS-APLHA/" # APLHA or AMBER
+SIMULATION = "amber" # "21f" or "amber"
+RUNS_PATH = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/run-results/TAU_SR-RUNS-AMBER/" # APLHA or AMBER
 PATH_DATA = "/Users/wtenachi/Documents/ASTRO_research/projects/reionization-sr/season5/data/"
 
 
