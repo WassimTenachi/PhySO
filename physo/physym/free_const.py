@@ -157,7 +157,7 @@ class FreeConstantsTable:
         class_const_flatten, spe_const_flatten : torch.tensor of shape (batch_size, n_class_free_const, n_all_samples), torch.tensor of shape (batch_size, n_spe_free_const, n_all_samples)
             Flattened free constants values.
         """
-        n_all_samples = n_samples_per_dataset.sum()  # Total number of samples
+        n_all_samples = np.sum(n_samples_per_dataset)  # Total number of samples
 
         # ---- Handling spe free constants ----
         # (Spe free const are different for each dataset/realization)

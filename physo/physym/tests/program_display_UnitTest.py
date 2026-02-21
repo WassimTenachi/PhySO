@@ -64,7 +64,7 @@ class DisplayTest(unittest.TestCase):
         # TEST PROGRAM
         test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
                             "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = test_program_idx[np.newaxis, :]
 
@@ -73,9 +73,13 @@ class DisplayTest(unittest.TestCase):
         my_programs.set_programs(test_program_idx)
 
         # TEST get_pretty
-        expected_pretty = '                                      2       \n     2    ⎛c⋅const₁    ⎞           M⋅c        \n- M⋅c ⋅cos⎜──────── - 1⎟ + ───────────────────\n          ⎝   v        ⎠         _____________\n                                ╱           2 \n                               ╱           v  \n                              ╱   const₁ - ── \n                             ╱              2 \n                           ╲╱              c  '
+        expected_pretty_old_sympy = '                                     2        \n     2    ⎛c⋅const₁    ⎞          M⋅c         \n- M⋅c ⋅cos⎜──────── - 1⎟ + ───────────────────\n          ⎝   v        ⎠         _____________\n                                ╱           2 \n                               ╱           v  \n                              ╱   const₁ - ── \n                             ╱              2 \n                           ╲╱              c  '
+        expected_pretty_new_sympy = '                                      2       \n     2    ⎛c⋅const₁    ⎞           M⋅c        \n- M⋅c ⋅cos⎜──────── - 1⎟ + ───────────────────\n          ⎝   v        ⎠         _____________\n                                ╱           2 \n                               ╱           v  \n                              ╱   const₁ - ── \n                             ╱              2 \n                           ╲╱              c  '
         result_pretty = my_programs.get_infix_pretty(prog_idx=0)
-        works_bool = expected_pretty == result_pretty
+        # Compare without spaces as they can vary depending on sympy version
+        expected_pretty_no_spaces = expected_pretty_new_sympy.replace(" ", "")
+        result_pretty_no_spaces   = result_pretty.replace(" ", "")
+        works_bool = expected_pretty_no_spaces == result_pretty_no_spaces
         self.assertTrue(works_bool)
 
         # TEST get_latex
@@ -112,6 +116,64 @@ class DisplayTest(unittest.TestCase):
 
         return None
 
+    def test_infix_repr_with_pow(self):
+        # LIBRARY CONFIG
+        args_make_tokens = {
+                        # operations
+                        "op_names"             : "all",  # or ["mul", "neg", "inv", "sin"]
+                        "use_protected_ops"    : True,
+                        # input variables
+                        "input_var_ids"        : {"x" : 0         , "v" : 1          , "t" : 2,        },
+                        "input_var_units"      : {"x" : [0, 0, 0] , "v" : [0, 0, 0]  , "t" : [0, 0, 0] },
+                        "input_var_complexity" : {"x" : 0.        , "v" : 1.         , "t" : 0.,       },
+                        # constants
+                        "constants"            : {"pi" : np.pi     , "c" : 3e8       , "M" : 1e6       , "const1" : 1         },
+                        "constants_units"      : {"pi" : [0, 0, 0] , "c" : [0, 0, 0] , "M" : [0, 0, 0] , "const1" : [0, 0, 0] },
+                        "constants_complexity" : {"pi" : 0.        , "c" : 0.        , "M" : 1.        , "const1" : 1.        },
+                            }
+        my_lib = Lib.Library(args_make_tokens = args_make_tokens,
+                             superparent_units = [0, 0, 0], superparent_name = "y")
+
+        # TEST PROGRAM
+        test_program_str = ["mul", "x", "pow", "t", "c",]
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_length = len(test_program_str)
+        test_program_idx = test_program_idx[np.newaxis, :]
+
+        # BATCH
+        my_programs = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib, n_realizations=1)
+        my_programs.set_programs(test_program_idx)
+
+        # TEST get_pretty
+        expected_pretty_sympy = ' c  \nt ⋅x'
+        result_pretty = my_programs.get_infix_pretty(prog_idx=0)
+        # Compare without spaces as they can vary depending on sympy version
+        expected_pretty_no_spaces = expected_pretty_sympy.replace(" ", "")
+        result_pretty_no_spaces   = result_pretty.replace(" ", "")
+        works_bool = expected_pretty_no_spaces == result_pretty_no_spaces
+        self.assertTrue(works_bool)
+
+        # TEST get_latex
+        expected_latex = 't^{c} x'
+        result_latex = my_programs.get_infix_latex(prog_idx=0)
+        works_bool = expected_latex == result_latex
+        self.assertTrue(works_bool)
+
+        # TEST get_sympy
+        try:
+            my_programs.get_prog(0).get_infix_sympy()
+        except:
+            self.fail("get_infix_sympy failed")
+
+        # TEST get_infix_str
+        try:
+            my_programs.get_prog(0).get_infix_str()
+        except:
+            self.fail("get_infix_str failed")
+
+
+        return None
+
     def test_tree_rpr(self):
 
         if platform.system() == "Windows":
@@ -138,7 +200,7 @@ class DisplayTest(unittest.TestCase):
             # TEST PROGRAM WO DUMMIES
             test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
                                 "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v", "c"]
-            test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+            test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
             test_program_length = len(test_program_str)
             test_program_idx = test_program_idx[np.newaxis, :]
             my_programs_wo_dummies = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib, n_realizations=1)
@@ -147,7 +209,7 @@ class DisplayTest(unittest.TestCase):
             # TEST PROGRAM W DUMMIES
             test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
                                 "c", "cos", "div", "sub", "const1", "div", "v", "c", "div", "v",]
-            test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+            test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
             test_program_length = len(test_program_str) + 1
             test_program_idx = test_program_idx[np.newaxis, :]
             my_programs_w_dummies = VProg.VectPrograms(batch_size=1, max_time_step=test_program_length, library=my_lib, n_realizations=1)
@@ -166,7 +228,7 @@ class DisplayTest(unittest.TestCase):
                 # get_tree_image
                 try:
                     t0 = time.perf_counter()
-                    img        = my_programs.get_tree_image(prog_idx=0)
+                    img = my_programs.get_tree_image(prog_idx=0)
                     t1 = time.perf_counter()
                     print("\nget_tree_image time = %.3f s"%(t1-t0))
                 except:
@@ -174,11 +236,29 @@ class DisplayTest(unittest.TestCase):
                 # get_tree_image_via_tex
                 try:
                     t0 = time.perf_counter()
-                    img        = my_programs.get_tree_image_via_tex(prog_idx=0)
+                    img = my_programs.get_tree_image_via_tex(prog_idx=0, fname="tree_repr_test")
                     t1 = time.perf_counter()
                     print("\nget_tree_image_via_tex time = %.3f s"%(t1-t0))
                 except:
                     print("Tree generation failed : get_tree_image_via_tex (Acceptable failure)")
+                # show_tree (via_tex=True)
+                try:
+                    t0 = time.perf_counter()
+                    my_programs.show_tree(prog_idx=0, via_tex=True)
+                    plt.close()
+                    t1 = time.perf_counter()
+                    print("\nshow_tree (via_tex=True) time = %.3f s"%(t1-t0))
+                except:
+                    print("Tree generation failed : show_tree (via_tex=True) (Acceptable failure)")
+                # show_tree (via_tex=False)
+                try:
+                    t0 = time.perf_counter()
+                    my_programs.show_tree(prog_idx=0, via_tex=False)
+                    plt.close()
+                    t1 = time.perf_counter()
+                    print("\nshow_tree (via_tex=False) time = %.3f s"%(t1-t0))
+                except:
+                    print("Tree generation failed : show_tree (via_tex=False) (Acceptable failure)")
         return None
 
 if __name__ == '__main__':

@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import time
 import pickle
-import psutil
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -15,21 +14,22 @@ from sklearn.neighbors import KernelDensity
 
 # Internal imports
 from physo.physym import reward as reward_funcs
+from physo.physym import program as Prog
 
-# Fig params
-try:
-    plt.rc('text', usetex=True)
-    plt.rc('font', family='serif')
-except:
-    msg = "Not using latex font for display, as plt.rc('text', usetex=True) failed."
-    warnings.warn(msg)
+using_tex = Prog.latex_display()
+
 # Font size
 plt.rc('font', size=16)
 
 # Faster than searching for best loc
 LEGEND_LOC = 'upper left' # "best"
 
-pid = psutil.Process().pid
+try:
+    import psutil
+    pid = psutil.Process().pid
+    psutil_available = True
+except:
+    psutil_available = False
 
 def save_pareto_pkl (pareto_progs, fpath):
     """
@@ -103,11 +103,11 @@ class RunLogger:
 
         self.n_physical                   = []
         self.n_rewarded                   = []
-        self.n_structured                 = [] # For structure analysis
         self.lengths_of_physical          = []
         self.lengths_of_unphysical        = []
-        self.lengths_of_subfuncs_means    = [] # For structure analysis # (n_epochs, n_subfuncs)
-        self.lengths_of_subfuncs_stds     = [] # For structure analysis # (n_epochs, n_subfuncs)
+
+        if not psutil_available:
+            print("psutil not available, RAM usage can not be displayed. You can install it with `pip install psutil`")
 
     def log(self, epoch, batch, model, rewards, keep, notkept, loss_val):
 
@@ -162,24 +162,8 @@ class RunLogger:
 
         self.n_physical              .append( batch.programs.is_physical.sum() )
         self.n_rewarded              .append( (rewards > 0.).sum()             )
-        if 'StructurePrior' in batch.prior.priors_names: # For structure analysis
-            prior = self.batch.prior.get_prior("StructurePrior")[0] # only considering the first one
-            self.n_structured        .append( prior.is_structured().sum() )
-        else:
-            self.n_structured        .append( np.nan )
-
         self.lengths_of_physical     .append( self.batch.programs.n_lengths[ self.batch.programs.is_physical] )
         self.lengths_of_unphysical   .append( self.batch.programs.n_lengths[~self.batch.programs.is_physical] )
-        # lengths_of_subfuncs
-        if 'StructurePrior' in batch.prior.priors_names: # For structure analysis
-            prior = self.batch.prior.get_prior("StructurePrior")[0] # only considering the first one
-            subf_means = prior.get_subfuncs_lengths().mean(axis=1)
-            subf_stds  = prior.get_subfuncs_lengths().std(axis=1)
-            self.lengths_of_subfuncs_means.append(subf_means)
-            self.lengths_of_subfuncs_stds .append(subf_stds)
-        else:
-            self.lengths_of_subfuncs_means.append(np.nan)
-            self.lengths_of_subfuncs_stds .append(np.nan)
 
         self.pareto_logger()
 
@@ -313,12 +297,10 @@ class RunVisualiser:
         div = make_axes_locatable(self.ax1)
         self.cax = div.append_axes("right", size="4%", pad=0.4)
         self.ax2 = self.fig.add_subplot(gs[1, 0])
-        self.ax2b = self.ax2.twinx()
         self.ax3 = self.fig.add_subplot(gs[1, 1])
         self.ax4 = self.fig.add_subplot(gs[:2, 2])
         # 3rd line
         self.ax5 = self.fig.add_subplot(gs[2, 0])
-        self.ax5b = self.ax5.twinx()
         self.ax6 = self.fig.add_subplot(gs[2, 1])
         div = make_axes_locatable(self.ax6)
         self.cax6 = div.append_axes("right", size="4%", pad=0.4)
@@ -385,24 +367,6 @@ class RunVisualiser:
         curr_ax.set_ylabel("Length")
         curr_ax.set_xlabel("Epochs")
         curr_ax.legend(loc=LEGEND_LOC)
-
-        # Second y-axis (right) for structured count # For structure analysis
-        if 'StructurePrior' in self.batch.prior.priors_names:
-            curr_ax = self.ax2b
-            curr_ax.clear()
-            prior = self.batch.prior.get_prior("StructurePrior")[0] # only considering the first one
-            means_array = np.array(run_logger.lengths_of_subfuncs_means)
-            stds_array  = np.array(run_logger.lengths_of_subfuncs_stds)
-            for i_subf in range (prior.n_subfuncs):
-                m = means_array[:,i_subf]
-                s = stds_array [:,i_subf]
-                curr_ax.fill_between(run_logger.epochs_history, m-s, m+s, alpha=0.2, label=f"f{i_subf+1}")
-            curr_ax.set_ylabel("Subfuncs lengths")
-            self.ax2b.yaxis.set_label_position("right")  # Ensure the label appears on the right
-            self.ax2b.yaxis.tick_right()  # Ensure ticks are on the right side
-            self.ax2b.legend(loc="upper right")  # Adjust legend position
-        else:
-            self.ax2b.set_visible(False)
 
         # -------- Loss --------
         curr_ax = self.ax3
@@ -491,24 +455,11 @@ class RunVisualiser:
         # -------- Number of physical progs --------
         curr_ax = self.ax5
         curr_ax.clear()
-        # First y-axis (left)
-        curr_ax.plot(run_logger.epochs_history, run_logger.n_physical, 'red'  , label="Physical count")
-        curr_ax.plot(run_logger.epochs_history, run_logger.n_rewarded, 'black', label="Rewarded count")
+        curr_ax.plot(run_logger.epochs_history, run_logger.n_physical, 'red'   , label="Physical count")
+        curr_ax.plot(run_logger.epochs_history, run_logger.n_rewarded, 'black' , label="Rewarded count")
         curr_ax.set_xlabel("Epochs")
         curr_ax.set_ylabel("Physical Count")
         curr_ax.legend(loc=LEGEND_LOC)
-
-        # Second y-axis (right) for structured count # For structure analysis
-        if 'StructurePrior' in self.batch.prior.priors_names:
-            curr_ax = self.ax5b
-            curr_ax.clear()
-            curr_ax.plot(run_logger.epochs_history, run_logger.n_structured, 'blue', label="Structured count")
-            curr_ax.set_ylabel("Structured Count")
-            self.ax5b.yaxis.set_label_position("right")  # Ensure the label appears on the right
-            self.ax5b.yaxis.tick_right()  # Ensure ticks are on the right side
-            self.ax5b.legend(loc="upper right")  # Adjust legend position
-        else:
-            self.ax5b.set_visible(False)
 
         # -------- Lengths of physical distribution vs epoch --------
         curr_ax  = self.ax6
@@ -596,8 +547,9 @@ class RunVisualiser:
 
         print("=========== Epoch %s ==========="%(str(self.run_logger.epoch).zfill(5)))
         print("-> Time %.2f s"%(t2-t1))
-        mem_info = psutil.Process(pid).memory_info()
-        print(f"-> Memory Usage: {mem_info.rss / (1024 * 1024):.2f} MB")
+        if psutil_available:
+            mem_info = psutil.Process(pid).memory_info()
+            print(f"-> Memory Usage: {mem_info.rss / (1024 * 1024):.2f} MB")
 
         # Overall best
         print("\nOverall best  at R=%f"%(self.run_logger.overall_max_R_history[-1]))
@@ -608,25 +560,6 @@ class RunVisualiser:
         print("\nBest of epoch at R=%f"%(self.run_logger.R.max()))
         print("-> Raw expression : \n%s"%(self.run_logger.best_prog_epoch.get_infix_pretty(do_simplify=False, )))
         print("\n")
-
-        # Fraction of interests
-        # Physicality
-        n_physical = self.run_logger.n_physical[-1]
-        print("Physicality")
-        print("-> %i/%i physical"%(n_physical, self.batch.batch_size))
-        # Structures (could be multiple) # For structure analysis
-        for i in range(self.batch.prior.n_priors):
-            name  = self.batch.prior.priors_names [i]
-            prior = self.batch.prior.priors       [i]
-            if name == "StructurePrior":
-                n_structured = prior.is_structured().sum()
-                print(prior)
-                print(" -> %i/%i structured"%(n_structured, self.batch.batch_size))
-                lengths = prior.get_node_lengths()
-                for i, subf_id in enumerate(prior.subfuncs_ids):
-                    s = "f%s(%s)" % (i + 1, ','.join(f'{xi}' for xi in prior.structure_str[subf_id]))
-                    print(" -> %s length : %.2f (mean), %.2f (std)"%(s, lengths[subf_id].mean(), lengths[subf_id].std()))
-
         #print("  -> Simplified expression : \n%s"%(run_logger.best_prog_epoch.get_infix_pretty(do_simplify=True , )))
 
         #print("************************************************* Best programs *************************************************")
@@ -660,15 +593,11 @@ class RunVisualiser:
         # Complexity
         df["best_prog_complexity"] = self.run_logger.best_prog_complexity_history
         df["mean_complexity"]      = self.run_logger.mean_complexity_history
-        # Subfuncs lengths # For structure analysis
-        df["lengths_of_subfuncs_means"] = self.run_logger.lengths_of_subfuncs_means
-        df["lengths_of_subfuncs_stds"]  = self.run_logger.lengths_of_subfuncs_stds
         # Loss
         df["loss"]  = self.run_logger.loss_history
         # Number of physical progs
-        df["n_physical"]   = self.run_logger.n_physical
-        df["n_rewarded"]   = self.run_logger.n_rewarded
-        df["n_structured"] = self.run_logger.n_structured # For structure analysis
+        df["n_physical"] = self.run_logger.n_physical
+        df["n_rewarded"] = self.run_logger.n_rewarded
         # Programs
         df["best_prog_of_epoch"] = np.array(self.run_logger.best_prog_epoch_str_history)
         df["overall_best_prog"]  = np.array(self.run_logger.overall_best_prog_str_history)
@@ -802,43 +731,49 @@ class RunVisualiser:
                     self.make_visualisation()
                 if self.do_save:
                     self.save_visualisation()
-            except:
-                print("Unable to make visualisation plots.")
+            except Exception as e:
+                print("Unable to make visualisation plots, error:")
+                print(e)
         # Data curves
         if epoch%self.epoch_refresh_rate == 0:
             try:
                 if self.do_save:
                     self.save_data()
-            except:
-                print("Unable to save train curves data.")
+            except Exception as e:
+                print("Unable to save train curves data, error:")
+                print(e)
         # Data Pareto
         if epoch%self.epoch_refresh_rate == 0:
             try:
                 if self.do_save:
                     self.save_pareto_data()
-            except:
-                print("Unable to save pareto data.")
+            except Exception as e:
+                print("Unable to save pareto data, error:")
+                print(e)
 
         # Pareto pkl
         if epoch%self.epoch_refresh_rate == 0:
             try:
                 if self.do_save:
                     self.save_pareto_pkl()
-            except:
-                print("Unable to save pareto front expressions as pkl.")
+            except Exception as e:
+                print("Unable to save pareto front expressions as pkl, error:")
+                print(e)
 
         # Figure Pareto
         if epoch%self.epoch_refresh_rate == 0:
             try:
                 if self.do_save:
                     self.save_pareto_fig()
-            except:
-                print("Unable to save pareto figure.")
+            except Exception as e:
+                print("Unable to save pareto figure, error:")
+                print(e)
 
         # Prints
         if epoch % self.epoch_refresh_rate_prints == 0:
             try:
                 if self.do_prints:
                     self.make_prints()
-            except:
-                print("Unable to print status.")
+            except Exception as e:
+                print("Unable to print status, error:")
+                print(e)

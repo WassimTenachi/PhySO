@@ -70,7 +70,7 @@ def dummy_epoch_ClassSR (multi_X, multi_y, run_config, multi_y_weights=1.):
 
         # Sampled actions
         actions = torch.multinomial(probs*prior, num_samples=1)[:, 0]                                              # (batch_size,)
-        #print("Choosing actions:\n", batch.library.lib_tokens[actions])
+        #print("Choosing actions:\n", batch.library.tokens[actions])
 
         # # ---- Display ----
         # ax0.clear()
@@ -200,7 +200,7 @@ def sanity_check_ClassSR (multi_X, multi_y, run_config, multi_y_weights = 1., ca
 
     batch = batch_reseter()
     n_choices = batch.n_choices
-    print(batch.library.lib_choosable_name_to_idx)
+    print(batch.library.choosable_name_to_idx)
     print(batch)
 
     # --------------- Data ---------------
@@ -254,7 +254,7 @@ def sanity_check_ClassSR (multi_X, multi_y, run_config, multi_y_weights = 1., ca
         # values from library as this is what we want to do here.
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            target_program = program.Program(tokens  = [batch.library.lib_name_to_token[name] for name in target_program_str],
+            target_program = program.Program(tokens  = [batch.library.name_to_token[name] for name in target_program_str],
                                              library = batch.library,
                                              is_physical = True,
                                              candidate_wrapper = candidate_wrapper,

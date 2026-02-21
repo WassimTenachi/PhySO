@@ -34,7 +34,7 @@ def hard_test_case():
     # TEST PROGRAM
     test_program_str = ["mul", "mul", "M", "n2", "c", "sub", "inv", "sqrt", "sub", "const1", "div", "n2", "v", "n2",
                         "c", "cos", "div", "sub", "div", "const1", "const1", "div", "v", "c", "div", "v", "c"]
-    test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+    test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
 
     # ------------------- EXPECTED LIVE BEHAVIOR -------------------
     expected_constraints = np.array([

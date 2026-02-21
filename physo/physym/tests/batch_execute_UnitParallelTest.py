@@ -85,7 +85,7 @@ class ExecuteProgramTest(unittest.TestCase):
     #     # TEST PROGRAM
     #     batch_size = 10000
     #     test_program_str = ["mul", "a", "sin", "mul", "x", "b"]
-    #     test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+    #     test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
     #     test_program_length = len(test_program_str)
     #     test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
     #
@@ -285,7 +285,7 @@ class ExecuteProgramTest(unittest.TestCase):
     #     # TEST PROGRAM
     #     batch_size = 10000
     #     test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-    #     test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+    #     test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
     #     test_program_length = len(test_program_str)
     #     test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
     #
@@ -413,7 +413,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "x",]
         # test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "add", "x", "sub", "1", "1"]
         # -> using a*sin(x*b) + exp(log(x+1-1)) may produce NaN resulting in error
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -572,7 +572,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # test_program_str = ["mul", "a", "sin", "mul", "x", "b",]
         # test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "x",]
         test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "add", "x", "sub", "1", "1"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -740,7 +740,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # test_program_str = ["mul", "a", "sin", "mul", "x", "b",]
         # test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "x",]
         test_program_str = ["add", "mul", "a", "sin", "mul", "x", "b", "exp", "log", "add", "x", "sub", "1", "1"]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -809,7 +809,7 @@ class ExecuteProgramTest(unittest.TestCase):
             n_correct_computations = float((torch.abs((my_programs.free_consts.class_values - expected_class_vals)) < tol).all(axis=-1).sum())
             perc_correct_computations = 100*n_correct_computations/mask.sum()
             # Checking that logging worked
-            is_correct_log = np.logical_and((my_programs.free_consts.is_opti == True), (my_programs.free_consts.opti_steps > 0))
+            is_correct_log = torch.logical_and((my_programs.free_consts.is_opti == True), (my_programs.free_consts.opti_steps > 0))
             n_correct_log = float(is_correct_log.sum())
             perc_correct_log = 100*n_correct_log/mask.sum()
             print(" -> Correct computations : %f %%" % (perc_correct_computations))
@@ -1005,7 +1005,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # TEST PROGRAM
         batch_size = 10000
         test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -1243,7 +1243,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # TEST PROGRAM
         batch_size = 10000
         test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -1492,7 +1492,7 @@ class ExecuteProgramTest(unittest.TestCase):
         # TEST PROGRAM
         batch_size = 256 # 32 tasks per CPU with 8 CPUs
         test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-        test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+        test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
         test_program_length = len(test_program_str)
         test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
 
@@ -1563,7 +1563,7 @@ class ExecuteProgramTest(unittest.TestCase):
             n_correct_computations = float((torch.logical_and(is_correct_class_vals, is_correct_spe_vals)).sum())
             perc_correct_computations = 100*n_correct_computations/mask.sum()
             # Checking that logging worked
-            is_correct_log = np.logical_and((my_programs.free_consts.is_opti == True), (my_programs.free_consts.opti_steps > 0))
+            is_correct_log = torch.logical_and((my_programs.free_consts.is_opti == True), (my_programs.free_consts.opti_steps > 0))
             n_correct_log = float(is_correct_log.sum())
             perc_correct_log = 100*n_correct_log/mask.sum()
             print(" -> Correct computations : %f %%" % (perc_correct_computations))
@@ -1760,7 +1760,7 @@ class ExecuteProgramTest(unittest.TestCase):
     #     # TEST PROGRAM
     #     batch_size = 256 # 32 tasks per CPU with 8 CPUs
     #     test_program_str = ["add", "mul", "mul", "k0"  , "exp", "mul", "neg", "k1", "t", "cos", "add", "mul", "c0", "t", "k2", "mul", "c1", "l", ]
-    #     test_program_idx = np.array([my_lib.lib_name_to_idx[tok_str] for tok_str in test_program_str])
+    #     test_program_idx = np.array([my_lib.name_to_idx[tok_str] for tok_str in test_program_str])
     #     test_program_length = len(test_program_str)
     #     test_program_idx = np.tile(test_program_idx, reps=(batch_size,1))
     #

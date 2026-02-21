@@ -1,7 +1,7 @@
 ## Getting started (SR)
 
 In this tutorial, we show how to use `physo` to perform Symbolic Regression (SR).
-The reference notebook for this tutorial can be found here: [sr_quick_start.ipynb](https://github.com/WassimTenachi/PhySO/blob/main/demos/sr_quick_start.ipynb).
+The reference notebook for this tutorial can be found here: [📙sr_quick_start.ipynb](https://github.com/WassimTenachi/PhySO/blob/main/demos/sr_quick_start.ipynb).
 
 ### Setup
 

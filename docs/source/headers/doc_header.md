@@ -7,6 +7,10 @@ Physical symbolic optimization ( $\Phi$-SO ) - A symbolic optimization package b
 [![Paper](https://img.shields.io/badge/arXiv-2303.03192-b31b1b)](https://arxiv.org/abs/2303.03192)
 [![Paper](https://img.shields.io/badge/arXiv-2312.01816-b31b1b)](https://arxiv.org/abs/2312.01816)
 
+[![PyPI version](https://badge.fury.io/py/physo.svg)](https://badge.fury.io/py/physo)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/physo.svg)](https://anaconda.org/conda-forge/physo)
+
+
 Source code: [WassimTenachi/PhySO](https://github.com/WassimTenachi/PhySO)\
 Documentation: [physo.readthedocs.io](https://physo.readthedocs.io/en/latest/)
 

@@ -45,8 +45,8 @@ class Batch:
         ----------
         library_args: dict
             Arguments passed to library.__init__
-        priors_config : list of couples (str : dict)
-            List of priors. List containing couples with prior name as first item in couple (see prior.PRIORS_DICT for list
+        priors_config : list of tuples (str : dict)
+            List of priors. List containing tuples with prior name as first item in couple (see prior.PRIORS_DICT for list
             of available priors) and additional arguments (besides library and programs) to be passed to priors as second
             item of couple, leave None for priors that do not require arguments.
         multi_X : list of len (n_realizations,) of torch.tensor of shape (n_dim, ?,) of float

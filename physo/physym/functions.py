@@ -213,7 +213,7 @@ OPS_UNPROTECTED = [
     TokenOp (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 1 , function = lambda x :torch.pow(x, 4)         ),
 
     # Custom binary operations
-    TokenOp (name = "pow"     , sympy_repr = "pow"   , arity = 2 , complexity = 1 , function = torch_pow                         ),
+    TokenOp (name = "pow"     , sympy_repr = "**"    , arity = 2 , complexity = 1 , function = torch_pow                         ),
 ]
 
 # ------------- protected functions -------------
@@ -300,7 +300,7 @@ OPS_PROTECTED = [
     TokenOp (name = "n4"     , sympy_repr = "n4"     , arity = 1 , complexity = 1 , function = protected_n4     ),
 
     # Custom binary operations
-    TokenOp (name = "pow"     , sympy_repr = "pow"   , arity = 2 , complexity = 1 , function = protected_torch_pow   ),
+    TokenOp (name = "pow"     , sympy_repr = "**"    , arity = 2 , complexity = 1 , function = protected_torch_pow   ),
 
 ]
 
@@ -332,3 +332,5 @@ OPS_UNPROTECTED_DICT = {op.name: op for op in OPS_UNPROTECTED}
 OPS_PROTECTED_DICT = OPS_UNPROTECTED_DICT.copy()
 # Update protected operations when defined
 OPS_PROTECTED_DICT.update( {op.name: op for op in OPS_PROTECTED} )
+# List of all operations names
+OPS_NAMES = list(OPS_PROTECTED_DICT.keys())
