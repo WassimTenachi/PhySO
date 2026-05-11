@@ -163,9 +163,19 @@ def check_library_args(
     # --- class_free_consts_init_val ---
     if class_free_consts_init_val is None:
         class_free_consts_init_val = np.ones(n_class_free_consts)
-    class_free_consts_init_val = np.array(class_free_consts_init_val).astype(float)
-    assert class_free_consts_init_val.shape[0] == n_class_free_consts, \
-        "There should be one class free constant initial value per free constant in class_free_consts_names"
+    if isinstance(class_free_consts_init_val, dict):
+        class_free_consts_init_val = {
+            class_free_consts_names[i]: float(class_free_consts_init_val[class_free_consts_names[i]])
+            for i in range(n_class_free_consts)
+        }
+    else:
+        class_free_consts_init_val = np.array(class_free_consts_init_val).astype(float)
+        assert class_free_consts_init_val.shape[0] == n_class_free_consts, \
+            "There should be one class free constant initial value per free constant in class_free_consts_names"
+        class_free_consts_init_val = {
+            class_free_consts_names[i]: class_free_consts_init_val[i]
+            for i in range(n_class_free_consts)
+        }
 
     # --- n_spe_free_consts ---
     if spe_free_consts_names is not None:
@@ -200,9 +210,19 @@ def check_library_args(
     # --- spe_free_consts_init_val ---
     if spe_free_consts_init_val is None:
         spe_free_consts_init_val = np.ones(n_spe_free_consts)
-    # Do not convert to array as user may use a mix of single floats and (n_realizations,) arrays
+    # Do not convert the whole input to one array as user may use a mix of single floats and (n_realizations,) arrays
     assert len(spe_free_consts_init_val) == n_spe_free_consts, \
         "There should be one spe free constant initial value per free constant in spe_free_consts_names"
+    if isinstance(spe_free_consts_init_val, dict):
+        spe_free_consts_init_val = {
+            spe_free_consts_names[i]: np.asarray(spe_free_consts_init_val[spe_free_consts_names[i]], dtype=float)
+            for i in range(n_spe_free_consts)
+        }
+    else:
+        spe_free_consts_init_val = {
+            spe_free_consts_names[i]: np.asarray(spe_free_consts_init_val[i], dtype=float)
+            for i in range(n_spe_free_consts)
+        }
 
     # --- op_names ---
     if op_names is None:
@@ -227,11 +247,11 @@ def check_library_args(
                     # class_free_constants
                     "class_free_constants"          : {class_free_consts_names[i]                                 for i in range(n_class_free_consts)},
                     "class_free_constants_units"    : {class_free_consts_names[i] : class_free_consts_units   [i] for i in range(n_class_free_consts)},
-                    "class_free_constants_init_val" : {class_free_consts_names[i] : class_free_consts_init_val[i] for i in range(n_class_free_consts)},
+                    "class_free_constants_init_val" : class_free_consts_init_val,
                     # spe_free_constants
                     "spe_free_constants"          : {spe_free_consts_names[i]                               for i in range(n_spe_free_consts)},
                     "spe_free_constants_units"    : {spe_free_consts_names[i] : spe_free_consts_units   [i] for i in range(n_spe_free_consts)},
-                    "spe_free_constants_init_val" : {spe_free_consts_names[i] : spe_free_consts_init_val[i] for i in range(n_spe_free_consts)},
+                    "spe_free_constants_init_val" : spe_free_consts_init_val,
                         }
 
     library_config = {"args_make_tokens"  : args_make_tokens,
